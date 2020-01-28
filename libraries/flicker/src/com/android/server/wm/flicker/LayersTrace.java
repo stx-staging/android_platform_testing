@@ -310,6 +310,22 @@ public class LayersTrace {
             return new Result(false /* success */, this.mTimestamp, assertionName, reason);
         }
 
+        /** Checks if a layer with name {@code layerName} exists in the hierarchy. */
+        public Result exists(String layerName) {
+            String assertionName = "exists";
+            String reason = "Could not find " + layerName;
+            for (Layer layer : asFlattenedLayers()) {
+                if (layer.mProto.name.contains(layerName)) {
+                    return new Result(
+                            true /* success */,
+                            this.mTimestamp,
+                            assertionName,
+                            layer.mProto.name + " exists");
+                }
+            }
+            return new Result(false /* success */, this.mTimestamp, assertionName, reason);
+        }
+
         /** Checks if a layer with name {@code layerName} is visible. */
         public Result isVisible(String layerName) {
             String assertionName = "isVisible";
