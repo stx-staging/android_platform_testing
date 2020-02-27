@@ -39,6 +39,16 @@ public class WmTraceSubject extends Subject<WmTraceSubject, WindowManagerTrace> 
             WmTraceSubject::new;
 
     private AssertionsChecker<WindowManagerTrace.Entry> mChecker = new AssertionsChecker<>();
+    private boolean mNewAssertion = true;
+
+    private void addAssertion(
+            Assertions.TraceAssertion<WindowManagerTrace.Entry> assertion, String name) {
+        if (mNewAssertion) {
+            mChecker.add(assertion, name);
+        } else {
+            mChecker.append(assertion, name);
+        }
+    }
 
     private WmTraceSubject(FailureMetadata fm, @Nullable WindowManagerTrace subject) {
         super(fm, subject);
@@ -72,6 +82,13 @@ public class WmTraceSubject extends Subject<WmTraceSubject, WindowManagerTrace> 
     }
 
     public WmTraceSubject then() {
+        mNewAssertion = true;
+        mChecker.checkChangingAssertions();
+        return this;
+    }
+
+    public WmTraceSubject and() {
+        mNewAssertion = false;
         mChecker.checkChangingAssertions();
         return this;
     }
@@ -122,49 +139,49 @@ public class WmTraceSubject extends Subject<WmTraceSubject, WindowManagerTrace> 
     }
 
     public WmTraceSubject showsAboveAppWindow(String partialWindowTitle) {
-        mChecker.add(
+        addAssertion(
                 entry -> entry.isAboveAppWindowVisible(partialWindowTitle),
                 "showsAboveAppWindow(" + partialWindowTitle + ")");
         return this;
     }
 
     public WmTraceSubject hidesAboveAppWindow(String partialWindowTitle) {
-        mChecker.add(
+        addAssertion(
                 entry -> entry.isAboveAppWindowVisible(partialWindowTitle).negate(),
                 "hidesAboveAppWindow" + "(" + partialWindowTitle + ")");
         return this;
     }
 
     public WmTraceSubject showsBelowAppWindow(String partialWindowTitle) {
-        mChecker.add(
+        addAssertion(
                 entry -> entry.isBelowAppWindowVisible(partialWindowTitle),
                 "showsBelowAppWindow(" + partialWindowTitle + ")");
         return this;
     }
 
     public WmTraceSubject hidesBelowAppWindow(String partialWindowTitle) {
-        mChecker.add(
+        addAssertion(
                 entry -> entry.isBelowAppWindowVisible(partialWindowTitle).negate(),
                 "hidesBelowAppWindow" + "(" + partialWindowTitle + ")");
         return this;
     }
 
     public WmTraceSubject showsImeWindow(String partialWindowTitle) {
-        mChecker.add(
+        addAssertion(
                 entry -> entry.isImeWindowVisible(partialWindowTitle),
                 "showsBelowAppWindow(" + partialWindowTitle + ")");
         return this;
     }
 
     public WmTraceSubject hidesImeWindow(String partialWindowTitle) {
-        mChecker.add(
+        addAssertion(
                 entry -> entry.isImeWindowVisible(partialWindowTitle).negate(),
                 "hidesImeWindow" + "(" + partialWindowTitle + ")");
         return this;
     }
 
     public WmTraceSubject showsAppWindowOnTop(String partialWindowTitle) {
-        mChecker.add(
+        addAssertion(
                 entry -> {
                     Result result = entry.isAppWindowVisible(partialWindowTitle);
                     if (result.passed()) {
@@ -177,7 +194,7 @@ public class WmTraceSubject extends Subject<WmTraceSubject, WindowManagerTrace> 
     }
 
     public WmTraceSubject hidesAppWindowOnTop(String partialWindowTitle) {
-        mChecker.add(
+        addAssertion(
                 entry -> {
                     Result result = entry.isAppWindowVisible(partialWindowTitle).negate();
                     if (result.failed()) {
@@ -190,14 +207,14 @@ public class WmTraceSubject extends Subject<WmTraceSubject, WindowManagerTrace> 
     }
 
     public WmTraceSubject showsAppWindow(String partialWindowTitle) {
-        mChecker.add(
+        addAssertion(
                 entry -> entry.isAppWindowVisible(partialWindowTitle),
                 "showsAppWindow(" + partialWindowTitle + ")");
         return this;
     }
 
     public WmTraceSubject hidesAppWindow(String partialWindowTitle) {
-        mChecker.add(
+        addAssertion(
                 entry -> entry.isAppWindowVisible(partialWindowTitle).negate(),
                 "hidesAppWindow(" + partialWindowTitle + ")");
         return this;
