@@ -63,7 +63,9 @@ public class WmTraceSubject extends Subject<WmTraceSubject, WindowManagerTrace> 
     public static WmTraceSubject assertThat(@Nullable TransitionResult result) {
         WindowManagerTrace entries =
                 WindowManagerTrace.parseFrom(
-                        result.getWindowManagerTrace(), result.getWindowManagerTracePath());
+                        result.getWindowManagerTrace(),
+                        result.getWindowManagerTracePath(),
+                        result.getWindowManagerTraceChecksum());
         return assertWithMessage(result.toString()).about(FACTORY).that(entries);
     }
 
@@ -106,7 +108,7 @@ public class WmTraceSubject extends Subject<WmTraceSubject, WindowManagerTrace> 
     }
 
     public void inTheBeginning() {
-        if (getSubject().getEntries().isEmpty()) {
+        if (actual().getEntries().isEmpty()) {
             fail("No entries found.");
         }
         mChecker.checkFirstEntry();
@@ -114,7 +116,7 @@ public class WmTraceSubject extends Subject<WmTraceSubject, WindowManagerTrace> 
     }
 
     public void atTheEnd() {
-        if (getSubject().getEntries().isEmpty()) {
+        if (actual().getEntries().isEmpty()) {
             fail("No entries found.");
         }
         mChecker.checkLastEntry();
@@ -122,9 +124,9 @@ public class WmTraceSubject extends Subject<WmTraceSubject, WindowManagerTrace> 
     }
 
     private void test() {
-        List<Result> failures = mChecker.test(getSubject().getEntries());
+        List<Result> failures = mChecker.test(actual().getEntries());
         if (!failures.isEmpty()) {
-            Optional<Path> failureTracePath = getSubject().getSource();
+            Optional<Path> failureTracePath = actual().getSource();
             String failureLogs =
                     failures.stream().map(Result::toString).collect(Collectors.joining("\n"));
             String tracePath = "";
@@ -132,6 +134,8 @@ public class WmTraceSubject extends Subject<WmTraceSubject, WindowManagerTrace> 
                 tracePath =
                         "\nWindowManager Trace can be found in: "
                                 + failureTracePath.get().toAbsolutePath()
+                                + "\nChecksum: "
+                                + actual().getSourceChecksum()
                                 + "\n";
             }
             fail(tracePath + failureLogs);
