@@ -94,6 +94,18 @@ public class LayersTraceSubject extends Subject<LayersTraceSubject, LayersTrace>
         return this;
     }
 
+    /**
+     * Ignores the first entries in the trace, until the first assertion passes. If it reaches the
+     * end of the trace without passing any assertion, return a failure with the name/reason from
+     * the first assertion
+     *
+     * @return
+     */
+    public LayersTraceSubject skipUntilFirstAssertion() {
+        mChecker.skipUntilFirstAssertion();
+        return this;
+    }
+
     public void inTheBeginning() {
         if (actual().getEntries().isEmpty()) {
             fail("No entries found.");
@@ -147,4 +159,5 @@ public class LayersTraceSubject extends Subject<LayersTraceSubject, LayersTrace>
         mChecker.add(entry -> entry.isVisible(layerName).negate(), "hidesLayer(" + layerName + ")");
         return this;
     }
+
 }
