@@ -43,10 +43,12 @@ public class WindowManagerTrace {
     private static final int DEFAULT_DISPLAY = 0;
     private final List<Entry> mEntries;
     @Nullable private final Path mSource;
+    @Nullable private final String mSourceChecksum;
 
-    private WindowManagerTrace(List<Entry> entries, Path source) {
+    private WindowManagerTrace(List<Entry> entries, Path source, String sourceChecksum) {
         this.mEntries = entries;
         this.mSource = source;
+        this.mSourceChecksum = sourceChecksum;
     }
 
     /**
@@ -56,7 +58,7 @@ public class WindowManagerTrace {
      * @param data binary proto data
      * @param source Path to source of data for additional debug information
      */
-    public static WindowManagerTrace parseFrom(byte[] data, Path source) {
+    public static WindowManagerTrace parseFrom(byte[] data, Path source, String checksum) {
         List<Entry> entries = new ArrayList<>();
 
         WindowManagerTraceFileProto fileProto;
@@ -68,11 +70,11 @@ public class WindowManagerTrace {
         for (WindowManagerTraceProto entryProto : fileProto.entry) {
             entries.add(new Entry(entryProto));
         }
-        return new WindowManagerTrace(entries, source);
+        return new WindowManagerTrace(entries, source, checksum);
     }
 
     public static WindowManagerTrace parseFrom(byte[] data) {
-        return parseFrom(data, null);
+        return parseFrom(data, null /* source */, null /* checksum */);
     }
 
     public List<Entry> getEntries() {
@@ -90,6 +92,10 @@ public class WindowManagerTrace {
 
     public Optional<Path> getSource() {
         return Optional.ofNullable(mSource);
+    }
+
+    public String getSourceChecksum() {
+        return mSourceChecksum;
     }
 
     /** Represents a single WindowManager trace entry. */
