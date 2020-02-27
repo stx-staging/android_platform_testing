@@ -17,6 +17,7 @@
 package com.android.server.wm.flicker;
 
 import com.android.server.wm.flicker.Assertions.NamedAssertion;
+import com.android.server.wm.flicker.Assertions.CompoundAssertion;
 import com.android.server.wm.flicker.Assertions.Result;
 
 import java.util.ArrayList;
@@ -36,10 +37,15 @@ public class AssertionsChecker<T extends ITraceEntry> {
     private long mFilterEndTime = 0;
     private boolean mSkipUntilFirstAssertion = false;
     private AssertionOption mOption = AssertionOption.NONE;
-    private List<NamedAssertion<T>> mAssertions = new LinkedList<>();
+    private List<CompoundAssertion<T>> mAssertions = new LinkedList<>();
 
     public void add(Assertions.TraceAssertion<T> assertion, String name) {
-        mAssertions.add(new NamedAssertion<>(assertion, name));
+        mAssertions.add(new CompoundAssertion<>(assertion, name));
+    }
+
+    public void append(Assertions.TraceAssertion<T> assertion, String name) {
+        CompoundAssertion<T> lastAssertion = mAssertions.get(mAssertions.size() - 1);
+        lastAssertion.add(assertion, name);
     }
 
     /**
@@ -87,7 +93,6 @@ public class AssertionsChecker<T extends ITraceEntry> {
      */
     public List<Result> test(List<T> entries) {
         List<T> filteredEntries;
-        List<Result> failures;
 
         if (mFilterEntriesByRange) {
             filteredEntries =
@@ -162,29 +167,29 @@ public class AssertionsChecker<T extends ITraceEntry> {
             }
         }
 
-        if (lastPassedAssertionIndex == -1 && mAssertions.size() > 0) {
-            failures.add(new Result(false /* success */, mAssertions.get(0).name));
+        if (lastPassedAssertionIndex == -1 && mAssertions.size() > 0 && failures.isEmpty()) {
+            failures.add(new Result(false /* success */, mAssertions.get(0).getName()));
         }
 
         if (failures.isEmpty()) {
             if (assertionIndex != mAssertions.size() - 1) {
                 String reason =
                         "\nAssertion "
-                                + mAssertions.get(assertionIndex).name
+                                + mAssertions.get(assertionIndex).getName()
                                 + " never became false";
                 reason +=
                         "\nPassed assertions: "
                                 + mAssertions
                                         .stream()
                                         .limit(assertionIndex)
-                                        .map(assertion -> assertion.name)
+                                        .map(NamedAssertion::getName)
                                         .collect(Collectors.joining(","));
                 reason +=
                         "\nUntested assertions: "
                                 + mAssertions
                                         .stream()
                                         .skip(assertionIndex + 1)
-                                        .map(assertion -> assertion.name)
+                                        .map(NamedAssertion::getName)
                                         .collect(Collectors.joining(","));
 
                 Result result =
@@ -202,7 +207,7 @@ public class AssertionsChecker<T extends ITraceEntry> {
     private List<Result> assertEntry(T entry) {
         List<Result> failures = new ArrayList<>();
         for (NamedAssertion<T> assertion : mAssertions) {
-            Result result = assertion.assertion.apply(entry);
+            Result result = assertion.apply(entry);
             if (result.failed()) {
                 failures.add(result);
             }
@@ -213,9 +218,7 @@ public class AssertionsChecker<T extends ITraceEntry> {
     private List<Result> assertAll(List<T> entries) {
         return mAssertions
                 .stream()
-                .flatMap(
-                        assertion ->
-                                entries.stream().map(assertion.assertion).filter(Result::failed))
+                .flatMap(assertion -> entries.stream().map(assertion).filter(Result::failed))
                 .collect(Collectors.toList());
     }
 
