@@ -50,13 +50,23 @@ public class Assertions {
      * Utility class to store assertions with an identifier to help generate more useful debug data
      * when dealing with multiple assertions.
      */
-    public static class NamedAssertion<T> {
+    public static class NamedAssertion<T> implements TraceAssertion<T> {
         public final TraceAssertion<T> assertion;
         public final String name;
 
         public NamedAssertion(TraceAssertion<T> assertion, String name) {
             this.assertion = assertion;
             this.name = name;
+        }
+
+        @Override
+        public Result apply(T t) {
+            return this.assertion.apply(t);
+        }
+
+        @Override
+        public String toString() {
+            return "Assertion(" + this.name + ")";
         }
     }
 
