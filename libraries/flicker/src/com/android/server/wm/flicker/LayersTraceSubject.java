@@ -45,6 +45,15 @@ public class LayersTraceSubject extends Subject<LayersTraceSubject, LayersTrace>
             LayersTraceSubject::new;
 
     private AssertionsChecker<Entry> mChecker = new AssertionsChecker<>();
+    private boolean mNewAssertion = true;
+
+    private void addAssertion(Assertions.TraceAssertion<Entry> assertion, String name) {
+        if (mNewAssertion) {
+            mChecker.add(assertion, name);
+        } else {
+            mChecker.append(assertion, name);
+        }
+    }
 
     private LayersTraceSubject(FailureMetadata fm, @Nullable LayersTrace subject) {
         super(fm, subject);
@@ -90,6 +99,13 @@ public class LayersTraceSubject extends Subject<LayersTraceSubject, LayersTrace>
     }
 
     public LayersTraceSubject then() {
+        mNewAssertion = true;
+        mChecker.checkChangingAssertions();
+        return this;
+    }
+
+    public LayersTraceSubject and() {
+        mNewAssertion = false;
         mChecker.checkChangingAssertions();
         return this;
     }
@@ -139,24 +155,39 @@ public class LayersTraceSubject extends Subject<LayersTraceSubject, LayersTrace>
     }
 
     public LayersTraceSubject coversRegion(Rect rect) {
-        mChecker.add(entry -> entry.coversRegion(rect), "coversRegion(" + rect + ")");
+        addAssertion(entry -> entry.coversRegion(rect), "coversRegion(" + rect + ")");
         return this;
     }
 
     public LayersTraceSubject hasVisibleRegion(String layerName, Rect size) {
-        mChecker.add(
+        addAssertion(
                 entry -> entry.hasVisibleRegion(layerName, size),
                 "hasVisibleRegion(" + layerName + size + ")");
         return this;
     }
 
-    public LayersTraceSubject showsLayer(String layerName) {
-        mChecker.add(entry -> entry.isVisible(layerName), "showsLayer(" + layerName + ")");
+    public LayersTraceSubject hasNotLayer(String layerName) {
+        addAssertion(entry -> entry.exists(layerName).negate(), "hasNotLayer(" + layerName + ")");
         return this;
     }
 
+    public LayersTraceSubject hasLayer(String layerName) {
+        addAssertion(entry -> entry.exists(layerName), "hasLayer(" + layerName + ")");
+        return this;
+    }
+
+    public LayersTraceSubject showsLayer(String layerName) {
+        addAssertion(entry -> entry.isVisible(layerName), "showsLayer(" + layerName + ")");
+        return this;
+    }
+
+    public LayersTraceSubject replaceVisibleLayer(
+            String previousLayerName, String currentLayerName) {
+        return hidesLayer(previousLayerName).and().showsLayer(currentLayerName);
+    }
+
     public LayersTraceSubject hidesLayer(String layerName) {
-        mChecker.add(entry -> entry.isVisible(layerName).negate(), "hidesLayer(" + layerName + ")");
+        addAssertion(entry -> entry.isVisible(layerName).negate(), "hidesLayer(" + layerName + ")");
         return this;
     }
 
