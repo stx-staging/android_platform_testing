@@ -76,6 +76,18 @@ public class WmTraceSubject extends Subject<WmTraceSubject, WindowManagerTrace> 
         return this;
     }
 
+    /**
+     * Ignores the first entries in the trace, until the first assertion passes. If it reaches the
+     * end of the trace without passing any assertion, return a failure with the name/reason from
+     * the first assertion
+     *
+     * @return
+     */
+    public WmTraceSubject skipUntilFirstAssertion() {
+        mChecker.skipUntilFirstAssertion();
+        return this;
+    }
+
     public void inTheBeginning() {
         if (getSubject().getEntries().isEmpty()) {
             fail("No entries found.");
