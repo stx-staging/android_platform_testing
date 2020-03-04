@@ -66,7 +66,6 @@ instrumentation_tests := \
     TeleServiceTests \
     PresencePollingTests \
     SettingsProviderTest \
-    FrameworksLocationTests \
     FrameworksPrivacyLibraryTests \
     SettingsUITests \
     ExtServicesUnitTests\
