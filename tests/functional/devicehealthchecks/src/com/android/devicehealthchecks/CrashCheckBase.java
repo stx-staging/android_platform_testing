@@ -55,7 +55,9 @@ abstract class CrashCheckBase {
         long timestamp = 0;
         DropBoxManager.Entry entry;
         int crashCount = 0;
-        StringBuilder errorDetails = new StringBuilder("Error details:\n");
+        StringBuilder errorDetails = new StringBuilder("\nPlease triage this boot crash:\n");
+        errorDetails.append("go/how-to-triage-devicehealthchecks\n");
+        errorDetails.append("Error Details:\n");
         while (null != (entry = dropbox.getNextEntry(label, timestamp))) {
             String dropboxSnippet;
             try {
