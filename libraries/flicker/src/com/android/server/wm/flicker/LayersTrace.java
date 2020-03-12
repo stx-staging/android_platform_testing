@@ -468,15 +468,40 @@ public class LayersTrace {
         }
 
         public boolean isVisible() {
-            return (!isActiveBufferEmpty() || isColorLayer())
+            return (!isActiveBufferEmpty() || hasEffects())
                     && !isHidden()
-                    && this.mProto.color != null
-                    && this.mProto.color.a > 0
+                    && fillsColor()
                     && !isVisibleRegionEmpty();
+        }
+
+        private boolean fillsColor() {
+            return this.mProto.color != null
+                    && this.mProto.color.a > 0
+                    && this.mProto.color.r >= 0
+                    && this.mProto.color.g >= 0
+                    && this.mProto.color.b >= 0;
+        }
+
+        private boolean drawsShadows() {
+            return this.mProto.shadowRadius > 0;
+        }
+
+        private boolean hasEffects() {
+            // Support previous color layer
+            if (isColorLayer()) {
+                return true;
+            }
+
+            // Support newer effect layer
+            return isEffectLayer() && (fillsColor() || drawsShadows());
         }
 
         public boolean isColorLayer() {
             return this.mProto.type.equals("ColorLayer");
+        }
+
+        public boolean isEffectLayer() {
+            return this.mProto.type.equals("EffectLayer");
         }
 
         public boolean isRootLayer() {
