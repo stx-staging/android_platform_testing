@@ -251,6 +251,10 @@ public class AutomationUtils {
         sleep(2000);
     }
 
+    public static boolean hasPipWindow(UiDevice device) {
+        return device.wait(Until.findObject(getPipWindowSelector()), FIND_TIMEOUT) != null;
+    }
+
     public static BySelector getPipWindowSelector() {
         return By.res(SYSTEMUI_PACKAGE, "background");
     }
