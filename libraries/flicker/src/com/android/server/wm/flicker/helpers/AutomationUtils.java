@@ -22,6 +22,7 @@ import static android.view.Surface.ROTATION_0;
 import static com.android.compatibility.common.util.SystemUtil.runShellCommand;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -198,9 +199,13 @@ public class AutomationUtils {
         // Wait for animation to complete.
         sleep(2000);
 
-        UiObject2 divider =
-                device.wait(Until.findObject(getSplitScreenDividerSelector()), FIND_TIMEOUT);
-        assertNotNull("Unable to find Split screen divider", divider);
+        if (!isInSplitScreen(device)) {
+            fail("Unable to find Split screen divider");
+        }
+    }
+
+    public static boolean isInSplitScreen(UiDevice device) {
+        return device.wait(Until.findObject(getSplitScreenDividerSelector()), FIND_TIMEOUT) != null;
     }
 
     private static BySelector getSplitScreenDividerSelector() {
@@ -249,6 +254,10 @@ public class AutomationUtils {
 
         // Wait for animation to complete.
         sleep(2000);
+    }
+
+    public static boolean hasPipWindow(UiDevice device) {
+        return device.wait(Until.findObject(getPipWindowSelector()), FIND_TIMEOUT) != null;
     }
 
     public static BySelector getPipWindowSelector() {
