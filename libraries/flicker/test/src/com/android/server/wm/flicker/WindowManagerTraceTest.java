@@ -62,14 +62,14 @@ public class WindowManagerTraceTest {
     @Test
     public void canDetectAboveAppWindowVisibility() {
         WindowManagerTrace.Entry entry = mTrace.getEntry(241777211939236L);
-        Result result = entry.isAboveAppWindowVisible("NavigationBar");
+        Result result = entry.isNonAppWindowVisible("NavigationBar");
         assertThat(result.passed()).isTrue();
     }
 
     @Test
     public void canDetectBelowAppWindowVisibility() {
         WindowManagerTrace.Entry entry = mTrace.getEntry(241777211939236L);
-        Result result = entry.isBelowAppWindowVisible("wallpaper");
+        Result result = entry.isNonAppWindowVisible("wallpaper");
         assertThat(result.passed()).isTrue();
     }
 
@@ -83,7 +83,7 @@ public class WindowManagerTraceTest {
     @Test
     public void canFailWithReasonForVisibilityChecks_windowNotFound() {
         WindowManagerTrace.Entry entry = mTrace.getEntry(241777211939236L);
-        Result result = entry.isAboveAppWindowVisible("ImaginaryWindow");
+        Result result = entry.isNonAppWindowVisible("ImaginaryWindow");
         assertThat(result.failed()).isTrue();
         assertThat(result.reason).contains("ImaginaryWindow cannot be found");
     }
@@ -91,7 +91,7 @@ public class WindowManagerTraceTest {
     @Test
     public void canFailWithReasonForVisibilityChecks_windowNotVisible() {
         WindowManagerTrace.Entry entry = mTrace.getEntry(241777211939236L);
-        Result result = entry.isAboveAppWindowVisible("AssistPreviewPanel");
+        Result result = entry.isNonAppWindowVisible("AssistPreviewPanel");
         assertThat(result.failed()).isTrue();
         assertThat(result.reason).contains("AssistPreviewPanel is invisible");
     }

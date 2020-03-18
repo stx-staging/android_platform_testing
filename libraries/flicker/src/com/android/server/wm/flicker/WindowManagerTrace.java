@@ -19,19 +19,21 @@ package com.android.server.wm.flicker;
 import androidx.annotation.Nullable;
 
 import com.android.server.wm.flicker.Assertions.Result;
-import com.android.server.wm.nano.ActivityRecordProto;
-import com.android.server.wm.nano.TaskProto;
+import com.android.server.wm.nano.WindowContainerChildProto;
+import com.android.server.wm.nano.WindowContainerProto;
 import com.android.server.wm.nano.WindowManagerTraceFileProto;
 import com.android.server.wm.nano.WindowManagerTraceProto;
 import com.android.server.wm.nano.WindowStateProto;
-import com.android.server.wm.nano.WindowTokenProto;
 
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Contains a collection of parsed WindowManager trace entries and assertions to apply over a single
@@ -40,7 +42,6 @@ import java.util.Optional;
  * <p>Each entry is parsed into a list of {@link WindowManagerTrace.Entry} objects.
  */
 public class WindowManagerTrace {
-    private static final int DEFAULT_DISPLAY = 0;
     private final List<Entry> mEntries;
     @Nullable private final Path mSource;
     @Nullable private final String mSourceChecksum;
@@ -106,18 +107,68 @@ public class WindowManagerTrace {
             mProto = proto;
         }
 
-        private static Result isWindowVisible(
-                String windowTitle, WindowTokenProto[] windowTokenProtos) {
+        private List<WindowStateProto> getWindows(WindowContainerProto windowContainer) {
+            return Arrays.stream(windowContainer.children)
+                    .flatMap(p -> getWindows(p).stream())
+                    .collect(Collectors.toList());
+        }
+
+        private List<WindowStateProto> getWindows(WindowContainerChildProto windowContainer) {
+            if (windowContainer.displayArea != null) {
+                return getWindows(windowContainer.displayArea.windowContainer);
+            } else if (windowContainer.displayContent != null) {
+                return getWindows(windowContainer.displayContent.windowContainer);
+            } else if (windowContainer.task != null) {
+                return getWindows(windowContainer.task.windowContainer);
+            } else if (windowContainer.activity != null) {
+                return getWindows(windowContainer.activity.windowToken.windowContainer);
+            } else if (windowContainer.windowToken != null) {
+                return getWindows(windowContainer.windowToken.windowContainer);
+            } else if (windowContainer.window != null) {
+                return Collections.singletonList(windowContainer.window);
+            } else {
+                return getWindows(windowContainer.windowContainer);
+            }
+        }
+
+        private List<WindowStateProto> getWindows() {
+            return getWindows(mProto.windowManagerService.rootWindowContainer.windowContainer);
+        }
+
+        /** Checks if non app window with {@code windowTitle} is visible. */
+        private Optional<WindowStateProto> getNonAppWindowByIdentifier(
+                WindowStateProto windowState, String windowTitle) {
+            if (windowState.identifier.title.contains(windowTitle)) {
+                return Optional.of(windowState);
+            }
+
+            return Arrays.stream(windowState.childWindows)
+                    .filter(child -> getNonAppWindowByIdentifier(child, windowTitle).isPresent())
+                    .findFirst();
+        }
+
+        /** Checks if non app window with {@code windowTitle} is visible. */
+        public Result isNonAppWindowVisible(String windowTitle) {
             boolean titleFound = false;
-            for (WindowTokenProto windowToken : windowTokenProtos) {
-                for (WindowStateProto windowState : windowToken.windows) {
-                    if (windowState.identifier.title.contains(windowTitle)) {
-                        titleFound = true;
-                        if (isVisible(windowState)) {
-                            return new Result(
-                                    true /* success */,
-                                    windowState.identifier.title + " is visible");
-                        }
+            List<WindowStateProto> windows = getWindows();
+            if (windows.isEmpty()) {
+                return new Result(
+                        false /* success */,
+                        getTimestamp(),
+                        "isNonAppWindowVisible" /* assertionName */,
+                        "No windows found");
+            }
+
+            for (WindowStateProto windowState : windows) {
+                Optional<WindowStateProto> foundWindow =
+                        getNonAppWindowByIdentifier(windowState, windowTitle);
+
+                if (foundWindow.isPresent()) {
+                    titleFound = true;
+                    if (isVisible(foundWindow.get())) {
+                        return new Result(
+                                true /* success */,
+                                foundWindow.get().identifier.title + " is visible");
                     }
                 }
             }
@@ -128,7 +179,11 @@ public class WindowManagerTrace {
             } else {
                 reason = windowTitle + " is invisible";
             }
-            return new Result(false /* success */, reason);
+            return new Result(
+                    false /* success */,
+                    getTimestamp(),
+                    "isNonAppWindowVisible" /* assertionName */,
+                    reason);
         }
 
         private static boolean isVisible(WindowStateProto windowState) {
@@ -142,67 +197,27 @@ public class WindowManagerTrace {
 
         /** Returns window title of the top most visible app window. */
         private String getTopVisibleAppWindow() {
-            TaskProto[] tasks =
-                    mProto.windowManagerService
-                            .rootWindowContainer
-                            .displays[DEFAULT_DISPLAY]
-                            .tasks;
-            for (TaskProto rootTask : tasks) {
-                final String topVisible = getTopVisibleAppWindow(rootTask);
-                if (topVisible != null) return topVisible;
+            List<WindowStateProto> windows = getWindows();
+            if (windows.isEmpty()) {
+                return "";
+            }
+
+            final String topVisible = getTopVisibleAppWindow(windows);
+            if (topVisible != null) {
+                return topVisible;
             }
 
             return "";
         }
 
-        private String getTopVisibleAppWindow(TaskProto task) {
-            for (ActivityRecordProto activity : task.activities) {
-                for (WindowStateProto windowState : activity.windowToken.windows) {
-                    if (windowState.windowContainer.visible) {
-                        return task.activities[0].name;
-                    }
+        private String getTopVisibleAppWindow(List<WindowStateProto> windows) {
+            for (WindowStateProto windowState : windows) {
+                if (windowState.windowContainer.visible) {
+                    return windowState.identifier.title;
                 }
             }
 
-            for (TaskProto childTask : task.tasks) {
-                final String topVisible = getTopVisibleAppWindow(childTask);
-                if (topVisible != null) return topVisible;
-            }
             return null;
-        }
-
-        /** Checks if aboveAppWindow with {@code windowTitle} is visible. */
-        public Result isAboveAppWindowVisible(String windowTitle) {
-            WindowTokenProto[] windowTokenProtos =
-                    mProto.windowManagerService
-                            .rootWindowContainer
-                            .displays[DEFAULT_DISPLAY]
-                            .aboveAppWindows;
-            Result result = isWindowVisible(windowTitle, windowTokenProtos);
-            return new Result(result.success, getTimestamp(), "showsAboveAppWindow", result.reason);
-        }
-
-        /** Checks if belowAppWindow with {@code windowTitle} is visible. */
-        public Result isBelowAppWindowVisible(String windowTitle) {
-            WindowTokenProto[] windowTokenProtos =
-                    mProto.windowManagerService
-                            .rootWindowContainer
-                            .displays[DEFAULT_DISPLAY]
-                            .belowAppWindows;
-            Result result = isWindowVisible(windowTitle, windowTokenProtos);
-            return new Result(
-                    result.success, getTimestamp(), "isBelowAppWindowVisible", result.reason);
-        }
-
-        /** Checks if imeWindow with {@code windowTitle} is visible. */
-        public Result isImeWindowVisible(String windowTitle) {
-            WindowTokenProto[] windowTokenProtos =
-                    mProto.windowManagerService
-                            .rootWindowContainer
-                            .displays[DEFAULT_DISPLAY]
-                            .imeWindows;
-            Result result = isWindowVisible(windowTitle, windowTokenProtos);
-            return new Result(result.success, getTimestamp(), "isImeWindowVisible", result.reason);
         }
 
         /** Checks if app window with {@code windowTitle} is on top. */
@@ -217,16 +232,17 @@ public class WindowManagerTrace {
         public Result isAppWindowVisible(String windowTitle) {
             final String assertionName = "isAppWindowVisible";
             boolean[] titleFound = { false };
-            TaskProto[] tasks =
-                    mProto.windowManagerService
-                            .rootWindowContainer
-                            .displays[DEFAULT_DISPLAY]
-                            .tasks;
-            for (TaskProto task : tasks) {
-                final Result result = isAppWindowVisible(
-                        windowTitle, assertionName, titleFound, task);
-                if (result != null) return result;
+            List<WindowStateProto> windows = getWindows();
+            if (windows.isEmpty()) {
+                return new Result(
+                        false /* success */, getTimestamp(), assertionName, "No windows found");
             }
+
+            final Result result = isAppWindowVisible(windowTitle, titleFound, windows);
+            if (result != null) {
+                return result;
+            }
+
             String reason;
             if (!titleFound[0]) {
                 reason = "Window " + windowTitle + " cannot be found";
@@ -236,28 +252,21 @@ public class WindowManagerTrace {
             return new Result(false /* success */, getTimestamp(), assertionName, reason);
         }
 
-        private Result isAppWindowVisible(String windowTitle, String assertionName,
-                boolean[] titleFound, TaskProto task) {
-            for (ActivityRecordProto activity : task.activities) {
-                if (activity.name.contains(windowTitle)) {
+        private Result isAppWindowVisible(
+                String windowTitle, boolean[] titleFound, List<WindowStateProto> windows) {
+            for (WindowStateProto windowState : windows) {
+                if (windowState.identifier.title.contains(windowTitle)) {
                     titleFound[0] = true;
-                    for (WindowStateProto windowState : activity.windowToken.windows) {
-                        if (windowState.windowContainer.visible) {
-                            return new Result(
-                                    true /* success */,
-                                    getTimestamp(),
-                                    assertionName,
-                                    "Window " + activity.name + "is visible");
-                        }
+                    if (windowState.windowContainer.visible) {
+                        return new Result(
+                                true /* success */,
+                                getTimestamp(),
+                                "isAppWindowVisible" /* assertionName */,
+                                "Window " + windowState.identifier.title + "is visible");
                     }
                 }
             }
 
-            for (TaskProto childTask : task.tasks) {
-                final Result result = isAppWindowVisible(
-                        windowTitle, assertionName, titleFound, childTask);
-                if (result != null) return result;
-            }
             return null;
         }
     }
