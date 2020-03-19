@@ -144,42 +144,42 @@ public class WmTraceSubject extends Subject<WmTraceSubject, WindowManagerTrace> 
 
     public WmTraceSubject showsAboveAppWindow(String partialWindowTitle) {
         addAssertion(
-                entry -> entry.isAboveAppWindowVisible(partialWindowTitle),
+                entry -> entry.isNonAppWindowVisible(partialWindowTitle),
                 "showsAboveAppWindow(" + partialWindowTitle + ")");
         return this;
     }
 
     public WmTraceSubject hidesAboveAppWindow(String partialWindowTitle) {
         addAssertion(
-                entry -> entry.isAboveAppWindowVisible(partialWindowTitle).negate(),
+                entry -> entry.isNonAppWindowVisible(partialWindowTitle).negate(),
                 "hidesAboveAppWindow" + "(" + partialWindowTitle + ")");
         return this;
     }
 
     public WmTraceSubject showsBelowAppWindow(String partialWindowTitle) {
         addAssertion(
-                entry -> entry.isBelowAppWindowVisible(partialWindowTitle),
+                entry -> entry.isNonAppWindowVisible(partialWindowTitle),
                 "showsBelowAppWindow(" + partialWindowTitle + ")");
         return this;
     }
 
     public WmTraceSubject hidesBelowAppWindow(String partialWindowTitle) {
         addAssertion(
-                entry -> entry.isBelowAppWindowVisible(partialWindowTitle).negate(),
+                entry -> entry.isNonAppWindowVisible(partialWindowTitle).negate(),
                 "hidesBelowAppWindow" + "(" + partialWindowTitle + ")");
         return this;
     }
 
     public WmTraceSubject showsImeWindow(String partialWindowTitle) {
         addAssertion(
-                entry -> entry.isImeWindowVisible(partialWindowTitle),
+                entry -> entry.isNonAppWindowVisible(partialWindowTitle),
                 "showsBelowAppWindow(" + partialWindowTitle + ")");
         return this;
     }
 
     public WmTraceSubject hidesImeWindow(String partialWindowTitle) {
         addAssertion(
-                entry -> entry.isImeWindowVisible(partialWindowTitle).negate(),
+                entry -> entry.isNonAppWindowVisible(partialWindowTitle).negate(),
                 "hidesImeWindow" + "(" + partialWindowTitle + ")");
         return this;
     }
