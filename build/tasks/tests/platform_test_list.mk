@@ -56,6 +56,8 @@ platform_tests += \
     FrameworksUtilTests \
     InternalLocTestApp \
     JankMicroBenchmarkTests \
+    long_trace_config.textproto \
+    LauncherRotationStressTest \
     MemoryUsage \
     MultiDexLegacyTestApp \
     MultiDexLegacyTestApp2 \
@@ -92,6 +94,9 @@ platform_tests += \
     SmokeTestApp \
     SysAppJankTestsWear \
     TouchLatencyJankTestWear \
+    trace_config.textproto \
+    trace_config_detailed.textproto \
+    trace_config_experimental.textproto \
     UbSystemUiJankTests \
     UbWebViewJankTests \
     UiBench \
