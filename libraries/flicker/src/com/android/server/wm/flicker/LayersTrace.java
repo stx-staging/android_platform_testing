@@ -467,11 +467,22 @@ public class LayersTrace {
             return (this.mProto.flags & /* FLAG_HIDDEN */ 0x1) != 0x0;
         }
 
+        private boolean hasVisibleBufferStateLayerChild() {
+            return mChildren
+                    .stream()
+                    .filter(p -> p.mProto.type.equals("BufferStateLayer"))
+                    .anyMatch(Layer::isVisible);
+        }
+
         public boolean isVisible() {
-            return (!isActiveBufferEmpty() || hasEffects())
-                    && !isHidden()
-                    && fillsColor()
-                    && !isVisibleRegionEmpty();
+            if (mChildren.isEmpty()) {
+                return (!isActiveBufferEmpty() || hasEffects())
+                        && !isHidden()
+                        && fillsColor()
+                        && !isVisibleRegionEmpty();
+            } else {
+                return hasVisibleBufferStateLayerChild();
+            }
         }
 
         private boolean fillsColor() {
