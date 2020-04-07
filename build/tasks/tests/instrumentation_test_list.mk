@@ -68,6 +68,7 @@ instrumentation_tests := \
     SettingsProviderTest \
     FrameworksPrivacyLibraryTests \
     SettingsUITests \
+    SettingsPerfTests \
     ExtServicesUnitTests\
     FrameworksNetSmokeTests\
 
