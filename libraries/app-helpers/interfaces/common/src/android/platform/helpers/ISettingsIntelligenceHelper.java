@@ -18,6 +18,16 @@ package android.platform.helpers;
 
 public interface ISettingsIntelligenceHelper extends IAppHelper {
 
+    public static final String PAGE_ACTION_HOME = "";
+    public static final String PAGE_ACTION_BATTERY = "android.intent.action.POWER_USAGE_SUMMARY";
+
+    /**
+     * Sets the action representing the Settings page to open when open() is called.
+     *
+     * @param pageAction One of the PAGE_ACTION* constants.
+     */
+    void setPageAction(String pageAction);
+
     /**
      * Setup expectations: Settings search page is open
      *
