@@ -115,12 +115,7 @@ public abstract class AbstractStandardAppHelper implements IAppHelper {
             String output = null;
             try {
                 Log.i(LOG_TAG, String.format("Sending command to launch: %s", pkg));
-                Intent intent =
-                        mInstrumentation
-                                .getContext()
-                                .getPackageManager()
-                                .getLaunchIntentForPackage(pkg);
-                mInstrumentation.getContext().startActivity(intent);
+                mInstrumentation.getContext().startActivity(getOpenAppIntent());
             } catch (ActivityNotFoundException e) {
                 removeDialogWatchers();
                 throw new TestHelperException(String.format("Failed to find package: %s", pkg), e);
@@ -143,6 +138,18 @@ public abstract class AbstractStandardAppHelper implements IAppHelper {
                             pkg, System.currentTimeMillis() - launchInitiationTimeMs));
         }
         removeDialogWatchers();
+    }
+
+    /**
+     * Returns the {@code Intent} used by {@code open()} to launch an {@code Activity}. The default
+     * implementation launches the default {@code Activity} of the package. Override this method to
+     * launch a different {@code Activity}.
+     */
+    public Intent getOpenAppIntent() {
+        return mInstrumentation
+                .getContext()
+                .getPackageManager()
+                .getLaunchIntentForPackage(getPackage());
     }
 
     /**
