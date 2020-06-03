@@ -23,7 +23,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.fail;
 
-import android.graphics.Rect;
+import android.graphics.Region;
 
 import androidx.test.runner.AndroidJUnit4;
 
@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
 @RunWith(AndroidJUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class LayersTraceSubjectTest {
-    private static final Rect displayRect = new Rect(0, 0, 1440, 2880);
+    private static final Region DISPLAY_REGION = new Region(0, 0, 1440, 2880);
 
     private static LayersTrace readLayerTraceFromFile(String relativePath) {
         try {
@@ -57,7 +57,7 @@ public class LayersTraceSubjectTest {
     public void testCanDetectEmptyRegionFromLayerTrace() {
         LayersTrace layersTraceEntries = readLayerTraceFromFile("layers_trace_emptyregion.pb");
         try {
-            assertThat(layersTraceEntries).coversRegion(displayRect).forAllEntries();
+            assertThat(layersTraceEntries).coversRegion(DISPLAY_REGION).forAllEntries();
             fail("Assertion passed");
         } catch (AssertionError e) {
             assertWithMessage("Contains path to trace")
@@ -69,7 +69,7 @@ public class LayersTraceSubjectTest {
                     .contains("coversRegion");
             assertWithMessage("Contains debug info")
                     .that(e.getMessage())
-                    .contains("Region to test: " + displayRect);
+                    .contains("Region to test: " + DISPLAY_REGION);
             assertWithMessage("Contains debug info")
                     .that(e.getMessage())
                     .contains("first empty point: 0, 99");
@@ -108,13 +108,10 @@ public class LayersTraceSubjectTest {
     private void detectRootLayer(String fileName) {
         LayersTrace layersTrace = readLayerTraceFromFile(fileName);
 
-        for (LayersTrace.Entry entry : layersTrace.getEntries()) {
-            List<LayersTrace.Layer> flattened = entry.asFlattenedLayers();
-            List<LayersTrace.Layer> rootLayers =
-                    flattened
-                            .stream()
-                            .filter(LayersTrace.Layer::isRootLayer)
-                            .collect(Collectors.toList());
+        for (LayerTraceEntry entry : layersTrace.getEntries()) {
+            List<Layer> flattened = entry.getFlattenedLayers();
+            List<Layer> rootLayers =
+                    flattened.stream().filter(Layer::isRootLayer).collect(Collectors.toList());
 
             assertWithMessage("Does not have any root layer")
                     .that(rootLayers.size())
