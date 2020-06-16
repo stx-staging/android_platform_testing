@@ -36,6 +36,7 @@ import com.android.server.wm.flicker.monitor.WindowManagerTraceMonitor;
 
 import org.junit.Before;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -50,6 +51,7 @@ import java.util.List;
 /** Contains {@link TransitionRunner} tests. {@code atest FlickerLibTest:TransitionRunnerTest} */
 @RunWith(AndroidJUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@Ignore
 public class TransitionRunnerTest {
     @Mock private SimpleUiTransitions mTransitionsMock;
     @Mock private ScreenRecorder mScreenRecorderMock;

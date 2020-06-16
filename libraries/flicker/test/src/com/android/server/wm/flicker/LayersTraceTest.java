@@ -33,6 +33,7 @@ import androidx.test.InstrumentationRegistry;
 import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -82,6 +83,7 @@ public class LayersTraceTest {
         assertWithMessage(msg).that(flattenedLayers).hasSize(47);
     }
 
+    @Ignore
     @Test
     public void canParseVisibleLayers() {
         LayersTrace trace = readLayerTraceFromFile("layers_trace_emptyregion.pb");
@@ -100,8 +102,8 @@ public class LayersTraceTest {
                 "Visible Layers:\n"
                         + visibleLayers
                                 .stream()
-                                .map(layer -> layer.getProto().name)
-                                .collect(Collectors.joining("\n\t"));
+                                .map(layer -> "\t" + layer.getProto().name)
+                                .collect(Collectors.joining("\n"));
 
         assertWithMessage(msg).that(visibleLayers).hasSize(9);
     }
@@ -142,12 +144,12 @@ public class LayersTraceTest {
         AssertionResult result = entry.coversRegion(getDisplayBounds());
 
         assertThat(result.failed()).isTrue();
-        assertThat(result.getReason()).contains("Region to test: Rect(0, 0 - 1440, 2960)");
+        assertThat(result.getReason()).contains("Region to test: SkRegion((0,0,1440,2960))");
         assertThat(result.getReason()).contains("first empty point: 0, 99");
         assertThat(result.getReason()).contains("visible regions:");
         assertWithMessage("Reason contains list of visible regions")
                 .that(result.getReason())
-                .contains("StatusBar#0Rect(0, 0 - 1440, 98");
+                .contains("StatusBar#0SkRegion((0,0,1440,98))");
     }
 
     // Visible region tests
@@ -211,7 +213,7 @@ public class LayersTraceTest {
         assertThat(result.getReason())
                 .contains(
                         "StatusBar#0 has visible "
-                                + "region:Rect(0, 0 - 1440, 98) expected:Rect(0, 0 - 1440, 99)");
+                                + "region:SkRegion((0,0,1440,98)) expected:SkRegion((0,0,1440,99))");
     }
 
     @Test

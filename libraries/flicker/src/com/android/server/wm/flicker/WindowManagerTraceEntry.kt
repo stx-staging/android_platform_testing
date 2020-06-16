@@ -43,7 +43,7 @@ class WindowManagerTraceEntry(val proto: WindowManagerTraceProto) : ITraceEntry 
     }
 
     private fun getWindows(windowContainer: WindowContainerProto): List<WindowStateProto> {
-        return windowContainer.children.reversed().flatMap { getWindows(it) }
+        return windowContainer.children.flatMap { getWindows(it) }
     }
 
     private fun getWindows(windowContainer: WindowContainerChildProto): List<WindowStateProto> {

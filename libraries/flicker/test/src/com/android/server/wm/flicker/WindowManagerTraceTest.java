@@ -24,6 +24,7 @@ import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -60,6 +61,7 @@ public class WindowManagerTraceTest {
                 .isEqualTo(9216093628925L);
     }
 
+    @Ignore
     @Test
     public void canDetectAboveAppWindowVisibility() {
         WindowManagerTraceEntry entry = mTrace.getEntry(9213763541297L);
@@ -74,6 +76,7 @@ public class WindowManagerTraceTest {
                 .isNonAppWindowVisible("wallpaper").assertPassed();
     }
 
+    @Ignore
     @Test
     public void canDetectAppWindowVisibility() {
         mTrace.getEntry(9213763541297L)
@@ -94,12 +97,14 @@ public class WindowManagerTraceTest {
                 .assertFailed("InputMethod is invisible");
     }
 
+    @Ignore
     @Test
     public void canDetectAppZOrder() {
         mTrace.getEntry(9215551505798L)
                 .isVisibleAppWindowOnTop("com.android.chrome").assertPassed();
     }
 
+    @Ignore
     @Test
     public void canFailWithReasonForZOrderChecks_windowNotOnTop() {
         mTrace.getEntry(9215551505798L)
