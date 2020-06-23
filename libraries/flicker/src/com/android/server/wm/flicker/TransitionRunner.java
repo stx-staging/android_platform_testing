@@ -16,8 +16,6 @@
 
 package com.android.server.wm.flicker;
 
-import static com.android.server.wm.flicker.monitor.TransitionMonitor.OUTPUT_DIR;
-
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -25,7 +23,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.test.InstrumentationRegistry;
 
-import com.android.server.wm.flicker.monitor.TransitionMonitor;
+import com.android.server.wm.flicker.monitor.ITransitionMonitor;
 import com.android.server.wm.flicker.monitor.LayersTraceMonitor;
 import com.android.server.wm.flicker.monitor.ScreenRecorder;
 import com.android.server.wm.flicker.monitor.WindowAnimationFrameStatsMonitor;
@@ -99,8 +97,8 @@ public class TransitionRunner {
     private final LayersTraceMonitor mLayersTraceMonitor;
     private final WindowAnimationFrameStatsMonitor mFrameStatsMonitor;
 
-    private final List<TransitionMonitor> mAllRunsMonitors;
-    private final List<TransitionMonitor> mPerRunMonitors;
+    private final List<ITransitionMonitor> mAllRunsMonitors;
+    private final List<ITransitionMonitor> mPerRunMonitors;
     private final List<Runnable> mBeforeAlls;
     private final List<Runnable> mBefores;
     private final List<Runnable> mTransitions;
@@ -146,13 +144,13 @@ public class TransitionRunner {
      */
     public TransitionRunner run() {
         mResults = new ArrayList<>();
-        mAllRunsMonitors.forEach(TransitionMonitor::start);
+        mAllRunsMonitors.forEach(ITransitionMonitor::start);
         mBeforeAlls.forEach(Runnable::run);
         for (int iteration = 0; iteration < mIterations; iteration++) {
             mBefores.forEach(Runnable::run);
-            mPerRunMonitors.forEach(TransitionMonitor::start);
+            mPerRunMonitors.forEach(ITransitionMonitor::start);
             mTransitions.forEach(Runnable::run);
-            mPerRunMonitors.forEach(TransitionMonitor::stop);
+            mPerRunMonitors.forEach(ITransitionMonitor::stop);
             mAfters.forEach(Runnable::run);
             if (runJankFree() && mFrameStatsMonitor.jankyFramesDetected()) {
                 String msg =
@@ -344,8 +342,8 @@ public class TransitionRunner {
         private LayersTraceMonitor mLayersTraceMonitor;
         private WindowAnimationFrameStatsMonitor mFrameStatsMonitor;
 
-        private List<TransitionMonitor> mAllRunsMonitors = new LinkedList<>();
-        private List<TransitionMonitor> mPerRunMonitors = new LinkedList<>();
+        private List<ITransitionMonitor> mAllRunsMonitors = new LinkedList<>();
+        private List<ITransitionMonitor> mPerRunMonitors = new LinkedList<>();
         private List<Runnable> mBeforeAlls = new LinkedList<>();
         private List<Runnable> mBefores = new LinkedList<>();
         private List<Runnable> mTransitions = new LinkedList<>();
@@ -371,7 +369,12 @@ public class TransitionRunner {
         }
 
         public TransitionBuilder() {
-            this(OUTPUT_DIR);
+            mScreenRecorder = new ScreenRecorder();
+            mWmTraceMonitor = new WindowManagerTraceMonitor();
+            mLayersTraceMonitor = new LayersTraceMonitor();
+            mFrameStatsMonitor =
+                    new WindowAnimationFrameStatsMonitor(
+                            InstrumentationRegistry.getInstrumentation());
         }
 
         public TransitionRunner build() {
