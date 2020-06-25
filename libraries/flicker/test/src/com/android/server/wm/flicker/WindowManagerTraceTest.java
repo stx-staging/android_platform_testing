@@ -22,8 +22,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.runner.AndroidJUnit4;
 
-import com.android.server.wm.flicker.Assertions.Result;
-
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;

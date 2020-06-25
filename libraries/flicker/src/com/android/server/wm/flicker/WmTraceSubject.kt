@@ -16,7 +16,6 @@
 
 package com.android.server.wm.flicker
 
-import com.android.server.wm.flicker.Assertions.TraceAssertion
 import com.android.server.wm.flicker.TransitionRunner.TransitionResult
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.Subject
@@ -32,7 +31,7 @@ class WmTraceSubject private constructor(
     private val assertionsChecker = AssertionsChecker<WindowManagerTraceEntry>()
     private var newAssertion = true
 
-    private fun addAssertion(assertion: TraceAssertion<WindowManagerTraceEntry>, name: String) {
+    private fun addAssertion(name: String, assertion: TraceAssertion<WindowManagerTraceEntry>) {
         if (newAssertion) {
             assertionsChecker.add(assertion, name)
         } else {
@@ -120,7 +119,7 @@ class WmTraceSubject private constructor(
     }
 
     private fun test() {
-        val failures = assertionsChecker.test(actual()!!.entries)
+        val failures = assertionsChecker.test(actual().entries)
         if (failures.isNotEmpty()) {
             val failureTracePath = actual()!!.source
             val failureLogs = failures.joinToString("\n") { it.toString() }
@@ -138,90 +137,88 @@ class WmTraceSubject private constructor(
     }
 
     fun showsAboveAppWindow(partialWindowTitle: String): WmTraceSubject {
-        addAssertion(
-                TraceAssertion<WindowManagerTraceEntry> { it.isNonAppWindowVisible(partialWindowTitle) },
-                "showsAboveAppWindow($partialWindowTitle)")
+        addAssertion("showsAboveAppWindow($partialWindowTitle)") {
+            p: WindowManagerTraceEntry -> p.isAppWindowVisible(partialWindowTitle)
+        }
         return this
     }
 
     fun hidesAboveAppWindow(partialWindowTitle: String): WmTraceSubject {
-        addAssertion(
-                TraceAssertion<WindowManagerTraceEntry> { it.isNonAppWindowVisible(partialWindowTitle).negate() },
-                "hidesAboveAppWindow($partialWindowTitle)")
+        addAssertion("hidesAboveAppWindow($partialWindowTitle)") {
+            it.isNonAppWindowVisible(partialWindowTitle).negate()
+        }
         return this
     }
 
     fun showsBelowAppWindow(partialWindowTitle: String): WmTraceSubject {
-        addAssertion(
-                TraceAssertion<WindowManagerTraceEntry> { it.isNonAppWindowVisible(partialWindowTitle) },
-                "showsBelowAppWindow($partialWindowTitle)")
+        addAssertion("showsBelowAppWindow($partialWindowTitle)") {
+            it.isNonAppWindowVisible(partialWindowTitle)
+        }
         return this
     }
 
     fun hidesBelowAppWindow(partialWindowTitle: String): WmTraceSubject {
-        addAssertion(
-                TraceAssertion<WindowManagerTraceEntry> { it.isNonAppWindowVisible(partialWindowTitle).negate() },
-                "hidesBelowAppWindow($partialWindowTitle)")
+        addAssertion("hidesBelowAppWindow($partialWindowTitle)") {
+            it.isNonAppWindowVisible(partialWindowTitle).negate()
+        }
         return this
     }
 
     fun showsImeWindow(partialWindowTitle: String): WmTraceSubject {
-        addAssertion(
-                TraceAssertion<WindowManagerTraceEntry> { it.isNonAppWindowVisible(partialWindowTitle) },
-                "showsBelowAppWindow($partialWindowTitle)")
+        addAssertion("showsBelowAppWindow($partialWindowTitle)") {
+            it.isNonAppWindowVisible(partialWindowTitle)
+        }
         return this
     }
 
     fun hidesImeWindow(partialWindowTitle: String): WmTraceSubject {
-        addAssertion(
-                TraceAssertion<WindowManagerTraceEntry> { it.isNonAppWindowVisible(partialWindowTitle).negate() },
-                "hidesImeWindow($partialWindowTitle)")
+        addAssertion("hidesImeWindow($partialWindowTitle)") {
+            it.isNonAppWindowVisible(partialWindowTitle).negate()
+        }
         return this
     }
 
     fun showsAppWindowOnTop(partialWindowTitle: String): WmTraceSubject {
-        addAssertion(
-                TraceAssertion<WindowManagerTraceEntry> {
-                    var result: Assertions.Result = it.isAppWindowVisible(partialWindowTitle)
-                    if (result.passed()) {
-                        result = it.isVisibleAppWindowOnTop(partialWindowTitle)
-                    }
-                    result
-                },
-                "showsAppWindowOnTop($partialWindowTitle)")
+        addAssertion("showsAppWindowOnTop($partialWindowTitle)") {
+            var result = it.isAppWindowVisible(partialWindowTitle)
+            if (result.passed()) {
+                result = it.isVisibleAppWindowOnTop(partialWindowTitle)
+            }
+            result
+        }
         return this
     }
 
     fun hidesAppWindowOnTop(partialWindowTitle: String): WmTraceSubject {
-        addAssertion(
-                TraceAssertion<WindowManagerTraceEntry> { entry: WindowManagerTraceEntry ->
-                    var result: Assertions.Result = entry.isAppWindowVisible(partialWindowTitle).negate()
-                    if (result.failed()) {
-                        result = entry.isVisibleAppWindowOnTop(partialWindowTitle).negate()
-                    }
-                    result
-                },
-                "hidesAppWindowOnTop($partialWindowTitle)")
+        addAssertion("hidesAppWindowOnTop($partialWindowTitle)") { entry: WindowManagerTraceEntry ->
+            var result = entry.isAppWindowVisible(partialWindowTitle).negate()
+            if (result.failed()) {
+                result = entry.isVisibleAppWindowOnTop(partialWindowTitle).negate()
+            }
+            result
+        }
         return this
     }
 
     fun showsAppWindow(partialWindowTitle: String): WmTraceSubject {
-        addAssertion(
-                TraceAssertion<WindowManagerTraceEntry> { it.isAppWindowVisible(partialWindowTitle) },
-                "showsAppWindow($partialWindowTitle)")
+        addAssertion("showsAppWindow($partialWindowTitle)") {
+            it.isAppWindowVisible(partialWindowTitle)
+        }
         return this
     }
 
     fun hidesAppWindow(partialWindowTitle: String): WmTraceSubject {
-        addAssertion(
-                TraceAssertion<WindowManagerTraceEntry> { it.isAppWindowVisible(partialWindowTitle).negate() },
-                "hidesAppWindow($partialWindowTitle)")
+        addAssertion("hidesAppWindow($partialWindowTitle)") {
+            it.isAppWindowVisible(partialWindowTitle).negate()
+        }
         return this
     }
 
     companion object {
         // Boiler-plate Subject.Factory for WmTraceSubject
-        private val FACTORY = Factory { fm: FailureMetadata, subject: WindowManagerTrace -> WmTraceSubject(fm, subject) }
+        private val FACTORY = Factory { fm: FailureMetadata, subject: WindowManagerTrace ->
+            WmTraceSubject(fm, subject)
+        }
 
         // User-defined entry point
         @JvmStatic
