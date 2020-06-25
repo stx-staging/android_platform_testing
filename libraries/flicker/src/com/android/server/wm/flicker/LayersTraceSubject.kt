@@ -19,7 +19,6 @@ package com.android.server.wm.flicker
 import android.graphics.Rect
 import android.graphics.Region
 import android.util.Log
-import com.android.server.wm.flicker.TransitionRunner.TransitionResult
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.Subject
 import com.google.common.truth.Subject.Factory
