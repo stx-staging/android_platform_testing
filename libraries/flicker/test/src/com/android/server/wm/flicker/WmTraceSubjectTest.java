@@ -43,14 +43,13 @@ public class WmTraceSubjectTest {
 
     @Test
     public void testCanTransitionInAppWindow() {
-        WindowManagerTrace trace = readWmTraceFromFile("wm_trace_openchrome2.pb");
+        WindowManagerTrace trace = readWmTraceFromFile("wm_trace_openchrome.pb");
 
         assertThat(trace)
-                .showsAppWindowOnTop(
-                        "com.google.android.apps.nexuslauncher/" + ".NexusLauncherActivity")
-                .forRange(174684850717208L, 174685957511016L);
+                .showsAppWindowOnTop("NexusLauncherActivity")
+                .forRange(9213763541297L, 9215536878453L);
         assertThat(trace)
-                .showsAppWindowOnTop("com.google.android.apps.nexuslauncher/.NexusLauncherActivity")
+                .showsAppWindowOnTop("NexusLauncherActivity")
                 .then()
                 .showsAppWindowOnTop("com.android.chrome")
                 .forAllEntries();

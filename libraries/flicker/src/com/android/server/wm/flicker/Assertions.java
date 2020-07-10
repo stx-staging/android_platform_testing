@@ -16,6 +16,9 @@
 
 package com.android.server.wm.flicker;
 
+import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
+import com.google.common.truth.Truth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -157,6 +160,19 @@ public class Assertions {
 
         public boolean failed() {
             return !this.success;
+        }
+
+        @VisibleForTesting
+        public void assertPassed() {
+            Truth.assertWithMessage(this.reason).that(this.passed());
+        }
+
+        @VisibleForTesting
+        public void assertFailed(@Nullable String reason) {
+            Truth.assertWithMessage(this.reason).that(this.failed());
+            if (reason != null) {
+                Truth.assertThat(this.reason).contains(reason);
+            }
         }
 
         @Override
