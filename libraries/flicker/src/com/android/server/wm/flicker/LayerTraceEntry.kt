@@ -37,7 +37,7 @@ class LayerTraceEntry constructor(
     }
 
     /** Checks if a region specified by `testRect` is covered by all visible layers.  */
-    fun coversRegion(testRegion: Region): Assertions.Result {
+    fun coversRegion(testRegion: Region): AssertionResult {
         val testRect = testRegion.bounds
         val assertionName = "coversRegion"
         for (x in testRect.left until testRect.right) {
@@ -64,20 +64,26 @@ class LayerTraceEntry constructor(
                         val r = layer.visibleRegion
                         reason += "\n" + layer.name + r.toString()
                     }
-                    return Assertions.Result(
-                            false /* success */, timestamp, assertionName, reason)
+                    return AssertionResult(
+                            reason,
+                            assertionName,
+                            timestamp,
+                            success = false)
                 }
                 y++
             }
         }
-        val info = "Region covered: $testRect"
-        return Assertions.Result(true /* success */, timestamp, assertionName, info)
+        return AssertionResult(
+                reason = "Region covered: $testRect",
+                assertionName = assertionName,
+                timestamp = timestamp,
+                success = true)
     }
 
     /**
      * Checks if a layer with name `layerName` has a visible region `expectedVisibleRegion`.
      */
-    fun hasVisibleRegion(layerName: String, expectedVisibleRegion: Region): Assertions.Result {
+    fun hasVisibleRegion(layerName: String, expectedVisibleRegion: Region): AssertionResult {
         val assertionName = "hasVisibleRegion"
         var reason = "Could not find $layerName"
         for (layer in flattenedLayers) {
@@ -92,11 +98,11 @@ class LayerTraceEntry constructor(
                 }
                 val visibleRegion = layer.visibleRegion
                 if ((visibleRegion == expectedVisibleRegion)) {
-                    return Assertions.Result(
-                            true /* success */,
-                            timestamp,
+                    return AssertionResult(
+                            layer.name + "has visible region " + expectedVisibleRegion,
                             assertionName,
-                            layer.name + "has visible region " + expectedVisibleRegion)
+                            timestamp,
+                            success = true)
                 }
                 reason = (layer.name
                         + " has visible region:"
@@ -106,27 +112,27 @@ class LayerTraceEntry constructor(
                         + expectedVisibleRegion)
             }
         }
-        return Assertions.Result(false /* success */, timestamp, assertionName, reason)
+        return AssertionResult(reason, assertionName, timestamp, success = false)
     }
 
     /** Checks if a layer with name `layerName` exists in the hierarchy.  */
-    fun exists(layerName: String): Assertions.Result {
+    fun exists(layerName: String): AssertionResult {
         val assertionName = "exists"
         val reason = "Could not find $layerName"
         for (layer in flattenedLayers) {
             if (layer.nameContains(layerName)) {
-                return Assertions.Result(
-                        true /* success */,
-                        timestamp,
+                return AssertionResult(
+                        layer.name + " exists",
                         assertionName,
-                        layer.name + " exists")
+                        timestamp,
+                        success = true)
             }
         }
-        return Assertions.Result(false /* success */, timestamp, assertionName, reason)
+        return AssertionResult(reason, assertionName, timestamp, success = false)
     }
 
     /** Checks if a layer with name `layerName` is visible.  */
-    fun isVisible(layerName: String): Assertions.Result {
+    fun isVisible(layerName: String): AssertionResult {
         val assertionName = "isVisible"
         var reason = "Could not find $layerName"
         for (layer in flattenedLayers) {
@@ -139,14 +145,14 @@ class LayerTraceEntry constructor(
                     reason = layer.visibilityReason
                     continue
                 }
-                return Assertions.Result(
-                        true /* success */,
-                        timestamp,
+                return AssertionResult(
+                        layer.name + " is visible",
                         assertionName,
-                        layer.name + " is visible")
+                        timestamp,
+                        success = true)
             }
         }
-        return Assertions.Result(false /* success */, timestamp, assertionName, reason)
+        return AssertionResult(reason, assertionName, timestamp, success = false)
     }
 
     fun getVisibleBounds(layerName: String): Region {

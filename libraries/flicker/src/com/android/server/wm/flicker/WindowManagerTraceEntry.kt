@@ -79,68 +79,71 @@ class WindowManagerTraceEntry(val proto: WindowManagerTraceProto) : ITraceEntry 
     }
 
     /** Checks if non app window with `windowTitle` is visible.  */
-    fun isNonAppWindowVisible(windowTitle: String): Assertions.Result {
+    fun isNonAppWindowVisible(windowTitle: String): AssertionResult {
         val assertionName = "isAppWindowVisible"
         val foundWindow = windows
                 .firstOrNull { getNonAppWindowByIdentifier(it, windowTitle) != null }
         return when {
-            windows.isEmpty() -> return Assertions.Result(
-                    false /* success */,
-                    timestamp,
+            windows.isEmpty() -> return AssertionResult(
+                    "No windows found",
                     assertionName,
-                    "No windows found")
-            foundWindow == null -> Assertions.Result(
-                    false /* success */,
                     timestamp,
+                    success = false)
+            foundWindow == null -> AssertionResult(
+                    "$windowTitle cannot be found",
                     assertionName,
-                    "$windowTitle cannot be found")
-            !foundWindow.isVisible() -> Assertions.Result(
-                    false /* success */,
                     timestamp,
+                    success = false)
+            !foundWindow.isVisible() -> AssertionResult(
+                    "$windowTitle is invisible",
                     assertionName,
-                    "$windowTitle is invisible")
-            else -> Assertions.Result(
-                    true /* success */,
-                    foundWindow.title + " is visible")
+                    timestamp,
+                    success = false)
+            else -> AssertionResult(
+                    success = true,
+                    reason = foundWindow.title + " is visible")
         }
     }
 
     /** Checks if app window with `windowTitle` is on top.  */
-    fun isVisibleAppWindowOnTop(windowTitle: String): Assertions.Result {
+    fun isVisibleAppWindowOnTop(windowTitle: String): AssertionResult {
         val success = topVisibleAppWindow.contains(windowTitle)
         val reason = "wanted=$windowTitle found=$topVisibleAppWindow"
-        return Assertions.Result(success, timestamp, "isAppWindowOnTop", reason)
+        return AssertionResult(reason, "isAppWindowOnTop", timestamp, success)
     }
 
     /** Checks if app window with `windowTitle` is visible.  */
-    fun isAppWindowVisible(windowTitle: String): Assertions.Result {
+    fun isAppWindowVisible(windowTitle: String): AssertionResult {
         val assertionName = "isAppWindowVisible"
         val foundWindow = windows.firstOrNull {
             it.title.contains(windowTitle) && it.windowContainer.visible
         }
 
         return when {
-            windows.isEmpty() -> Assertions.Result(
-                    false /* success */, timestamp, assertionName, "No windows found")
-            foundWindow == null -> Assertions.Result(false /* success */,
-                    timestamp,
+            windows.isEmpty() -> AssertionResult(
+                    "No windows found",
                     assertionName,
-                    "Window $windowTitle cannot be found")
-            !foundWindow.isVisible -> Assertions.Result(false /* success */,
                     timestamp,
+                    success = false)
+            foundWindow == null -> AssertionResult(
+                    "Window $windowTitle cannot be found",
                     assertionName,
-                    "Window $windowTitle is invisible")
-            else -> Assertions.Result(
-                    true /* success */,
                     timestamp,
+                    success = false)
+            !foundWindow.isVisible -> AssertionResult(
+                    "Window $windowTitle is invisible",
                     assertionName,
-                    "Window " + foundWindow.title + "is visible")
+                    timestamp,
+                    success = false)
+            else -> AssertionResult(
+                    "Window " + foundWindow.title + "is visible",
+                    assertionName,
+                    timestamp,
+                    success = true)
         }
     }
 
-    private fun WindowStateProto.isVisible(): Boolean {
-        return this.windowContainer.visible
-    }
+    private fun WindowStateProto.isVisible(): Boolean = this.windowContainer.visible
 
     private val WindowStateProto.title: String
         get() = this.windowContainer.identifier.title

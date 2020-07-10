@@ -19,7 +19,6 @@ package com.android.server.wm.flicker
 import android.graphics.Rect
 import android.graphics.Region
 import android.util.Log
-import com.android.server.wm.flicker.Assertions.TraceAssertion
 import com.android.server.wm.flicker.TransitionRunner.TransitionResult
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.Subject
@@ -35,7 +34,7 @@ class LayersTraceSubject private constructor(
     private val assertionsChecker = AssertionsChecker<LayerTraceEntry>()
     private var newAssertion = true
 
-    private fun addAssertion(assertion: TraceAssertion<LayerTraceEntry>, name: String) {
+    private fun addAssertion(name: String, assertion: TraceAssertion<LayerTraceEntry>) {
         if (newAssertion) {
             assertionsChecker.add(assertion, name)
         } else {
@@ -140,42 +139,29 @@ class LayersTraceSubject private constructor(
     }
 
     fun coversRegion(region: Region): LayersTraceSubject {
-        addAssertion(
-                TraceAssertion { entry: LayerTraceEntry -> entry.coversRegion(region) },
-                "coversRegion($region)"
-        )
+        addAssertion("coversRegion($region)") { it.coversRegion(region) }
         return this
     }
 
     fun hasVisibleRegion(layerName: String, size: Region): LayersTraceSubject {
-        addAssertion(
-            TraceAssertion { entry: LayerTraceEntry -> entry.hasVisibleRegion(layerName, size) },
-            "hasVisibleRegion($layerName$size)"
-        )
+        addAssertion("hasVisibleRegion($layerName$size)") {
+            it.hasVisibleRegion(layerName, size)
+        }
         return this
     }
 
     fun hasNotLayer(layerName: String): LayersTraceSubject {
-        addAssertion(
-            TraceAssertion { entry: LayerTraceEntry -> entry.exists(layerName).negate() },
-            "hasNotLayer($layerName)"
-        )
+        addAssertion("hasNotLayer($layerName)") { it.exists(layerName).negate() }
         return this
     }
 
     fun hasLayer(layerName: String): LayersTraceSubject {
-        addAssertion(
-            TraceAssertion { entry: LayerTraceEntry -> entry.exists(layerName) },
-            "hasLayer($layerName)"
-        )
+        addAssertion("hasLayer($layerName)") { it.exists(layerName) }
         return this
     }
 
     fun showsLayer(layerName: String): LayersTraceSubject {
-        addAssertion(
-            TraceAssertion { entry: LayerTraceEntry -> entry.isVisible(layerName) },
-            "showsLayer($layerName)"
-        )
+        addAssertion("showsLayer($layerName)") { it.isVisible(layerName) }
         return this
     }
 
@@ -187,10 +173,7 @@ class LayersTraceSubject private constructor(
     }
 
     fun hidesLayer(layerName: String): LayersTraceSubject {
-        addAssertion(
-            TraceAssertion { entry: LayerTraceEntry -> entry.isVisible(layerName).negate() },
-            "hidesLayer($layerName)"
-        )
+        addAssertion("hidesLayer($layerName)") { it.isVisible(layerName).negate() }
         return this
     }
 

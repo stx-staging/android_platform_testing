@@ -139,14 +139,14 @@ public class LayersTraceTest {
         LayersTrace trace = readLayerTraceFromFile("layers_trace_emptyregion.pb");
         LayerTraceEntry entry = trace.getEntry(2308008331271L);
 
-        Assertions.Result result = entry.coversRegion(getDisplayBounds());
+        AssertionResult result = entry.coversRegion(getDisplayBounds());
 
         assertThat(result.failed()).isTrue();
-        assertThat(result.reason).contains("Region to test: Rect(0, 0 - 1440, 2960)");
-        assertThat(result.reason).contains("first empty point: 0, 99");
-        assertThat(result.reason).contains("visible regions:");
+        assertThat(result.getReason()).contains("Region to test: Rect(0, 0 - 1440, 2960)");
+        assertThat(result.getReason()).contains("first empty point: 0, 99");
+        assertThat(result.getReason()).contains("visible regions:");
         assertWithMessage("Reason contains list of visible regions")
-                .that(result.reason)
+                .that(result.getReason())
                 .contains("StatusBar#0Rect(0, 0 - 1440, 98");
     }
 
@@ -157,10 +157,10 @@ public class LayersTraceTest {
         LayerTraceEntry entry = trace.getEntry(2308008331271L);
 
         final Region expectedVisibleRegion = new Region(0, 0, 1, 1);
-        Assertions.Result result = entry.hasVisibleRegion("ImaginaryLayer", expectedVisibleRegion);
+        AssertionResult result = entry.hasVisibleRegion("ImaginaryLayer", expectedVisibleRegion);
 
         assertThat(result.failed()).isTrue();
-        assertThat(result.reason).contains("Could not find ImaginaryLayer");
+        assertThat(result.getReason()).contains("Could not find ImaginaryLayer");
     }
 
     @Test
@@ -169,11 +169,11 @@ public class LayersTraceTest {
         LayerTraceEntry entry = trace.getEntry(2307993020072L);
 
         final Region expectedVisibleRegion = new Region(0, 0, 1, 1);
-        Assertions.Result result =
+        AssertionResult result =
                 entry.hasVisibleRegion("NexusLauncherActivity#2", expectedVisibleRegion);
 
         assertThat(result.failed()).isTrue();
-        assertThat(result.reason)
+        assertThat(result.getReason())
                 .contains(
                         "Layer com.google.android.apps.nexuslauncher/com.google.android.apps"
                                 + ".nexuslauncher.NexusLauncherActivity#2 is invisible: activeBuffer=null"
@@ -186,13 +186,13 @@ public class LayersTraceTest {
         LayerTraceEntry entry = trace.getEntry(2308455948035L);
 
         final Region expectedVisibleRegion = new Region(0, 0, 1, 1);
-        Assertions.Result result =
+        AssertionResult result =
                 entry.hasVisibleRegion(
                         "SurfaceView - com.android.chrome/com.google.android.apps.chrome.Main",
                         expectedVisibleRegion);
 
         assertThat(result.failed()).isTrue();
-        assertThat(result.reason)
+        assertThat(result.getReason())
                 .contains(
                         "Layer SurfaceView - com.android.chrome/com.google.android.apps.chrome.Main#0 is "
                                 + "hidden by parent: com.android.chrome/com.google.android.apps.chrome"
@@ -205,10 +205,10 @@ public class LayersTraceTest {
         LayerTraceEntry entry = trace.getEntry(2308008331271L);
 
         final Region expectedVisibleRegion = new Region(0, 0, 1440, 99);
-        Assertions.Result result = entry.hasVisibleRegion("StatusBar", expectedVisibleRegion);
+        AssertionResult result = entry.hasVisibleRegion("StatusBar", expectedVisibleRegion);
 
         assertThat(result.failed()).isTrue();
-        assertThat(result.reason)
+        assertThat(result.getReason())
                 .contains(
                         "StatusBar#0 has visible "
                                 + "region:Rect(0, 0 - 1440, 98) expected:Rect(0, 0 - 1440, 99)");
@@ -220,7 +220,7 @@ public class LayersTraceTest {
         LayerTraceEntry entry = trace.getEntry(2308008331271L);
 
         final Region expectedVisibleRegion = new Region(0, 0, 1440, 98);
-        Assertions.Result result = entry.hasVisibleRegion("StatusBar", expectedVisibleRegion);
+        AssertionResult result = entry.hasVisibleRegion("StatusBar", expectedVisibleRegion);
 
         assertThat(result.passed()).isTrue();
     }
@@ -230,9 +230,9 @@ public class LayersTraceTest {
         LayersTrace trace = readLayerTraceFromFile("layers_trace_invalid_layer_visibility.pb");
         LayerTraceEntry entry = trace.getEntry(252794268378458L);
 
-        Assertions.Result result = entry.isVisible("com.android.server.wm.flicker.testapp");
+        AssertionResult result = entry.isVisible("com.android.server.wm.flicker.testapp");
         assertThat(result.failed()).isTrue();
-        assertThat(result.reason)
+        assertThat(result.getReason())
                 .contains(
                         "Layer com.android.server.wm.flicker.testapp/com.android.server.wm.flicker"
                                 + ".testapp.SimpleActivity#0 is invisible: type != ColorLayer visible "
