@@ -16,7 +16,6 @@
 
 package com.android.server.wm.flicker
 
-import com.android.server.wm.flicker.TransitionRunner.TransitionResult
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.Subject
 import com.google.common.truth.Subject.Factory
