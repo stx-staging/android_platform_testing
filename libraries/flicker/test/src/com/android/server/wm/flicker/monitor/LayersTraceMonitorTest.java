@@ -43,6 +43,7 @@ import java.nio.file.Path;
  */
 @RunWith(AndroidJUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
+// @Ignore
 public class LayersTraceMonitorTest {
     private LayersTraceMonitor mLayersTraceMonitor;
 

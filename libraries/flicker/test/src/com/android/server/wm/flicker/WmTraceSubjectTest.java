@@ -22,6 +22,7 @@ import static com.android.server.wm.flicker.WmTraceSubject.assertThat;
 import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -32,6 +33,7 @@ import org.junit.runners.MethodSorters;
  */
 @RunWith(AndroidJUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@Ignore
 public class WmTraceSubjectTest {
     private static WindowManagerTrace readWmTraceFromFile(String relativePath) {
         try {
