@@ -46,10 +46,6 @@ public class Assertions {
         }
     }
 
-    /** Checks assertion on a single layers trace entry. */
-    @FunctionalInterface
-    public interface LayersTraceAssertion extends TraceAssertion<LayersTrace.Entry> {}
-
     /**
      * Utility class to store assertions with an identifier to help generate more useful debug data
      * when dealing with multiple assertions.
