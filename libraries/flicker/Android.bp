@@ -24,6 +24,7 @@ java_test {
         "layersprotosnano",
         "truth-prebuilt",
         "app-helpers-core",
+        "launcher-helper-lib",
         "launcher-aosp-tapl",
     ],
 }
@@ -32,7 +33,7 @@ java_library {
     name: "flickerlib_without_helpers",
     platform_apis: true,
     srcs: ["src/**/*.java", "src/**/*.kt"],
-    exclude_srcs: ["src/**/helpers/*.java"],
+    exclude_srcs: ["src/**/helpers/*.kt"],
     static_libs: [
         "cts-wm-util",
         "platformprotosnano",
@@ -47,8 +48,8 @@ java_library {
     name: "flickerautomationhelperlib",
     sdk_version: "test_current",
     srcs: [
-        "src/com/android/server/wm/flicker/helpers/AutomationUtils.java",
-        "src/com/android/server/wm/flicker/WindowUtils.java",
+        "src/com/android/server/wm/flicker/helpers/AutomationUtils.kt",
+        "src/com/android/server/wm/flicker/helpers/WindowUtils.kt",
     ],
     static_libs: [
         "launcher-helper-lib",
