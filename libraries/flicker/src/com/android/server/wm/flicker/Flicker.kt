@@ -17,6 +17,7 @@
 package com.android.server.wm.flicker
 
 import android.app.Instrumentation
+import android.support.test.launcherhelper.ILauncherStrategy
 import android.util.Log
 import androidx.test.uiautomator.UiDevice
 import com.android.server.wm.flicker.dsl.AssertionTarget
@@ -46,6 +47,10 @@ data class Flicker(
      * Test automation component used to interact with the device
      */
     val device: UiDevice,
+    /**
+     * Strategy used to interact with the launcher
+     */
+    val launcherStrategy: ILauncherStrategy,
     /**
      * Output directory for test results
      */
@@ -187,4 +192,3 @@ data class Flicker(
         }
     }
 }
-

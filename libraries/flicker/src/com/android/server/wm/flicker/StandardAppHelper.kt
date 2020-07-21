@@ -18,21 +18,23 @@ package com.android.server.wm.flicker
 
 import android.app.Instrumentation
 import android.platform.helpers.AbstractStandardAppHelper
-import com.android.launcher3.tapl.LauncherInstrumentation
+import android.support.test.launcherhelper.ILauncherStrategy
+import android.support.test.launcherhelper.LauncherStrategyFactory
+
 
 /**
  * Class to take advantage of {@code IAppHelper} interface so the same test can be run against first
  * party and third party apps.
  */
 open class StandardAppHelper @JvmOverloads constructor(
-    instr: Instrumentation,
-    protected val packageName: String,
-    protected val appName: String
+        instr: Instrumentation,
+        protected val packageName: String,
+        protected val appName: String,
+        protected val launcherStrategy: ILauncherStrategy
+        = LauncherStrategyFactory.getInstance(instr).launcherStrategy
 ) : AbstractStandardAppHelper(instr) {
-    private val mLauncher = LauncherInstrumentation(instr)
-
     override fun open() {
-        mLauncher.pressHome().switchToAllApps().getAppIcon(appName).launch(packageName)
+        launcherStrategy.launch(appName, packageName)
     }
 
     /** {@inheritDoc}  */

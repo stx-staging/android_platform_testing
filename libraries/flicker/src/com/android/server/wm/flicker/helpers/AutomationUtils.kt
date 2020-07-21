@@ -16,7 +16,6 @@
 
 package com.android.server.wm.flicker.helpers
 
-import android.app.Instrumentation
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Point
@@ -34,8 +33,6 @@ import androidx.test.uiautomator.Configurator
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 import com.android.compatibility.common.util.SystemUtil
-import com.android.launcher3.tapl.LauncherInstrumentation
-import com.android.launcher3.tapl.BaseOverview
 import com.android.server.wm.flicker.helpers.WindowUtils.displayBounds
 import com.android.server.wm.flicker.helpers.WindowUtils.getNavigationBarPosition
 import org.junit.Assert
@@ -88,14 +85,6 @@ fun UiDevice.reopenAppFromOverview() {
     val y = this.displayHeight / 2
     this.click(x, y)
     this.waitForIdle()
-}
-
-fun clearRecents(instr: Instrumentation) {
-    val launcher = LauncherInstrumentation(instr)
-    val overview = launcher.pressHome().switchToOverview()
-    if (overview.hasTasks()) {
-        overview.dismissAllTasks()
-    }
 }
 
 /**
@@ -334,4 +323,3 @@ fun UiDevice.wakeUpAndGoToHomeScreen() {
     }
     this.pressHome()
 }
-
