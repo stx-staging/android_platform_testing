@@ -278,7 +278,7 @@ class WindowManagerTraceEntry(val proto: WindowManagerTraceProto) : ITraceEntry 
                         + "\nUncovered region: $intersection")
             }
 
-            AssertionResult(reason, "coversAtLeastRegion", timestamp, success = true)
+            AssertionResult(reason, "coversAtLeastRegion", timestamp, success = covers)
         }
     }
 
@@ -303,7 +303,7 @@ class WindowManagerTraceEntry(val proto: WindowManagerTraceProto) : ITraceEntry 
                         + "\nOut-of-bounds region: $intersection")
             }
 
-            AssertionResult(reason, "coversAtMostRegion", timestamp, success = true)
+            AssertionResult(reason, "coversAtMostRegion", timestamp, success = covers)
         }
     }
 
