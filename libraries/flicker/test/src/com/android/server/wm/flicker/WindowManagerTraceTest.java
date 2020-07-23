@@ -21,6 +21,8 @@ import static com.android.server.wm.flicker.TestFileUtils.readTestFile;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import android.graphics.Region;
+
 import androidx.test.runner.AndroidJUnit4;
 
 import com.android.server.wm.nano.WindowStateProto;
@@ -76,6 +78,27 @@ public class WindowManagerTraceTest {
         entry.isAboveAppWindow("NotificationShade").assertFailed("is invisible");
         entry.isAboveAppWindow("InputMethod").assertFailed("is invisible");
         entry.isAboveAppWindow("AssistPreviewPanel").assertFailed("is invisible");
+    }
+
+    @Test
+    public void canDetectWindowCoversRegion() {
+        WindowManagerTraceEntry entry = mTrace.getEntry(9213763541297L);
+        entry.coversAtLeastRegion("StatusBar", new Region(0, 0, 1440, 171)).assertPassed();
+        entry.coversAtLeastRegion(
+                        "com.google.android.apps.nexuslauncher", new Region(0, 0, 1440, 2960))
+                .assertPassed();
+
+        entry.coversAtLeastRegion("StatusBar", new Region(0, 0, 1441, 171))
+                .assertFailed("Uncovered region: SkRegion((1440,0,1441,171))");
+        entry.coversAtLeastRegion(
+                        "com.google.android.apps.nexuslauncher", new Region(0, 0, 1440, 2961))
+                .assertFailed("Uncovered region: SkRegion((0,2960,1440,2961))");
+
+        entry.coversAtMostRegion("StatusBar", new Region(0, 0, 1439, 171))
+                .assertFailed("Out-of-bounds region: SkRegion((1439,0,1440,171))");
+        entry.coversAtMostRegion(
+                        "com.google.android.apps.nexuslauncher", new Region(0, 0, 1440, 2959))
+                .assertFailed("Out-of-bounds region: SkRegion((0,2959,1440,2960))");
     }
 
     @Test
