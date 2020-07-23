@@ -14,6 +14,7 @@ system_app_crash com.android.vending/com.google.android.finsky.verifier.impl.Pac
 system_app_crash com.google.android.apps.youtube.music.mediabrowser.MusicBrowserService.a 157917208
 system_app_crash android.database.sqlite.SQLiteCloseable.acquireReference 159658068
 system_app_crash com.google.android.gms.backup.component.D2dTransportService 31428310
+system_app_crash Unable\sto\sinstantiate\sapplication\sorg.chromium.chrome.browser.ChromeApplication 161275381
 system_app_crash com.google.android.as.*\s.*\s.*\s.*\s*.*act=android.net.wifi.STATE_CHANGE 161559360
 system_app_native_crash com.google.android.providers.media.module 154416156
 system_server_crash void.com.android.server.location.gnss.GnssBatchingProvider.enable 159504970
