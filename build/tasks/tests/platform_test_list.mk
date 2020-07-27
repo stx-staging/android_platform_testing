@@ -8,7 +8,6 @@ platform_tests += \
     AppLaunchWear \
     AppLinkFunctionalTests \
     AppLinkTestApp \
-    AppSmoke \
     AppTransitionTests \
     AutoLocTestApp \
     AutoLocVersionedTestApp_v1 \
