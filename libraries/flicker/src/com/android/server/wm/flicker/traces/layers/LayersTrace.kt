@@ -18,8 +18,8 @@ package com.android.server.wm.flicker.traces.layers
 
 import android.surfaceflinger.nano.Layers
 import android.surfaceflinger.nano.Layerstrace
-import com.android.server.wm.flicker.traces.TraceBase
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException
+import com.android.server.wm.flicker.common.traces.ITrace
 import java.nio.file.Path
 
 /**
@@ -29,10 +29,12 @@ import java.nio.file.Path
  * Each entry is parsed into a list of [LayerTraceEntry] objects.
  */
 class LayersTrace private constructor(
-    entries: List<LayerTraceEntry>,
-    source: Path?,
-    sourceChecksum: String
-) : TraceBase<LayerTraceEntry>(entries, source, sourceChecksum) {
+    override val entries: List<LayerTraceEntry>,
+    _source: Path?,
+    override val sourceChecksum: String
+): ITrace<LayerTraceEntry> {
+    override val source = _source?.toString() ?: ""
+
     companion object {
         /**
          * Parses [Layerstrace] from [data] and uses the proto to generates a list
@@ -84,7 +86,7 @@ class LayersTrace private constructor(
             val entry = LayerTraceEntry.fromFlattenedLayers(
                 timestamp = 0, protos = traceProto.layers, orphanLayerCallback = null)
 
-            return LayersTrace(listOf(entry), source = null, sourceChecksum = "")
+            return LayersTrace(listOf(entry), _source = null, sourceChecksum = "")
         }
     }
 }

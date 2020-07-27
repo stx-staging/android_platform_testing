@@ -14,23 +14,26 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.traces.eventlog
+package com.android.server.wm.flicker.common.traces
 
-import com.android.server.wm.flicker.common.traces.ITraceEntry
+interface IRangedSubject<Entry> {
+    /**
+     * Run the assertions for all entries.
+     */
+    fun forAllEntries()
 
-class FocusEvent(
-    override val timestamp: Long,
-    val window: String,
-    val focus: Focus,
-    val reason: String
-) : ITraceEntry {
-    enum class Focus { GAINED, LOST }
+    /**
+     * Run the assertions for entries within the specified time range.
+     */
+    fun forRange(startTime: Long, endTime: Long)  { throw UnsupportedOperationException() }
 
-    override fun toString(): String {
-        return "$timestamp: Focus ${focus.name} $window Reason=$reason"
-    }
+    /**
+     * Run the assertions only in the first entry.
+     */
+    fun inTheBeginning() { throw UnsupportedOperationException() }
 
-    fun hasFocus(): Boolean {
-        return this.focus == Focus.GAINED
-    }
+    /**
+     * Run the assertions only in the last entry.
+     */
+    fun atTheEnd() { throw UnsupportedOperationException() }
 }

@@ -14,14 +14,8 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.traces
+package com.android.server.wm.flicker.common.traces.windowmanager.windows
 
-/**
- * Common interface for Layer and WindowManager trace entries.
- */
-interface ITraceEntry {
-    /**
-     * @return timestamp of current entry
-     */
-    val timestamp: Long
+open class DisplayArea(windowContainer: WindowContainer)
+    : WindowContainer(windowContainer) {
 }
