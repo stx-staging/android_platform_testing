@@ -14,14 +14,6 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker
+package com.android.server.wm.flicker.helpers
 
-/**
- * Common interface for Layer and WindowManager trace entries.
- */
-interface ITraceEntry {
-    /**
-     * @return timestamp of current entry
-     */
-    val timestamp: Long
-}
+internal const val FLICKER_TAG = "FLICKER"
