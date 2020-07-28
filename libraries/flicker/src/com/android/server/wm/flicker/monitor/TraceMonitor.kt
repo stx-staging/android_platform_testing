@@ -50,7 +50,7 @@ abstract class TraceMonitor internal constructor(
         traceFileName: String
     ) : this(outputDir, TRACE_DIR.resolve(traceFileName))
 
-    override fun save(testTag: String, flickerRunResultBuilder: FlickerRunResult.Builder): Path {
+    override fun save(testTag: String, flickerRunResultBuilder: FlickerRunResult.Builder) {
         outputPath.toFile().mkdirs()
         val savedTrace = outputPath.resolve("${testTag}_${sourceTraceFilePath.fileName}")
         moveFile(sourceTraceFilePath, savedTrace)
@@ -59,7 +59,6 @@ abstract class TraceMonitor internal constructor(
         setResult(flickerRunResultBuilder, savedTrace)
 
         checksum = calculateChecksum(savedTrace)
-        return savedTrace
     }
 
     private fun moveFile(src: Path, dst: Path) {

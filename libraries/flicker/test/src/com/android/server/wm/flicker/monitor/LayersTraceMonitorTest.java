@@ -85,7 +85,8 @@ public class LayersTraceMonitorTest {
         mLayersTraceMonitor.start();
         mLayersTraceMonitor.stop();
         FlickerRunResult.Builder builder = new FlickerRunResult.Builder(0);
-        savedTrace = mLayersTraceMonitor.save("captureWindowTrace", builder);
+        mLayersTraceMonitor.save("captureWindowTrace", builder);
+        savedTrace = builder.build().layersTraceFile;
         File testFile = savedTrace.toFile();
         assertThat(testFile.exists()).isTrue();
         String calculatedChecksum = TraceMonitor.calculateChecksum(savedTrace);
