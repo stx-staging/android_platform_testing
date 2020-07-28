@@ -17,6 +17,8 @@
 package com.android.server.wm.flicker.dsl
 
 import android.app.Instrumentation
+import android.support.test.launcherhelper.ILauncherStrategy
+import android.support.test.launcherhelper.LauncherStrategyFactory
 import androidx.test.uiautomator.UiDevice
 import com.android.server.wm.flicker.Flicker
 import com.android.server.wm.flicker.FlickerDslMarker
@@ -34,15 +36,19 @@ import java.nio.file.Path
  */
 @FlickerDslMarker
 data class FlickerBuilder(
-    /**
+        /**
      * Instrumentation to run the tests
      */
     private val instrumentation: Instrumentation,
-    /**
+        /**
+     * Strategy used to interact with the launcher
+     */
+    private val launcherStrategy: ILauncherStrategy,
+        /**
      * Include or discard janky runs
      */
     private val includeJankyRuns: Boolean = true,
-    /**
+        /**
      * Output directory for the test results
      */
     private val outputDir: Path = instrumentation.targetContext
@@ -175,6 +181,7 @@ data class FlickerBuilder(
     fun build() = Flicker(
             instrumentation,
             device,
+            launcherStrategy,
             outputDir,
             testTag,
             iterations,
@@ -198,8 +205,10 @@ data class FlickerBuilder(
 @JvmOverloads
 fun flicker(
     instrumentation: Instrumentation,
+    launcherStrategy: ILauncherStrategy
+        = LauncherStrategyFactory.getInstance(instrumentation).launcherStrategy,
     configuration: FlickerBuilder.() -> Unit
-) = FlickerBuilder(instrumentation)
+) = FlickerBuilder(instrumentation, launcherStrategy)
         .apply(configuration)
         .build()
         .execute()
