@@ -85,7 +85,8 @@ public class WindowManagerTraceMonitorTest {
         mWindowManagerTraceMonitor.start();
         mWindowManagerTraceMonitor.stop();
         FlickerRunResult.Builder builder = new FlickerRunResult.Builder(0);
-        savedTrace = mWindowManagerTraceMonitor.save("captureWindowTrace", builder);
+        mWindowManagerTraceMonitor.save("captureWindowTrace", builder);
+        savedTrace = builder.build().wmTraceFile;
         File testFile = savedTrace.toFile();
         assertThat(testFile.exists()).isTrue();
         String calculatedChecksum = TraceMonitor.calculateChecksum(savedTrace);
