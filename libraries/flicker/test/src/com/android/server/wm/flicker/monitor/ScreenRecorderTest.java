@@ -79,7 +79,8 @@ public class ScreenRecorderTest {
         sleep(100);
         mScreenRecorder.stop();
         FlickerRunResult.Builder builder = new FlickerRunResult.Builder(0);
-        Path file = mScreenRecorder.save(TEST_VIDEO_FILENAME, builder);
+        mScreenRecorder.save(TEST_VIDEO_FILENAME, builder);
+        Path file = builder.build().screenRecording;
         assertThat(Files.exists(file)).isTrue();
     }
 }
