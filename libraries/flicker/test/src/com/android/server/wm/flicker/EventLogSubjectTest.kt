@@ -2,7 +2,6 @@ package com.android.server.wm.flicker
 
 import com.android.server.wm.flicker.traces.EventLogSubject
 import com.android.server.wm.flicker.traces.FocusEvent
-import org.junit.Before
 import org.junit.Test
 
 class EventLogSubjectTest {

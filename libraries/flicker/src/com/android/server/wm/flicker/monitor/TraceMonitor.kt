@@ -34,9 +34,8 @@ import java.security.NoSuchAlgorithmException
  * trace to another location.
  */
 abstract class TraceMonitor internal constructor(
-    @VisibleForTesting
-    protected var outputPath: Path,
-    protected var sourceTraceFilePath: Path
+        @VisibleForTesting var outputPath: Path,
+        protected var sourceTraceFilePath: Path
 ) : ITransitionMonitor {
     override var checksum: String = ""
         protected set
