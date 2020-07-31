@@ -98,6 +98,14 @@ class WmTraceSubjectTest {
                 .forAllEntries()
     }
 
+    @Test(expected = AssertionError::class)
+    fun testCanDetectOverlappingWindows() {
+        val trace = readWmTraceFromFile("wm_trace_ime.pb")
+        assertThat(trace)
+                .noWindowsOverlap("InputMethod", "NavigationBar", "ImeActivity")
+                .forAllEntries()
+    }
+
     @Test
     fun testCanTransitionAboveAppWindow() {
         val trace = readWmTraceFromFile("wm_trace_ime.pb")
