@@ -146,6 +146,7 @@ data class Flicker(
                     try {
                         assertion.assertion(WmTraceSubject.assertThat(wmTrace))
                     } catch(e: AssertionError) {
+                        iteration.failed = true
                         failures.append("\nTest failed: ${assertion.name}")
                                 .append("\nIteration: ${iteration.iteration}")
                                 .append("\nTrace: ${iteration.wmTraceFile}")
@@ -164,6 +165,7 @@ data class Flicker(
                     try {
                         assertion.assertion(LayersTraceSubject.assertThat(layersTrace))
                     } catch(e: AssertionError) {
+                        iteration.failed = true
                         failures.append("\nTest failed: ${assertion.name}")
                                 .append("\nIteration: ${iteration.iteration}")
                                 .append("\nTrace: ${iteration.layersTraceFile}")
@@ -178,6 +180,7 @@ data class Flicker(
                 try {
                     it.assertion(EventLogSubject.assertThat(iteration))
                 } catch(e: AssertionError) {
+                    iteration.failed = true
                     failures.append("\nTest failed: ${it.name}")
                             .append("\nIteration: ${iteration.iteration}")
                             .append("\nEventLog: \n${iteration.eventLog.joinToString("\n")}")
@@ -186,6 +189,11 @@ data class Flicker(
                             .append("\n")
                 }
             }
+
+            if (!iteration.failed) {
+                iteration.cleanUp()
+            }
+
         }
 
         Assert.assertTrue(failures.toString(), failures.isEmpty())
