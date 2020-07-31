@@ -187,6 +187,20 @@ class WmTraceSubject private constructor(
         }
     }
 
+    /**
+     * Checks if no app windows containing the [partialWindowTitles] overlap with each other.
+     *
+     * @param partialWindowTitles partial titles of windows to check
+     */
+    fun noWindowsOverlap(vararg partialWindowTitles: String): WmTraceSubject = apply {
+        val titles = partialWindowTitles.toSet()
+        val repr = titles.joinToString(", ")
+        require(titles.size > 1) { "Must give more than one window to check! (Given $repr)" }
+        addAssertion("noWindowsOverlap($repr)") {
+            it.noWindowsOverlap(titles)
+        }
+    }
+
     fun coversAtLeastRegion(partialWindowTitle: String, region: Region) = apply {
         addAssertion("coversAtLeastRegion($partialWindowTitle, $region)") {
             it.coversAtLeastRegion(partialWindowTitle, region)
