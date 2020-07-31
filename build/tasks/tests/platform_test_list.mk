@@ -34,7 +34,7 @@ platform_tests += \
     DynamicCodeLoggerIntegrationTests \
     DialerJankTests \
     DownloadManagerTestApp \
-    DummyIME \
+    StubIME \
     ExternalLocAllPermsTestApp \
     ExternalLocTestApp \
     ExternalLocVersionedTestApp_v1 \
