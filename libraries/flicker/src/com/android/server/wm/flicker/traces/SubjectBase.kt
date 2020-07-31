@@ -88,13 +88,13 @@ abstract class SubjectBase<Trace : TraceBase<Entry>, Entry: ITraceEntry> protect
             var tracePath = ""
             if (failureTracePath.isPresent) {
                 tracePath = """
-                    
+
                     $traceName Trace can be found in: ${failureTracePath.get().toAbsolutePath()}
                     Checksum: ${actual().sourceChecksum}
-                    
+
                     """.trimIndent()
             }
-            fail(tracePath + failureLogs)
+            fail(tracePath + "\n" + failureLogs)
         }
     }
 

@@ -20,9 +20,12 @@ import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTrace
 import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTrace.Companion.parseFrom
 import com.android.server.wm.flicker.traces.windowmanager.WmTraceSubject
 import com.android.server.wm.flicker.traces.windowmanager.WmTraceSubject.Companion.assertThat
+import com.google.common.truth.Truth
+import org.junit.Assert
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
+import java.lang.AssertionError
 
 /**
  * Contains [WmTraceSubject] tests. To run this test: `atest
@@ -75,6 +78,23 @@ class WmTraceSubjectTest {
                 .and()
                 .showsAboveAppWindow("ScreenDecorOverlay")
                 .inTheBeginning()
+    }
+
+    @Test
+    fun testCanInspectAppWindowOnTop() {
+        val trace = readWmTraceFromFile("wm_trace_openchrome.pb")
+        assertThat(trace)
+                .showsAppWindowOnTop("NexusLauncherActivity", "InvalidWindow")
+                .inTheBeginning()
+        try {
+            assertThat(trace)
+                .showsAppWindowOnTop("AnotherInvalidWindow", "InvalidWindow")
+                .inTheBeginning()
+            Assert.fail("Could not detect the top app window")
+        } catch (e: AssertionError) {
+            Truth.assertWithMessage("Could not detect the top app window").that(e.message)
+                    .contains("InvalidWindow cannot be found")
+        }
     }
 
     @Test

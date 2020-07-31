@@ -28,7 +28,7 @@ import com.android.server.wm.flicker.monitor.WindowAnimationFrameStatsMonitor
 import com.android.server.wm.flicker.traces.EventLogSubject
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 import com.android.server.wm.flicker.traces.windowmanager.WmTraceSubject
-import junit.framework.Assert
+import com.google.common.truth.Truth
 import java.nio.file.Path
 
 @DslMarker
@@ -146,6 +146,7 @@ data class Flicker(
                     try {
                         assertion.assertion(WmTraceSubject.assertThat(wmTrace))
                     } catch(e: AssertionError) {
+                        iteration.failed = true
                         failures.append("\nTest failed: ${assertion.name}")
                                 .append("\nIteration: ${iteration.iteration}")
                                 .append("\nTrace: ${iteration.wmTraceFile}")
@@ -164,6 +165,7 @@ data class Flicker(
                     try {
                         assertion.assertion(LayersTraceSubject.assertThat(layersTrace))
                     } catch(e: AssertionError) {
+                        iteration.failed = true
                         failures.append("\nTest failed: ${assertion.name}")
                                 .append("\nIteration: ${iteration.iteration}")
                                 .append("\nTrace: ${iteration.layersTraceFile}")
@@ -178,6 +180,7 @@ data class Flicker(
                 try {
                     it.assertion(EventLogSubject.assertThat(iteration))
                 } catch(e: AssertionError) {
+                    iteration.failed = true
                     failures.append("\nTest failed: ${it.name}")
                             .append("\nIteration: ${iteration.iteration}")
                             .append("\nEventLog: \n${iteration.eventLog.joinToString("\n")}")
@@ -186,9 +189,14 @@ data class Flicker(
                             .append("\n")
                 }
             }
+
+            if (!iteration.failed) {
+                iteration.cleanUp()
+            }
+
         }
 
-        Assert.assertTrue(failures.toString(), failures.isEmpty())
+        Truth.assertWithMessage(failures.toString()).that(failures.isEmpty()).isTrue()
     }
 
     private fun saveResult(iteration: Int) {
