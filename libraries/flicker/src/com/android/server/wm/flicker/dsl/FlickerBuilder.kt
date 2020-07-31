@@ -22,14 +22,15 @@ import android.support.test.launcherhelper.LauncherStrategyFactory
 import androidx.test.uiautomator.UiDevice
 import com.android.server.wm.flicker.Flicker
 import com.android.server.wm.flicker.FlickerDslMarker
+import com.android.server.wm.flicker.monitor.EventLogMonitor
 import com.android.server.wm.flicker.helpers.getDefaultFlickerOutputDir
 import com.android.server.wm.flicker.monitor.ITransitionMonitor
-import com.android.server.wm.flicker.traces.layers.LayersTrace
-import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTrace
 import com.android.server.wm.flicker.monitor.LayersTraceMonitor
 import com.android.server.wm.flicker.monitor.ScreenRecorder
 import com.android.server.wm.flicker.monitor.WindowAnimationFrameStatsMonitor
 import com.android.server.wm.flicker.monitor.WindowManagerTraceMonitor
+import com.android.server.wm.flicker.traces.layers.LayersTrace
+import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTrace
 import java.nio.file.Path
 
 /**
@@ -67,6 +68,7 @@ data class FlickerBuilder(
                 it.add(WindowManagerTraceMonitor(outputDir))
                 it.add(LayersTraceMonitor(outputDir))
                 it.add(ScreenRecorder(outputDir))
+                it.add(EventLogMonitor())
             }
     private val frameStatsMonitor: WindowAnimationFrameStatsMonitor? = if (includeJankyRuns) {
         null
