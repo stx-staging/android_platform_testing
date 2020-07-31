@@ -28,7 +28,7 @@ import com.android.server.wm.flicker.monitor.WindowAnimationFrameStatsMonitor
 import com.android.server.wm.flicker.traces.EventLogSubject
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 import com.android.server.wm.flicker.traces.windowmanager.WmTraceSubject
-import junit.framework.Assert
+import com.google.common.truth.Truth
 import java.nio.file.Path
 
 @DslMarker
@@ -196,7 +196,7 @@ data class Flicker(
 
         }
 
-        Assert.assertTrue(failures.toString(), failures.isEmpty())
+        Truth.assertWithMessage(failures.toString()).that(failures.isEmpty()).isTrue()
     }
 
     private fun saveResult(iteration: Int) {

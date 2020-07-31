@@ -57,11 +57,11 @@ data class FlickerBuilder(
 ) {
     private var testTag: String = ""
     private var iterations: Int = 1
-    private val device = UiDevice.getInstance(instrumentation)
     private val setupCommands = TestCommands()
     private val teardownCommands = TestCommands()
     private val transitionCommands = mutableListOf<Flicker.() -> Any>()
     private val assertions = AssertionTarget()
+    val device = UiDevice.getInstance(instrumentation)
 
     private val traceMonitors = mutableListOf<ITransitionMonitor>()
             .also {

@@ -17,6 +17,7 @@
 package com.android.server.wm.flicker.traces.windowmanager
 
 import android.graphics.Region
+import com.android.server.wm.flicker.assertions.AssertionResult
 import com.android.server.wm.flicker.assertions.TraceAssertion
 import com.android.server.wm.flicker.traces.SubjectBase
 import com.google.common.truth.FailureMetadata
@@ -136,15 +137,24 @@ class WmTraceSubject private constructor(
     }
 
     /**
-     * Checks if app window with title containing the [partialWindowTitle] is on top
+     * Checks if an app window with title containing the [partialWindowTitles] is on top
      *
-     * @param partialWindowTitle window title to search
+     * @param partialWindowTitles window title to search
      */
-    fun showsAppWindowOnTop(partialWindowTitle: String) = apply {
-        addAssertion("showsAppWindowOnTop($partialWindowTitle)") {
-            var result = it.isAppWindowVisible(partialWindowTitle)
-            if (result.passed()) {
-                result = it.isVisibleAppWindowOnTop(partialWindowTitle)
+    fun showsAppWindowOnTop(vararg partialWindowTitles: String) = apply {
+        val assertionName = "showsAppWindowOnTop(${partialWindowTitles.joinToString(",")})"
+        addAssertion(assertionName) {
+            var result = AssertionResult("No window titles to search", assertionName,
+                    success = false)
+
+            for (windowTitle in partialWindowTitles) {
+                result = it.isAppWindowVisible(windowTitle)
+                if (result.passed()) {
+                    result = it.isVisibleAppWindowOnTop(windowTitle)
+                    if (result.passed()) {
+                        break
+                    }
+                }
             }
             result
         }
