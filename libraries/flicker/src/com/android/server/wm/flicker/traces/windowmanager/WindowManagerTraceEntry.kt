@@ -233,16 +233,13 @@ class WindowManagerTraceEntry(val proto: WindowManagerTraceProto) : ITraceEntry 
     }
 
     /**
-     * Obtains the first window with title containing [windowTitle] is visible.
-     * Computes the result based on the intersection between the [testRegion] and the window frame.
+     * Obtains the region of the first visible window with title containing [windowTitle].
      *
      * @param windowTitle Name of the layer to search
-     * @param testRegion Expected visible area of the window
      * @param resultComputation Predicate to compute a result based on the found window's region
      */
     private fun covers(
         windowTitle: String,
-        testRegion: Region,
         resultComputation: (Region) -> AssertionResult
     ): AssertionResult {
         val assertionName = "covers"
@@ -253,7 +250,6 @@ class WindowManagerTraceEntry(val proto: WindowManagerTraceProto) : ITraceEntry 
 
         val foundWindow = windows.first { getWindowByIdentifier(it, windowTitle) != null }
         val foundRegion = foundWindow.frameRegion
-        val testRect = testRegion.bounds
 
         return resultComputation(foundRegion)
     }
@@ -267,7 +263,7 @@ class WindowManagerTraceEntry(val proto: WindowManagerTraceProto) : ITraceEntry 
      * @param testRegion Expected visible area of the window
      */
     fun coversAtLeastRegion(windowTitle: String, testRegion: Region): AssertionResult {
-        return covers(windowTitle, testRegion) { windowRegion ->
+        return covers(windowTitle) { windowRegion ->
             val testRect = testRegion.bounds
             val intersection = Region(windowRegion)
             val covers = intersection.op(testRect, Region.Op.INTERSECT)
@@ -292,7 +288,7 @@ class WindowManagerTraceEntry(val proto: WindowManagerTraceProto) : ITraceEntry 
      * @param testRegion Expected visible area of the window
      */
     fun coversAtMostRegion(windowTitle: String, testRegion: Region): AssertionResult {
-        return covers(windowTitle, testRegion) { windowRegion ->
+        return covers(windowTitle) { windowRegion ->
             val testRect = testRegion.bounds
             val intersection = Region(windowRegion)
             val covers = intersection.op(testRect, Region.Op.INTERSECT)
