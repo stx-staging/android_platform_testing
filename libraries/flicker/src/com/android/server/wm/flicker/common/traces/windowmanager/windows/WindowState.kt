@@ -21,11 +21,11 @@ import com.android.server.wm.flicker.common.Region
 import com.android.server.wm.flicker.common.WindowRect
 
 class WindowState(
-        windowContainer: WindowContainer,
-        val childWindows: Array<WindowState>, // deprecated — kept for backward compatibility
-        frame: Rect
+    windowContainer: WindowContainer,
+    val childWindows: Array<WindowState>, // deprecated — kept for backward compatibility
+    frame: Rect
 ) : WindowContainer(windowContainer) {
-    override val rects : List<Rect> = listOf(WindowRect(frame, this, title))
+    override val rects: List<Rect> = listOf(WindowRect(frame, this, title))
 
     val frameRegion: Region = Region(frame)
 }

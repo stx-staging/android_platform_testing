@@ -19,7 +19,6 @@ package com.android.server.wm.flicker.traces.layers
 import android.surfaceflinger.nano.Layers
 import android.surfaceflinger.nano.Layerstrace
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException
-import com.android.server.wm.flicker.common.traces.ITrace
 import java.nio.file.Path
 
 /**
@@ -32,8 +31,8 @@ class LayersTrace private constructor(
     override val entries: List<LayerTraceEntry>,
     _source: Path?,
     override val sourceChecksum: String
-): ITrace<LayerTraceEntry> {
-    override val source = _source?.toString() ?: ""
+) : com.android.server.wm.flicker.common.traces.layers.LayersTrace<LayerTraceEntry, Layer>(
+    entries, _source?.toString() ?: "", sourceChecksum) {
 
     companion object {
         /**
@@ -61,7 +60,7 @@ class LayersTrace private constructor(
                 throw RuntimeException(e)
             }
             for (traceProto: Layerstrace.LayersTraceProto in fileProto.entry) {
-                val entry: LayerTraceEntry = LayerTraceEntry.fromFlattenedLayers(
+                val entry = LayerTraceEntry.fromFlattenedProtoLayers(
                         traceProto.elapsedRealtimeNanos, traceProto.layers.layers,
                         orphanLayerCallback)
                 entries.add(entry)
@@ -83,7 +82,7 @@ class LayersTrace private constructor(
                 throw RuntimeException(e)
             }
 
-            val entry = LayerTraceEntry.fromFlattenedLayers(
+            val entry = LayerTraceEntry.fromFlattenedProtoLayers(
                 timestamp = 0, protos = traceProto.layers, orphanLayerCallback = null)
 
             return LayersTrace(listOf(entry), _source = null, sourceChecksum = "")

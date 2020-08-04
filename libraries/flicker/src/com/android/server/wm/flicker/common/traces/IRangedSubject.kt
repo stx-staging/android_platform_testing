@@ -25,7 +25,7 @@ interface IRangedSubject<Entry> {
     /**
      * Run the assertions for entries within the specified time range.
      */
-    fun forRange(startTime: Long, endTime: Long)  { throw UnsupportedOperationException() }
+    fun forRange(startTime: Long, endTime: Long) { throw UnsupportedOperationException() }
 
     /**
      * Run the assertions only in the first entry.

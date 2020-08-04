@@ -18,10 +18,10 @@ package com.android.server.wm.flicker.common
 
 /** Contains the result of an assertion including the reason for failed assertions.  */
 data class AssertionResult constructor(
-        val reason: String,
-        val assertionName: String = "",
-        val timestamp: Long = 0,
-        val success: Boolean = true
+    val reason: String,
+    val assertionName: String = "",
+    val timestamp: Long = 0,
+    val success: Boolean = true
 ) {
     /**
     * Creates a new instance with name and success

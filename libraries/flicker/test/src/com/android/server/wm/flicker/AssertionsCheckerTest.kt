@@ -150,8 +150,8 @@ class AssertionsCheckerTest {
          * Returns a list of SimpleEntry objects with `data` and incremental timestamps starting
          * at 0.
          */
-        private fun getTestEntries(vararg data: Int): List<SimpleEntry>
-                = data.indices.map { SimpleEntry(it.toLong(), data[it])
+        private fun getTestEntries(vararg data: Int): List<SimpleEntry> =
+                data.indices.map { SimpleEntry(it.toLong(), data[it])
         }
     }
 }

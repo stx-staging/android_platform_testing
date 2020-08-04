@@ -18,6 +18,8 @@ package com.android.server.wm.flicker.common
 
 import com.android.server.wm.flicker.common.traces.windowmanager.windows.WindowContainer
 
-class WindowRect(val rect: Rect,
-                 val ref: WindowContainer,
-                 val label: String?) : Rect(rect.left, rect.top, rect.right, rect.bottom)
+class WindowRect(
+    val rect: Rect,
+    val ref: WindowContainer,
+    val label: String?
+) : Rect(rect.left, rect.top, rect.right, rect.bottom)

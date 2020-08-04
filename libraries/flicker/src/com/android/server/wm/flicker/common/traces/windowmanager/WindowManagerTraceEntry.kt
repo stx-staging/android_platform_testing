@@ -24,7 +24,7 @@ import com.android.server.wm.flicker.common.traces.windowmanager.windows.WindowC
 import com.android.server.wm.flicker.common.traces.windowmanager.windows.WindowState
 
 /** Represents a single WindowManager trace entry.  */
-open class WindowManagerTraceEntry(val rootWindow : WindowContainer, override val timestamp: Long)
+open class WindowManagerTraceEntry(val rootWindow: WindowContainer, override val timestamp: Long)
     : ITraceEntry {
 
     private var _appWindows = mutableSetOf<WindowState>()
@@ -157,8 +157,8 @@ open class WindowManagerTraceEntry(val rootWindow : WindowContainer, override va
      * @param resultComputation Predicate to compute a result based on the found window's region
      */
     protected fun covers(
-            windowTitle: String,
-            resultComputation: (Region) -> AssertionResult
+        windowTitle: String,
+        resultComputation: (Region) -> AssertionResult
     ): AssertionResult {
         val assertionName = "covers"
         val visibilityCheck = windows.isWindowVisible(assertionName, windowTitle)
@@ -173,8 +173,8 @@ open class WindowManagerTraceEntry(val rootWindow : WindowContainer, override va
     }
 
     protected fun getWindows(
-            windowContainer: WindowContainer,
-            isAppWindow: Boolean
+        windowContainer: WindowContainer,
+        isAppWindow: Boolean
     ): List<WindowState> {
         return windowContainer.childrenWindows.flatMap {
             when (it) {
@@ -196,8 +196,8 @@ open class WindowManagerTraceEntry(val rootWindow : WindowContainer, override va
 
     /** Checks if non app window with `windowTitle` is visible.  */
     protected fun getWindowByIdentifier(
-            windowContainer: WindowContainer,
-            windowTitle: String
+        windowContainer: WindowContainer,
+        windowTitle: String
     ): WindowContainer? {
         return if (windowContainer.title.contains(windowTitle)) {
             windowContainer
@@ -206,9 +206,9 @@ open class WindowManagerTraceEntry(val rootWindow : WindowContainer, override va
     }
 
     protected fun Collection<WindowState>.isWindowVisible(
-            assertionName: String,
-            windowTitle: String,
-            isVisible: Boolean = true
+        assertionName: String,
+        windowTitle: String,
+        isVisible: Boolean = true
     ): AssertionResult {
         val foundWindow = this.filter { getWindowByIdentifier(it, windowTitle) != null }
         return when {

@@ -48,8 +48,8 @@ object Assertions {
  * when dealing with multiple assertions.
  */
 open class NamedAssertion<T>(
-        private val assertion: TraceAssertion<T>,
-        open val name: String
+    private val assertion: TraceAssertion<T>,
+    open val name: String
 ) : TraceAssertion<T> {
     override fun invoke(t: T): AssertionResult = assertion.invoke(t)
 

@@ -273,7 +273,7 @@ class WindowManagerTraceEntry(rootWindow: WindowContainer, timestamp: Long) :
             }
 
             val frame = if (frameProto == null) {
-                Rect(0,0,0,0)
+                Rect(0, 0, 0, 0)
             } else {
                 Rect(frameProto.left, frameProto.top, frameProto.right, frameProto.bottom)
             }

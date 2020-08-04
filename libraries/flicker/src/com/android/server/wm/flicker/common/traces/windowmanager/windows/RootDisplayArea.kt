@@ -17,5 +17,4 @@
 package com.android.server.wm.flicker.common.traces.windowmanager.windows
 
 open class RootDisplayArea(displayArea: DisplayArea)
-    : DisplayArea(displayArea) {
-}
+    : DisplayArea(displayArea)

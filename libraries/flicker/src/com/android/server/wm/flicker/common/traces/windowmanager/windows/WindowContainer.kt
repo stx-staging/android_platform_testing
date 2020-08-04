@@ -31,9 +31,9 @@ open class WindowContainer(
         windowContainer.windowHashCode, windowContainer.visible
     )
 
-    fun isVisible() : Boolean = visible
+    fun isVisible(): Boolean = visible
 
-    val childrenWindows : Array<WindowContainer> = childrenArray.reversed().toTypedArray()
+    val childrenWindows: Array<WindowContainer> = childrenArray.reversed().toTypedArray()
 
     open val rects: List<Rect> = childrenWindows.flatMap { it.rects }
 
@@ -64,6 +64,6 @@ open class WindowContainer(
 
         val className = classParts.last()
 
-        return "${classParts[0]}.${classParts[1]}.(...).${className}"
+        return "${classParts[0]}.${classParts[1]}.(...).$className"
     }
 }

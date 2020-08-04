@@ -17,5 +17,4 @@
 package com.android.server.wm.flicker.common.traces.windowmanager.windows
 
 open class DisplayArea(windowContainer: WindowContainer)
-    : WindowContainer(windowContainer) {
-}
+    : WindowContainer(windowContainer)
