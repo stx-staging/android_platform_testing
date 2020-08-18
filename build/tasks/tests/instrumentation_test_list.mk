@@ -74,7 +74,8 @@ instrumentation_tests := \
     FrameworksNetSmokeTests \
     FlickerTests \
     FlickerTestApp \
-    trace_config_detailed.textproto
+    trace_config_detailed.textproto \
+    perfetto_trace_processor_shell
 
 ifneq ($(strip $(BOARD_PERFSETUP_SCRIPT)),)
 instrumentation_tests += perf-setup.sh
