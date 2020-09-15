@@ -41,5 +41,5 @@ private fun getCurrentWindowManagerState(uiAutomation: UiAutomation) =
 private fun getCurrentLayersState(uiAutomation: UiAutomation) =
     executeCommand(uiAutomation, "dumpsys SurfaceFlinger --proto")
 
-fun UiDevice.getCurrState(uiAutomation: UiAutomation) = DeviceStateDump(
+fun UiDevice.getCurrState(uiAutomation: UiAutomation) = DeviceStateDump.fromDump(
     getCurrentWindowManagerState(uiAutomation), getCurrentLayersState(uiAutomation))
