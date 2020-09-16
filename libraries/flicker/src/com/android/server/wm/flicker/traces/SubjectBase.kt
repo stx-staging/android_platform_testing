@@ -24,12 +24,11 @@ import com.android.server.wm.flicker.common.traces.ITraceEntry
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.Subject
 import java.nio.file.Paths
-import java.util.Optional
 
 /**
  * Base truth subject.
  */
-abstract class SubjectBase<Trace : ITrace<Entry>, Entry: ITraceEntry> protected constructor(
+abstract class SubjectBase<Trace : ITrace<Entry>, Entry : ITraceEntry> protected constructor(
     fm: FailureMetadata,
     subject: Trace
 ) : Subject<SubjectBase<Trace, Entry>, Trace>(fm, subject), IRangedSubject<Entry> {
@@ -90,9 +89,8 @@ abstract class SubjectBase<Trace : ITrace<Entry>, Entry: ITraceEntry> protected 
         if (failures.isNotEmpty()) {
             val failureLogs = failures.joinToString("\n") { it.toString() }
             var tracePath = ""
-            val source = Optional.ofNullable(actual().source)
-            if (source.isPresent) {
-                val failureTracePath = Paths.get(source.get())
+            if (actual().hasSource()) {
+                val failureTracePath = Paths.get(actual().source)
                 tracePath = """
 
                     $traceName Trace can be found in: ${failureTracePath.toAbsolutePath()}

@@ -17,5 +17,4 @@
 package com.android.server.wm.flicker.common.traces.windowmanager.windows
 
 class ActivityRecord(windowToken: WindowToken)
-    : WindowToken(windowToken) {
-}
+    : WindowToken(windowToken)

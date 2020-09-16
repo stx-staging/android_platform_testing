@@ -16,9 +16,9 @@
 
 package com.android.server.wm.flicker.common.traces
 
-interface ITrace<Entry: ITraceEntry> {
+interface ITrace<Entry : ITraceEntry> {
     val entries: List<Entry>
-    val source: String?
+    val source: String
     val sourceChecksum: String
 
     fun getEntry(timestamp: Long): Entry {
@@ -26,5 +26,5 @@ interface ITrace<Entry: ITraceEntry> {
                 ?: throw RuntimeException("Entry does not exist for timestamp $timestamp")
     }
 
-    fun hasSource(): Boolean = source != null
+    fun hasSource(): Boolean = source.isNotEmpty()
 }

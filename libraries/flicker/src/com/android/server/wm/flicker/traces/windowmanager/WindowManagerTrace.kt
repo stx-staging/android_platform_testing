@@ -32,7 +32,10 @@ class WindowManagerTrace private constructor(
     source: Path?,
     sourceChecksum: String
 ) : com.android.server.wm.flicker.common.traces.windowmanager
-        .WindowManagerTrace<WindowManagerTraceEntry>(entries, source.toString(), sourceChecksum) {
+        .WindowManagerTrace<WindowManagerTraceEntry>(
+    entries, source?.toString() ?: "",
+    sourceChecksum
+) {
     companion object {
         /**
          * Parses [WindowManagerTraceFileProto] from [data] and uses the proto to generates

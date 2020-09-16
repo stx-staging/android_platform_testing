@@ -25,6 +25,7 @@ import com.android.server.wm.flicker.common.traces.ITrace
  * Each entry is parsed into a list of [WindowManagerTraceEntry] objects.
  */
 open class WindowManagerTrace<Entry : WindowManagerTraceEntry>(
-        override val entries: List<Entry>,
-        override val source: String?,
-        override val sourceChecksum: String) : ITrace<Entry> {}
+    override val entries: List<Entry>,
+    override val source: String,
+    override val sourceChecksum: String
+) : ITrace<Entry>

@@ -19,5 +19,4 @@ package com.android.server.wm.flicker.common.traces.windowmanager.windows
 import com.android.server.wm.flicker.common.Bounds
 
 class DisplayContent(rootDisplayArea: RootDisplayArea, val bounds: Bounds)
-    : RootDisplayArea(rootDisplayArea) {
-}
+    : RootDisplayArea(rootDisplayArea)
