@@ -107,4 +107,23 @@ class FlickerDSLTest {
             }
         }
     }
+
+    @Test
+    fun detectEmptyResults() {
+        try {
+            val builder = FlickerBuilder(instrumentation)
+            runWithFlicker(builder) {
+                assertions {
+                    windowManagerTrace {
+                        tag("tag") { defaultAssertion(this) }
+                    }
+                }
+            }
+            Assert.fail("Should not have allowed empty transition")
+        } catch (e: Exception) {
+            Truth.assertWithMessage("Flicker did not warn of empty transitions")
+                .that(e.message)
+                .contains("A flicker test must include transitions to run")
+        }
+    }
 }
