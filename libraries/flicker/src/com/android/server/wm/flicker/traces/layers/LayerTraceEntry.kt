@@ -20,8 +20,8 @@ import android.graphics.Region
 import android.surfaceflinger.nano.Layers
 import android.util.SparseArray
 import androidx.annotation.VisibleForTesting
-import com.android.server.wm.flicker.assertions.AssertionResult
-import com.android.server.wm.flicker.traces.ITraceEntry
+import com.android.server.wm.flicker.common.AssertionResult
+import com.android.server.wm.flicker.common.traces.ITraceEntry
 
 /** Represents a single Layer trace entry.  */
 class LayerTraceEntry constructor(

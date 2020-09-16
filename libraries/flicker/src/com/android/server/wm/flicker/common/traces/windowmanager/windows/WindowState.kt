@@ -14,23 +14,18 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.traces.eventlog
+package com.android.server.wm.flicker.common.traces.windowmanager.windows
 
-import com.android.server.wm.flicker.common.traces.ITraceEntry
+import com.android.server.wm.flicker.common.Rect
+import com.android.server.wm.flicker.common.Region
+import com.android.server.wm.flicker.common.WindowRect
 
-class FocusEvent(
-    override val timestamp: Long,
-    val window: String,
-    val focus: Focus,
-    val reason: String
-) : ITraceEntry {
-    enum class Focus { GAINED, LOST }
+class WindowState(
+        windowContainer: WindowContainer,
+        val childWindows: Array<WindowState>, // deprecated — kept for backward compatibility
+        frame: Rect
+) : WindowContainer(windowContainer) {
+    override val rects : List<Rect> = listOf(WindowRect(frame, this, title))
 
-    override fun toString(): String {
-        return "$timestamp: Focus ${focus.name} $window Reason=$reason"
-    }
-
-    fun hasFocus(): Boolean {
-        return this.focus == Focus.GAINED
-    }
+    val frameRegion: Region = Region(frame)
 }

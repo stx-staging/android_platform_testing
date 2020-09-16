@@ -14,21 +14,17 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.traces
+package com.android.server.wm.flicker.common.traces.windowmanager
 
-import java.nio.file.Path
-import java.util.Optional
+import com.android.server.wm.flicker.common.traces.ITrace
 
-abstract class TraceBase<Entry: ITraceEntry>(
-    val entries: List<Entry>,
-    private val _source: Path?,
-    val sourceChecksum: String) {
-    val source get() = Optional.ofNullable(_source)
-
-    fun getEntry(timestamp: Long): Entry {
-        return entries.firstOrNull { it.timestamp == timestamp }
-                ?: throw RuntimeException("Entry does not exist for timestamp $timestamp")
-    }
-
-    fun hasSource(): Boolean = _source != null
-}
+/**
+ * Contains a collection of parsed WindowManager trace entries and assertions to apply over a single
+ * entry.
+ *
+ * Each entry is parsed into a list of [WindowManagerTraceEntry] objects.
+ */
+open class WindowManagerTrace<Entry : WindowManagerTraceEntry>(
+        override val entries: List<Entry>,
+        override val source: String?,
+        override val sourceChecksum: String) : ITrace<Entry> {}

@@ -14,23 +14,17 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.traces.eventlog
+package com.android.server.wm.flicker.common.traces
 
-import com.android.server.wm.flicker.common.traces.ITraceEntry
+interface ITrace<Entry: ITraceEntry> {
+    val entries: List<Entry>
+    val source: String?
+    val sourceChecksum: String
 
-class FocusEvent(
-    override val timestamp: Long,
-    val window: String,
-    val focus: Focus,
-    val reason: String
-) : ITraceEntry {
-    enum class Focus { GAINED, LOST }
-
-    override fun toString(): String {
-        return "$timestamp: Focus ${focus.name} $window Reason=$reason"
+    fun getEntry(timestamp: Long): Entry {
+        return entries.firstOrNull { it.timestamp == timestamp }
+                ?: throw RuntimeException("Entry does not exist for timestamp $timestamp")
     }
 
-    fun hasFocus(): Boolean {
-        return this.focus == Focus.GAINED
-    }
+    fun hasSource(): Boolean = source != null
 }

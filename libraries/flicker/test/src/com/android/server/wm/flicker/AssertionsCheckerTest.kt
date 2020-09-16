@@ -16,9 +16,9 @@
 
 package com.android.server.wm.flicker
 
-import com.android.server.wm.flicker.assertions.AssertionResult
 import com.android.server.wm.flicker.assertions.AssertionsChecker
-import com.android.server.wm.flicker.traces.ITraceEntry
+import com.android.server.wm.flicker.common.AssertionResult
+import com.android.server.wm.flicker.common.traces.ITraceEntry
 import com.google.common.truth.Truth
 import org.junit.FixMethodOrder
 import org.junit.Test

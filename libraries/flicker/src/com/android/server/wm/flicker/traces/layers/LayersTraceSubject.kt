@@ -72,7 +72,7 @@ class LayersTraceSubject private constructor(
             var tracePath = ""
             if (actual().hasSource()) {
                 tracePath = "Layers Trace can be found in: " +
-                        "${actual().source.get().toAbsolutePath()}" +
+                        actual().source +
                         "\nChecksum: " + actual().sourceChecksum + "\n"
             }
             fail(tracePath + failureLogs)
