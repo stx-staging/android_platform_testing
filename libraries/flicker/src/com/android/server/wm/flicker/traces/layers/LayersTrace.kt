@@ -16,8 +16,9 @@
 
 package com.android.server.wm.flicker.traces.layers
 
+import android.surfaceflinger.nano.Layers
 import android.surfaceflinger.nano.Layerstrace
-import com.android.server.wm.flicker.traces.TraceBase
+import com.google.protobuf.nano.InvalidProtocolBufferNanoException
 import java.nio.file.Path
 
 /**
@@ -27,39 +28,21 @@ import java.nio.file.Path
  * Each entry is parsed into a list of [LayerTraceEntry] objects.
  */
 class LayersTrace private constructor(
-    entries: List<LayerTraceEntry>,
-    source: Path?,
-    sourceChecksum: String
-) : TraceBase<LayerTraceEntry>(entries, source, sourceChecksum) {
+    override val entries: List<LayerTraceEntry>,
+    _source: Path?,
+    override val sourceChecksum: String
+) : com.android.server.wm.flicker.common.traces.layers.LayersTrace<LayerTraceEntry, Layer>(
+    entries, _source?.toString() ?: "", sourceChecksum) {
+
     companion object {
         /**
-         * Parses `LayersTraceFileProto` from `data` and uses the proto to generates a list
+         * Parses [Layerstrace] from [data] and uses the proto to generates a list
          * of trace entries, storing the flattened layers into its hierarchical structure.
          *
          * @param data binary proto data
          * @param source Path to source of data for additional debug information
          * @param sourceChecksum Checksum of the source file
          * @param orphanLayerCallback a callback to handle any unexpected orphan layers
-         */
-        /**
-         * Parses `LayersTraceFileProto` from `data` and uses the proto to generates a list
-         * of trace entries, storing the flattened layers into its hierarchical structure.
-         *
-         * @param data binary proto data
-         * @param source Path to source of data for additional debug information
-         */
-        /**
-         * Parses `LayersTraceFileProto` from `data` and uses the proto to generates a list
-         * of trace entries, storing the flattened layers into its hierarchical structure.
-         *
-         * @param data binary proto data
-         */
-        /**
-         * Parses `LayersTraceFileProto` from `data` and uses the proto to generates a list
-         * of trace entries, storing the flattened layers into its hierarchical structure.
-         *
-         * @param data binary proto data
-         * @param source Path to source of data for additional debug information
          */
         @JvmOverloads
         @JvmStatic
@@ -77,12 +60,32 @@ class LayersTrace private constructor(
                 throw RuntimeException(e)
             }
             for (traceProto: Layerstrace.LayersTraceProto in fileProto.entry) {
-                val entry: LayerTraceEntry = LayerTraceEntry.fromFlattenedLayers(
+                val entry = LayerTraceEntry.fromFlattenedProtoLayers(
                         traceProto.elapsedRealtimeNanos, traceProto.layers.layers,
                         orphanLayerCallback)
                 entries.add(entry)
             }
             return LayersTrace(entries, source, sourceChecksum)
+        }
+
+        /**
+         * Parses [Layerstrace] from [data] and uses the proto to generates
+         * a list of trace entries.
+         *
+         * @param data binary proto data
+         */
+        @JvmStatic
+        fun parseFromDump(data: ByteArray?): LayersTrace {
+            val traceProto = try {
+                Layers.LayersProto.parseFrom(data)
+            } catch (e: InvalidProtocolBufferNanoException) {
+                throw RuntimeException(e)
+            }
+
+            val entry = LayerTraceEntry.fromFlattenedProtoLayers(
+                timestamp = 0, protos = traceProto.layers, orphanLayerCallback = null)
+
+            return LayersTrace(listOf(entry), _source = null, sourceChecksum = "")
         }
     }
 }
