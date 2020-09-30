@@ -14,12 +14,25 @@
  * limitations under the License.
  */
 
+// PROTOS
+
 PROTO_TOOLS = ["aprotoc", "protoc-gen-grpc-java-plugin", "soong_zip"]
 PROTO_CMD = "mkdir -p $(genDir)/gen && "+
         "$(location aprotoc) -Iplatform_testing/libraries -Iexternal/protobuf/src "+
         "--plugin=protoc-gen-grpc-java=$(location protoc-gen-grpc-java-plugin) --grpc-java_out=$(genDir)/gen $(in) && "+
         "$(location soong_zip) -o $(out) -C $(genDir)/gen -D $(genDir)/gen"
 
+// Common protos shared between the server and client libraries as model classes.
+filegroup {
+    name: "AudioTestHarnessCommonProto",
+    srcs: [
+        "proto/audio_device.proto",
+        "proto/audio_format.proto",
+    ]
+}
+
+
+// The protos for the Audio Test Harness service definition.
 filegroup {
     name: "AudioTestHarnessServiceProto",
     srcs: [
@@ -27,6 +40,7 @@ filegroup {
     ],
 }
 
+// The generated gRPC Stub based on the above service definition.
 genrule {
     name: "AudioTestHarnessServiceStub",
     tools: PROTO_TOOLS,
@@ -39,10 +53,32 @@ genrule {
     ],
 }
 
+// SHARED
+
+java_library {
+    name: "AudioTestHarnessCommon",
+    host_supported: true,
+    srcs: [
+      "src/main/java/com/android/media/audiotestharness/common/Defaults.java",
+      ":AudioTestHarnessCommonProto"
+    ],
+    static_libs: [
+        "libprotobuf-java-lite"
+    ],
+    java_version: "1.8",
+    proto: {
+        type: "lite",
+    }
+}
+
+// SERVER
+
 java_library_host {
     name: "AudioTestHarnessService",
     srcs: [
         "src/main/java/com/android/media/audiotestharness/service/AudioTestHarnessImpl.java",
+        ":AudioTestHarnessCommon",
+        ":AudioTestHarnessCommonProto",
         ":AudioTestHarnessServiceProto",
         ":AudioTestHarnessServiceStub"
     ],
