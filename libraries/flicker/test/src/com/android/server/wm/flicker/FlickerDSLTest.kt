@@ -77,7 +77,7 @@ class FlickerDSLTest {
 
     private fun defaultAssertion(trace: WmTraceSubject): WmTraceSubject {
         return trace("Has dump") {
-            AssertionResult("Has dump") { it.windows.isNotEmpty() }
+            AssertionResult("Has dump") { it.windowStates.isNotEmpty() }
         }
     }
 

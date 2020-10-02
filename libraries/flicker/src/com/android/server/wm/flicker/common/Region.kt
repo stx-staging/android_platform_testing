@@ -26,7 +26,7 @@ class Region(val rect: Rect) {
     constructor(left: Int, top: Int, right: Int, bottom: Int) : this(Rect(left, top, right, bottom))
 
     val bounds: Rect = rect
-    val empty: Boolean = rect.empty
+    val isEmpty: Boolean = rect.isEmpty
     override fun toString(): String {
         return bounds.toString()
     }

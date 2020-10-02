@@ -16,8 +16,8 @@
 
 package com.android.server.wm.flicker
 
-import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTrace
-import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTrace.Companion.parseFrom
+import com.android.server.wm.flicker.common.traces.windowmanager.WindowManagerTrace
+import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceParser
 import com.android.server.wm.flicker.traces.windowmanager.WmTraceSubject
 import com.android.server.wm.flicker.traces.windowmanager.WmTraceSubject.Companion.assertThat
 import com.google.common.truth.Truth
@@ -157,7 +157,7 @@ class WmTraceSubjectTest {
     companion object {
         private fun readWmTraceFromFile(relativePath: String): WindowManagerTrace {
             return try {
-                parseFrom(readTestFile(relativePath))
+                WindowManagerTraceParser.parseFromTrace(readTestFile(relativePath))
             } catch (e: Exception) {
                 throw RuntimeException(e)
             }

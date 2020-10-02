@@ -17,16 +17,17 @@
 package com.android.server.wm.flicker.common
 
 class RectF {
-    var left = 0f
-    var top = 0f
-    var right = 0f
-    var bottom = 0f
-
+    var left: Float = 0f
+    var top: Float = 0f
+    var right: Float = 0f
+    var bottom: Float = 0f
+    val height: Float get() = bottom - top
+    val width: Float get() = right - left
     /**
      * Returns true if the rectangle is empty (left >= right or top >= bottom)
      */
-    val empty: Boolean
-        get() = left >= right || top >= bottom
+    val isEmpty: Boolean
+        get() = width == 0f || height == 0f
 
     /**
      * Returns true iff the specified rectangle r is inside or equal to this

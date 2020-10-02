@@ -17,17 +17,27 @@
 package com.android.server.wm.flicker.common
 
 open class Rect(
-    val left: Int,
-    val top: Int,
-    val right: Int,
-    val bottom: Int
+    val left: Int = 0,
+    val top: Int = 0,
+    val right: Int = 0,
+    val bottom: Int = 0
 ) {
+    val height: Int get() = bottom - top
+    val width: Int get() = right - left
+    fun centerX(): Int = left + right / 2
+    fun centerY(): Int = top + bottom / 2
     /**
      * Returns true if the rectangle is empty (left >= right or top >= bottom)
      */
-    val empty: Boolean = left >= right || top >= bottom
+    val isEmpty: Boolean = width == 0 || height == 0
+
+    val isNotEmpty = !isEmpty
+
     override fun toString(): String {
-        if (empty) return "[empty]"
-        return "[$left, $top, $right, $bottom]"
+        return if (isEmpty) {
+            "[empty]"
+        } else {
+            "[$left, $top, $right, $bottom]"
+        }
     }
 }

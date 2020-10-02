@@ -16,5 +16,37 @@
 
 package com.android.server.wm.flicker.common.traces.windowmanager.windows
 
-open class DisplayArea(windowContainer: WindowContainer)
-    : WindowContainer(windowContainer)
+/**
+ * Represents a display area in the window manager hierarchy
+ *
+ * This is a generic object that is reused by both Flicker and Winscope and cannot
+ * access internal Java/Android functionality
+ *
+ */
+open class DisplayArea(
+    val isTaskDisplayArea: Boolean,
+    windowContainer: WindowContainer
+) : WindowContainer(windowContainer) {
+    override val kind: String = "DisplayArea"
+    override val stableId: String by lazy { kind + name }
+
+    val activities: Array<Activity> by lazy {
+        if (isTaskDisplayArea) {
+            this.collectDescendants<Activity>()
+        } else {
+            emptyArray()
+        }
+    }
+
+    fun containsActivity(activityName: String): Boolean {
+        return if (!isTaskDisplayArea) {
+            false
+        } else {
+            activities.any { it.title == activityName }
+        }
+    }
+
+    override fun toString(): String {
+        return "$kind {$token $title} isTaskArea=$isTaskDisplayArea"
+    }
+}

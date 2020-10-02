@@ -21,6 +21,7 @@ import android.app.Instrumentation
 import android.app.UiAutomation
 import android.os.ParcelFileDescriptor
 import androidx.test.uiautomator.UiDevice
+import com.android.server.wm.flicker.traces.DeviceStateDump
 
 internal const val FLICKER_TAG = "FLICKER"
 

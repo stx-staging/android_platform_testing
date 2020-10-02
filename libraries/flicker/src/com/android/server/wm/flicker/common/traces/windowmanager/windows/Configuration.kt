@@ -14,23 +14,32 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.common.traces.windowmanager
-
-import com.android.server.wm.flicker.common.traces.ITrace
+package com.android.server.wm.flicker.common.traces.windowmanager.windows
 
 /**
- * Contains a collection of parsed WindowManager trace entries and assertions to apply over a single
- * entry.
- *
- * Each entry is parsed into a list of [WindowManagerState] objects.
+ * Represents the configuration of a WM container
  *
  * This is a generic object that is reused by both Flicker and Winscope and cannot
  * access internal Java/Android functionality
  *
  */
-open class WindowManagerTrace(
-    override val entries: List<WindowManagerState>,
-    override val source: String,
-    override val sourceChecksum: String
-) : ITrace<WindowManagerState>,
-    List<WindowManagerState> by entries
+data class Configuration(
+    val windowConfiguration: WindowConfiguration?,
+    val densityDpi: Int,
+    val orientation: Int,
+    val screenHeightDp: Int,
+    val screenWidthDp: Int,
+    val smallestScreenWidthDp: Int,
+    val screenLayout: Int,
+    val uiMode: Int
+) {
+    val isEmpty: Boolean
+        get() = (windowConfiguration == null) &&
+            densityDpi == 0 &&
+            orientation == 0 &&
+            screenHeightDp == 0 &&
+            screenWidthDp == 0 &&
+            smallestScreenWidthDp == 0 &&
+            screenLayout == 0 &&
+            uiMode == 0
+}

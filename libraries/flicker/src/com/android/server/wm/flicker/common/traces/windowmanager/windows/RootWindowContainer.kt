@@ -16,5 +16,17 @@
 
 package com.android.server.wm.flicker.common.traces.windowmanager.windows
 
-open class RootDisplayArea(displayArea: DisplayArea)
-    : DisplayArea(displayArea)
+/**
+ * Represents the root window container in the window manager hierarchy
+ *
+ * This is a generic object that is reused by both Flicker and Winscope and cannot
+ * access internal Java/Android functionality
+ *
+ */
+open class RootWindowContainer(
+    windowContainer: WindowContainer
+) : WindowContainer(windowContainer) {
+    override fun toString(): String {
+        return "RootWindowContainer: {$token $title}"
+    }
+}

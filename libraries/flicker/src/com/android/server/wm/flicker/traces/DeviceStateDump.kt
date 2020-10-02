@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker
+package com.android.server.wm.flicker.traces
 
+import com.android.server.wm.flicker.common.traces.windowmanager.WindowManagerTrace
 import com.android.server.wm.flicker.traces.layers.LayersTrace
 import com.android.server.wm.flicker.traces.layers.LayerTraceEntry
-import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTrace
-import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceEntry
+import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceParser
 
 /**
  * Represents a state dump containing the [WindowManagerTrace] and the [LayersTrace] both parsed
@@ -46,11 +46,11 @@ class DeviceStateDump(
     /**
      * Parsed [WindowManagerTrace]
      */
-    val wmTrace by lazy { wmTraceParser(wmTraceData) }
+    val wmTrace: WindowManagerTrace by lazy { wmTraceParser(wmTraceData) }
     /**
      * Parsed [LayersTrace]
      */
-    val layersTrace by lazy { layersTraceParser(layersTraceData) }
+    val layersTrace: LayersTrace by lazy { layersTraceParser(layersTraceData) }
 
     companion object {
         /**
@@ -66,7 +66,7 @@ class DeviceStateDump(
             return DeviceStateDump(
                 wmTraceData,
                 layersTraceData,
-                { WindowManagerTrace.parseFromDump(wmTraceData) },
+                { WindowManagerTraceParser.parseFromDump(wmTraceData) },
                 { LayersTrace.parseFromDump(layersTraceData) }
             )
         }
@@ -84,7 +84,7 @@ class DeviceStateDump(
             return DeviceStateDump(
                 wmTraceData,
                 layersTraceData,
-                { WindowManagerTrace.parseFrom(wmTraceData) },
+                { WindowManagerTraceParser.parseFromTrace(wmTraceData) },
                 { LayersTrace.parseFrom(layersTraceData) }
             )
         }

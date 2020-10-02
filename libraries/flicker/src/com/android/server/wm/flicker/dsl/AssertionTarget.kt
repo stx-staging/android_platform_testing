@@ -21,15 +21,14 @@ import com.android.server.wm.flicker.assertions.FlickerAssertionError
 import com.android.server.wm.flicker.FlickerRunResult
 import com.android.server.wm.flicker.assertions.AssertionData
 import com.android.server.wm.flicker.common.traces.ITraceEntry
+import com.android.server.wm.flicker.common.traces.windowmanager.WindowManagerState
 import com.android.server.wm.flicker.traces.eventlog.EventLogSubject
 import com.android.server.wm.flicker.traces.eventlog.FocusEvent
 import com.android.server.wm.flicker.traces.layers.LayerTraceEntry
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
-import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTrace
-import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceEntry
 import com.android.server.wm.flicker.traces.windowmanager.WmTraceSubject
 
-typealias WmAssertion = AssertionType<WmTraceSubject, WindowManagerTraceEntry>
+typealias WmAssertion = AssertionType<WmTraceSubject, WindowManagerState>
 typealias LayersAssertion = AssertionType<LayersTraceSubject, LayerTraceEntry>
 typealias EventLogAssertion = AssertionType<EventLogSubject, FocusEvent>
 /**

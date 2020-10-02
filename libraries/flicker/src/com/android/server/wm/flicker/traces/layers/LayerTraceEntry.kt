@@ -54,7 +54,7 @@ class LayerTraceEntry constructor(
         } else {
             val jointRegion = android.graphics.Region()
             val visibleLayers = filteredLayers
-                    .filter { it.isVisible && !it.isHiddenByParent }
+                .filter { it.isVisible && !it.isHiddenByParent }
             visibleLayers.forEach {
                 jointRegion.op(it.visibleRegion.toAndroidRegion(), android.graphics.Region.Op.UNION)
             }
@@ -76,7 +76,7 @@ class LayerTraceEntry constructor(
         return covers(layerName) { jointRegion ->
             val intersection = android.graphics.Region(jointRegion)
             val covers = intersection.op(testRegion, android.graphics.Region.Op.INTERSECT) &&
-                    !intersection.op(testRegion, android.graphics.Region.Op.XOR)
+                !intersection.op(testRegion, android.graphics.Region.Op.XOR)
 
             val reason = if (covers) {
                 "Region covered $testRegion"
@@ -101,7 +101,7 @@ class LayerTraceEntry constructor(
             val testRect = testRegion.bounds
             val intersection = android.graphics.Region(jointRegion)
             val covers = intersection.op(testRect, android.graphics.Region.Op.INTERSECT) &&
-                    !intersection.op(jointRegion, android.graphics.Region.Op.XOR)
+                !intersection.op(jointRegion, android.graphics.Region.Op.XOR)
 
             val reason = if (covers) {
                 "Region covered $testRegion"
@@ -137,17 +137,17 @@ class LayerTraceEntry constructor(
                 val visibleRegion = layer.visibleRegion
                 if ((visibleRegion.toAndroidRegion() == expectedVisibleRegion)) {
                     return AssertionResult(
-                            layer.name + "has visible region " + expectedVisibleRegion,
-                            assertionName,
-                            timestamp,
-                            success = true)
+                        layer.name + "has visible region " + expectedVisibleRegion,
+                        assertionName,
+                        timestamp,
+                        success = true)
                 }
                 reason = (layer.name +
-                        " has visible region:" +
-                        visibleRegion.toAndroidRegion() +
-                        " " +
-                        "expected:" +
-                        expectedVisibleRegion)
+                    " has visible region:" +
+                    visibleRegion.toAndroidRegion() +
+                    " " +
+                    "expected:" +
+                    expectedVisibleRegion)
             }
         }
         return AssertionResult(reason, assertionName, timestamp, success = false)
@@ -156,8 +156,8 @@ class LayerTraceEntry constructor(
     @VisibleForTesting
     fun getVisibleBounds(layerName: String): android.graphics.Region {
         return flattenedLayers.firstOrNull { it.name.contains(layerName) && it.isVisible }
-                ?.visibleRegion?.toAndroidRegion()
-                ?: android.graphics.Region()
+            ?.visibleRegion?.toAndroidRegion()
+            ?: android.graphics.Region()
     }
 
     fun getLayerWithBuffer(name: String): Layer? {

@@ -14,23 +14,33 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.common.traces.windowmanager
-
-import com.android.server.wm.flicker.common.traces.ITrace
+package com.android.server.wm.flicker.common.traces.windowmanager.windows
 
 /**
- * Contains a collection of parsed WindowManager trace entries and assertions to apply over a single
- * entry.
- *
- * Each entry is parsed into a list of [WindowManagerState] objects.
+ * Represents an activity in the window manager hierarchy
  *
  * This is a generic object that is reused by both Flicker and Winscope and cannot
  * access internal Java/Android functionality
  *
- */
-open class WindowManagerTrace(
-    override val entries: List<WindowManagerState>,
-    override val source: String,
-    override val sourceChecksum: String
-) : ITrace<WindowManagerState>,
-    List<WindowManagerState> by entries
+ **/
+open class Activity(
+    name: String,
+    val state: String,
+    visible: Boolean,
+    val frontOfTask: Boolean,
+    val procId: Int,
+    val isTranslucent: Boolean,
+    private val parent: WindowContainer,
+    windowContainer: WindowContainer
+) : WindowContainer(windowContainer, name, visible) {
+    init {
+        require(parent is ActivityTask) { "Activity parent must be a task" }
+    }
+
+    override val kind: String = "Activity"
+    val task: ActivityTask get() = parent as ActivityTask
+
+    override fun toString(): String {
+        return "$kind {$token $title} state=$state visible=$isVisible"
+    }
+}

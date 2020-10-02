@@ -17,15 +17,31 @@
 package com.android.server.wm.flicker.common.traces.windowmanager.windows
 
 /**
- * Represents a window token in the window manager hierarchy
+ * Represents possible children of a container in the window manager hierarchy
  *
  * This is a generic object that is reused by both Flicker and Winscope and cannot
  * access internal Java/Android functionality
  *
  */
-open class WindowToken(windowContainer: WindowContainer) : WindowContainer(windowContainer) {
-    override val kind: String = "WinToken"
-    override fun toString(): String {
-        return "$kind: {$token $title}"
+open class WindowContainerChild(
+    val displayContent: DisplayContent?,
+    val displayArea: DisplayArea?,
+    val task: ActivityTask?,
+    val activity: Activity?,
+    val windowToken: WindowToken?,
+    val window: WindowState?,
+    val windowContainer: WindowContainer?
+) {
+    fun getContainer(): WindowContainer? {
+        return when {
+            displayContent != null -> displayContent
+            displayArea != null -> displayArea
+            task != null -> task
+            activity != null -> activity
+            windowToken != null -> windowToken
+            window != null -> window
+            windowContainer != null -> windowContainer
+            else -> null
+        }
     }
 }

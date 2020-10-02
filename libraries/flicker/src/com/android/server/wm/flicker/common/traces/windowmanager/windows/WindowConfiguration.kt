@@ -16,5 +16,26 @@
 
 package com.android.server.wm.flicker.common.traces.windowmanager.windows
 
-class ActivityRecord(windowToken: WindowToken)
-    : WindowToken(windowToken)
+import com.android.server.wm.flicker.common.Rect
+
+/**
+ * Represents the configuration of a WM window
+ *
+ * This is a generic object that is reused by both Flicker and Winscope and cannot
+ * access internal Java/Android functionality
+ *
+ */
+open class WindowConfiguration(
+    val appBounds: Rect,
+    val bounds: Rect,
+    val maxBounds: Rect,
+    val windowingMode: Int,
+    val activityType: Int
+) {
+    val isEmpty: Boolean
+        get() = appBounds.isEmpty &&
+            bounds.isEmpty &&
+            maxBounds.isEmpty &&
+            windowingMode == 0 &&
+            activityType == 0
+}

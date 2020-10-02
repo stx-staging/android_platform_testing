@@ -18,24 +18,102 @@ package com.android.server.wm.flicker.common.traces.windowmanager.windows
 
 import com.android.server.wm.flicker.common.Rect
 
-open class WindowContainer(
-    val childrenArray: Array<WindowContainer>,
+/**
+ * Represents WindowContainer classes such as DisplayContent.WindowContainers and
+ * DisplayContent.NonAppWindowContainers. This can be expanded into a specific class
+ * if we need track and assert some state in the future.
+ *
+ * This is a generic object that is reused by both Flicker and Winscope and cannot
+ * access internal Java/Android functionality
+ *
+ */
+open class WindowContainer private constructor(
     val title: String,
-    val windowHashCode: Int,
-    val visible: Boolean
-) {
-
-    constructor(windowContainer: WindowContainer) : this(
-        windowContainer.childrenArray,
-        windowContainer.title,
-        windowContainer.windowHashCode, windowContainer.visible
+    val token: String,
+    val orientation: Int,
+    val isVisible: Boolean,
+    configurationContainer: ConfigurationContainer,
+    protected var childContainers: Array<WindowContainerChild> = emptyArray()
+) : ConfigurationContainer(configurationContainer) {
+    protected constructor(
+        windowContainer: WindowContainer,
+        titleOverride: String? = null,
+        isVisibleOverride: Boolean? = null
+    ) : this(
+        titleOverride ?: windowContainer.title,
+        windowContainer.token,
+        windowContainer.orientation,
+        isVisibleOverride ?: windowContainer.isVisible,
+        windowContainer,
+        windowContainer.childContainers
     )
 
-    fun isVisible(): Boolean = visible
+    constructor(
+        name: String,
+        token: String,
+        orientation: Int,
+        isVisible: Boolean,
+        configurationContainer: ConfigurationContainer
+    ) : this(name, token, orientation, isVisible, configurationContainer,
+        childContainers = emptyArray())
 
-    val childrenWindows: Array<WindowContainer> = childrenArray.reversed().toTypedArray()
+    fun addChildrenWindows(children: List<WindowContainerChild>) {
+        childContainers = children.toMutableList().also {
+            it.addAll(childContainers)
+        }.toTypedArray()
+    }
 
-    open val rects: List<Rect> = childrenWindows.flatMap { it.rects }
+    open val name: String = title
+    open val kind: String = "WindowContainer"
+    open val stableId: String by lazy { kind + token }
+
+    val childrenWindows: Array<WindowContainer>
+        by lazy { childContainers.mapNotNull { it.getContainer() }.toTypedArray() }
+
+    open val rects: Array<Rect>
+        by lazy { childrenWindows.flatMap { it.rects.toList() }.toTypedArray() }
+    open val isFullscreen: Boolean = false
+    open val bounds: Rect = Rect()
+    protected open val _subWindows = mutableListOf<WindowState>()
+
+    val windows: Array<WindowState>
+        get() = _subWindows.toTypedArray()
+
+    fun traverseTopDown(): List<WindowContainer> {
+        val traverseList = mutableListOf(this)
+
+        this.childrenWindows.reversed()
+            .forEach { childLayer ->
+                traverseList.addAll(childLayer.traverseTopDown())
+            }
+
+        return traverseList
+    }
+
+    /**
+     * For a given WindowContainer, traverse down the hierarchy and collect all children of type
+     * [T] if the child passes the test [predicate].
+     *
+     * @param predicate Filter function
+     */
+    inline fun <reified T : WindowContainer> collectDescendants(
+        predicate: (T) -> Boolean = { true }
+    ): Array<T> {
+        val traverseList = traverseTopDown()
+
+        return traverseList.filterIsInstance<T>()
+            .filter { predicate(it) }
+            .toTypedArray()
+    }
+
+    override fun toString(): String {
+        if (this.title.isEmpty() || listOf("WindowContainer", "Task")
+                .any { it.contains(this.title) }) {
+            return ""
+        }
+
+        return "$${removeRedundancyInName(this.title)}@${this.token}"
+    }
 
     private fun removeRedundancyInName(name: String): String {
         if (!name.contains('/')) {
@@ -66,4 +144,9 @@ open class WindowContainer(
 
         return "${classParts[0]}.${classParts[1]}.(...).$className"
     }
+
+    override val isEmpty: Boolean
+        get() = super.isEmpty &&
+            title.isEmpty() &&
+            token.isEmpty()
 }

@@ -107,7 +107,7 @@ open class Layer(
                 isActiveBufferEmpty && !hasEffects -> false
                 !fillsColor -> false
                 occludedBy.isNotEmpty() -> false
-                else -> !bounds.empty
+                else -> !bounds.isEmpty
             }
         }
 
@@ -240,7 +240,7 @@ open class Layer(
                     if (color == null || color.a == 0f) {
                         append(" color.a=0")
                     }
-                    if (visibleRegion.empty) {
+                    if (visibleRegion.isEmpty) {
                         append(" visible region is empty")
                     }
                 }

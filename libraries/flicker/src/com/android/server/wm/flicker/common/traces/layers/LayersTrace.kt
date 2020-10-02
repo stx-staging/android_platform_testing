@@ -31,4 +31,4 @@ open class LayersTrace<Entry : LayerTraceEntry>(
     override val entries: List<Entry>,
     override val source: String,
     override val sourceChecksum: String
-) : ITrace<Entry>
+) : ITrace<Entry>, List<Entry> by entries

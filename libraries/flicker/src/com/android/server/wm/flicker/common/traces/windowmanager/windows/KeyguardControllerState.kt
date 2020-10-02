@@ -14,23 +14,24 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.common.traces.windowmanager
-
-import com.android.server.wm.flicker.common.traces.ITrace
+package com.android.server.wm.flicker.common.traces.windowmanager.windows
 
 /**
- * Contains a collection of parsed WindowManager trace entries and assertions to apply over a single
- * entry.
- *
- * Each entry is parsed into a list of [WindowManagerState] objects.
+ * Represents the keyguard controller in the window manager hierarchy
  *
  * This is a generic object that is reused by both Flicker and Winscope and cannot
  * access internal Java/Android functionality
  *
  */
-open class WindowManagerTrace(
-    override val entries: List<WindowManagerState>,
-    override val source: String,
-    override val sourceChecksum: String
-) : ITrace<WindowManagerState>,
-    List<WindowManagerState> by entries
+data class KeyguardControllerState(
+    val isAodShowing: Boolean,
+    val isKeyguardShowing: Boolean,
+    val keyguardOccludedStates: Map<Int, Boolean>
+) {
+    fun isKeyguardOccluded(displayId: Int): Boolean =
+        keyguardOccludedStates[displayId] ?: false
+
+    override fun toString(): String {
+        return "KeyguardControllerState: {aod=$isAodShowing keyguard=$isKeyguardShowing}"
+    }
+}

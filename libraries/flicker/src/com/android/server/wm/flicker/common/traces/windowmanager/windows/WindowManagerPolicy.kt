@@ -16,5 +16,25 @@
 
 package com.android.server.wm.flicker.common.traces.windowmanager.windows
 
-class Task(windowContainer: WindowContainer)
-    : WindowContainer(windowContainer)
+/**
+ * Represents the requested policy of a WM container
+ *
+ * This is a generic object that is reused by both Flicker and Winscope and cannot
+ * access internal Java/Android functionality
+ *
+ */
+data class WindowManagerPolicy(
+    val focusedAppToken: String,
+    val forceStatusBar: Boolean,
+    val forceStatusBarFromKeyguard: Boolean,
+    val keyguardDrawComplete: Boolean,
+    val keyguardOccluded: Boolean,
+    val keyguardOccludedChanged: Boolean,
+    val keyguardOccludedPending: Boolean,
+    val lastSystemUiFlags: Int,
+    val orientation: Int,
+    val rotation: Int,
+    val rotationMode: Int,
+    val screenOnFully: Boolean,
+    val windowManagerDrawComplete: Boolean
+)
