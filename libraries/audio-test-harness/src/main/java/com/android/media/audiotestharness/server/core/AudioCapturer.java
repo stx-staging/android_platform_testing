@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.media.audiotestharness.service.core;
+package com.android.media.audiotestharness.server.core;
 
 import com.android.media.audiotestharness.proto.AudioDeviceOuterClass.AudioDevice;
 import com.android.media.audiotestharness.proto.AudioFormatOuterClass.AudioFormat;

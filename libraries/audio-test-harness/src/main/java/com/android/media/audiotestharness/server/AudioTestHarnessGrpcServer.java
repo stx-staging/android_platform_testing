@@ -13,22 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.android.media.audiotestharness.server;
 
-package com.android.media.audiotestharness.service;
+/** gRPC Server to the Audio Test Harness Infrastructure. */
+public final class AudioTestHarnessGrpcServer {
 
-import static org.junit.Assert.assertNotNull;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-
-@RunWith(JUnit4.class)
-public class AudioTestHarnessImplTests {
-
-    @Test
-    public void create_returnsNonNullInstance() throws Exception {
-        assertNotNull(AudioTestHarnessImpl.create());
+    public static void main(String[] args) {
+        // TODO(b/168812332): Implement this so that the gRPC Server can be run as a separate binary
+        // as necessary.
     }
-
-    // TODO(b/168801581): Implement Tests for the Audio Test Harness Service Implementation.
 }

@@ -73,10 +73,33 @@ java_library {
 
 // SERVER
 
+java_binary_host {
+    name: "AudioTestHarnessServer",
+    static_libs: [
+        "AudioTestHarnessServerLib",
+    ],
+    java_version: "1.8",
+    manifest: "server-manifest.inf"
+}
+
+// SERVER - Libraries
+
+java_library_host {
+    name: "AudioTestHarnessServerLib",
+    srcs: [
+        "src/main/java/com/android/media/audiotestharness/server/AudioTestHarnessGrpcServer.java",
+        "src/main/java/com/android/media/audiotestharness/server/AudioTestHarnessServerModule.java"
+    ],
+    static_libs: [
+        "AudioTestHarnessService"
+    ],
+    java_version: "1.8"
+}
+
 java_library_host {
     name: "AudioTestHarnessService",
     srcs: [
-        "src/main/java/com/android/media/audiotestharness/service/AudioTestHarnessImpl.java",
+        "src/main/java/com/android/media/audiotestharness/server/service/AudioTestHarnessImpl.java",
         ":AudioTestHarnessCommon",
         ":AudioTestHarnessCommonProto",
         ":AudioTestHarnessServiceProto",
@@ -85,7 +108,8 @@ java_library_host {
     static_libs: [
         "libprotobuf-java-full",
         "grpc-java",
-        "guava"
+        "guava",
+        "guice",
     ],
     java_version: "1.8",
     proto: {
@@ -93,11 +117,27 @@ java_library_host {
     }
 }
 
+// SERVER - Tests
+
+java_test_host {
+    name: "AudioTestHarnessServerLibTests",
+    test_suites: ["general-tests"],
+    srcs: [
+        "src/test/java/com/android/media/audiotestharness/server/AudioTestHarnessServerModuleTests.java"
+    ],
+    static_libs: [
+        "AudioTestHarnessServerLib",
+        "junit",
+        "mockito"
+    ],
+    java_version: "1.8"
+}
+
 java_test_host {
     name: "AudioTestHarnessServiceTests",
     test_suites: ["general-tests"],
     srcs: [
-        "src/test/java/com/android/media/audiotestharness/service/AudioTestHarnessImplTests.java",
+        "src/test/java/com/android/media/audiotestharness/server/service/AudioTestHarnessImplTests.java",
         ":AudioTestHarnessServiceProto",
         ":AudioTestHarnessServiceStub"
     ],
