@@ -29,6 +29,7 @@ instrumentation_metric_tests := \
     PackageManagerPerfTests \
     TextClassifierPerfTests \
     WmPerfTests \
+    ImePerfTests \
     trace_config_detailed.textproto \
     perfetto_trace_processor_shell
 
