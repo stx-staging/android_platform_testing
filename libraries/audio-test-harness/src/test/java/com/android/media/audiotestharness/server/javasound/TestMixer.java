@@ -22,6 +22,7 @@ import javax.sound.sampled.LineListener;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.Mixer.Info;
+import javax.sound.sampled.TargetDataLine;
 
 /**
  * Test implementation of the {@link Mixer} interface that scaffolds out enough functionality to be
@@ -31,6 +32,8 @@ public class TestMixer implements Mixer {
 
     private final String mName;
     private final int mTargetLineCount;
+    private final TargetDataLine mTargetDataLine;
+    private final TestInfo mTestInfo;
 
     /**
      * Constructor.
@@ -40,14 +43,16 @@ public class TestMixer implements Mixer {
      * @param targetLineCount the number of target lines this Mixer should expose, in general, this
      *     means that the returned arrays for any target line method are of this size.
      */
-    public TestMixer(String name, int targetLineCount) {
+    public TestMixer(String name, int targetLineCount, TargetDataLine targetDataLine) {
         mName = name;
         mTargetLineCount = targetLineCount;
+        mTargetDataLine = targetDataLine;
+        mTestInfo = new TestInfo(mName, null, null, null);
     }
 
     @Override
     public Info getMixerInfo() {
-        return new TestInfo(mName, null, null, null);
+        return mTestInfo;
     }
 
     @Override
@@ -77,7 +82,11 @@ public class TestMixer implements Mixer {
 
     @Override
     public Line getLine(Line.Info info) throws LineUnavailableException {
-        return null;
+        if (mTargetDataLine == null) {
+            throw new LineUnavailableException("Unavailable");
+        } else {
+            return mTargetDataLine;
+        }
     }
 
     @Override

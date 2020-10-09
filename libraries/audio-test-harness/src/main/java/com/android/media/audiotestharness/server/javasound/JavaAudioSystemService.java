@@ -24,15 +24,25 @@ import com.android.media.audiotestharness.server.core.AudioSystemService;
 import com.google.common.collect.ImmutableSet;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.logging.Logger;
 
 import javax.inject.Inject;
+import javax.sound.sampled.DataLine;
+import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
+import javax.sound.sampled.TargetDataLine;
 
 public class JavaAudioSystemService implements AudioSystemService {
 
+    private static final Logger LOGGER = Logger.getLogger(JavaAudioSystemService.class.getName());
+
     private final JavaAudioSystem mAudioSystem;
+
+    private final JavaAudioCapturerFactory mAudioCapturerFactory;
 
     /**
      * Cache of {@link com.android.media.audiotestharness.proto.AudioDeviceOuterClass.AudioDevice}
@@ -46,9 +56,14 @@ public class JavaAudioSystemService implements AudioSystemService {
     private final Map<AudioDevice, Mixer.Info> mDeviceMixerMap;
 
     @Inject
-    public JavaAudioSystemService(JavaAudioSystem javaAudioSystem) {
-        this.mAudioSystem = javaAudioSystem;
-        this.mDeviceMixerMap = new HashMap<>();
+    public JavaAudioSystemService(
+            JavaAudioSystem javaAudioSystem, JavaAudioCapturerFactory javaAudioCapturerFactory) {
+        LOGGER.finest("new JavaAudioSystemService");
+
+        mAudioSystem = javaAudioSystem;
+        mAudioCapturerFactory = javaAudioCapturerFactory;
+
+        mDeviceMixerMap = new HashMap<>();
     }
 
     /**
@@ -62,9 +77,71 @@ public class JavaAudioSystemService implements AudioSystemService {
      */
     @Override
     public ImmutableSet<AudioDevice> getDevices() {
-        mDeviceMixerMap.clear();
-        ImmutableSet.Builder<AudioDevice> devices = ImmutableSet.builder();
+        rebuildMixerCache();
+        return ImmutableSet.copyOf(mDeviceMixerMap.keySet());
+    }
 
+    @Override
+    public AudioCapturer createCapturerFor(AudioDevice device, AudioFormat audioFormat)
+            throws IOException {
+        LOGGER.info(
+                String.format(
+                        "Creating new Capturer for Device (%s) using Format (%s)",
+                        device, audioFormat));
+
+        // Build the cache so direct lookup is easy if the device is exact.
+        if (mDeviceMixerMap.isEmpty()) {
+            rebuildMixerCache();
+        }
+
+        Mixer.Info mixerInfo;
+        mixerInfo = mDeviceMixerMap.get(device);
+
+        // If there is no exact match for the provided device, attempt to find the nearest match.
+        // By "nearest match" we mean a mixer that matches all of the fields in the provided mixer.
+        // In this case, we only look for partial matches for the "name" field.
+        if (mixerInfo == null) {
+            mixerInfo = findClosestMatchingMixer(device, /* exactName= */ false);
+        }
+
+        if (mixerInfo == null) {
+            throw new IOException("Unable to find mixer matching provided device");
+        }
+
+        Mixer mixer = mAudioSystem.getMixer(mixerInfo);
+
+        TargetDataLine targetDataLine;
+        try {
+            targetDataLine =
+                    (TargetDataLine)
+                            mixer.getLine(
+                                    new DataLine.Info(
+                                            TargetDataLine.class,
+                                            JavaSoundUtility.audioFormatFrom(audioFormat)));
+        } catch (LineUnavailableException | IllegalArgumentException e) {
+            throw new IOException(
+                    "Unable to build player for specified device and audio format", e);
+        }
+
+        try {
+            targetDataLine.open(JavaSoundUtility.audioFormatFrom(audioFormat));
+        } catch (LineUnavailableException lue) {
+            throw new IOException(
+                    "Failed to reserve audio system resources for specified device and audio"
+                            + " format",
+                    lue);
+        }
+
+        return mAudioCapturerFactory.build(device, audioFormat, targetDataLine);
+    }
+
+    /**
+     * Rebuilds the {@link #mDeviceMixerMap} so that {@link AudioDevice} objects are properly mapped
+     * to their corresponding {@link Mixer.Info}
+     */
+    private void rebuildMixerCache() {
+        LOGGER.finest("Rebuildling Mixer Cache...");
+        mDeviceMixerMap.clear();
         for (Mixer.Info mixerInfo : mAudioSystem.getMixerInfo()) {
             AudioDevice.Builder audioDeviceBuilder = AudioDevice.newBuilder();
             Mixer mixer = mAudioSystem.getMixer(mixerInfo);
@@ -77,16 +154,64 @@ public class JavaAudioSystemService implements AudioSystemService {
 
             AudioDevice device = audioDeviceBuilder.build();
 
-            devices.add(device);
             mDeviceMixerMap.put(device, mixerInfo);
         }
-
-        return devices.build();
+        LOGGER.finest(
+                String.format(
+                        "Successfully Rebuilt Mixer Cache, found %d Mixers",
+                        mDeviceMixerMap.size()));
     }
 
-    @Override
-    public AudioCapturer createCapturerFor(AudioDevice device, AudioFormat audioFormat)
-            throws IOException {
-        return null;
+    /**
+     * Finds the closest matching {@link Mixer.Info} corresponding to a given {@link AudioDevice} or
+     * null if none can be found that matches.
+     *
+     * @param audioDevice the device to search for.
+     * @param exactName if true, then an exact match is required for the name of the audio device,
+     *     if false, then a partial match to a mixer name is sufficient.
+     */
+    private Mixer.Info findClosestMatchingMixer(AudioDevice audioDevice, boolean exactName) {
+        LOGGER.finest(
+                String.format("Searching Mixer Results for closest match to: %s", audioDevice));
+        Optional<Mixer.Info> firstMatch =
+                Arrays.stream(mAudioSystem.getMixerInfo())
+
+                        // Filter by AudioDevice name either exactly or partially.
+                        .filter(
+                                (info) -> {
+                                    if (audioDevice.getName() != null
+                                            && !audioDevice.getName().isEmpty()) {
+                                        if (exactName) {
+                                            return info.getName().equals(audioDevice.getName());
+                                        } else {
+                                            return info.getName().contains(audioDevice.getName());
+                                        }
+                                    }
+
+                                    return true;
+                                })
+
+                        // Filter by if the device should support capture or not.
+                        .filter(
+                                (info) -> {
+                                    if (audioDevice
+                                            .getCapabilitiesList()
+                                            .contains(AudioDevice.Capability.CAPTURE)) {
+                                        return mAudioSystem
+                                                        .getMixer(info)
+                                                        .getTargetLineInfo()
+                                                        .length
+                                                > 0;
+                                    }
+
+                                    return true;
+                                })
+                        .findFirst();
+
+        LOGGER.finest(
+                firstMatch.isPresent()
+                        ? String.format("Found match: %s", firstMatch.get())
+                        : "Did not find match");
+        return firstMatch.orElse(null);
     }
 }
