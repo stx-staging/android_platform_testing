@@ -74,6 +74,26 @@ java_library {
 // SERVER
 
 java_binary_host {
+    name: "audiotestharness-clicapturer",
+    srcs: [
+        "src/main/java/com/android/media/audiotestharness/server/examples/AudioTestHarnessCliCapturer.java",
+        ":audiotestharness-commonproto"
+    ],
+    static_libs: [
+        "audiotestharness-javasoundlib",
+        "audiotestharness-commonlib",
+        "audiotestharness-corelib",
+        "libprotobuf-java-lite",
+        "guava"
+    ],
+    java_version: "1.8",
+    manifest: "cli-capturer-manifest.inf",
+    proto: {
+        type: "lite"
+    }
+}
+
+java_binary_host {
     name: "audiotestharness-server",
     static_libs: [
         "audiotestharness-serverlib"
@@ -148,13 +168,13 @@ java_library_host {
     ],
     static_libs: [
         "audiotestharness-corelib",
-        "libprotobuf-java-full",
+        "libprotobuf-java-lite",
         "guava",
         "guice"
     ],
     java_version: "1.8",
     proto: {
-        type: "full",
+        type: "lite",
     }
 }
 
@@ -218,13 +238,14 @@ java_test_host {
     static_libs: [
         "audiotestharness-corelib",
         "audiotestharness-javasoundlib",
+        "libprotobuf-java-lite",
         "guava",
         "junit",
         "mockito"
     ],
     java_version: "1.8",
     proto: {
-        type: "full",
+        type: "lite",
     }
 }
 
