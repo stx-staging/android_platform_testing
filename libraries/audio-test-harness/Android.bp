@@ -142,7 +142,7 @@ java_library_host {
 java_library_host {
     name: "audiotestharness-servicelib",
     srcs: [
-        "src/main/java/com/android/media/audiotestharness/server/service/AudioTestHarnessImpl.java",
+        "src/main/java/com/android/media/audiotestharness/server/service/*.java",
         ":audiotestharness-commonproto",
         ":audiotestharness-serviceproto",
         ":audiotestharness-servicestub",
@@ -199,6 +199,7 @@ java_test_host {
     static_libs: [
         "audiotestharness-serverlib",
         "junit",
+        "junit-params",
         "mockito",
 
         // gRPC Dependencies
@@ -213,13 +214,15 @@ java_test_host {
     name: "audiotestharness-servicelib-tests",
     test_suites: ["general-tests"],
     srcs: [
-        "src/test/java/com/android/media/audiotestharness/server/service/AudioTestHarnessImplTests.java",
+        "src/test/java/com/android/media/audiotestharness/server/service/*.java",
         ":audiotestharness-serviceproto",
         ":audiotestharness-servicestub",
     ],
     static_libs: [
         "audiotestharness-servicelib",
         "junit",
+        "junit-params",
+        "mockito",
         "guava"
     ],
     java_version: "1.8",
