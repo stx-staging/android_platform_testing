@@ -222,4 +222,23 @@ class WindowManagerTraceTest {
             }
         }
     }
+
+    @Test
+    fun canDetectValidState() {
+        val entry = trace.getEntry(9213763541297)
+        assertWithMessage("${entry.timestamp}: ${entry.getIsIncompleteReason()}")
+            .that(entry.isIncomplete())
+            .isFalse()
+    }
+
+    @Test
+    fun canDetectInvalidState() {
+        val entry = trace.getEntry(9215511235586)
+        assertWithMessage("${entry.timestamp}: ${entry.getIsIncompleteReason()}")
+            .that(entry.isIncomplete())
+            .isTrue()
+
+        assertThat(entry.getIsIncompleteReason())
+            .contains("No resumed activities found")
+    }
 }

@@ -18,8 +18,13 @@
 
 package com.android.server.wm.traces.parser
 
+import android.app.UiAutomation
+import android.content.ComponentName
+import android.os.ParcelFileDescriptor
 import com.android.server.wm.traces.common.Rect
 import com.android.server.wm.traces.common.Region
+
+internal const val LOG_TAG = "AMWM_FLICKER"
 
 fun Region.toAndroidRegion(): android.graphics.Region {
     return android.graphics.Region(bounds.left, bounds.top, bounds.right, bounds.bottom)
@@ -27,4 +32,43 @@ fun Region.toAndroidRegion(): android.graphics.Region {
 
 fun Rect.toAndroidRect(): android.graphics.Rect {
     return android.graphics.Rect(left, top, right, bottom)
+}
+
+fun ComponentName.toActivityName(): String = this.flattenToShortString()
+
+fun ComponentName.toWindowName(): String = this.flattenToString()
+
+private fun executeCommand(uiAutomation: UiAutomation, cmd: String): ByteArray {
+    val fileDescriptor = uiAutomation.executeShellCommand(cmd)
+    ParcelFileDescriptor.AutoCloseInputStream(fileDescriptor).use { inputStream ->
+        return inputStream.readBytes()
+    }
+}
+
+private fun getCurrentWindowManagerState(uiAutomation: UiAutomation) =
+    executeCommand(uiAutomation, "dumpsys window --proto")
+
+private fun getCurrentLayersState(uiAutomation: UiAutomation) =
+    executeCommand(uiAutomation, "dumpsys SurfaceFlinger --proto")
+
+@JvmOverloads
+fun getCurrentState(
+    uiAutomation: UiAutomation,
+    @WmStateDumpFlags dumpFlags: Int = FLAG_STATE_DUMP_FLAG_WM.or(FLAG_STATE_DUMP_FLAG_LAYERS)
+): DeviceStateDump {
+    if (dumpFlags == 0) {
+        throw IllegalArgumentException("No dump specified")
+    }
+
+    val wmTraceData = if (dumpFlags.and(FLAG_STATE_DUMP_FLAG_WM) > 0) {
+        getCurrentWindowManagerState(uiAutomation)
+    } else {
+        ByteArray(0)
+    }
+    val layersTraceData = if (dumpFlags.and(FLAG_STATE_DUMP_FLAG_LAYERS) > 0) {
+        getCurrentLayersState(uiAutomation)
+    } else {
+        ByteArray(0)
+    }
+    return DeviceStateDump.fromDump(wmTraceData, layersTraceData)
 }

@@ -14,13 +14,20 @@
  * limitations under the License.
  */
 
-@file:JvmName("Extensions")
-package com.android.server.wm.flicker
+package com.android.server.wm.traces.parser
 
-import android.app.Instrumentation
+import android.support.annotation.IntDef
 
-internal const val FLICKER_TAG = "FLICKER"
+@IntDef(flag = true, value = [FLAG_STATE_DUMP_FLAG_WM, FLAG_STATE_DUMP_FLAG_LAYERS])
+@Retention(AnnotationRetention.SOURCE)
+annotation class WmStateDumpFlags
 
-fun getDefaultFlickerOutputDir(instrumentation: Instrumentation) =
-        instrumentation.targetContext.getExternalFilesDir(null)?.toPath()
-                ?: error(IllegalArgumentException("External directory path should not be null"))
+/**
+ * Include WM trace in the dump
+ */
+const val FLAG_STATE_DUMP_FLAG_WM = 1
+
+/**
+ * Include the layers trace ni the dump
+ */
+const val FLAG_STATE_DUMP_FLAG_LAYERS = 2

@@ -15,12 +15,14 @@
  */
 
 @file:JvmName("Extensions")
-package com.android.server.wm.flicker
 
-import android.app.Instrumentation
+package com.android.server.wm.traces.parser.windowmanager
 
-internal const val FLICKER_TAG = "FLICKER"
+import android.content.ComponentName
+import com.android.server.wm.traces.common.windowmanager.WindowManagerState
 
-fun getDefaultFlickerOutputDir(instrumentation: Instrumentation) =
-        instrumentation.targetContext.getExternalFilesDir(null)?.toPath()
-                ?: error(IllegalArgumentException("External directory path should not be null"))
+internal val WindowManagerState.homeActivityName: ComponentName?
+    get() {
+        val activity = homeActivity ?: return null
+        return ComponentName.unflattenFromString(activity.name)
+    }

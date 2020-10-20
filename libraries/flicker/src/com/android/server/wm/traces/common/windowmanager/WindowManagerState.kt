@@ -48,12 +48,12 @@ open class WindowManagerState(
     val pendingActivities: List<String>,
     val root: RootWindowContainer,
     val keyguardControllerState: KeyguardControllerState,
-    override timestamp: Long = 0
+    override val timestamp: Long = 0
 ) : ITraceEntry {
     val kind = "entry"
     val stableId = "entry"
 
-    var sanityCheckFocusedWindow = true
+    var validityCheckFocusedWindow = true
         private set
 
     // Displays in z-order with the top most at the front of the list, starting with primary.
@@ -147,9 +147,11 @@ open class WindowManagerState(
      */
     val rects: Array<Rect> by lazy { root.rects }
 
-    /** Enable/disable the mFocusedWindow check during the computeState. */
-    fun setSanityCheckWithFocusedWindow(sanityCheckFocusedWindow: Boolean) {
-        this.sanityCheckFocusedWindow = sanityCheckFocusedWindow
+    /**
+     * Enable/disable the mFocusedWindow check during the computeState.
+     */
+    fun setValidityCheckWithFocusedWindow(validityCheckFocusedWindow: Boolean) {
+        this.validityCheckFocusedWindow = validityCheckFocusedWindow
     }
 
     fun getDefaultDisplay(): DisplayContent? =
@@ -444,11 +446,15 @@ open class WindowManagerState(
     fun getWindowStateForAppToken(appToken: String): WindowState? =
         windowStates.firstOrNull { it.token == appToken }
 
-    /** Check if there exists a window record with matching windowName.  */
+    /**
+     * Check if there exists a window record with matching windowName.
+     */
     fun containsWindow(windowName: String): Boolean =
         windowStates.any { it.title == windowName }
 
-    /** Check if at least one window which matches the specified name has shown it's surface.  */
+    /**
+     * Check if at least one window which matches the specified name has shown it's surface.
+     */
     fun isWindowSurfaceShown(windowName: String): Boolean {
         for (window in windowStates) {
             if (window.title == windowName) {
@@ -460,7 +466,9 @@ open class WindowManagerState(
         return false
     }
 
-    /** Check if at least one window which matches provided window name is visible.  */
+    /**
+     * Check if at least one window which matches provided window name is visible.
+     */
     fun isWindowVisible(windowName: String): Boolean {
         for (window in windowStates) {
             if (window.title == windowName) {
@@ -485,7 +493,9 @@ open class WindowManagerState(
         return allShown
     }
 
-    /** Checks whether the display contains the given activity.  */
+    /**
+     * Checks whether the display contains the given activity.
+     */
     fun hasActivityInDisplay(displayId: Int, activityName: String): Boolean {
         for (stack in getDisplay(displayId)!!.rootTasks) {
             if (stack.containsActivity(activityName)) {
@@ -518,6 +528,46 @@ open class WindowManagerState(
     fun defaultMinimalDisplaySizeForSplitScreen(displayId: Int): Int {
         return dpToPx(DEFAULT_MINIMAL_SPLIT_SCREEN_DISPLAY_SIZE_DP.toFloat(),
             getDisplay(displayId)!!.dpi)
+    }
+
+    fun getIsIncompleteReason(): String {
+        return buildString {
+            if (rootTasks.isEmpty()) {
+                append("No stacks found...")
+            }
+            if (focusedStackId == -1) {
+                append("No focused stack found...")
+            }
+            if (focusedActivity.isEmpty()) {
+                append("No focused activity found...")
+            }
+            if (resumedActivitiesInStacks.isEmpty()) {
+                append("No resumed activities found...")
+            }
+            if (windowStates.isEmpty()) {
+                append("No Windows found...")
+            }
+            if (focusedWindow.isEmpty()) {
+                append("No Focused Window...")
+            }
+            if (focusedApp.isEmpty()) {
+                append("No Focused App...")
+            }
+            if (keyguardControllerState.isKeyguardShowing) {
+                append("Keyguard showing...")
+            }
+            if (!validityCheckFocusedWindow) {
+                append("Validity check...")
+            }
+        }
+    }
+
+    fun isComplete(): Boolean = !isIncomplete()
+    fun isIncomplete(): Boolean {
+        return rootTasks.isEmpty() || focusedStackId == -1 || windowStates.isEmpty() ||
+            focusedApp.isEmpty() || (validityCheckFocusedWindow && focusedWindow.isEmpty()) ||
+            (focusedActivity.isEmpty() || resumedActivitiesInStacks.isEmpty()) &&
+            !keyguardControllerState.isKeyguardShowing
     }
 
     private fun Array<WindowState>.isWindowVisible(
@@ -644,7 +694,9 @@ open class WindowManagerState(
         return resultComputation(foundRegion)
     }
 
-    /** Check if the window named [aboveWindowTitle] is above the one named [belowWindowTitle]. */
+    /**
+     * Check if the window named [aboveWindowTitle] is above the one named [belowWindowTitle].
+     */
     fun isAboveWindow(aboveWindowTitle: String, belowWindowTitle: String): AssertionResult {
         val assertionName = "isAboveWindow"
 

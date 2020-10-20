@@ -37,20 +37,20 @@ class DeviceStateDump(
     /**
      * Predicate to parse [wmTraceData] into a [WindowManagerTrace]
      */
-    val wmTraceParser: (ByteArray) -> WindowManagerTrace,
+    val wmTraceParser: (ByteArray) -> WindowManagerTrace?,
     /**
      * Predicate to parse [layersTraceData] into a [LayersTrace]
      */
-    val layersTraceParser: (ByteArray) -> LayersTrace
+    val layersTraceParser: (ByteArray) -> LayersTrace?
 ) {
     /**
      * Parsed [WindowManagerTrace]
      */
-    val wmTrace: WindowManagerTrace by lazy { wmTraceParser(wmTraceData) }
+    val wmTrace: WindowManagerTrace? by lazy { wmTraceParser(wmTraceData) }
     /**
      * Parsed [LayersTrace]
      */
-    val layersTrace: LayersTrace by lazy { layersTraceParser(layersTraceData) }
+    val layersTrace: LayersTrace? by lazy { layersTraceParser(layersTraceData) }
 
     companion object {
         /**
@@ -66,8 +66,20 @@ class DeviceStateDump(
             return DeviceStateDump(
                 wmTraceData,
                 layersTraceData,
-                { WindowManagerTraceParser.parseFromDump(wmTraceData) },
-                { LayersTrace.parseFromDump(layersTraceData) }
+                {
+                    if (wmTraceData.isNotEmpty()) {
+                        WindowManagerTraceParser.parseFromDump(wmTraceData)
+                    } else {
+                        null
+                    }
+                },
+                {
+                    if (layersTraceData.isNotEmpty()) {
+                        LayersTrace.parseFromDump(layersTraceData)
+                    } else {
+                        null
+                    }
+                }
             )
         }
 
@@ -84,8 +96,20 @@ class DeviceStateDump(
             return DeviceStateDump(
                 wmTraceData,
                 layersTraceData,
-                { WindowManagerTraceParser.parseFromTrace(wmTraceData) },
-                { LayersTrace.parseFrom(layersTraceData) }
+                {
+                    if (wmTraceData.isNotEmpty()) {
+                        WindowManagerTraceParser.parseFromTrace(wmTraceData)
+                    } else {
+                        null
+                    }
+                },
+                {
+                    if (layersTraceData.isNotEmpty()) {
+                        LayersTrace.parseFrom(layersTraceData)
+                    } else {
+                        null
+                    }
+                }
             )
         }
     }

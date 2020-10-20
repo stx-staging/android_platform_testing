@@ -117,7 +117,9 @@ class LayersTraceSubject private constructor(
         }
     }
 
-    /** Checks that all visible layers are shown for more than one consecutive entry */
+    /**
+     * Checks that all visible layers are shown for more than one consecutive entry
+     */
     fun visibleLayersShownMoreThanOneConsecutiveEntry() = apply {
         addAssertion("visibleLayersShownMoreThanOneConsecutiveEntry") {
             val visibleLayers = trace.entries.withIndex()

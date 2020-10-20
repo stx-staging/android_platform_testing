@@ -116,7 +116,8 @@ open class WindowState(
         internal const val STARTING_WINDOW_PREFIX = "Starting "
         internal const val DEBUGGER_WINDOW_PREFIX = "Waiting For Debugger: "
 
-        /** @see WindowManager.LayoutParams
+        /**
+         * @see WindowManager.LayoutParams
          */
         private const val TYPE_NAVIGATION_BAR = 2019
 
