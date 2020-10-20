@@ -16,27 +16,30 @@
 
 // PROTOS
 
-PROTO_TOOLS = ["aprotoc", "protoc-gen-grpc-java-plugin", "soong_zip"]
-PROTO_CMD = "mkdir -p $(genDir)/gen && "+
-        "$(location aprotoc) -Iplatform_testing/libraries -Iexternal/protobuf/src "+
-        "--plugin=protoc-gen-grpc-java=$(location protoc-gen-grpc-java-plugin) --grpc-java_out=$(genDir)/gen $(in) && "+
-        "$(location soong_zip) -o $(out) -C $(genDir)/gen -D $(genDir)/gen"
+PROTO_TOOLS = [
+    "aprotoc",
+    "protoc-gen-grpc-java-plugin",
+    "soong_zip",
+]
+PROTO_CMD = "mkdir -p $(genDir)/gen && " +
+    "$(location aprotoc) -Iplatform_testing/libraries -Iexternal/protobuf/src " +
+    "--plugin=protoc-gen-grpc-java=$(location protoc-gen-grpc-java-plugin) --grpc-java_out=$(genDir)/gen $(in) && " +
+    "$(location soong_zip) -o $(out) -C $(genDir)/gen -D $(genDir)/gen"
 
 // Common protos shared between the server and client libraries as model classes.
 filegroup {
     name: "audiotestharness-commonproto",
     srcs: [
         "proto/audio_device.proto",
-        "proto/audio_format.proto"
-    ]
+        "proto/audio_format.proto",
+    ],
 }
-
 
 // The protos for the Audio Test Harness service definition.
 filegroup {
     name: "audiotestharness-serviceproto",
     srcs: [
-        "proto/audio_test_harness_service.proto"
+        "proto/audio_test_harness_service.proto",
     ],
 }
 
@@ -46,10 +49,10 @@ genrule {
     tools: PROTO_TOOLS,
     cmd: PROTO_CMD,
     srcs: [
-        ":audiotestharness-serviceproto"
+        ":audiotestharness-serviceproto",
     ],
     out: [
-        "protos.srcjar"
+        "protos.srcjar",
     ],
 }
 
@@ -59,16 +62,16 @@ java_library {
     name: "audiotestharness-commonlib",
     host_supported: true,
     srcs: [
-      "src/main/java/com/android/media/audiotestharness/common/Defaults.java",
-      ":audiotestharness-commonproto"
+        "src/main/java/com/android/media/audiotestharness/common/Defaults.java",
+        ":audiotestharness-commonproto",
     ],
     static_libs: [
-        "libprotobuf-java-lite"
+        "libprotobuf-java-lite",
     ],
     java_version: "1.8",
     proto: {
         type: "lite",
-    }
+    },
 }
 
 // SERVER
@@ -77,29 +80,29 @@ java_binary_host {
     name: "audiotestharness-clicapturer",
     srcs: [
         "src/main/java/com/android/media/audiotestharness/server/examples/AudioTestHarnessCliCapturer.java",
-        ":audiotestharness-commonproto"
+        ":audiotestharness-commonproto",
     ],
     static_libs: [
         "audiotestharness-javasoundlib",
         "audiotestharness-commonlib",
         "audiotestharness-corelib",
         "libprotobuf-java-lite",
-        "guava"
+        "guava",
     ],
     java_version: "1.8",
     manifest: "cli-capturer-manifest.inf",
     proto: {
-        type: "lite"
-    }
+        type: "lite",
+    },
 }
 
 java_binary_host {
     name: "audiotestharness-server",
     static_libs: [
-        "audiotestharness-serverlib"
+        "audiotestharness-serverlib",
     ],
     java_version: "1.8",
-    manifest: "server-manifest.inf"
+    manifest: "server-manifest.inf",
 }
 
 // SERVER - Libraries
@@ -108,35 +111,36 @@ java_library_host {
     name: "audiotestharness-serverlib",
     srcs: [
         "src/main/java/com/android/media/audiotestharness/server/AudioTestHarnessGrpcServer.java",
-        "src/main/java/com/android/media/audiotestharness/server/AudioTestHarnessServerModule.java"
+        "src/main/java/com/android/media/audiotestharness/server/AudioTestHarnessServerModule.java",
     ],
     static_libs: [
         "audiotestharness-servicelib",
         "audiotestharness-utilitylib",
+        "audiotestharness-javasoundlib",
 
         // gRPC Dependencies
         "grpc-java",
         "grpc-java-netty-shaded",
-        "opencensus-java-api"
+        "opencensus-java-api",
     ],
-    java_version: "1.8"
+    java_version: "1.8",
 }
 
 java_library_host {
     name: "audiotestharness-corelib",
     srcs: [
         "src/main/java/com/android/media/audiotestharness/server/core/*.java",
-        ":audiotestharness-commonproto"
+        ":audiotestharness-commonproto",
     ],
     static_libs: [
         "audiotestharness-commonlib",
         "libprotobuf-java-full",
-        "guava"
+        "guava",
     ],
     java_version: "1.8",
     proto: {
-        type: "full"
-    }
+        type: "full",
+    },
 }
 
 java_library_host {
@@ -149,41 +153,42 @@ java_library_host {
     ],
     static_libs: [
         "audiotestharness-commonlib",
+        "audiotestharness-corelib",
         "libprotobuf-java-full",
         "grpc-java",
         "guava",
-        "guice"
+        "guice",
     ],
     java_version: "1.8",
     proto: {
         type: "full",
-    }
+    },
 }
 
 java_library_host {
     name: "audiotestharness-javasoundlib",
     srcs: [
         "src/main/java/com/android/media/audiotestharness/server/javasound/*.java",
-        ":audiotestharness-commonproto"
+        ":audiotestharness-commonproto",
     ],
     static_libs: [
         "audiotestharness-corelib",
         "libprotobuf-java-lite",
         "guava",
-        "guice"
+        "guice",
     ],
     java_version: "1.8",
     proto: {
         type: "lite",
-    }
+    },
 }
 
 java_library_host {
     name: "audiotestharness-utilitylib",
     srcs: [
-        "src/main/java/com/android/media/audiotestharness/server/utility/*.java"
+        "src/main/java/com/android/media/audiotestharness/server/utility/*.java",
     ],
-    java_version: "1.8"
+    java_version: "1.8",
 }
 
 // SERVER - Tests
@@ -194,7 +199,7 @@ java_test_host {
     srcs: [
         "src/test/java/com/android/media/audiotestharness/server/AudioTestHarnessServerModuleTests.java",
         "src/test/java/com/android/media/audiotestharness/server/AudioTestHarnessGrpcServerTests.java",
-        "src/test/java/com/android/media/audiotestharness/server/AudioTestHarnessTestImpl.java"
+        "src/test/java/com/android/media/audiotestharness/server/AudioTestHarnessTestImpl.java",
     ],
     static_libs: [
         "audiotestharness-serverlib",
@@ -205,9 +210,9 @@ java_test_host {
         // gRPC Dependencies
         "grpc-java",
         "grpc-java-netty-shaded",
-        "opencensus-java-api"
+        "opencensus-java-api",
     ],
-    java_version: "1.8"
+    java_version: "1.8",
 }
 
 java_test_host {
@@ -220,15 +225,17 @@ java_test_host {
     ],
     static_libs: [
         "audiotestharness-servicelib",
+        "audiotestharness-corelib",
         "junit",
         "junit-params",
+        "grpc-java-testing",
         "mockito",
-        "guava"
+        "guava",
     ],
     java_version: "1.8",
     proto: {
         type: "full",
-    }
+    },
 }
 
 java_test_host {
@@ -236,7 +243,7 @@ java_test_host {
     test_suites: ["general-tests"],
     srcs: [
         "src/test/java/com/android/media/audiotestharness/server/javasound/*.java",
-        ":audiotestharness-commonproto"
+        ":audiotestharness-commonproto",
     ],
     static_libs: [
         "audiotestharness-corelib",
@@ -244,23 +251,23 @@ java_test_host {
         "libprotobuf-java-lite",
         "guava",
         "junit",
-        "mockito"
+        "mockito",
     ],
     java_version: "1.8",
     proto: {
         type: "lite",
-    }
+    },
 }
 
 java_test_host {
     name: "audiotestharness-utilitylib-tests",
     test_suites: ["general-tests"],
     srcs: [
-        "src/test/java/com/android/media/audiotestharness/server/utility/*.java"
+        "src/test/java/com/android/media/audiotestharness/server/utility/*.java",
     ],
     static_libs: [
         "audiotestharness-utilitylib",
-        "junit"
+        "junit",
     ],
-    java_version: "1.8"
+    java_version: "1.8",
 }

@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -61,7 +62,7 @@ public final class JavaAudioCapturer implements AudioCapturer {
      * The {@link ExecutorService} that should be used for running the
      * TargetDataLineWatchingPublisher background tasks.
      */
-    private final ExecutorService mExecutorService;
+    private final Executor mExecutorService;
 
     /**
      * The {@link TargetDataLineWatchingPublisher} that publishes data read from the {@link
@@ -79,11 +80,11 @@ public final class JavaAudioCapturer implements AudioCapturer {
             AudioDevice audioDevice,
             AudioFormat audioFormat,
             TargetDataLine targetDataLine,
-            ExecutorService executorService) {
+            Executor executor) {
         mAudioDevice = audioDevice;
         mAudioFormat = audioFormat;
         mTargetDataLine = targetDataLine;
-        mExecutorService = executorService;
+        mExecutorService = executor;
 
         // Used for thread safety, in general, the set will be iterated over more than written to.
         mOutputs = new CopyOnWriteArraySet<>();
@@ -94,12 +95,12 @@ public final class JavaAudioCapturer implements AudioCapturer {
             AudioDevice audioDevice,
             AudioFormat audioFormat,
             TargetDataLine targetDataLine,
-            ExecutorService executorService) {
+            Executor executor) {
         Preconditions.checkArgument(
                 targetDataLine.isOpen(),
                 "Provided TargetDataLine should already be opened when passed to the"
                         + " JavaAudioCapturer");
-        return new JavaAudioCapturer(audioDevice, audioFormat, targetDataLine, executorService);
+        return new JavaAudioCapturer(audioDevice, audioFormat, targetDataLine, executor);
     }
 
     /**
@@ -120,7 +121,7 @@ public final class JavaAudioCapturer implements AudioCapturer {
                 !mTargetDataLine.isRunning(), "The AudioCapturer is already open.");
 
         mTargetDataLine.start();
-        mExecutorService.submit(mPublisher);
+        mExecutorService.execute(mPublisher);
     }
 
     @Override

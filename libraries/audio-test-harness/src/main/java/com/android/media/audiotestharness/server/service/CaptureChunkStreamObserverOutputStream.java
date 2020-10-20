@@ -27,6 +27,7 @@ import io.grpc.stub.StreamObserver;
 import java.io.OutputStream;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * {@link OutputStream} that streams data written to it to a provided {@link StreamObserver} in the
@@ -36,8 +37,10 @@ import java.util.concurrent.TimeUnit;
  * this class could be used by multiple threads, however there is no built-in synchronization.
  * However, the {@link #awaitClose()} methods are provided so that other threads can wait on the
  * this {@link OutputStream} to be closed before continuing.
+ *
+ * <p>This class should not be extended, however is left non-final for mocking purposes.
  */
-public final class CaptureChunkStreamObserverOutputStream extends OutputStream {
+public class CaptureChunkStreamObserverOutputStream extends OutputStream {
 
     /**
      * Used for synchronizing actions during gRPC execution. Thus, a main thread can delegate
@@ -56,8 +59,12 @@ public final class CaptureChunkStreamObserverOutputStream extends OutputStream {
      * Flag to track whether or not this {@link OutputStream} has been closed. If so, then does not
      * allow write actions to occur to prevent a stray call to onNext after onCompleted has been
      * called on the underlying {@link StreamObserver}.
+     *
+     * <p>Atomic since this value could be written to and read from separate threads thus ensuring
+     * that no race condition occurs where the thread writing to the stream thinks that it is open
+     * while the stream is in fact closed.
      */
-    private boolean mClosed = false;
+    private AtomicBoolean mClosed = new AtomicBoolean(false);
 
     private CaptureChunkStreamObserverOutputStream(
             StreamObserver<AudioTestHarnessService.CaptureChunk> captureChunkStreamObserver,
@@ -83,7 +90,7 @@ public final class CaptureChunkStreamObserverOutputStream extends OutputStream {
     @Override
     public void write(int b) {
         Preconditions.checkState(
-                !mClosed,
+                !mClosed.get(),
                 "CaptureChunkStreamObserverOutputStream has already been closed and cannot be"
                         + " written to.");
 
@@ -98,7 +105,7 @@ public final class CaptureChunkStreamObserverOutputStream extends OutputStream {
     @Override
     public void write(byte[] b) {
         Preconditions.checkState(
-                !mClosed,
+                !mClosed.get(),
                 "CaptureChunkStreamObserverOutputStream has already been closed and cannot be"
                         + " written to.");
 
@@ -108,7 +115,7 @@ public final class CaptureChunkStreamObserverOutputStream extends OutputStream {
     @Override
     public void write(byte[] b, int off, int len) {
         Preconditions.checkState(
-                !mClosed,
+                !mClosed.get(),
                 "CaptureChunkStreamObserverOutputStream has already been closed and cannot be"
                         + " written to.");
 
@@ -122,8 +129,12 @@ public final class CaptureChunkStreamObserverOutputStream extends OutputStream {
 
     @Override
     public void close() {
-        mClosed = true;
+        mClosed.set(true);
         mCountDownLatch.countDown();
+    }
+
+    public boolean isClosed() {
+        return mClosed.get();
     }
 
     /**
