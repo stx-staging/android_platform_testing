@@ -22,8 +22,8 @@ import android.graphics.Rect
 import android.graphics.Region
 import android.view.WindowManager
 import androidx.test.platform.app.InstrumentationRegistry
-import com.android.server.wm.flicker.traces.layers.LayersTrace
-import com.android.server.wm.flicker.traces.layers.LayersTrace.Companion.parseFrom
+import com.android.server.wm.traces.parser.layers.LayersTrace
+import com.android.server.wm.traces.parser.layers.LayersTrace.Companion.parseFrom
 import com.google.common.truth.Truth
 import org.junit.Assert
 import org.junit.FixMethodOrder

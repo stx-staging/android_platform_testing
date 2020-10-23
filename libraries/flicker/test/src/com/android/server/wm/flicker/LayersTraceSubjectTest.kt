@@ -18,8 +18,8 @@ package com.android.server.wm.flicker
 
 import android.graphics.Region
 import androidx.test.filters.FlakyTest
-import com.android.server.wm.flicker.traces.layers.LayersTrace
-import com.android.server.wm.flicker.traces.layers.LayersTrace.Companion.parseFrom
+import com.android.server.wm.traces.parser.layers.LayersTrace
+import com.android.server.wm.traces.parser.layers.LayersTrace.Companion.parseFrom
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject.Companion.assertThat
 import com.google.common.truth.Truth

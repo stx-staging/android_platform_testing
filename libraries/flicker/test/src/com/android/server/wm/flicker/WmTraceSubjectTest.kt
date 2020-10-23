@@ -16,8 +16,8 @@
 
 package com.android.server.wm.flicker
 
-import com.android.server.wm.flicker.common.traces.windowmanager.WindowManagerTrace
-import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceParser
+import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
+import com.android.server.wm.traces.parser.windowmanager.WindowManagerTraceParser
 import com.android.server.wm.flicker.traces.windowmanager.WmTraceSubject
 import com.android.server.wm.flicker.traces.windowmanager.WmTraceSubject.Companion.assertThat
 import com.google.common.truth.Truth

@@ -17,8 +17,8 @@
 package com.android.server.wm.flicker
 
 import android.graphics.Point
-import com.android.server.wm.flicker.traces.layers.LayersTrace
-import com.android.server.wm.flicker.traces.layers.LayersTrace.Companion.parseFrom
+import com.android.server.wm.traces.parser.layers.LayersTrace
+import com.android.server.wm.traces.parser.layers.LayersTrace.Companion.parseFrom
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject.Companion.assertThat
 import org.junit.Test
 import java.nio.file.Paths

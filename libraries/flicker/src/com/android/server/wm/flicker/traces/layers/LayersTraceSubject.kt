@@ -17,6 +17,8 @@
 package com.android.server.wm.flicker.traces.layers
 
 import com.android.server.wm.flicker.assertions.TraceAssertion
+import com.android.server.wm.traces.parser.layers.LayerTraceEntry
+import com.android.server.wm.traces.parser.layers.LayersTrace
 import com.android.server.wm.flicker.traces.SubjectBase
 import com.google.common.truth.Fact
 import com.google.common.truth.FailureMetadata

@@ -17,10 +17,10 @@
 package com.android.server.wm.flicker.traces.windowmanager
 
 import com.android.server.wm.flicker.assertions.TraceAssertion
-import com.android.server.wm.flicker.common.AssertionResult
-import com.android.server.wm.flicker.common.Region
-import com.android.server.wm.flicker.common.traces.windowmanager.WindowManagerTrace
-import com.android.server.wm.flicker.common.traces.windowmanager.WindowManagerState
+import com.android.server.wm.traces.common.AssertionResult
+import com.android.server.wm.traces.common.Region
+import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
+import com.android.server.wm.traces.common.windowmanager.WindowManagerState
 import com.android.server.wm.flicker.traces.SubjectBase
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.Truth

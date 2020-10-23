@@ -18,7 +18,7 @@ package com.android.server.wm.flicker
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
-import com.android.server.wm.flicker.traces.DeviceStateDump
+import com.android.server.wm.traces.parser.DeviceStateDump
 import com.google.common.truth.Truth
 import org.junit.FixMethodOrder
 import org.junit.Test

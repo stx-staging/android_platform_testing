@@ -18,11 +18,11 @@ package com.android.server.wm.flicker
 
 import com.android.server.wm.flicker.assertions.assertFailed
 import com.android.server.wm.flicker.assertions.assertPassed
-import com.android.server.wm.flicker.common.Region
-import com.android.server.wm.flicker.common.traces.windowmanager.WindowManagerTrace
-import com.android.server.wm.flicker.common.traces.windowmanager.WindowManagerState
-import com.android.server.wm.flicker.common.traces.windowmanager.windows.WindowContainer
-import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceParser
+import com.android.server.wm.traces.common.Region
+import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
+import com.android.server.wm.traces.common.windowmanager.WindowManagerState
+import com.android.server.wm.traces.common.windowmanager.windows.WindowContainer
+import com.android.server.wm.traces.parser.windowmanager.WindowManagerTraceParser
 import com.android.server.wm.flicker.traces.windowmanager.coversAtLeastRegion
 import com.android.server.wm.flicker.traces.windowmanager.coversAtMostRegion
 import com.google.common.truth.Truth.assertThat

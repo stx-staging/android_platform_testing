@@ -16,11 +16,11 @@
 
 package com.android.server.wm.flicker.traces.windowmanager
 
-import com.android.server.wm.flicker.common.AssertionResult
-import com.android.server.wm.flicker.common.Region
-import com.android.server.wm.flicker.common.traces.windowmanager.WindowManagerTrace
-import com.android.server.wm.flicker.common.traces.windowmanager.WindowManagerState
-import com.android.server.wm.flicker.traces.toAndroidRegion
+import com.android.server.wm.traces.common.AssertionResult
+import com.android.server.wm.traces.common.Region
+import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
+import com.android.server.wm.traces.common.windowmanager.WindowManagerState
+import com.android.server.wm.traces.parser.toAndroidRegion
 import java.nio.file.Paths
 
 val WindowManagerTrace.sourcePath
