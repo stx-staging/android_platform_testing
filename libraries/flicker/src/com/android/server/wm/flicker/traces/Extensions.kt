@@ -14,21 +14,17 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.common.traces.layers
+@file:JvmName("Extensions")
 
-import com.android.server.wm.flicker.common.traces.ITrace
+package com.android.server.wm.flicker.traces
 
-/**
- * Contains a collection of parsed Layers trace entries and assertions to apply over a single entry.
- *
- * Each entry is parsed into a list of [LayerTraceEntry] objects.
- *
- * This is a generic object that is reused by both Flicker and Winscope and cannot
- * access internal Java/Android functionality
- *
- */
-open class LayersTrace<Entry : LayerTraceEntry>(
-    override val entries: List<Entry>,
-    override val source: String,
-    override val sourceChecksum: String
-) : ITrace<Entry>
+import com.android.server.wm.flicker.common.Rect
+import com.android.server.wm.flicker.common.Region
+
+fun Region.toAndroidRegion(): android.graphics.Region {
+    return android.graphics.Region(bounds.left, bounds.top, bounds.right, bounds.bottom)
+}
+
+fun Rect.toAndroidRect(): android.graphics.Rect {
+    return android.graphics.Rect(left, top, right, bottom)
+}

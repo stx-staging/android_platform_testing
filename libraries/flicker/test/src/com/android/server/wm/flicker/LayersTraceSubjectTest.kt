@@ -128,7 +128,7 @@ class LayersTraceSubjectTest {
             Truth.assertWithMessage("Contains debug info")
                     .that(e.message)
                     .contains("com.android.server.wm.flicker.testapp/" +
-                            "com.android.server.wm.flicker.testapp.SimpleActivity#0 is visible")
+                        "com.android.server.wm.flicker.testapp.SimpleActivity#0 is visible")
         }
     }
 

@@ -19,13 +19,21 @@ package com.android.server.wm.flicker.traces.layers
 import android.surfaceflinger.nano.Layers
 import androidx.annotation.VisibleForTesting
 import com.android.server.wm.flicker.common.AssertionResult
+import com.android.server.wm.flicker.common.traces.layers.Layer
+import com.android.server.wm.flicker.traces.toAndroidRegion
 
-/** Represents a single Layer trace entry.  */
+/**
+ * Represents a single Layer trace entry.
+ *
+ * This is object is exclusively accessed by Java/Android code and can access internal
+ * Java/Android functionality
+ *
+ **/
 class LayerTraceEntry constructor(
-    override val timestamp: Long, // hierarchical representation of layers
+    override val timestamp: Long,
+    // hierarchical representation of layers
     rootLayers: List<Layer>
-) : com.android.server.wm.flicker.common.traces.layers
-    .LayerTraceEntry<Layer>(timestamp, rootLayers) {
+) : com.android.server.wm.flicker.common.traces.layers.LayerTraceEntry(timestamp, rootLayers) {
 
     /**
      * Obtains the region occupied by all layers with name containing [layerName].
@@ -152,14 +160,9 @@ class LayerTraceEntry constructor(
                 ?: android.graphics.Region()
     }
 
-    private fun com.android.server.wm.flicker.common.Region.toAndroidRegion():
-        android.graphics.Region {
-        return android.graphics.Region(bounds.left, bounds.top, bounds.right, bounds.bottom)
-    }
-
     fun getLayerWithBuffer(name: String): Layer? {
         return flattenedLayers.firstOrNull {
-            it.name.contains(name) && it.proto.activeBuffer != null
+            it.name.contains(name) && it.activeBuffer != null
         }
     }
 
@@ -169,12 +172,8 @@ class LayerTraceEntry constructor(
             protos: Array<Layers.LayerProto>,
             orphanLayerCallback: ((Layer) -> Boolean)?
         ): LayerTraceEntry {
-            val layers = protos.map {
-                Layer(it)
-            }
-
+            val layers = protos.map { LayerFactory.fromProto(it) }
             val trace = fromFlattenedLayers(timestamp, layers.toTypedArray(), orphanLayerCallback)
-
             return LayerTraceEntry(trace.timestamp, trace.rootLayers.map { it })
         }
     }

@@ -20,13 +20,19 @@ import com.android.server.wm.flicker.common.AssertionResult
 import com.android.server.wm.flicker.common.Region
 import com.android.server.wm.flicker.common.traces.ITraceEntry
 
-/** Represents a single Layer trace entry.  */
-open class LayerTraceEntry<LayerT : ILayer<LayerT>> constructor(
+/**
+ * Represents a single Layer trace entry.
+ *
+ * This is a generic object that is reused by both Flicker and Winscope and cannot
+ * access internal Java/Android functionality
+ *
+ **/
+open class LayerTraceEntry constructor(
     override val timestamp: Long, // hierarchical representation of layers
-    val rootLayers: List<LayerT>
+    val rootLayers: List<Layer>
 ) : ITraceEntry {
-    private val _opaqueLayers = mutableListOf<LayerT>()
-    private val _transparentLayers = mutableListOf<LayerT>()
+    private val _opaqueLayers = mutableListOf<Layer>()
+    private val _transparentLayers = mutableListOf<Layer>()
     private val _rootScreenBounds by lazy {
         val rootLayerBounds = rootLayers
                 .filter { it.sourceBounds != null }
@@ -36,8 +42,8 @@ open class LayerTraceEntry<LayerT : ILayer<LayerT>> constructor(
         Region(0, 0, rootLayerBounds.bottom.toInt(), rootLayerBounds.right.toInt())
     }
 
-    val flattenedLayers by lazy {
-        val layers = mutableListOf<LayerT>()
+    val flattenedLayers: List<Layer> by lazy {
+        val layers = mutableListOf<Layer>()
         val roots = rootLayers.fillOcclusionState().toMutableList()
         while (roots.isNotEmpty()) {
             val layer = roots.removeAt(0)
@@ -47,7 +53,7 @@ open class LayerTraceEntry<LayerT : ILayer<LayerT>> constructor(
         layers
     }
 
-    private fun List<LayerT>.topDownTraversal(): List<LayerT> {
+    private fun List<Layer>.topDownTraversal(): List<Layer> {
         return this
                 .sortedBy { it.z }
                 .flatMap { it.topDownTraversal() }
@@ -55,11 +61,11 @@ open class LayerTraceEntry<LayerT : ILayer<LayerT>> constructor(
 
     val visibleLayers by lazy { flattenedLayers.filter { it.isVisible && !it.isHiddenByParent } }
 
-    val opaqueLayers: List<LayerT> get() = _opaqueLayers
+    val opaqueLayers: List<Layer> get() = _opaqueLayers
 
-    val transparentLayers: List<LayerT> get() = _transparentLayers
+    val transparentLayers: List<Layer> get() = _transparentLayers
 
-    private fun LayerT.topDownTraversal(): List<LayerT> {
+    private fun Layer.topDownTraversal(): List<Layer> {
         val traverseList = mutableListOf(this)
 
         this.children.sortedBy { it.z }
@@ -70,7 +76,7 @@ open class LayerTraceEntry<LayerT : ILayer<LayerT>> constructor(
         return traverseList
     }
 
-    private fun List<LayerT>.fillOcclusionState(): List<LayerT> {
+    private fun List<Layer>.fillOcclusionState(): List<Layer> {
         val traversalList = topDownTraversal().reversed()
 
         traversalList.forEach { layer ->
@@ -181,13 +187,13 @@ open class LayerTraceEntry<LayerT : ILayer<LayerT>> constructor(
 
     companion object {
         /** Constructs the layer hierarchy from a flattened list of layers.  */
-        fun <LayerT : ILayer<LayerT>> fromFlattenedLayers(
+        fun fromFlattenedLayers(
             timestamp: Long,
-            layers: Array<LayerT>,
-            orphanLayerCallback: ((LayerT) -> Boolean)?
-        ): LayerTraceEntry<LayerT> {
-            val layerMap: MutableMap<Int, LayerT> = HashMap()
-            val orphans = mutableListOf<LayerT>()
+            layers: Array<Layer>,
+            orphanLayerCallback: ((Layer) -> Boolean)?
+        ): LayerTraceEntry {
+            val layerMap: MutableMap<Int, Layer> = HashMap()
+            val orphans = mutableListOf<Layer>()
 
             for (layer in layers) {
                 val id = layer.id
@@ -240,7 +246,7 @@ open class LayerTraceEntry<LayerT : ILayer<LayerT>> constructor(
                                 " with parentId = ${orphan.parentId}"))
             }
 
-            return LayerTraceEntry<LayerT>(timestamp, rootLayers)
+            return LayerTraceEntry(timestamp, rootLayers)
         }
     }
 }

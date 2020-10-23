@@ -21,25 +21,34 @@ import com.android.server.wm.flicker.common.Color
 import com.android.server.wm.flicker.common.Region
 import com.android.server.wm.flicker.common.RectF
 
-/** Represents a single layer with links to its parent and child layers.  */
-open class Layer<LayerT : ILayer<LayerT>>(
-    override val name: String,
-    override val id: Int,
-    override val parentId: Int,
-    override val z: Int,
-    override val visibleRegion: Region,
+/**
+ * Represents a single layer with links to its parent and child layers.
+ *
+ * This is a generic object that is reused by both Flicker and Winscope and cannot
+ * access internal Java/Android functionality
+ *
+ **/
+open class Layer(
+    val name: String,
+    val id: Int,
+    val parentId: Int,
+    val z: Int,
+    val visibleRegion: Region,
     val activeBuffer: Buffer?,
     val flags: Int,
     val bounds: RectF,
     val color: Color?,
-    val _isOpaque: Boolean,
+    private val _isOpaque: Boolean,
     val shadowRadius: Float,
     val type: String,
-    val _screenBounds: RectF?,
-    override val transform: Transform,
-    override val sourceBounds: RectF?
-) : ILayer<LayerT> {
-    override lateinit var parent: LayerT
+    private val _screenBounds: RectF?,
+    val transform: Transform,
+    val sourceBounds: RectF?,
+    val currFrame: Long,
+    val effectiveScalingMode: Int,
+    val bufferTransform: Transform
+) {
+    lateinit var parent: Layer
 
     /**
      * Checks if the [Layer] is a root layer in the hierarchy
@@ -51,12 +60,12 @@ open class Layer<LayerT : ILayer<LayerT>>(
             return !::parent.isInitialized
         }
 
-    override val children = mutableListOf<LayerT>()
-    override val occludedBy = mutableListOf<LayerT>()
-    override val partiallyOccludedBy = mutableListOf<LayerT>()
-    override val coveredBy = mutableListOf<LayerT>()
+    val children = mutableListOf<Layer>()
+    val occludedBy = mutableListOf<Layer>()
+    val partiallyOccludedBy = mutableListOf<Layer>()
+    val coveredBy = mutableListOf<Layer>()
 
-    override fun addChild(childLayer: LayerT) {
+    fun addChild(childLayer: Layer) {
         children.add(childLayer)
     }
 
@@ -67,19 +76,15 @@ open class Layer<LayerT : ILayer<LayerT>>(
      *
      * @return
      */
-    val isActiveBufferEmpty: Boolean
-        get() {
-            return (activeBuffer == null) ||
-                    (activeBuffer.height == 0) ||
-                    (activeBuffer.width == 0)
-        }
+    val isActiveBufferEmpty: Boolean get() =
+        (activeBuffer == null) || (activeBuffer?.height == 0) || (activeBuffer?.width == 0)
 
     /**
      * Checks if the layer is hidden, that is, if its flags contain 0x1 (FLAG_HIDDEN)
      *
      * @return
      */
-    override val isHiddenByPolicy: Boolean
+    val isHiddenByPolicy: Boolean
         get() {
             return (flags and /* FLAG_HIDDEN */0x1) != 0x0
         }
@@ -95,7 +100,7 @@ open class Layer<LayerT : ILayer<LayerT>>(
      *
      * @return
      */
-    override val isVisible: Boolean
+    val isVisible: Boolean
         get() {
             return when {
                 isHiddenByPolicy -> false
@@ -106,7 +111,7 @@ open class Layer<LayerT : ILayer<LayerT>>(
             }
         }
 
-    override val isOpaque: Boolean
+    val isOpaque: Boolean
         get() {
             return if (color?.a != 1.0f) {
                 false
@@ -122,6 +127,7 @@ open class Layer<LayerT : ILayer<LayerT>>(
      */
     val fillsColor: Boolean
         get() {
+            val color = color
             return (color != null &&
                     color.a > 0 &&
                     color.r >= 0 &&
@@ -134,7 +140,7 @@ open class Layer<LayerT : ILayer<LayerT>>(
      *
      * @return
      */
-    val drawsShadows get() = (shadowRadius ?: 0.0f) > 0
+    val drawsShadows: Boolean get() = shadowRadius > 0
 
     /**
      * Checks if the [Layer] draws has effects, which include:
@@ -159,38 +165,36 @@ open class Layer<LayerT : ILayer<LayerT>>(
      *
      * @return
      */
-    val isBufferLayer: Boolean
-        get() {
-            return type == "BufferStateLayer" || type == "BufferQueueLayer"
-        }
+    val isBufferLayer: Boolean get() =
+        type == "BufferStateLayer" || type == "BufferQueueLayer"
 
     /**
      * Checks if the [Layer] type is ColorLayer
      *
      * @return
      */
-    val isColorLayer get() = type == "ColorLayer"
+    val isColorLayer: Boolean get() = type == "ColorLayer"
 
     /**
      * Checks if the [Layer] type is EffectLayer
      *
      * @return
      */
-    val isEffectLayer get() = type == "EffectLayer"
+    val isEffectLayer: Boolean get() = type == "EffectLayer"
 
     /**
      * Checks if the [Layer] is not visible
      *
      * @return
      */
-    override val isInvisible get() = !isVisible
+    val isInvisible: Boolean get() = !isVisible
 
     /**
      * Checks if the [Layer] is hidden by its parent
      *
      * @return
      */
-    override val isHiddenByParent: Boolean
+    val isHiddenByParent: Boolean
         get() = !isRootLayer && (parent.isHiddenByPolicy || parent.isHiddenByParent)
 
     /**
@@ -198,7 +202,7 @@ open class Layer<LayerT : ILayer<LayerT>>(
      *
      * @return
      */
-    override val hiddenByParentReason: String
+    val hiddenByParentReason: String
         get() {
             var reason = "Layer $name"
             reason += if (isHiddenByParent) {
@@ -214,41 +218,36 @@ open class Layer<LayerT : ILayer<LayerT>>(
      *
      * @return
      */
-    override val visibilityReason: String
+    val visibilityReason: String
         get() {
-            var reason = "Layer $name"
-            if (isVisible) {
-                reason += " is visible:"
-            } else {
-                reason += " is invisible:"
-                when {
-                    activeBuffer == null -> {
-                        reason += " activeBuffer=null"
+            return buildString {
+                append("Layer $name")
+                if (isVisible) {
+                    append(" is visible:")
+                } else {
+                    append(" is invisible:")
+                    when {
+                        activeBuffer == null -> append(" activeBuffer=null")
+                        activeBuffer.height == 0 -> append(" activeBuffer.height=0")
+                        activeBuffer.width == 0 -> append(" activeBuffer.width=0")
                     }
-                    activeBuffer.height == 0 -> {
-                        reason += " activeBuffer.height=0"
+                    if (!isColorLayer) {
+                        append(" type != ColorLayer")
                     }
-                    activeBuffer.width == 0 -> {
-                        reason += " activeBuffer.width=0"
+                    if (isHiddenByPolicy) {
+                        append(" flags=$flags (FLAG_HIDDEN set)")
                     }
-                }
-                if (!isColorLayer) {
-                    reason += " type != ColorLayer"
-                }
-                if (isHiddenByPolicy) {
-                    reason += " flags=" + flags + " (FLAG_HIDDEN set)"
-                }
-                if (color == null || color.a == 0f) {
-                    reason += " color.a=0"
-                }
-                if (visibleRegion.empty) {
-                    reason += " visible region is empty"
+                    if (color == null || color.a == 0f) {
+                        append(" color.a=0")
+                    }
+                    if (visibleRegion.empty) {
+                        append(" visible region is empty")
+                    }
                 }
             }
-            return reason
         }
 
-    override val screenBounds: RectF
+    val screenBounds: RectF
         get() {
             return when {
                 _screenBounds != null -> _screenBounds
@@ -256,7 +255,7 @@ open class Layer<LayerT : ILayer<LayerT>>(
             }
         }
 
-    override fun contains(innerLayer: LayerT): Boolean {
+    fun contains(innerLayer: Layer): Boolean {
         return if (!this.transform.isSimpleRotation || !innerLayer.transform.isSimpleRotation) {
             false
         } else {
@@ -264,15 +263,20 @@ open class Layer<LayerT : ILayer<LayerT>>(
         }
     }
 
-    override fun overlaps(other: LayerT): Boolean = this.screenBounds.intersect(other.screenBounds)
+    fun overlaps(other: Layer): Boolean = this.screenBounds.intersect(other.screenBounds)
 
     override fun toString(): String {
-        var value = "$name $type $visibleRegion"
+        return buildString {
+            append(name)
 
-        if (isVisible) {
-            value += "(visible)"
+            if (activeBuffer?.width ?: 0 > 0 && activeBuffer?.height ?: 0 > 0) {
+                append(" buffer:${activeBuffer?.width}x${activeBuffer?.height}")
+                append(" frame#$currFrame")
+            }
+
+            if (isVisible) {
+                append(" visible:$visibleRegion")
+            }
         }
-
-        return value
     }
 }

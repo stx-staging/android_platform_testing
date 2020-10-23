@@ -73,7 +73,7 @@ class LayersTraceSubject private constructor(
         val layer = trace.entries.asSequence()
                 .flatMap { it.flattenedLayers }
                 .firstOrNull {
-                    it.name.contains(name) && it.proto.currFrame == frameNumber
+                    it.name.contains(name) && it.currFrame == frameNumber
                 }
         return assertWithMessage("Layer:$name frame#$frameNumber")
                 .about(LayerSubject.FACTORY).that(layer)
@@ -159,15 +159,15 @@ class LayersTraceSubject private constructor(
                 // removing all entries without the layer
                 .filterNotNull()
                 // removing all entries with the same frame number
-                .distinctBy { it.proto.currFrame }
+                .distinctBy { it.currFrame }
                 // drop until the first frame we are interested in
-                .dropWhile { layer -> layer.proto.currFrame != firstFrame }
+                .dropWhile { layer -> layer.currFrame != firstFrame }
 
         var numFound = 0
         val frameNumbersMatch = entries.zip(frameNumbers.asSequence()) {
             layer, frameNumber ->
                 numFound++
-                layer.proto.currFrame == frameNumber
+                layer.currFrame == frameNumber
         }.all { it }
         val allFramesFound = frameNumbers.count() == numFound
         if (!allFramesFound || !frameNumbersMatch) {
