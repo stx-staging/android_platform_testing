@@ -39,7 +39,7 @@ import java.lang.reflect.Modifier
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class WindowManagerTraceTest {
     private val trace: WindowManagerTrace by lazy {
-        readWindowManagerTraceFromFile("wm_trace_openchrome.pb")
+        readWmTraceFromFile("wm_trace_openchrome.pb")
     }
 
     @Test
@@ -211,7 +211,7 @@ class WindowManagerTraceTest {
     @Test
     fun canAccessAllProperties() {
         arrayOf("wm_trace_activity_transition.pb", "wm_trace_openchrome2.pb").forEach { traceName ->
-            val trace = readWindowManagerTraceFromFile(traceName)
+            val trace = readWmTraceFromFile(traceName)
             assertWithMessage("Unable to parse dump")
                 .that(trace.entries.size)
                 .isGreaterThan(1)
@@ -219,16 +219,6 @@ class WindowManagerTraceTest {
             trace.entries.forEach { entry: WindowManagerState ->
                 entry::class.java.accessProperties(entry)
                 entry.displays.forEach { it::class.java.accessProperties(it) }
-            }
-        }
-    }
-
-    companion object {
-        private fun readWindowManagerTraceFromFile(relativePath: String): WindowManagerTrace {
-            return try {
-                WindowManagerTraceParser.parseFromTrace(readTestFile(relativePath))
-            } catch (e: Exception) {
-                throw RuntimeException(e)
             }
         }
     }

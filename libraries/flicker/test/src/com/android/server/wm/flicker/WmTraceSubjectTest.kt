@@ -16,8 +16,6 @@
 
 package com.android.server.wm.flicker
 
-import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
-import com.android.server.wm.traces.parser.windowmanager.WindowManagerTraceParser
 import com.android.server.wm.flicker.traces.windowmanager.WmTraceSubject
 import com.android.server.wm.flicker.traces.windowmanager.WmTraceSubject.Companion.assertThat
 import com.google.common.truth.Truth
@@ -152,15 +150,5 @@ class WmTraceSubjectTest {
     fun testCanDetectVisibleWindowsMoreThanOneConsecutiveEntry() {
         val trace = readWmTraceFromFile("wm_trace_valid_visible_windows.pb")
         assertThat(trace).visibleWindowsShownMoreThanOneConsecutiveEntry().forAllEntries()
-    }
-
-    companion object {
-        private fun readWmTraceFromFile(relativePath: String): WindowManagerTrace {
-            return try {
-                WindowManagerTraceParser.parseFromTrace(readTestFile(relativePath))
-            } catch (e: Exception) {
-                throw RuntimeException(e)
-            }
-        }
     }
 }
