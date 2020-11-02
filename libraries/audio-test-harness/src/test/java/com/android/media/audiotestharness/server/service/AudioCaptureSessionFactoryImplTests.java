@@ -23,7 +23,7 @@ import static org.mockito.Mockito.when;
 
 import com.android.media.audiotestharness.server.core.AudioCapturer;
 
-import io.grpc.stub.StreamObserver;
+import io.grpc.stub.ServerCallStreamObserver;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -42,7 +42,7 @@ public class AudioCaptureSessionFactoryImplTests {
 
     @Mock StreamObserverOutputStreamFactory mStreamObserverOutputStreamFactory;
 
-    @Mock StreamObserver mStreamObserver;
+    @Mock ServerCallStreamObserver mStreamObserver;
 
     @Mock AudioCapturer mAudioCapturer;
 

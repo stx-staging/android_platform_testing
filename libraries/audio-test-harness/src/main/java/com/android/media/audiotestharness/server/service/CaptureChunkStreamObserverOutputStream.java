@@ -22,12 +22,14 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.protobuf.ByteString;
 
+import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 
 import java.io.OutputStream;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Logger;
 
 /**
  * {@link OutputStream} that streams data written to it to a provided {@link StreamObserver} in the
@@ -41,6 +43,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <p>This class should not be extended, however is left non-final for mocking purposes.
  */
 public class CaptureChunkStreamObserverOutputStream extends OutputStream {
+    private static final Logger LOGGER =
+            Logger.getLogger(CaptureChunkStreamObserverOutputStream.class.getName());
 
     /**
      * Used for synchronizing actions during gRPC execution. Thus, a main thread can delegate
@@ -53,7 +57,8 @@ public class CaptureChunkStreamObserverOutputStream extends OutputStream {
      * {@link StreamObserver} that underlies this {@link OutputStream} and is written to whenever
      * any of this class's write methods are called.
      */
-    private final StreamObserver<AudioTestHarnessService.CaptureChunk> mCaptureChunkStreamObserver;
+    private final ServerCallStreamObserver<AudioTestHarnessService.CaptureChunk>
+            mCaptureChunkStreamObserver;
 
     /**
      * Flag to track whether or not this {@link OutputStream} has been closed. If so, then does not
@@ -67,20 +72,24 @@ public class CaptureChunkStreamObserverOutputStream extends OutputStream {
     private AtomicBoolean mClosed = new AtomicBoolean(false);
 
     private CaptureChunkStreamObserverOutputStream(
-            StreamObserver<AudioTestHarnessService.CaptureChunk> captureChunkStreamObserver,
+            ServerCallStreamObserver<AudioTestHarnessService.CaptureChunk>
+                    captureChunkStreamObserver,
             CountDownLatch countDownLatch) {
         mCaptureChunkStreamObserver = captureChunkStreamObserver;
         mCountDownLatch = countDownLatch;
+        LOGGER.finest("new CaptureChunkStreamObserverOutputStream");
     }
 
     public static CaptureChunkStreamObserverOutputStream create(
-            StreamObserver<AudioTestHarnessService.CaptureChunk> captureChunkStreamObserver) {
+            ServerCallStreamObserver<AudioTestHarnessService.CaptureChunk>
+                    captureChunkStreamObserver) {
         return create(captureChunkStreamObserver, new CountDownLatch(1));
     }
 
     @VisibleForTesting
     static CaptureChunkStreamObserverOutputStream create(
-            StreamObserver<AudioTestHarnessService.CaptureChunk> captureChunkStreamObserver,
+            ServerCallStreamObserver<AudioTestHarnessService.CaptureChunk>
+                    captureChunkStreamObserver,
             CountDownLatch countDownLatch) {
         return new CaptureChunkStreamObserverOutputStream(
                 Preconditions.checkNotNull(captureChunkStreamObserver),
@@ -108,7 +117,6 @@ public class CaptureChunkStreamObserverOutputStream extends OutputStream {
                 !mClosed.get(),
                 "CaptureChunkStreamObserverOutputStream has already been closed and cannot be"
                         + " written to.");
-
         write(b, 0, b.length);
     }
 
@@ -124,13 +132,24 @@ public class CaptureChunkStreamObserverOutputStream extends OutputStream {
         AudioTestHarnessService.CaptureChunk captureChunk =
                 AudioTestHarnessService.CaptureChunk.newBuilder().setData(chunkBytes).build();
 
-        mCaptureChunkStreamObserver.onNext(captureChunk);
+        // Skip sending any chunks that are written to the stream after cancellation.
+        //
+        // Since the writing to this Output Stream comes from a separate thread from the original
+        // gRPC handling thread, there is a chance that an extra chunk of data will be written
+        // before the cancellation can propagate to the AudioCapturer that is publishing data. In
+        // these cases, simply ignore the extra chunk of data and log that it was seen.
+        if (mCaptureChunkStreamObserver.isCancelled()) {
+            LOGGER.fine("Extra chunk sent after cancellation will be discarded");
+        } else {
+            mCaptureChunkStreamObserver.onNext(captureChunk);
+        }
     }
 
     @Override
     public void close() {
         mClosed.set(true);
         mCountDownLatch.countDown();
+        LOGGER.info("Stream Closed");
     }
 
     public boolean isClosed() {

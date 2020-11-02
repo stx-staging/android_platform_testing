@@ -81,12 +81,17 @@ public final class JavaAudioCapturer implements AudioCapturer {
             AudioFormat audioFormat,
             TargetDataLine targetDataLine,
             Executor executor) {
+        LOGGER.finest("new JavaAudioCapturer()");
         mAudioDevice = audioDevice;
         mAudioFormat = audioFormat;
         mTargetDataLine = targetDataLine;
         mExecutorService = executor;
 
-        // Used for thread safety, in general, the set will be iterated over more than written to.
+        // Used for thread safety, in general, the set will be iterated over more than written to
+        // since the TargetDataLineWatchingPublisher will continually iterate over this set
+        // to write to current outputs.
+        //
+        // This allows for new outputs to be added after the publishers is already running.
         mOutputs = new CopyOnWriteArraySet<>();
         mPublisher = new TargetDataLineWatchingPublisher(mTargetDataLine, mOutputs);
     }
@@ -122,6 +127,8 @@ public final class JavaAudioCapturer implements AudioCapturer {
 
         mTargetDataLine.start();
         mExecutorService.execute(mPublisher);
+
+        LOGGER.info("AudioCapturer Opened");
     }
 
     @Override
@@ -138,6 +145,7 @@ public final class JavaAudioCapturer implements AudioCapturer {
     public void attachOutput(OutputStream outputStream) {
         Preconditions.checkNotNull(outputStream, "Cannot attach a null output");
         mOutputs.add(outputStream);
+        LOGGER.fine(String.format("Attatched new Output - %s", outputStream));
     }
 
     @Override
@@ -158,11 +166,13 @@ public final class JavaAudioCapturer implements AudioCapturer {
      */
     @Override
     public void close() {
-        mDisposed = true;
-
         mPublisher.stop();
+
         mTargetDataLine.stop();
         mTargetDataLine.close();
+
+        mDisposed = true;
+        LOGGER.info("AudioCapturer Closed");
     }
 
     /**
@@ -171,6 +181,8 @@ public final class JavaAudioCapturer implements AudioCapturer {
      */
     @VisibleForTesting
     static class TargetDataLineWatchingPublisher implements Runnable {
+        private static final Logger LOGGER =
+                Logger.getLogger(TargetDataLineWatchingPublisher.class.getName());
 
         private final Set<OutputStream> mOutputs;
         private final TargetDataLine mTargetDataLine;
@@ -203,7 +215,13 @@ public final class JavaAudioCapturer implements AudioCapturer {
                         String.format("Successfully read %d bytes from mTargetDataLine", read));
                 for (OutputStream output : mOutputs) {
                     try {
-                        output.write(mAudioBuffer, 0, read);
+
+                        // Verify that we are still running since there is a chance that the
+                        // state could have changed while waiting on the data to be read from the
+                        // TargetDataLine.
+                        if (mRunning) {
+                            output.write(mAudioBuffer, 0, read);
+                        }
                     } catch (IOException ioe) {
                         LOGGER.log(
                                 Level.WARNING,
@@ -218,8 +236,8 @@ public final class JavaAudioCapturer implements AudioCapturer {
         }
 
         public void stop() {
-            LOGGER.info("Publisher stopped");
             mRunning = false;
+            LOGGER.info("Publisher stopped");
         }
 
         public boolean isRunning() {

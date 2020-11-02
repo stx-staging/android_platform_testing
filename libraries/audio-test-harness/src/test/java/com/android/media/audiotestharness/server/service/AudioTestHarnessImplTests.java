@@ -17,10 +17,10 @@
 package com.android.media.audiotestharness.server.service;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -37,6 +37,7 @@ import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
+import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import io.grpc.testing.GrpcCleanupRule;
 
@@ -53,7 +54,6 @@ import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 /** Tests for the {@link AudioTestHarnessImpl} class. */
@@ -105,7 +105,17 @@ public class AudioTestHarnessImplTests {
         // Ensure the mocks output is valid.
         when(mAudioSystemService.createDefaultCapturer()).thenReturn(mAudioCapturer);
         when(mAudioCaptureSessionFactory.createCaptureSession(any(), any()))
-                .thenReturn(mAudioCaptureSession);
+                .then(
+                        (inv) -> {
+
+                            // Ensure that the stream observer is closed properly so it can be
+                            // cleaned up.
+                            ServerCallStreamObserver<AudioTestHarnessService.CaptureChunk>
+                                    streamObserver = inv.getArgument(0);
+                            streamObserver.onCompleted();
+
+                            return mAudioCaptureSession;
+                        });
     }
 
     @Test
@@ -124,7 +134,7 @@ public class AudioTestHarnessImplTests {
     public void capture_callsStopOnSessionWhenCanceled() throws Exception {
         AtomicReference<StreamObserver<AudioTestHarnessService.CaptureChunk>>
                 streamObserverReference = new AtomicReference<>();
-
+        reset(mAudioCaptureSessionFactory);
         when(mAudioCaptureSessionFactory.createCaptureSession(any(), any()))
                 .thenAnswer(
                         (invocation -> {
@@ -176,14 +186,6 @@ public class AudioTestHarnessImplTests {
     }
 
     @Test
-    public void capture_properlyWaitsOnCaptureSessionToStopUpToAnHour() throws Exception {
-        mBlockingStub.capture(AudioTestHarnessService.CaptureRequest.getDefaultInstance());
-
-        // Verify that the timeout matches what we expect it to be at 3600 seconds or 1 hour.
-        verify(mAudioCaptureSession).awaitStop(3600, TimeUnit.SECONDS);
-    }
-
-    @Test
     public void capture_throwsProperStatusException_failureToOpenCapturer() throws Exception {
         when(mAudioSystemService.createDefaultCapturer())
                 .thenThrow(new IOException("Some exception occurred."));
@@ -199,27 +201,14 @@ public class AudioTestHarnessImplTests {
 
     @Test
     public void capture_throwsProperStatusException_failureToStartCapturer() throws Exception {
+        reset(mAudioCaptureSessionFactory);
+        when(mAudioCaptureSessionFactory.createCaptureSession(any(), any()))
+                .thenReturn(mAudioCaptureSession);
         doThrow(new IOException("Capturer Start Failure!")).when(mAudioCaptureSession).start();
 
         mExceptionRule.expect(
                 generateCustomMatcherForExpected(
                         /* expectedDescription= */ "Capturer Start Failure!", Status.INTERNAL));
-
-        mBlockingStub
-                .capture(AudioTestHarnessService.CaptureRequest.getDefaultInstance())
-                .forEachRemaining(chunk -> {});
-    }
-
-    @Test
-    public void capture_throwsProperStatusException_failureToWaitForCapturer() throws Exception {
-        doThrow(new IOException("Capturer Await Stop Failure!"))
-                .when(mAudioCaptureSession)
-                .awaitStop(anyLong(), any());
-
-        mExceptionRule.expect(
-                generateCustomMatcherForExpected(
-                        /* expectedDescription= */ "Capturer Await Stop Failure!",
-                        Status.INTERNAL));
 
         mBlockingStub
                 .capture(AudioTestHarnessService.CaptureRequest.getDefaultInstance())

@@ -32,6 +32,7 @@ import com.android.media.audiotestharness.server.core.AudioCapturer;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.junit.rules.Timeout;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.ArgumentCaptor;
@@ -41,6 +42,8 @@ import org.mockito.junit.MockitoRule;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.util.concurrent.Executor;
 
@@ -51,6 +54,12 @@ public class JavaAudioCapturerTests {
 
     @Rule public MockitoRule mMockitoRule = MockitoJUnit.rule();
     @Rule public TemporaryFolder mTemporaryFolder = new TemporaryFolder();
+
+    /**
+     * Timeout to catch breakages where the TargetDataLineWatchingPublisher infinite loops. The
+     * slowest test takes about 50ms to run so a 20x buffer for timeout should be acceptable.
+     */
+    @Rule public Timeout mTimeout = Timeout.millis(1000);
 
     @Mock Executor mExecutor;
 
@@ -139,8 +148,8 @@ public class JavaAudioCapturerTests {
         JavaAudioCapturer.TargetDataLineWatchingPublisher publisher =
                 (JavaAudioCapturer.TargetDataLineWatchingPublisher) runnableArgCaptor.getValue();
 
-        // Ensure the publisher only loops once by stopping it first.
-        publisher.stop();
+        // Ensure the publisher only loops once by adding a stream that stops it.
+        capturer.attachOutput(new RunnableOutputStream(publisher::stop));
         publisher.run();
 
         // Verify output is as expected to the array.
@@ -179,8 +188,8 @@ public class JavaAudioCapturerTests {
         JavaAudioCapturer.TargetDataLineWatchingPublisher publisher =
                 (JavaAudioCapturer.TargetDataLineWatchingPublisher) runnableArgCaptor.getValue();
 
-        // Ensure the publisher only loops once by stopping it first.
-        publisher.stop();
+        // Ensure the publisher only loops once by adding a stream that stops it.
+        capturer.attachOutput(new RunnableOutputStream(publisher::stop));
         publisher.run();
 
         // Verify output is as expected to the array.
@@ -218,5 +227,29 @@ public class JavaAudioCapturerTests {
 
         verify(mTargetDataLine).stop();
         verify(mTargetDataLine).close();
+    }
+
+    /** Custom {@link OutputStream} that triggers a contained Runnable when written to. */
+    private static class RunnableOutputStream extends OutputStream {
+        private final Runnable mRunnable;
+
+        private RunnableOutputStream(Runnable runnable) {
+            mRunnable = runnable;
+        }
+
+        @Override
+        public void write(int b) throws IOException {
+            mRunnable.run();
+        }
+
+        @Override
+        public void write(byte[] b, int off, int len) throws IOException {
+            mRunnable.run();
+        }
+
+        @Override
+        public void write(byte[] b) {
+            mRunnable.run();
+        }
     }
 }

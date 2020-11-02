@@ -18,7 +18,7 @@ package com.android.media.audiotestharness.server.service;
 
 import com.android.media.audiotestharness.proto.AudioTestHarnessService;
 
-import io.grpc.stub.StreamObserver;
+import io.grpc.stub.ServerCallStreamObserver;
 
 /**
  * Factory class for {@link java.io.OutputStream}s that package written data into specialized the
@@ -28,10 +28,10 @@ public class StreamObserverOutputStreamFactory {
 
     /**
      * Creates a new {@link CaptureChunkStreamObserverOutputStream} for the provided {@link
-     * StreamObserver}.
+     * ServerCallStreamObserver}.
      */
     public CaptureChunkStreamObserverOutputStream createNewCaptureChunkStreamObserverOutputStream(
-            StreamObserver<AudioTestHarnessService.CaptureChunk> streamObserver) {
+            ServerCallStreamObserver<AudioTestHarnessService.CaptureChunk> streamObserver) {
         return CaptureChunkStreamObserverOutputStream.create(streamObserver);
     }
 }

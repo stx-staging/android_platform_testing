@@ -28,7 +28,6 @@ import io.grpc.stub.StreamObserver;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -91,13 +90,10 @@ public final class AudioTestHarnessImpl extends AudioTestHarnessGrpc.AudioTestHa
         serverCallResponseObserver.setOnCancelHandler(captureSession::stop);
         try {
             captureSession.start();
-            captureSession.awaitStop(MAX_CAPTURE_DURATION.getSeconds(), TimeUnit.SECONDS);
         } catch (IOException ioe) {
             LOGGER.log(Level.SEVERE, "Internal Error while Capturing", ioe);
             serverCallResponseObserver.onError(
                     Status.INTERNAL.withCause(ioe).withDescription(ioe.getMessage()).asException());
         }
-
-        serverCallResponseObserver.onCompleted();
     }
 }

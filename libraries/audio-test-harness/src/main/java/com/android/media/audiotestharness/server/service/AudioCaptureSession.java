@@ -81,7 +81,6 @@ public class AudioCaptureSession {
      * @throws IOException if any errors occur while opening the underlying {@link AudioCapturer}
      */
     public void start() throws IOException {
-        LOGGER.info(String.format("id=%d - Starting Capture Session", mSessionId));
         try {
             mAudioCapturer.open();
         } catch (IOException ioe) {
@@ -91,11 +90,11 @@ public class AudioCaptureSession {
                             mSessionId),
                     ioe);
         }
+        LOGGER.info(String.format("id=%d - Capture Session Started", mSessionId));
     }
 
     /** Stops the capture of audio and cleans up any associated resources. */
     public void stop() {
-        LOGGER.info(String.format("id=%d - Stopping Capture Session", mSessionId));
         try {
             mAudioCapturer.close();
         } catch (IOException ioe) {
@@ -106,8 +105,8 @@ public class AudioCaptureSession {
                                     + " Capture Session %d",
                             mSessionId));
         }
-
         mCaptureChunkStreamObserverOutputStream.close();
+        LOGGER.info(String.format("id=%d - Capture Session Stopped", mSessionId));
     }
 
     /**

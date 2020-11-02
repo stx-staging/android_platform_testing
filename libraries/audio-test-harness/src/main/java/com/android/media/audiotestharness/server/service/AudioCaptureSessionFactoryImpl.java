@@ -21,7 +21,7 @@ import com.android.media.audiotestharness.server.core.AudioCapturer;
 
 import com.google.inject.Inject;
 
-import io.grpc.stub.StreamObserver;
+import io.grpc.stub.ServerCallStreamObserver;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
@@ -52,7 +52,7 @@ public class AudioCaptureSessionFactoryImpl implements AudioCaptureSessionFactor
 
     @Override
     public AudioCaptureSession createCaptureSession(
-            StreamObserver<AudioTestHarnessService.CaptureChunk> chunkStreamObserver,
+            ServerCallStreamObserver<AudioTestHarnessService.CaptureChunk> chunkStreamObserver,
             AudioCapturer audioCapturer) {
         int id = sIdBase.getAndIncrement();
         LOGGER.info(String.format("Starting new capture session with id %d", id));
