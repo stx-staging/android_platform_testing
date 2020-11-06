@@ -33,7 +33,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /** Truth subject for {@link WindowManagerTrace} objects. */
-public class WmTraceSubject extends Subject<WmTraceSubject, WindowManagerTrace> {
+public class WmTraceSubject extends Subject {
     // Boiler-plate Subject.Factory for WmTraceSubject
     private static final Subject.Factory<WmTraceSubject, WindowManagerTrace> FACTORY =
             WmTraceSubject::new;
