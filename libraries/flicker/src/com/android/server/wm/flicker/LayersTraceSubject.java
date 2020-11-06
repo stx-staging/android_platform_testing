@@ -37,7 +37,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /** Truth subject for {@link LayersTrace} objects. */
-public class LayersTraceSubject extends Subject<LayersTraceSubject, LayersTrace> {
+public class LayersTraceSubject extends Subject {
     public static final String TAG = "FLICKER";
 
     // Boiler-plate Subject.Factory for LayersTraceSubject
