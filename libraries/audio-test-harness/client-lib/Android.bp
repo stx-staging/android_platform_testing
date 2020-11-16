@@ -48,12 +48,11 @@ java_library {
     ],
     static_libs: [
         "audiotestharness-client-corelib",
+        "grpc-java-okhttp-client-lite",
+        "guava",
     ],
     sdk_version: "current",
 }
-
-
-// These targets must remain commented out until (b/173794291) is resolved.
 
 java_test {
     name: "audiotestharness-client-grpclib-tests",
@@ -64,7 +63,12 @@ java_test {
     ],
     static_libs: [
         "audiotestharness-client-grpclib",
+        "grpc-java-okhttp-client-lite",
+        "grpc-java-core-inprocess",
+        "opencensus-java-api",
+        "opencensus-java-contrib-grpc-metrics",
         "junit",
+        "junit-params",
     ],
     sdk_version: "current",
     test_options: {
