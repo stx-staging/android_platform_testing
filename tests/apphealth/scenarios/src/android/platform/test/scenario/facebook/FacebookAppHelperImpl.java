@@ -147,7 +147,7 @@ public class FacebookAppHelperImpl extends AbstractStandardAppHelper implements 
             Assert.assertNotNull("Newsfeed List not found", newsfeedList);
             newsfeedList.setGestureMargin(mDevice.getDisplayHeight() / 4);
             newsfeedList.fling(direction);
-            SystemClock.sleep(10);
+            SystemClock.sleep(2500);
         }
     }
 
