@@ -45,12 +45,20 @@ java_library {
     host_supported: true,
     srcs: [
         "src/main/java/com/android/media/audiotestharness/client/grpc/*.java",
+        ":audiotestharness-serviceproto",
+        ":audiotestharness-servicestub-lite",
+    ],
+    libs: [
+        "javax_annotation-api_1.3.2",
     ],
     static_libs: [
         "audiotestharness-client-corelib",
         "grpc-java-okhttp-client-lite",
         "guava",
     ],
+    proto: {
+        type: "lite",
+    },
     sdk_version: "current",
 }
 
@@ -69,6 +77,8 @@ java_test {
         "opencensus-java-contrib-grpc-metrics",
         "junit",
         "junit-params",
+        "mockito",
+        "objenesis",
     ],
     sdk_version: "current",
     test_options: {

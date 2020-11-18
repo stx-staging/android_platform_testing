@@ -45,9 +45,6 @@ filegroup {
     srcs: [
         "proto/audio_test_harness_service.proto",
     ],
-    visibility: [
-        ":__subpackages__",
-    ],
 }
 
 // The generated gRPC Stub based on the above service definition.
@@ -211,7 +208,10 @@ java_library_host {
     ],
     static_libs: [
         "audiotestharness-corelib",
+        "audiotestharness-commonlib-full",
+
         "libprotobuf-java-full",
+
         "guava",
         "guice",
     ],
@@ -299,7 +299,10 @@ java_test_host {
     static_libs: [
         "audiotestharness-corelib",
         "audiotestharness-javasoundlib",
+        "audiotestharness-commonlib-full",
+
         "libprotobuf-java-full",
+
         "guava",
         "junit-host",
 
