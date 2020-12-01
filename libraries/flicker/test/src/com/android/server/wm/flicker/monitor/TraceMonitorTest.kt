@@ -36,7 +36,7 @@ abstract class TraceMonitorTest<T : TransitionMonitor> {
     protected val instrumentation = InstrumentationRegistry.getInstrumentation()
     protected val device = UiDevice.getInstance(instrumentation)
     private val traceMonitor by lazy {
-        val outputDir = getDefaultFlickerOutputDir(instrumentation)
+        val outputDir = getDefaultFlickerOutputDir()
         getMonitor(outputDir)
     }
 
@@ -86,7 +86,7 @@ abstract class TraceMonitorTest<T : TransitionMonitor> {
 
     @Test
     fun withTracing() {
-        val trace = withTracing(instrumentation) {
+        val trace = withTracing {
             device.pressHome()
             device.pressRecentApps()
         }
