@@ -92,10 +92,10 @@ abstract class TraceMonitorTest<T : TransitionMonitor> {
         }
 
         Truth.assertWithMessage("Could not obtain SF trace")
-            .that(trace.layersTrace.entries)
+            .that(trace.layersTrace?.entries)
             .isNotEmpty()
         Truth.assertWithMessage("Could not obtain WM trace")
-            .that(trace.wmTrace.entries)
+            .that(trace.wmTrace?.entries)
             .isNotEmpty()
     }
 }

@@ -18,10 +18,11 @@
 package com.android.server.wm.flicker.monitor
 
 import android.app.Instrumentation
-import com.android.server.wm.flicker.DeviceStateDump
+import com.android.server.wm.traces.parser.DeviceStateDump
+import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 import com.android.server.wm.flicker.getDefaultFlickerOutputDir
-import com.android.server.wm.flicker.traces.layers.LayersTrace
-import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTrace
+import com.android.server.wm.traces.parser.layers.LayersTrace
+import com.android.server.wm.traces.parser.windowmanager.WindowManagerTraceParser
 
 /**
  * Acquire the [WindowManagerTrace] with the device state changes that happen when executing
@@ -33,7 +34,8 @@ import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTrace
  */
 fun withWMTracing(instrumentation: Instrumentation, predicate: () -> Unit): WindowManagerTrace {
     val outputDir = getDefaultFlickerOutputDir(instrumentation).resolve("withWMTracing")
-    return WindowManagerTrace.parseFrom(WindowManagerTraceMonitor(outputDir).withTracing(predicate))
+    return WindowManagerTraceParser.parseFromTrace(
+        WindowManagerTraceMonitor(outputDir).withTracing(predicate))
 }
 
 /**
