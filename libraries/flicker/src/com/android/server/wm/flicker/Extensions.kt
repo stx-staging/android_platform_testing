@@ -17,10 +17,15 @@
 @file:JvmName("Extensions")
 package com.android.server.wm.flicker
 
-import android.app.Instrumentation
+import java.nio.file.Paths
 
 internal const val FLICKER_TAG = "FLICKER"
 
-fun getDefaultFlickerOutputDir(instrumentation: Instrumentation) =
-        instrumentation.targetContext.getExternalFilesDir(null)?.toPath()
-                ?: error(IllegalArgumentException("External directory path should not be null"))
+/**
+ * Gets the default flicker output dir.
+ * By default the data is stored in /sdcard/flicker instead of
+ * using the app's internal data directory to be accessible by
+ * other components (i.e. FilePuller)
+ */
+fun getDefaultFlickerOutputDir() =
+        Paths.get("/sdcard/flicker")

@@ -77,7 +77,7 @@ class FlickerBuilder private constructor(
         /**
          * Output directory for the test results
          */
-        outputDir: Path = getDefaultFlickerOutputDir(instrumentation)
+        outputDir: Path = getDefaultFlickerOutputDir()
     ) : this(
         instrumentation,
         launcherStrategy,
