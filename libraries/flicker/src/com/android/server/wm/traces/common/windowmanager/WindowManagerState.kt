@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The Android Open Source Project
+ * Copyright (C) 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,7 @@
 
 package com.android.server.wm.traces.common.windowmanager
 
-import com.android.server.wm.traces.common.AssertionResult
 import com.android.server.wm.traces.common.Rect
-import com.android.server.wm.traces.common.Region
 import com.android.server.wm.traces.common.ITraceEntry
 import com.android.server.wm.traces.common.windowmanager.windows.Activity
 import com.android.server.wm.traces.common.windowmanager.windows.DisplayArea
@@ -568,167 +566,6 @@ open class WindowManagerState(
             focusedApp.isEmpty() || (validityCheckFocusedWindow && focusedWindow.isEmpty()) ||
             (focusedActivity.isEmpty() || resumedActivitiesInStacks.isEmpty()) &&
             !keyguardControllerState.isKeyguardShowing
-    }
-
-    private fun Array<WindowState>.isWindowVisible(
-        assertionName: String,
-        windowTitle: String,
-        isVisible: Boolean = true
-    ): AssertionResult {
-        val foundWindow = this.filter { it.title.contains(windowTitle) }
-        return when {
-            this.isEmpty() -> AssertionResult(
-                "No windows found",
-                assertionName,
-                timestamp,
-                success = false)
-            foundWindow.isEmpty() -> AssertionResult(
-                "$windowTitle cannot be found",
-                assertionName,
-                timestamp,
-                success = false)
-            isVisible && foundWindow.none { it.isVisible } -> AssertionResult(
-                "$windowTitle is invisible",
-                assertionName,
-                timestamp,
-                success = false)
-            !isVisible && foundWindow.any { it.isVisible } -> AssertionResult(
-                "$windowTitle is visible",
-                assertionName,
-                timestamp,
-                success = false)
-            else -> {
-                val reason = if (isVisible) {
-                    "${foundWindow.first { it.isVisible }.title} is visible"
-                } else {
-                    "${foundWindow.first { !it.isVisible }.title} is invisible"
-                }
-                AssertionResult(
-                    success = true,
-                    reason = reason)
-            }
-        }
-    }
-
-    /**
-     * Checks if the non-app window with title containing [windowTitle] exists above the app
-     * windows and if its visibility is equal to [isVisible]
-     *
-     * @param windowTitle window title to search
-     * @param isVisible if the found window should be visible or not
-     */
-    fun isAboveAppWindow(windowTitle: String, isVisible: Boolean = true): AssertionResult {
-        return aboveAppWindows.isWindowVisible(
-            "isAboveAppWindow${if (isVisible) "Visible" else "Invisible"}",
-            windowTitle,
-            isVisible)
-    }
-
-    /**
-     * Checks if the non-app window with title containing [windowTitle] exists below the app
-     * windows and if its visibility is equal to [isVisible]
-     *
-     * @param windowTitle window title to search
-     * @param isVisible if the found window should be visible or not
-     */
-    fun isBelowAppWindow(windowTitle: String, isVisible: Boolean = true): AssertionResult {
-        return belowAppWindows.isWindowVisible(
-            "isBelowAppWindow${if (isVisible) "Visible" else "Invisible"}",
-            windowTitle,
-            isVisible)
-    }
-
-    /**
-     * Checks if non-app window with title containing the [windowTitle] exists above or below the
-     * app windows and if its visibility is equal to [isVisible]
-     *
-     * @param windowTitle window title to search
-     * @param isVisible if the found window should be visible or not
-     */
-    fun hasNonAppWindow(windowTitle: String, isVisible: Boolean = true): AssertionResult {
-        return nonAppWindows.isWindowVisible(
-            "hasNonAppWindow${if (isVisible) "Visible" else "Invisible"}", windowTitle, isVisible)
-    }
-
-    /**
-     * Checks if app window with title containing the [windowTitle] is on top
-     *
-     * @param windowTitle window title to search
-     */
-    fun isVisibleAppWindowOnTop(windowTitle: String): AssertionResult {
-        val success = topVisibleAppWindow.contains(windowTitle)
-        val reason = "wanted=$windowTitle found=$topVisibleAppWindow"
-        return AssertionResult(reason, "isAppWindowOnTop", timestamp, success)
-    }
-
-    /**
-     * Checks if app window with title containing the [windowTitle] is visible
-     *
-     * @param windowTitle window title to search
-     */
-    fun isAppWindowVisible(windowTitle: String): AssertionResult {
-        return appWindows.isWindowVisible("isAppWindowVisible",
-            windowTitle,
-            isVisible = true)
-    }
-
-    /**
-     * Obtains the region of the first visible window with title containing [windowTitle].
-     *
-     * @param windowTitle Name of the layer to search
-     * @param resultComputation Predicate to compute a result based on the found window's region
-     */
-    fun covers(
-        windowTitle: String,
-        resultComputation: (Region) -> AssertionResult
-    ): AssertionResult {
-        val assertionName = "covers"
-        val visibilityCheck = windowStates.isWindowVisible(assertionName, windowTitle)
-        if (!visibilityCheck.success) {
-            return visibilityCheck
-        }
-
-        val foundWindow = windowStates.first { it.title.contains(windowTitle) }
-        val foundRegion = foundWindow.frameRegion
-
-        return resultComputation(foundRegion)
-    }
-
-    /**
-     * Check if the window named [aboveWindowTitle] is above the one named [belowWindowTitle].
-     */
-    fun isAboveWindow(aboveWindowTitle: String, belowWindowTitle: String): AssertionResult {
-        val assertionName = "isAboveWindow"
-
-        // windows are ordered by z-order, from top to bottom
-        val aboveZ = windowStates.indexOfFirst { aboveWindowTitle in it.title }
-        val belowZ = windowStates.indexOfFirst { belowWindowTitle in it.title }
-
-        val notFound = mutableSetOf<String>().apply {
-            if (aboveZ == -1) {
-                add(aboveWindowTitle)
-            }
-            if (belowZ == -1) {
-                add(belowWindowTitle)
-            }
-        }
-
-        if (notFound.isNotEmpty()) {
-            return AssertionResult(
-                reason = "Could not find ${notFound.joinToString(" and ")}!",
-                assertionName = assertionName,
-                timestamp = timestamp,
-                success = false
-            )
-        }
-
-        // ensure the z-order
-        return AssertionResult(
-            reason = "$aboveWindowTitle is above $belowWindowTitle",
-            assertionName = assertionName,
-            timestamp = timestamp,
-            success = aboveZ < belowZ
-        )
     }
 
     companion object {

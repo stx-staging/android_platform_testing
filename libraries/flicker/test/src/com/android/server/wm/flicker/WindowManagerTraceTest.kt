@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The Android Open Source Project
+ * Copyright (C) 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,17 @@
 
 package com.android.server.wm.flicker
 
-import com.android.server.wm.flicker.assertions.assertFailed
-import com.android.server.wm.flicker.assertions.assertPassed
+import com.android.server.wm.flicker.traces.windowmanager.coversAtLeastRegion
+import com.android.server.wm.flicker.traces.windowmanager.coversAtMostRegion
+import com.android.server.wm.flicker.traces.windowmanager.hasNonAppWindow
+import com.android.server.wm.flicker.traces.windowmanager.isAboveAppWindow
+import com.android.server.wm.flicker.traces.windowmanager.isAppWindowVisible
+import com.android.server.wm.flicker.traces.windowmanager.isVisibleAppWindowOnTop
 import com.android.server.wm.traces.common.Region
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 import com.android.server.wm.traces.common.windowmanager.WindowManagerState
 import com.android.server.wm.traces.common.windowmanager.windows.WindowContainer
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerTraceParser
-import com.android.server.wm.flicker.traces.windowmanager.coversAtLeastRegion
-import com.android.server.wm.flicker.traces.windowmanager.coversAtMostRegion
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.FixMethodOrder

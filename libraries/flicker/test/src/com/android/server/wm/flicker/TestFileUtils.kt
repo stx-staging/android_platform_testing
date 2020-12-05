@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The Android Open Source Project
+ * Copyright (C) 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,9 @@ package com.android.server.wm.flicker
 
 import android.content.Context
 import androidx.test.platform.app.InstrumentationRegistry
+import com.android.server.wm.traces.common.layers.LayersTrace
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
-import com.android.server.wm.traces.parser.layers.LayersTrace
+import com.android.server.wm.traces.parser.layers.LayersTraceParser
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerTraceParser
 import com.google.common.io.ByteStreams
 
@@ -36,7 +37,7 @@ internal fun readLayerTraceFromFile(
     ignoreOrphanLayers: Boolean = true
 ): LayersTrace {
     return try {
-        LayersTrace.parseFrom(readTestFile(relativePath)) { ignoreOrphanLayers }
+        LayersTraceParser.parseFromTrace(readTestFile(relativePath)) { ignoreOrphanLayers }
     } catch (e: Exception) {
         throw RuntimeException(e)
     }

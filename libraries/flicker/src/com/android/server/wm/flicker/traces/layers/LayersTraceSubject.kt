@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The Android Open Source Project
+ * Copyright (C) 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,9 @@
 package com.android.server.wm.flicker.traces.layers
 
 import com.android.server.wm.flicker.assertions.TraceAssertion
-import com.android.server.wm.traces.parser.layers.LayerTraceEntry
-import com.android.server.wm.traces.parser.layers.LayersTrace
 import com.android.server.wm.flicker.traces.SubjectBase
+import com.android.server.wm.traces.common.layers.LayerTraceEntry
+import com.android.server.wm.traces.common.layers.LayersTrace
 import com.google.common.truth.Fact
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.Subject.Factory
@@ -196,7 +196,7 @@ class LayersTraceSubject private constructor(
          * Boiler-plate Subject.Factory for LayersTraceSubject
          */
         private val FACTORY: Factory<SubjectBase<LayersTrace, LayerTraceEntry>, LayersTrace> =
-        Factory { fm: FailureMetadata, subject: LayersTrace -> LayersTraceSubject(fm, subject) }
+            Factory { fm: FailureMetadata, subject: LayersTrace -> LayersTraceSubject(fm, subject) }
 
         /**
          * User-defined entry point

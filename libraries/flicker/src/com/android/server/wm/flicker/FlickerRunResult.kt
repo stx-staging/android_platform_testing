@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The Android Open Source Project
+ * Copyright (C) 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,8 @@ import com.android.server.wm.flicker.assertions.FlickerAssertionError
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 import com.android.server.wm.flicker.dsl.AssertionTag
 import com.android.server.wm.flicker.traces.eventlog.FocusEvent
-import com.android.server.wm.traces.parser.layers.LayersTrace
+import com.android.server.wm.traces.common.layers.LayersTrace
+import com.android.server.wm.traces.parser.layers.LayersTraceParser
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerTraceParser
 import java.io.IOException
 import java.nio.file.Files
@@ -99,7 +100,7 @@ class FlickerRunResult private constructor(
         parseLayersTrace = {
             layersTraceFile?.let {
                 val traceData = Files.readAllBytes(it)
-                LayersTrace.parseFrom(traceData)
+                LayersTraceParser.parseFromTrace(traceData)
             }
         }
     )

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The Android Open Source Project
+ * Copyright (C) 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,9 +24,9 @@ import com.android.server.wm.traces.common.ITraceEntry
 import com.android.server.wm.traces.common.windowmanager.WindowManagerState
 import com.android.server.wm.flicker.traces.eventlog.EventLogSubject
 import com.android.server.wm.flicker.traces.eventlog.FocusEvent
-import com.android.server.wm.traces.parser.layers.LayerTraceEntry
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 import com.android.server.wm.flicker.traces.windowmanager.WmTraceSubject
+import com.android.server.wm.traces.common.layers.LayerTraceEntry
 
 typealias WmAssertion = AssertionType<WmTraceSubject, WindowManagerState>
 typealias LayersAssertion = AssertionType<LayersTraceSubject, LayerTraceEntry>

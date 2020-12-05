@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The Android Open Source Project
+ * Copyright (C) 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,23 +20,87 @@ import android.graphics.Rect
 import android.surfaceflinger.nano.Layers
 import android.surfaceflinger.nano.Layers.RectProto
 import android.surfaceflinger.nano.Layers.RegionProto
+import android.surfaceflinger.nano.Layerstrace
 import com.android.server.wm.traces.common.Buffer
 import com.android.server.wm.traces.common.Color
 import com.android.server.wm.traces.common.RectF
 import com.android.server.wm.traces.common.Region
 import com.android.server.wm.traces.common.layers.Layer
+import com.android.server.wm.traces.common.layers.LayerTraceEntry
+import com.android.server.wm.traces.common.layers.LayersTrace
+import com.google.protobuf.nano.InvalidProtocolBufferNanoException
+import java.nio.file.Path
 
 /**
- * Represents a single layer with links to its parent and child layers.
- *
- * This is object is exclusively accessed by Java/Android code and can access internal
- * Java/Android functionality
- *
+ * Parser for [LayersTrace] objects containing traces or state dumps
  **/
-class LayerFactory {
+class LayersTraceParser {
     companion object {
+        /**
+         * Parses [LayersTrace] from [data] and uses the proto to generates a list
+         * of trace entries, storing the flattened layers into its hierarchical structure.
+         *
+         * @param data binary proto data
+         * @param source Path to source of data for additional debug information
+         * @param sourceChecksum Checksum of the source file
+         * @param orphanLayerCallback a callback to handle any unexpected orphan layers
+         */
+        @JvmOverloads
         @JvmStatic
-        fun fromProto(proto: Layers.LayerProto): Layer {
+        fun parseFromTrace(
+            data: ByteArray,
+            source: Path? = null,
+            sourceChecksum: String = "",
+            orphanLayerCallback: ((Layer) -> Boolean)? = null
+        ): LayersTrace {
+            val entries: MutableList<LayerTraceEntry> = ArrayList()
+            val fileProto: Layerstrace.LayersTraceFileProto
+            try {
+                fileProto = Layerstrace.LayersTraceFileProto.parseFrom(data)
+            } catch (e: Exception) {
+                throw RuntimeException(e)
+            }
+            for (traceProto: Layerstrace.LayersTraceProto in fileProto.entry) {
+                val entry = newEntry(
+                    traceProto.elapsedRealtimeNanos, traceProto.layers.layers,
+                    orphanLayerCallback)
+                entries.add(entry)
+            }
+            return LayersTrace(entries, source?.toString() ?: "", sourceChecksum)
+        }
+
+        /**
+         * Parses [Layerstrace] from [data] and uses the proto to generates
+         * a list of trace entries.
+         *
+         * @param data binary proto data
+         */
+        @JvmStatic
+        fun parseFromDump(data: ByteArray?): LayersTrace {
+            val traceProto = try {
+                Layers.LayersProto.parseFrom(data)
+            } catch (e: InvalidProtocolBufferNanoException) {
+                throw RuntimeException(e)
+            }
+
+            val entry = newEntry(timestamp = 0, protos = traceProto.layers)
+            return LayersTrace(entry)
+        }
+
+        @JvmStatic
+        private fun newEntry(
+            timestamp: Long,
+            protos: Array<Layers.LayerProto>,
+            orphanLayerCallback: ((Layer) -> Boolean)? = null
+        ): LayerTraceEntry {
+            val layers = protos.map { newLayer(it) }
+            val trace = LayerTraceEntry.fromFlattenedLayers(
+                timestamp, layers.toTypedArray(), orphanLayerCallback)
+            return LayerTraceEntry(trace.timestamp, trace.rootLayers.map { it })
+        }
+
+        @JvmStatic
+        private fun newLayer(proto: Layers.LayerProto): Layer {
             return Layer(
                     proto.name ?: "",
                     proto.id,
@@ -60,6 +124,7 @@ class LayerFactory {
             )
         }
 
+        @JvmStatic
         private fun Layers.FloatRectProto.toRectF(): RectF {
             val rect = RectF()
             rect.left = left
@@ -70,10 +135,12 @@ class LayerFactory {
             return rect
         }
 
+        @JvmStatic
         private fun Layers.ColorProto.toColor(): Color {
             return Color(r, g, b, a)
         }
 
+        @JvmStatic
         private fun Layers.ActiveBufferProto.toBuffer(): Buffer {
             return Buffer(height, width)
         }
@@ -82,6 +149,7 @@ class LayerFactory {
          * Extracts [Rect] from [RegionProto] by returning a rect that encompasses all
          * the rectangles making up the region.
          */
+        @JvmStatic
         private fun RegionProto?.toRegion(): Region {
             return if (this == null) {
                 Region(0, 0, 0, 0)
@@ -97,6 +165,7 @@ class LayerFactory {
             }
         }
 
+        @JvmStatic
         private fun RectProto.toRect(): Rect {
             return if ((this.right - this.left) <= 0 || (this.bottom - this.top) <= 0) {
                 Rect()

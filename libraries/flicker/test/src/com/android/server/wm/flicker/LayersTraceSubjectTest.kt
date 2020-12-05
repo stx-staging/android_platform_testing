@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The Android Open Source Project
+ * Copyright (C) 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,10 @@ package com.android.server.wm.flicker
 
 import android.graphics.Region
 import androidx.test.filters.FlakyTest
-import com.android.server.wm.traces.parser.layers.LayersTrace
-import com.android.server.wm.traces.parser.layers.LayersTrace.Companion.parseFrom
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject.Companion.assertThat
+import com.android.server.wm.traces.common.layers.LayersTrace
+import com.android.server.wm.traces.parser.layers.LayersTraceParser
 import com.google.common.truth.Truth
 import org.junit.Assert
 import org.junit.FixMethodOrder
@@ -210,7 +210,8 @@ class LayersTraceSubjectTest {
         private val DISPLAY_REGION = Region(0, 0, 1440, 2880)
         private fun readLayerTraceFromFile(relativePath: String): LayersTrace {
             return try {
-                parseFrom(readTestFile(relativePath), Paths.get(relativePath))
+                LayersTraceParser.parseFromTrace(readTestFile(relativePath),
+                    Paths.get(relativePath))
             } catch (e: Exception) {
                 throw RuntimeException(e)
             }
