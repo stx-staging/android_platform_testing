@@ -8,7 +8,6 @@ system_app_crash android.database.sqlite.SQLiteCantOpenDatabaseException: 150248
 system_app_crash com.android.vending:download_service 153462682
 system_app_crash pzd.a.:com.google.android.gms@ 145798275
 system_app_crash com.android.service.ims.RcsService.registerImsCallbacksAndSetAssociatedSubscription 156402275
-system_app_crash com.google.android.inputmethod.latin 157051520
 system_app_crash com.android.vending/com.google.android.finsky.verifier.impl.PackageVerificationService 156670156
 system_app_crash com.google.android.apps.youtube.music.mediabrowser.MusicBrowserService.a 157917208
 system_app_crash android.database.sqlite.SQLiteCloseable.acquireReference 159658068
@@ -34,4 +33,5 @@ SYSTEM_TOMBSTONE AsyncTask\s+#1\s+>>>\s+com.android.nfc\s+<<<[\S\s]*nfaDeviceMan
 SYSTEM_TOMBSTONE >>>\s+/apex/com.android.os.statsd/bin/statsd\s+<<<[\S\s]*HandleUsingDestroyedMutex 172829930
 SYSTEM_TOMBSTONE audio.service\s+>>>\s+/vendor/bin/hw/android.hardware.audio.service\s+<<<[\S\s]*debuggerd\ssignal[\S\s]*audio_extn_utils_get_snd_card_num 174265816
 SYSTEM_TOMBSTONE >>>\s+com.android.nfc\s+<<<[\S\s]+NfcHalDeathRecipient[\S\s]+hidl_binder_death_recipient 175025628
+SYSTEM_TOMBSTONE com.qualcomm.qti.services.secureui:sui_service\s<<<[\S\s]*null\spointer[\S\s]*libsecureui_svcsock_system 174754036
 SYSTEM_TOMBSTONE android.hardwar*.*/vendor/bin/hw/android.hardware.sensors@2.0-service 163430194
