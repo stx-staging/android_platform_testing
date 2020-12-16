@@ -21,6 +21,7 @@ package com.android.server.wm.traces.parser
 import android.app.UiAutomation
 import android.content.ComponentName
 import android.os.ParcelFileDescriptor
+import android.util.Log
 import com.android.server.wm.traces.common.Rect
 import com.android.server.wm.traces.common.Region
 
@@ -60,6 +61,7 @@ fun getCurrentState(
         throw IllegalArgumentException("No dump specified")
     }
 
+    Log.d(LOG_TAG, "Requesting new device state dump")
     val wmTraceData = if (dumpFlags.and(FLAG_STATE_DUMP_FLAG_WM) > 0) {
         getCurrentWindowManagerState(uiAutomation)
     } else {

@@ -18,6 +18,7 @@ package com.android.server.wm.traces.common.windowmanager
 
 import com.android.server.wm.traces.common.Rect
 import com.android.server.wm.traces.common.ITraceEntry
+import com.android.server.wm.traces.common.prettyTimestamp
 import com.android.server.wm.traces.common.windowmanager.windows.Activity
 import com.android.server.wm.traces.common.windowmanager.windows.DisplayArea
 import com.android.server.wm.traces.common.windowmanager.windows.DisplayContent
@@ -43,11 +44,12 @@ open class WindowManagerState(
     val inputMethodWindowAppToken: String,
     val isHomeRecentsComponent: Boolean,
     val isDisplayFrozen: Boolean,
-    val pendingActivities: List<String>,
+    val pendingActivities: Array<String>,
     val root: RootWindowContainer,
     val keyguardControllerState: KeyguardControllerState,
     override val timestamp: Long = 0
 ) : ITraceEntry {
+    private val formattedTimestamp by lazy { prettyTimestamp(timestamp) }
     val kind = "entry"
     val stableId = "entry"
 
@@ -59,7 +61,7 @@ open class WindowManagerState(
 
     // Stacks in z-order with the top most at the front of the list, starting with primary display.
     val rootTasks: Array<ActivityTask>
-        by lazy { displays.flatMap { it.rootTasks.toList() }.toTypedArray() }
+        get() = displays.flatMap { it.rootTasks.toList() }.toTypedArray()
 
     // Windows in z-order with the top most at the front of the list.
     val windowStates: Array<WindowState>
@@ -70,74 +72,64 @@ open class WindowManagerState(
         get() = windowStates
 
     val appWindows: Array<WindowState>
-        by lazy { windowStates.filter { it.isAppWindow }.toTypedArray() }
+        get() = windowStates.filter { it.isAppWindow }.toTypedArray()
     val nonAppWindows: Array<WindowState>
-        by lazy { windowStates.filterNot { it.isAppWindow }.toTypedArray() }
-    val aboveAppWindows: Array<WindowState> by lazy {
-        windowStates.takeWhile { !appWindows.contains(it) }.toTypedArray()
-    }
-    val belowAppWindows: Array<WindowState> by lazy {
-        windowStates
+        get() = windowStates.filterNot { it.isAppWindow }.toTypedArray()
+    val aboveAppWindows: Array<WindowState>
+        get() = windowStates.takeWhile { !appWindows.contains(it) }.toTypedArray()
+    val belowAppWindows: Array<WindowState>
+        get() = windowStates
             .dropWhile { !appWindows.contains(it) }.drop(appWindows.size).toTypedArray()
-    }
     val visibleWindows: Array<WindowState>
-        by lazy { windowStates.filter { it.isSurfaceShown }.toTypedArray() }
-    val topVisibleAppWindow: String by lazy {
-        appWindows.filter { it.isVisible }
+        get() = windowStates.filter { it.isSurfaceShown }.toTypedArray()
+    val topVisibleAppWindow: String
+        get() = appWindows.filter { it.isVisible }
             .map { it.title }
             .firstOrNull() ?: ""
-    }
 
-    val focusedDisplay: DisplayContent? by lazy { getDisplay(focusedDisplayId) }
-    val focusedStackId: Int by lazy { focusedDisplay?.focusedRootTaskId ?: -1 }
-    val focusedActivity: String by lazy { focusedDisplay?.resumedActivity ?: "" }
+    val focusedDisplay: DisplayContent? get() = getDisplay(focusedDisplayId)
+    val focusedStackId: Int get() = focusedDisplay?.focusedRootTaskId ?: -1
+    val focusedActivity: String get() = focusedDisplay?.resumedActivity ?: ""
     val resumedActivitiesInDisplays: Array<String>
-        by lazy { displays.map { it.resumedActivity }.filter { it.isNotEmpty() }.toTypedArray() }
+        get() = displays.map { it.resumedActivity }.filter { it.isNotEmpty() }.toTypedArray()
     val resumedActivitiesInStacks: Array<String>
-        by lazy { rootTasks.map { it.resumedActivity }.filter { it.isNotEmpty() }.toTypedArray() }
-    val defaultPinnedStackBounds: Rect by lazy {
-        displays.lastOrNull { it.defaultPinnedStackBounds.isNotEmpty }?.defaultPinnedStackBounds
+        get() = rootTasks.map { it.resumedActivity }.filter { it.isNotEmpty() }.toTypedArray()
+    val defaultPinnedStackBounds: Rect
+        get() = displays
+            .lastOrNull { it.defaultPinnedStackBounds.isNotEmpty }?.defaultPinnedStackBounds
             ?: Rect()
-    }
-    val pinnedStackMovementBounds: Rect by lazy {
-        displays.lastOrNull { it.defaultPinnedStackBounds.isNotEmpty }?.pinnedStackMovementBounds
+    val pinnedStackMovementBounds: Rect
+        get() = displays
+            .lastOrNull { it.defaultPinnedStackBounds.isNotEmpty }?.pinnedStackMovementBounds
             ?: Rect()
-    }
     val focusedStackActivityType: Int
-        by lazy { getRootTask(focusedStackId)?.activityType ?: ACTIVITY_TYPE_UNDEFINED }
+        get() = getRootTask(focusedStackId)?.activityType ?: ACTIVITY_TYPE_UNDEFINED
     val focusedStackWindowingMode: Int
-        by lazy { getRootTask(focusedStackId)?.windowingMode ?: WINDOWING_MODE_UNDEFINED }
+        get() = getRootTask(focusedStackId)?.windowingMode ?: WINDOWING_MODE_UNDEFINED
     val resumedActivity: String by lazy {
         focusedDisplay?.resumedActivity ?: "Default display not found"
     }
-    val resumedActivitiesCount: Int by lazy { resumedActivitiesInStacks.size }
-    val stackCount: Int by lazy { rootTasks.size }
-    val displayCount: Int by lazy { displays.size }
-    val homeTask: ActivityTask?
-        by lazy { getStackByActivityType(ACTIVITY_TYPE_HOME)?.topTask }
-    val recentsTask: ActivityTask?
-        by lazy { getStackByActivityType(ACTIVITY_TYPE_RECENTS)?.topTask }
-    val homeActivity: Activity? by lazy { homeTask?.activities?.lastOrNull() }
-    val recentsActivity: Activity? by lazy { recentsTask?.activities?.lastOrNull() }
-    val rootTasksCount: Int by lazy { rootTasks.size }
-    val isRecentsActivityVisible: Boolean by lazy { recentsActivity?.isVisible ?: false }
-    val dreamTask: ActivityTask? by lazy {
-        getStackByActivityType(ACTIVITY_TYPE_DREAM)?.topTask
-    }
-    val defaultDisplayLastTransition: String by lazy {
-        getDefaultDisplay()?.lastTransition
+    val resumedActivitiesCount: Int get() = resumedActivitiesInStacks.size
+    val stackCount: Int get() = rootTasks.size
+    val displayCount: Int get() = displays.size
+    val homeTask: ActivityTask? get() = getStackByActivityType(ACTIVITY_TYPE_HOME)?.topTask
+    val recentsTask: ActivityTask? get() = getStackByActivityType(ACTIVITY_TYPE_RECENTS)?.topTask
+    val homeActivity: Activity? get() = homeTask?.activities?.lastOrNull()
+    val recentsActivity: Activity? get() = recentsTask?.activities?.lastOrNull()
+    val rootTasksCount: Int get() = rootTasks.size
+    val isRecentsActivityVisible: Boolean get() = recentsActivity?.isVisible ?: false
+    val dreamTask: ActivityTask?
+        get() = getStackByActivityType(ACTIVITY_TYPE_DREAM)?.topTask
+    val defaultDisplayLastTransition: String get() = getDefaultDisplay()?.lastTransition
             ?: "Default display not found"
-    }
-    val defaultDisplayAppTransitionState: String by lazy {
-        getDefaultDisplay()?.appTransitionState
+    val defaultDisplayAppTransitionState: String get() = getDefaultDisplay()?.appTransitionState
             ?: "Default display not found"
-    }
-    val allNavigationBarStates: List<WindowState>
-        by lazy { windowStates.filter { it.isValidNavBarType } }
-    val frontWindow: String? by lazy { windowStates.map { it.title }.firstOrNull() }
-    val stableBounds: Rect by lazy { getDefaultDisplay()?.stableBounds ?: Rect() }
+    val allNavigationBarStates: Array<WindowState>
+        get() = windowStates.filter { it.isValidNavBarType }.toTypedArray()
+    val frontWindow: String? get() = windowStates.map { it.title }.firstOrNull()
+    val stableBounds: Rect get() = getDefaultDisplay()?.stableBounds ?: Rect()
     val inputMethodWindowState: WindowState?
-        by lazy { getWindowStateForAppToken(inputMethodWindowAppToken) }
+        get() = getWindowStateForAppToken(inputMethodWindowAppToken)
 
     /**
      * Returns the rect of all the frames in the entry
@@ -360,8 +352,10 @@ open class WindowManagerState(
     fun getTaskByActivity(activityName: String, windowingMode: Int): ActivityTask? {
         for (stack in rootTasks) {
             if (windowingMode == WINDOWING_MODE_UNDEFINED || windowingMode == stack.windowingMode) {
-                val activity = stack.getActivity(activityName)
-                if (activity != null) return activity.task
+                val task = stack.getTask { it.getActivity(activityName) != null }
+                if (task != null) {
+                    return task
+                }
             }
         }
         return null
@@ -467,29 +461,8 @@ open class WindowManagerState(
     /**
      * Check if at least one window which matches provided window name is visible.
      */
-    fun isWindowVisible(windowName: String): Boolean {
-        for (window in windowStates) {
-            if (window.title == windowName) {
-                if (window.isVisible) {
-                    return true
-                }
-            }
-        }
-        return false
-    }
-
-    fun allWindowSurfacesShown(windowName: String): Boolean {
-        var allShown = false
-        for (window in windowStates) {
-            if (window.title == windowName) {
-                if (!window.isSurfaceShown) {
-                    return false
-                }
-                allShown = true
-            }
-        }
-        return allShown
-    }
+    fun isWindowVisible(windowName: String): Boolean =
+        visibleWindows.any { it.title == windowName }
 
     /**
      * Checks whether the display contains the given activity.
@@ -566,6 +539,10 @@ open class WindowManagerState(
             focusedApp.isEmpty() || (validityCheckFocusedWindow && focusedWindow.isEmpty()) ||
             (focusedActivity.isEmpty() || resumedActivitiesInStacks.isEmpty()) &&
             !keyguardControllerState.isKeyguardShowing
+    }
+
+    override fun toString(): String {
+        return this.formattedTimestamp
     }
 
     companion object {
