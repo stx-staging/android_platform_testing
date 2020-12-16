@@ -16,7 +16,6 @@
 
 package com.android.server.wm.flicker
 
-import android.util.Log
 import androidx.test.filters.FlakyTest
 import org.junit.Assume
 import org.junit.Rule
@@ -63,11 +62,9 @@ abstract class FlickerTestRunner(
     fun test() {
         checkRequirements(onlyFlaky = false)
         flickerSpec.checkIsExecuted()
-        if (flickerSpec.hasAssertions()) {
-            flickerSpec.checkAssertions(includeFlakyAssertions = false)
-            if (cleanUp) {
-                flickerSpec.cleanUp()
-            }
+        flickerSpec.checkAssertions(onlyFlaky = false)
+        if (cleanUp) {
+            flickerSpec.cleanUp()
         }
     }
 
@@ -79,11 +76,9 @@ abstract class FlickerTestRunner(
     fun testFlaky() {
         checkRequirements(onlyFlaky = true)
         flickerSpec.checkIsExecuted()
-        if (flickerSpec.hasAssertions()) {
-            flickerSpec.checkAssertions(includeFlakyAssertions = true)
-            if (cleanUp) {
-                flickerSpec.cleanUp()
-            }
+        flickerSpec.checkAssertions(onlyFlaky = true)
+        if (cleanUp) {
+            flickerSpec.cleanUp()
         }
     }
 }
