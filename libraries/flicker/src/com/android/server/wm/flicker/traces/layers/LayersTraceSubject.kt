@@ -66,7 +66,9 @@ class LayersTraceSubject private constructor(
      *
      * @return
      */
-    fun skipUntilFirstAssertion() = apply { assertionsChecker.skipUntilFirstAssertion() }
+    fun skipUntilFirstAssertion(): LayersTraceSubject = apply {
+        assertionsChecker.skipUntilFirstAssertion()
+    }
 
     fun isEmpty(): LayersTraceSubject = apply {
         check("Trace is empty").that(trace).isEmpty()
@@ -88,22 +90,32 @@ class LayersTraceSubject private constructor(
     }
 
     @JvmOverloads
-    fun coversAtLeastRegion(rect: android.graphics.Rect, layerName: String = "") =
-            this.coversAtLeastRegion(android.graphics.Region(rect), layerName)
+    fun coversAtLeastRegion(
+        rect: Rect,
+        layerName: String = ""
+    ): LayersTraceSubject = this.coversAtLeastRegion(Region(rect), layerName)
 
     @JvmOverloads
-    fun coversAtMostRegion(rect: android.graphics.Rect, layerName: String = "") =
-            this.coversAtMostRegion(android.graphics.Region(rect), layerName)
+    fun coversAtMostRegion(
+        rect: Rect,
+        layerName: String = ""
+    ): LayersTraceSubject = this.coversAtMostRegion(Region(rect), layerName)
 
     @JvmOverloads
-    fun coversAtLeastRegion(region: android.graphics.Region, layerName: String = "") = apply {
+    fun coversAtLeastRegion(
+        region: Region,
+        layerName: String = ""
+    ): LayersTraceSubject = apply {
         addAssertion("coversAtLeastRegion($region, $layerName)") {
             it.coversAtLeastRegion(region, layerName)
         }
     }
 
     @JvmOverloads
-    fun coversAtMostRegion(region: android.graphics.Region, layerName: String = "") = apply {
+    fun coversAtMostRegion(
+        region: Region,
+        layerName: String = ""
+    ): LayersTraceSubject = apply {
         addAssertion("coversAtMostRegion($region, $layerName") {
             it.coversAtMostRegion(region, layerName)
         }
@@ -127,7 +139,10 @@ class LayersTraceSubject private constructor(
         visibleEntriesShownMoreThanOneConsecutiveTime(visibleLayerMap)
     }
 
-    fun hasVisibleRegion(layerName: String, size: android.graphics.Region) = apply {
+    fun hasVisibleRegion(
+        layerName: String,
+        size: Region
+    ): LayersTraceSubject = apply {
         addAssertion("hasVisibleRegion($layerName$size)") {
             it.hasVisibleRegion(layerName, size)
         }
@@ -140,11 +155,11 @@ class LayersTraceSubject private constructor(
             }
         }
 
-    fun hasLayer(layerName: String) =
-            apply { addAssertion("hasLayer($layerName)") { it.exists(layerName) } }
+    fun hasLayer(layerName: String): LayersTraceSubject =
+        apply { addAssertion("hasLayer($layerName)") { it.exists(layerName) } }
 
-    fun showsLayer(layerName: String) =
-            apply { addAssertion("showsLayer($layerName)") { it.isVisible(layerName) } }
+    fun showsLayer(layerName: String): LayersTraceSubject =
+        apply { addAssertion("showsLayer($layerName)") { it.isVisible(layerName) } }
 
     fun replaceVisibleLayer(
         previousLayerName: String,
@@ -163,29 +178,28 @@ class LayersTraceSubject private constructor(
         assertion: Assertion<LayerTraceEntrySubject>
     ): LayersTraceSubject = apply { addAssertion(name, assertion) }
 
-    fun hasFrameSequence(name: String, frameNumbers: Iterable<Long>) {
+    fun hasFrameSequence(name: String, frameNumbers: Iterable<Long>): LayersTraceSubject = apply {
         val firstFrame = frameNumbers.first()
         val entries = trace.entries.asSequence()
-                // map entry to buffer layers with name
-                .map { it.getLayerWithBuffer(name) }
-                // removing all entries without the layer
-                .filterNotNull()
-                // removing all entries with the same frame number
-                .distinctBy { it.currFrame }
-                // drop until the first frame we are interested in
-                .dropWhile { layer -> layer.currFrame != firstFrame }
+            // map entry to buffer layers with name
+            .map { it.getLayerWithBuffer(name) }
+            // removing all entries without the layer
+            .filterNotNull()
+            // removing all entries with the same frame number
+            .distinctBy { it.currFrame }
+            // drop until the first frame we are interested in
+            .dropWhile { layer -> layer.currFrame != firstFrame }
 
         var numFound = 0
-        val frameNumbersMatch = entries.zip(frameNumbers.asSequence()) {
-            layer, frameNumber ->
-                numFound++
-                layer.currFrame == frameNumber
+        val frameNumbersMatch = entries.zip(frameNumbers.asSequence()) { layer, frameNumber ->
+            numFound++
+            layer.currFrame == frameNumber
         }.all { it }
         val allFramesFound = frameNumbers.count() == numFound
         if (!allFramesFound || !frameNumbersMatch) {
             val message = "Could not find Layer:" + name +
-                    " with frame sequence:" + frameNumbers.joinToString(",") +
-                    " Found:\n" + entries.joinToString("\n")
+                " with frame sequence:" + frameNumbers.joinToString(",") +
+                " Found:\n" + entries.joinToString("\n")
             fail(message)
         }
     }
