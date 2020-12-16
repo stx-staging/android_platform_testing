@@ -20,14 +20,10 @@ import android.graphics.Region
 import androidx.test.filters.FlakyTest
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject.Companion.assertThat
-import com.android.server.wm.traces.common.layers.LayersTrace
-import com.android.server.wm.traces.parser.layers.LayersTraceParser
 import com.google.common.truth.Truth
-import org.junit.Assert
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
-import java.nio.file.Paths
 
 /**
  * Contains [LayersTraceSubject] tests. To run this test: `atest
@@ -36,27 +32,29 @@ import java.nio.file.Paths
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class LayersTraceSubjectTest {
     @Test
+    fun exceptionContainsDebugInfo() {
+        val layersTraceEntries = readLayerTraceFromFile("layers_trace_launch_split_screen.pb")
+        val error = assertThrows(AssertionError::class.java) {
+            assertThat(layersTraceEntries)
+                .isEmpty()
+        }
+        Truth.assertThat(error).hasMessageThat().contains("Trace:")
+        Truth.assertThat(error).hasMessageThat().contains("Path: ")
+        Truth.assertThat(error).hasMessageThat().contains("Start:")
+        Truth.assertThat(error).hasMessageThat().contains("End:")
+    }
+
+    @Test
     fun testCanDetectEmptyRegionFromLayerTrace() {
         val layersTraceEntries = readLayerTraceFromFile("layers_trace_emptyregion.pb")
         try {
-            assertThat(layersTraceEntries).coversAtLeastRegion(DISPLAY_REGION).forAllEntries()
-            Assert.fail("Assertion passed")
-        } catch (e: AssertionError) {
-            Truth.assertWithMessage("Contains path to trace")
-                    .that(e.message)
-                    .contains("layers_trace_emptyregion.pb")
-            Truth.assertWithMessage("Contains timestamp")
-                    .that(e.message)
-                    .contains("0d0h15m33s674ms")
-            Truth.assertWithMessage("Contains assertion function")
-                    .that(e.message)
-                    .contains("coversAtLeastRegion")
-            Truth.assertWithMessage("Contains debug info")
-                    .that(e.message)
-                    .contains("Region to test: $DISPLAY_REGION")
-            Truth.assertWithMessage("Contains debug info")
-                    .that(e.message)
-                    .contains("SkRegion((0,1440,1440,2880))")
+            assertThat(layersTraceEntries)
+                .coversAtLeastRegion(DISPLAY_REGION)
+                .forAllEntries()
+            error("Assertion should not have passed")
+        } catch (e: Throwable) {
+            assertFailure(e).factValue("Region to test").contains(DISPLAY_REGION.toString())
+            assertFailure(e).factValue("Uncovered region").contains("SkRegion((0,1440,1440,2880))")
         }
     }
 
@@ -64,104 +62,88 @@ class LayersTraceSubjectTest {
     fun testCanInspectBeginning() {
         val layersTraceEntries = readLayerTraceFromFile("layers_trace_launch_split_screen.pb")
         assertThat(layersTraceEntries)
-                .showsLayer("NavigationBar0#0")
-                .and()
-                .hasNotLayer("DockedStackDivider#0")
-                .and()
-                .showsLayer("NexusLauncherActivity#0")
-                .inTheBeginning()
+            .first()
+            .isVisible("NavigationBar0#0")
+            .notExists("DockedStackDivider#0")
+            .isVisible("NexusLauncherActivity#0")
     }
 
     @Test
     fun testCanInspectEnd() {
         val layersTraceEntries = readLayerTraceFromFile("layers_trace_launch_split_screen.pb")
         assertThat(layersTraceEntries)
-                .showsLayer("NavigationBar0#0")
-                .and()
-                .showsLayer("DockedStackDivider#0")
-                .and()
-                .showsLayer("DockedStackDivider#0")
-                .and()
-                .showsLayer("DockedStackDivider#0")
-                .atTheEnd()
+            .last()
+            .isVisible("NavigationBar0#0")
+            .isVisible("DockedStackDivider#0")
     }
 
     @Test
     fun testCanDetectChangingAssertions() {
         val layersTraceEntries = readLayerTraceFromFile("layers_trace_launch_split_screen.pb")
         assertThat(layersTraceEntries)
-                .showsLayer("NavigationBar0#0")
-                .and()
-                .hasNotLayer("DockedStackDivider#0")
-                .then()
-                .showsLayer("NavigationBar0#0")
-                .and()
-                .hidesLayer("DockedStackDivider#0")
-                .then()
-                .showsLayer("NavigationBar0#0")
-                .and()
-                .showsLayer("DockedStackDivider#0")
-                .forAllEntries()
+            .showsLayer("NavigationBar0#0")
+            .hasNotLayer("DockedStackDivider#0")
+            .then()
+            .showsLayer("NavigationBar0#0")
+            .hidesLayer("DockedStackDivider#0")
+            .then()
+            .showsLayer("NavigationBar0#0")
+            .showsLayer("DockedStackDivider#0")
+            .forAllEntries()
     }
 
     @FlakyTest
     @Test
     fun testCanDetectIncorrectVisibilityFromLayerTrace() {
         val layersTraceEntries = readLayerTraceFromFile("layers_trace_invalid_layer_visibility.pb")
-        try {
+        val error = assertThrows(AssertionError::class.java) {
             assertThat(layersTraceEntries)
-                    .showsLayer("com.android.server.wm.flicker.testapp")
-                    .then()
-                    .hidesLayer("com.android.server.wm.flicker.testapp")
-                    .forAllEntries()
-            Assert.fail("Assertion passed")
-        } catch (e: AssertionError) {
-            Truth.assertWithMessage("Contains path to trace")
-                    .that(e.message)
-                    .contains("layers_trace_invalid_layer_visibility.pb")
-            Truth.assertWithMessage("Contains timestamp")
-                    .that(e.message)
-                    .contains("2d22h13m14s303ms")
-            Truth.assertWithMessage("Contains assertion function")
-                    .that(e.message)
-                    .contains("!isVisible")
-            Truth.assertWithMessage("Contains debug info")
-                    .that(e.message)
-                    .contains("com.android.server.wm.flicker.testapp/" +
-                        "com.android.server.wm.flicker.testapp.SimpleActivity#0 is visible")
+                .showsLayer("com.android.server.wm.flicker.testapp")
+                .then()
+                .hidesLayer("com.android.server.wm.flicker.testapp")
+                .forAllEntries()
         }
+
+        assertFailure(error)
+            .hasMessageThat()
+            .contains("layers_trace_invalid_layer_visibility.pb")
+        assertFailure(error)
+            .hasMessageThat()
+            .contains("2d22h13m14s303ms")
+        assertFailure(error)
+            .hasMessageThat()
+            .contains("!isVisible")
+        assertFailure(error)
+            .hasMessageThat()
+            .contains("com.android.server.wm.flicker.testapp/" +
+                "com.android.server.wm.flicker.testapp.SimpleActivity#0 is visible")
     }
 
     @Test
     fun testCanDetectInvalidVisibleLayerForMoreThanOneConsecutiveEntry() {
         val layersTraceEntries = readLayerTraceFromFile("layers_trace_invalid_visible_layers.pb")
-        try {
+        val error = assertThrows(AssertionError::class.java) {
             assertThat(layersTraceEntries)
-                    .visibleLayersShownMoreThanOneConsecutiveEntry()
-                    .forAllEntries()
-            Assert.fail("Assertion passed")
-        } catch (e: AssertionError) {
-            Truth.assertWithMessage("Contains path to trace")
-                    .that(e.message)
-                    .contains("layers_trace_invalid_visible_layers.pb")
-            Truth.assertWithMessage("Contains timestamp")
-                    .that(e.message)
-                    .contains("2d18h35m56s397ms")
-            Truth.assertWithMessage("Contains assertion function")
-                    .that(e.message)
-                    .contains("visibleLayersShownMoreThanOneConsecutiveEntry")
-            Truth.assertWithMessage("Contains debug info")
-                    .that(e.message)
-                    .contains("No two consecutive visible entries shown for StatusBar#0")
+                .visibleLayersShownMoreThanOneConsecutiveEntry()
+                .forAllEntries()
+            error("Assertion should not have passed")
         }
+
+        Truth.assertThat(error).hasMessageThat().contains("2d18h35m56s397ms")
+        assertFailure(error)
+            .hasMessageThat()
+            .contains("StatusBar#0")
+        assertFailure(error)
+            .hasMessageThat()
+            .contains("is not visible for 2 entries")
     }
 
     @Test
     fun testCanDetectVisibleLayersMoreThanOneConsecutiveEntry() {
         val layersTraceEntries = readLayerTraceFromFile("layers_trace_valid_visible_layers.pb")
         assertThat(layersTraceEntries)
-                .visibleLayersShownMoreThanOneConsecutiveEntry()
-                .forAllEntries()
+            .visibleLayersShownMoreThanOneConsecutiveEntry()
+            .forAllEntries()
     }
 
     @Test
@@ -208,13 +190,5 @@ class LayersTraceSubjectTest {
 
     companion object {
         private val DISPLAY_REGION = Region(0, 0, 1440, 2880)
-        private fun readLayerTraceFromFile(relativePath: String): LayersTrace {
-            return try {
-                LayersTraceParser.parseFromTrace(readTestFile(relativePath),
-                    Paths.get(relativePath))
-            } catch (e: Exception) {
-                throw RuntimeException(e)
-            }
-        }
     }
 }

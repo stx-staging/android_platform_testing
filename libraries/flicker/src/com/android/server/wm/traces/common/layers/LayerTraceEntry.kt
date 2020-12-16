@@ -16,8 +16,8 @@
 
 package com.android.server.wm.traces.common.layers
 
-import com.android.server.wm.traces.common.Region
 import com.android.server.wm.traces.common.ITraceEntry
+import com.android.server.wm.traces.common.prettyTimestamp
 
 /**
  * Represents a single Layer trace entry.
@@ -30,18 +30,11 @@ open class LayerTraceEntry constructor(
     override val timestamp: Long, // hierarchical representation of layers
     val rootLayers: List<Layer>
 ) : ITraceEntry {
+    private val formattedTimestamp by lazy { prettyTimestamp(timestamp) }
     private val _opaqueLayers = mutableListOf<Layer>()
     private val _transparentLayers = mutableListOf<Layer>()
-    private val _rootScreenBounds by lazy {
-        val rootLayerBounds = rootLayers
-                .filter { it.sourceBounds != null }
-                .first { it.name.startsWith("Root#0") }
-                .sourceBounds ?: throw IllegalStateException("Root layer must have bounds")
 
-        Region(0, 0, rootLayerBounds.bottom.toInt(), rootLayerBounds.right.toInt())
-    }
-
-    val flattenedLayers: List<Layer> by lazy {
+    val flattenedLayers: Array<Layer> by lazy {
         val layers = mutableListOf<Layer>()
         val roots = rootLayers.fillOcclusionState().toMutableList()
         while (roots.isNotEmpty()) {
@@ -49,7 +42,7 @@ open class LayerTraceEntry constructor(
             layers.add(layer)
             roots.addAll(layer.children)
         }
-        layers
+        layers.toTypedArray()
     }
 
     private fun List<Layer>.topDownTraversal(): List<Layer> {
@@ -58,11 +51,12 @@ open class LayerTraceEntry constructor(
                 .flatMap { it.topDownTraversal() }
     }
 
-    val visibleLayers by lazy { flattenedLayers.filter { it.isVisible && !it.isHiddenByParent } }
+    val visibleLayers: Array<Layer>
+        get() = flattenedLayers.filter { it.isVisible && !it.isHiddenByParent }.toTypedArray()
 
-    val opaqueLayers: List<Layer> get() = _opaqueLayers
+    val opaqueLayers: Array<Layer> get() = _opaqueLayers.toTypedArray()
 
-    val transparentLayers: List<Layer> get() = _transparentLayers
+    val transparentLayers: Array<Layer> get() = _transparentLayers.toTypedArray()
 
     private fun Layer.topDownTraversal(): List<Layer> {
         val traverseList = mutableListOf(this)
@@ -103,6 +97,16 @@ open class LayerTraceEntry constructor(
         return flattenedLayers.firstOrNull {
             it.name.contains(name) && it.activeBuffer != null
         }
+    }
+
+    /**
+     * Check if at least one window which matches provided window name is visible.
+     */
+    fun isVisible(windowName: String): Boolean =
+        visibleLayers.any { it.name == windowName }
+
+    override fun toString(): String {
+        return this.formattedTimestamp
     }
 
     companion object {

@@ -21,6 +21,7 @@ import android.surfaceflinger.nano.Layers
 import android.surfaceflinger.nano.Layers.RectProto
 import android.surfaceflinger.nano.Layers.RegionProto
 import android.surfaceflinger.nano.Layerstrace
+import android.util.Log
 import com.android.server.wm.traces.common.Buffer
 import com.android.server.wm.traces.common.Color
 import com.android.server.wm.traces.common.RectF
@@ -28,8 +29,10 @@ import com.android.server.wm.traces.common.Region
 import com.android.server.wm.traces.common.layers.Layer
 import com.android.server.wm.traces.common.layers.LayerTraceEntry
 import com.android.server.wm.traces.common.layers.LayersTrace
+import com.android.server.wm.traces.parser.LOG_TAG
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException
 import java.nio.file.Path
+import kotlin.system.measureTimeMillis
 
 /**
  * Parser for [LayersTrace] objects containing traces or state dumps
@@ -53,24 +56,66 @@ class LayersTraceParser {
             sourceChecksum: String = "",
             orphanLayerCallback: ((Layer) -> Boolean)? = null
         ): LayersTrace {
-            val entries: MutableList<LayerTraceEntry> = ArrayList()
             val fileProto: Layerstrace.LayersTraceFileProto
             try {
-                fileProto = Layerstrace.LayersTraceFileProto.parseFrom(data)
+                measureTimeMillis {
+                    fileProto = Layerstrace.LayersTraceFileProto.parseFrom(data)
+                }.also {
+                    Log.v(LOG_TAG, "Parsing proto (Layers Trace): ${it}ms")
+                }
             } catch (e: Exception) {
                 throw RuntimeException(e)
             }
-            for (traceProto: Layerstrace.LayersTraceProto in fileProto.entry) {
-                val entry = newEntry(
-                    traceProto.elapsedRealtimeNanos, traceProto.layers.layers,
-                    orphanLayerCallback)
-                entries.add(entry)
+            return parseFromTrace(fileProto, source, sourceChecksum, orphanLayerCallback)
+        }
+
+        /**
+         * Parses [LayersTrace] from [proto] and uses the proto to generates a list
+         * of trace entries, storing the flattened layers into its hierarchical structure.
+         *
+         * @param proto Parsed proto data
+         * @param source Path to source of data for additional debug information
+         * @param sourceChecksum Checksum of the source file
+         * @param orphanLayerCallback a callback to handle any unexpected orphan layers
+         */
+        @JvmOverloads
+        @JvmStatic
+        fun parseFromTrace(
+            proto: Layerstrace.LayersTraceFileProto,
+            source: Path? = null,
+            sourceChecksum: String = "",
+            orphanLayerCallback: ((Layer) -> Boolean)? = null
+        ): LayersTrace {
+            val entries: MutableList<LayerTraceEntry> = ArrayList()
+            var traceParseTime = 0L
+            for (traceProto: Layerstrace.LayersTraceProto in proto.entry) {
+                val entryParseTime = measureTimeMillis {
+                    val entry = newEntry(
+                        traceProto.elapsedRealtimeNanos, traceProto.layers.layers,
+                        orphanLayerCallback)
+                    entries.add(entry)
+                }
+                traceParseTime += entryParseTime
             }
+            Log.v(LOG_TAG, "Parsing duration (Layers Trace): ${traceParseTime}ms " +
+                "(avg ${traceParseTime / entries.size}ms per entry)")
             return LayersTrace(entries, source?.toString() ?: "", sourceChecksum)
         }
 
         /**
-         * Parses [Layerstrace] from [data] and uses the proto to generates
+         * Parses [LayersTrace] from [proto] and uses the proto to generates
+         * a list of trace entries.
+         *
+         * @param proto Parsed proto data
+         */
+        @JvmStatic
+        fun parseFromDump(proto: Layers.LayersProto): LayersTrace {
+            val entry = newEntry(timestamp = 0, protos = proto.layers)
+            return LayersTrace(entry)
+        }
+
+        /**
+         * Parses [LayersTrace] from [data] and uses the proto to generates
          * a list of trace entries.
          *
          * @param data binary proto data
@@ -82,9 +127,7 @@ class LayersTraceParser {
             } catch (e: InvalidProtocolBufferNanoException) {
                 throw RuntimeException(e)
             }
-
-            val entry = newEntry(timestamp = 0, protos = traceProto.layers)
-            return LayersTrace(entry)
+            return parseFromDump(traceProto)
         }
 
         @JvmStatic
