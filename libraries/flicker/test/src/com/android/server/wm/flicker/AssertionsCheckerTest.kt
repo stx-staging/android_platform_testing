@@ -17,8 +17,8 @@
 package com.android.server.wm.flicker
 
 import com.android.server.wm.flicker.assertions.AssertionsChecker
-import com.android.server.wm.flicker.traces.FlickerFailureStrategy
 import com.android.server.wm.flicker.assertions.FlickerSubject
+import com.android.server.wm.flicker.traces.FlickerFailureStrategy
 import com.android.server.wm.flicker.traces.FlickerSubjectException
 import com.android.server.wm.traces.common.ITraceEntry
 import com.google.common.truth.FailureMetadata
