@@ -56,7 +56,7 @@ private fun getCurrentLayersState(uiAutomation: UiAutomation) =
 fun getCurrentState(
     uiAutomation: UiAutomation,
     @WmStateDumpFlags dumpFlags: Int = FLAG_STATE_DUMP_FLAG_WM.or(FLAG_STATE_DUMP_FLAG_LAYERS)
-): DeviceStateDump {
+): Pair<ByteArray, ByteArray> {
     if (dumpFlags == 0) {
         throw IllegalArgumentException("No dump specified")
     }
@@ -72,5 +72,17 @@ fun getCurrentState(
     } else {
         ByteArray(0)
     }
+
+    return Pair(wmTraceData, layersTraceData)
+}
+
+@JvmOverloads
+fun getCurrentStateDump(
+    uiAutomation: UiAutomation,
+    @WmStateDumpFlags dumpFlags: Int = FLAG_STATE_DUMP_FLAG_WM.or(FLAG_STATE_DUMP_FLAG_LAYERS)
+): DeviceStateDump {
+    val currentStateDump = getCurrentState(uiAutomation, dumpFlags)
+    val wmTraceData = currentStateDump.first
+    val layersTraceData = currentStateDump.second
     return DeviceStateDump.fromDump(wmTraceData, layersTraceData)
 }

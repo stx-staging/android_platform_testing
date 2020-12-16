@@ -62,7 +62,7 @@ abstract class FlickerSubject(
      * @param reason for the failure
      */
     fun fail(reason: String): FlickerSubject = apply {
-        fail(Fact.simpleFact(reason))
+        fail(Fact.fact("Reason", reason))
     }
 
     /**

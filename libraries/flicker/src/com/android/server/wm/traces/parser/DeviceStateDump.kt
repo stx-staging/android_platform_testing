@@ -29,31 +29,14 @@ import com.android.server.wm.traces.parser.windowmanager.WindowManagerTraceParse
  */
 class DeviceStateDump(
     /**
-     * [WindowManagerTrace] content
-     */
-    val wmTraceData: ByteArray,
-    /**
-     * [LayersTrace] content
-     */
-    val layersTraceData: ByteArray,
-    /**
-     * Predicate to parse [wmTraceData] into a [WindowManagerTrace]
-     */
-    val wmTraceParser: (ByteArray) -> WindowManagerTrace?,
-    /**
-     * Predicate to parse [layersTraceData] into a [LayersTrace]
-     */
-    val layersTraceParser: (ByteArray) -> LayersTrace?
-) {
-    /**
      * Parsed [WindowManagerTrace]
      */
-    val wmTrace: WindowManagerTrace? by lazy { wmTraceParser(wmTraceData) }
+    val wmTrace: WindowManagerTrace?,
     /**
      * Parsed [LayersTrace]
      */
-    val layersTrace: LayersTrace? by lazy { layersTraceParser(layersTraceData) }
-
+    val layersTrace: LayersTrace?
+) {
     companion object {
         /**
          * Creates a device state dump containing the [WindowManagerTrace] and [LayersTrace]
@@ -66,21 +49,15 @@ class DeviceStateDump(
         @JvmStatic
         fun fromDump(wmTraceData: ByteArray, layersTraceData: ByteArray): DeviceStateDump {
             return DeviceStateDump(
-                wmTraceData,
-                layersTraceData,
-                {
-                    if (wmTraceData.isNotEmpty()) {
-                        WindowManagerTraceParser.parseFromDump(wmTraceData)
-                    } else {
-                        null
-                    }
+                wmTrace = if (wmTraceData.isNotEmpty()) {
+                    WindowManagerTraceParser.parseFromDump(wmTraceData)
+                } else {
+                    null
                 },
-                {
-                    if (layersTraceData.isNotEmpty()) {
-                        LayersTraceParser.parseFromDump(layersTraceData)
-                    } else {
-                        null
-                    }
+                layersTrace = if (layersTraceData.isNotEmpty()) {
+                    LayersTraceParser.parseFromDump(layersTraceData)
+                } else {
+                    null
                 }
             )
         }
@@ -96,21 +73,15 @@ class DeviceStateDump(
         @JvmStatic
         fun fromTrace(wmTraceData: ByteArray, layersTraceData: ByteArray): DeviceStateDump {
             return DeviceStateDump(
-                wmTraceData,
-                layersTraceData,
-                {
-                    if (wmTraceData.isNotEmpty()) {
-                        WindowManagerTraceParser.parseFromTrace(wmTraceData)
-                    } else {
-                        null
-                    }
+                wmTrace = if (wmTraceData.isNotEmpty()) {
+                    WindowManagerTraceParser.parseFromTrace(wmTraceData)
+                } else {
+                    null
                 },
-                {
-                    if (layersTraceData.isNotEmpty()) {
-                        LayersTraceParser.parseFromTrace(layersTraceData)
-                    } else {
-                        null
-                    }
+                layersTrace = if (layersTraceData.isNotEmpty()) {
+                    LayersTraceParser.parseFromTrace(layersTraceData)
+                } else {
+                    null
                 }
             )
         }
