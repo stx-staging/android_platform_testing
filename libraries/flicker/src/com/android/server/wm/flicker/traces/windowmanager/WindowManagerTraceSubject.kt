@@ -64,7 +64,8 @@ class WindowManagerTraceSubject private constructor(
      *
      * @return
      */
-    fun skipUntilFirstAssertion() = apply { assertionsChecker.skipUntilFirstAssertion() }
+    fun skipUntilFirstAssertion(): WindowManagerTraceSubject =
+        apply { assertionsChecker.skipUntilFirstAssertion() }
 
     fun isEmpty(): WindowManagerTraceSubject = apply {
         check("Trace is empty").that(trace).isEmpty()
@@ -80,7 +81,7 @@ class WindowManagerTraceSubject private constructor(
      *
      * @param partialWindowTitle window title to search
      */
-    fun showsAboveAppWindow(partialWindowTitle: String) = apply {
+    fun showsAboveAppWindow(partialWindowTitle: String): WindowManagerTraceSubject = apply {
         addAssertion("showsAboveAppWindow($partialWindowTitle)") {
             it.isAboveAppWindow(partialWindowTitle)
         }
@@ -92,7 +93,7 @@ class WindowManagerTraceSubject private constructor(
      *
      * @param partialWindowTitle window title to search
      */
-    fun hidesAboveAppWindow(partialWindowTitle: String) = apply {
+    fun hidesAboveAppWindow(partialWindowTitle: String): WindowManagerTraceSubject = apply {
         addAssertion("hidesAboveAppWindow($partialWindowTitle)") {
             it.isAboveAppWindow(partialWindowTitle, isVisible = false)
         }
@@ -104,7 +105,7 @@ class WindowManagerTraceSubject private constructor(
      *
      * @param partialWindowTitle window title to search
      */
-    fun showsBelowAppWindow(partialWindowTitle: String) = apply {
+    fun showsBelowAppWindow(partialWindowTitle: String): WindowManagerTraceSubject = apply {
         addAssertion("showsBelowAppWindow($partialWindowTitle)") {
             it.isBelowAppWindow(partialWindowTitle)
         }
@@ -116,7 +117,7 @@ class WindowManagerTraceSubject private constructor(
      *
      * @param partialWindowTitle window title to search
      */
-    fun hidesBelowAppWindow(partialWindowTitle: String) = apply {
+    fun hidesBelowAppWindow(partialWindowTitle: String): WindowManagerTraceSubject = apply {
         addAssertion("hidesBelowAppWindow($partialWindowTitle)") {
             it.isBelowAppWindow(partialWindowTitle, isVisible = false)
         }
@@ -128,7 +129,7 @@ class WindowManagerTraceSubject private constructor(
      *
      * @param partialWindowTitle window title to search
      */
-    fun showsNonAppWindow(partialWindowTitle: String) = apply {
+    fun showsNonAppWindow(partialWindowTitle: String): WindowManagerTraceSubject = apply {
         addAssertion("showsNonAppWindow($partialWindowTitle)") {
             it.hasNonAppWindow(partialWindowTitle)
         }
@@ -140,7 +141,7 @@ class WindowManagerTraceSubject private constructor(
      *
      * @param partialWindowTitle window title to search
      */
-    fun hidesNonAppWindow(partialWindowTitle: String) = apply {
+    fun hidesNonAppWindow(partialWindowTitle: String): WindowManagerTraceSubject = apply {
         addAssertion("hidesNonAppWindow($partialWindowTitle)") {
             it.hasNonAppWindow(partialWindowTitle, isVisible = false)
         }
@@ -151,7 +152,7 @@ class WindowManagerTraceSubject private constructor(
      *
      * @param partialWindowTitles window title to search
      */
-    fun showsAppWindowOnTop(vararg partialWindowTitles: String) = apply {
+    fun showsAppWindowOnTop(vararg partialWindowTitles: String): WindowManagerTraceSubject = apply {
         val assertionName = "showsAppWindowOnTop(${partialWindowTitles.joinToString(",")})"
         addAssertion(assertionName) {
             Truth.assertWithMessage("No window titles to search")
@@ -166,7 +167,7 @@ class WindowManagerTraceSubject private constructor(
      *
      * @param partialWindowTitle window title to search
      */
-    fun appWindowNotOnTop(partialWindowTitle: String) = apply {
+    fun appWindowNotOnTop(partialWindowTitle: String): WindowManagerTraceSubject = apply {
         addAssertion("hidesAppWindowOnTop($partialWindowTitle)") {
             it.hasAppWindow(partialWindowTitle, isVisible = false)
         }
@@ -177,7 +178,7 @@ class WindowManagerTraceSubject private constructor(
      *
      * @param partialWindowTitle window title to search
      */
-    fun showsAppWindow(partialWindowTitle: String) = apply {
+    fun showsAppWindow(partialWindowTitle: String): WindowManagerTraceSubject = apply {
         addAssertion("showsAppWindow($partialWindowTitle)") {
             it.hasAppWindow(partialWindowTitle, isVisible = true)
         }
@@ -188,7 +189,7 @@ class WindowManagerTraceSubject private constructor(
      *
      * @param partialWindowTitle window title to search
      */
-    fun hidesAppWindow(partialWindowTitle: String) = apply {
+    fun hidesAppWindow(partialWindowTitle: String): WindowManagerTraceSubject = apply {
         addAssertion("hidesAppWindow($partialWindowTitle)") {
             it.hasAppWindow(partialWindowTitle, isVisible = false)
         }
@@ -199,7 +200,7 @@ class WindowManagerTraceSubject private constructor(
      *
      * @param partialWindowTitles partial titles of windows to check
      */
-    fun noWindowsOverlap(vararg partialWindowTitles: String): WmTraceSubject = apply {
+    fun noWindowsOverlap(vararg partialWindowTitles: String): WindowManagerTraceSubject = apply {
         val titles = partialWindowTitles.toSet()
         val repr = titles.joinToString(", ")
         require(titles.size > 1) { "Must give more than one window to check! (Given $repr)" }
@@ -215,14 +216,20 @@ class WindowManagerTraceSubject private constructor(
      * @param aboveWindowTitle partial name of the expected top window
      * @param belowWindowTitle partial name of the expected bottom window
      */
-    fun isAboveWindow(aboveWindowTitle: String, belowWindowTitle: String): WmTraceSubject = apply {
+    fun isAboveWindow(
+        aboveWindowTitle: String,
+        belowWindowTitle: String
+    ): WindowManagerTraceSubject = apply {
         require(aboveWindowTitle != belowWindowTitle)
         addAssertion("$aboveWindowTitle is above $belowWindowTitle") {
             it.isAboveWindow(aboveWindowTitle, belowWindowTitle)
         }
     }
 
-    fun coversAtLeastRegion(partialWindowTitle: String, region: Region) = apply {
+    fun coversAtLeastRegion(
+        partialWindowTitle: String,
+        region: Region
+    ): WindowManagerTraceSubject = apply {
         addAssertion("coversAtLeastRegion($partialWindowTitle, $region)") {
             it.coversAtLeastRegion(partialWindowTitle, region)
         }
@@ -234,7 +241,10 @@ class WindowManagerTraceSubject private constructor(
         }
     }
 
-    fun coversAtMostRegion(partialWindowTitle: String, region: Region) = apply {
+    fun coversAtMostRegion(
+        partialWindowTitle: String,
+        region: Region
+    ): WindowManagerTraceSubject = apply {
         addAssertion("coversAtMostRegion($partialWindowTitle, $region)") {
             it.coversAtMostRegion(partialWindowTitle, region)
         }
