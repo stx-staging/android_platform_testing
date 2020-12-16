@@ -31,6 +31,7 @@ import com.google.inject.Injector;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -86,6 +87,10 @@ public class AudioTestHarnessGrpcServerTests {
         assertServerRunningAsExpected(port);
     }
 
+    // Per (b/175643926) the following two tests are ignored since they do not run within Forrest.
+    // They do run (and pass) locally.
+
+    @Ignore
     @Test(expected = IOException.class)
     public void open_throwsIOExceptionForMissingServiceDependency() throws Exception {
         AudioTestHarnessGrpcServer.create(
@@ -93,6 +98,7 @@ public class AudioTestHarnessGrpcServerTests {
                 .open();
     }
 
+    @Ignore
     @Test(expected = IOException.class)
     public void open_throwsIOException_forPortTaken() throws Exception {
         int port = PortUtility.nextAvailablePort();
