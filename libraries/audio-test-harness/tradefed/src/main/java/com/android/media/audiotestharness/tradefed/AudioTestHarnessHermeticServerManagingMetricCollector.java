@@ -92,6 +92,12 @@ public class AudioTestHarnessHermeticServerManagingMetricCollector
 
         mAudioTestHarnessGrpcServer =
                 mAudioTestHarnessGrpcServerFactory.createOnNextAvailablePort();
+
+        // Ensure that the server's logs are output through the TradeFed logging system.
+        // This needs to be called after the server is instantiated to ensure
+        // that the static logger on the class has been loaded.
+        AudioTestHarnessServerLogForwardingHandler.configureServerLoggerWithHandler(true);
+
         try {
             mAudioTestHarnessGrpcServer.open();
         } catch (IOException ioe) {

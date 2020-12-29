@@ -16,6 +16,8 @@
 
 package com.android.media.audiotestharness.tradefed;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
@@ -40,6 +42,10 @@ import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
+
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 @RunWith(JUnit4.class)
 public class AudioTestHarnessHermeticServerManagingMetricCollectorTests {
@@ -81,6 +87,22 @@ public class AudioTestHarnessHermeticServerManagingMetricCollectorTests {
     @Test
     public void constructor_successfullyCreatesNewMetricCollector() throws Exception {
         new AudioTestHarnessHermeticServerManagingMetricCollector();
+    }
+
+    @Test
+    public void onTestRunStart_properlyAttachesLoggingHandlerToServerLogger() throws Exception {
+        mMetricCollector.onTestRunStart(mTestDeviceMetricData);
+
+        Logger serverRootLogger =
+                LogManager.getLogManager()
+                        .getLogger(AudioTestHarnessGrpcServer.class.getName())
+                        .getParent();
+
+        assertEquals(Level.ALL, serverRootLogger.getLevel());
+        assertEquals(1, serverRootLogger.getHandlers().length);
+        assertTrue(
+                serverRootLogger.getHandlers()[0]
+                        instanceof AudioTestHarnessServerLogForwardingHandler);
     }
 
     @Test
