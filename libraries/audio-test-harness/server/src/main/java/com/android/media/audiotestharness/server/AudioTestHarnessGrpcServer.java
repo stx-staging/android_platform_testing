@@ -38,8 +38,11 @@ import java.util.logging.Logger;
  * possible to use the service implementation directly and customize the deployment of the service,
  * however, this is meant as an easy alternative for users who just want a working system and don't
  * care how it works under the hood.
+ *
+ * <p>This class should not be subclassed or extended, however is left non-final for testing
+ * purposes.
  */
-public final class AudioTestHarnessGrpcServer implements AutoCloseable {
+public class AudioTestHarnessGrpcServer implements AutoCloseable {
 
     private static final Logger LOGGER =
             Logger.getLogger(AudioTestHarnessGrpcServer.class.getName());

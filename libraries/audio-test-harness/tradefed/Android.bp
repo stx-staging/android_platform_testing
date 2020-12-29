@@ -34,16 +34,17 @@ java_library_host {
 
 java_test_host {
     name: "audiotestharness-testlib-tests",
-
     srcs: [
-        "src/main/java/com/android/media/audiotestharness/tradefed/*.java",
+        "src/test/java/com/android/media/audiotestharness/tradefed/*.java",
     ],
-
     static_libs: [
+        "junit",
         "audiotestharness-testlib",
         "tradefed",
+        "mockito",
+        "objenesis",
+        "guava",
     ],
-
     test_options: {
         unit_test: true,
     },
