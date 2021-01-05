@@ -17,7 +17,6 @@
 package android.platform.helpers;
 
 import android.support.test.uiautomator.Direction;
-import android.support.test.uiautomator.UiObject2;
 
 public interface IYouTubeHelper extends IAppHelper {
 
@@ -145,25 +144,9 @@ public interface IYouTubeHelper extends IAppHelper {
     /**
      * Setup expectation: YouTube is open on home page.
      *
-     * <p>The UiObject2 for YouTube get scroll view.
+     * <p>Scroll the home page by specified direction.
      */
-    public UiObject2 getHomeScrollView();
-
-    /**
-     * Setup expectations: YouTube app is open.
-     *
-     * <p>This method will scroll home page in the specified direction.
-     *
-     * <p>This method needs to check the UI object additionally.
-     *
-     * @param container The container with scrollable elements.
-     * @param direction The direction of the scroll, must be UP or DOWN.
-     * @param percent The distance of scroll as a percentage of YouTube size.
-     * @param speed The scroll speed of the scroll.
-     * @return Returns whether the object can still scroll in the given direction.
-     */
-    public boolean scrollHomePage(
-            UiObject2 container, Direction direction, float percent, int speed);
+    public void scrollHomePage(Direction direction);
 
     /**
      * Setup expectation: YouTube is open on home page.
