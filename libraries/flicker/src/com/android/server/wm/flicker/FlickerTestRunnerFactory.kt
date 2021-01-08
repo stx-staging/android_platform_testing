@@ -60,6 +60,42 @@ class FlickerTestRunnerFactory @JvmOverloads constructor(
     }
 
     /**
+     * Creates multiple instances of the same test, running on different configuration
+     *
+     * @param testSpecification Segments of the test specification, if any
+     */
+    @JvmOverloads
+    fun buildTest(
+        vararg testSpecification: FlickerBuilder.(Bundle) -> Any,
+        deviceConfigurations: List<Bundle> = getConfigNonRotationTests()
+    ): List<Array<Any>> {
+        val newTestSpecification: FlickerBuilder.(Bundle) -> Any = { configuration ->
+            testSpecification.forEach {
+                this.apply { it(configuration) }
+            }
+        }
+
+        return buildTest(deviceConfigurations) { newTestSpecification(it) }
+    }
+
+    /**
+     * Creates multiple instances of the same test, running on different configuration
+     *
+     * @param baseSpecification Base specification, e.g., setup, teardown, transitions and
+     *      assertions
+     * @param testSpecification Other segments of the test specification, if any
+     */
+    @JvmOverloads
+    fun buildTest(
+        baseSpecification: FlickerBuilder.(Bundle) -> Any,
+        testSpecification: FlickerBuilder.(Bundle) -> Any,
+        deviceConfigurations: List<Bundle> = getConfigNonRotationTests()
+    ): List<Array<Any>> {
+        val fullSpecification = arrayOf(baseSpecification, testSpecification)
+        return buildTest(*fullSpecification, deviceConfigurations = deviceConfigurations)
+    }
+
+    /**
      * Creates multiple instances of the same test, rotating the device
      *
      * @param deviceConfigurations Configurations to run the test (e.g. orientations, rotations).
@@ -80,6 +116,42 @@ class FlickerTestRunnerFactory @JvmOverloads constructor(
 
             flickerTests
         }.map { arrayOf(it.first, it.second, it.third) }
+    }
+
+    /**
+     * Creates multiple instances of the same test, running on different configuration
+     *
+     * @param testSpecification Segments of the test specification, if any
+     */
+    @JvmOverloads
+    fun buildRotationTest(
+        vararg testSpecification: FlickerBuilder.(Bundle) -> Any,
+        deviceConfigurations: List<Bundle> = getConfigRotationTests()
+    ): List<Array<Any>> {
+        val newTestSpecification: FlickerBuilder.(Bundle) -> Any = { configuration ->
+            testSpecification.forEach {
+                this.apply { it(configuration) }
+            }
+        }
+
+        return buildRotationTest(deviceConfigurations) { newTestSpecification(it) }
+    }
+
+    /**
+     * Creates multiple instances of the same test, running on different configuration
+     *
+     * @param baseSpecification Base specification, e.g., setup, teardown, transitions and
+     *      assertions
+     * @param testSpecification Other segments of the test specification, if any
+     */
+    @JvmOverloads
+    fun buildRotationTest(
+        baseSpecification: FlickerBuilder.(Bundle) -> Any,
+        testSpecification: FlickerBuilder.(Bundle) -> Any,
+        deviceConfigurations: List<Bundle> = getConfigRotationTests()
+    ): List<Array<Any>> {
+        val fullSpecification = arrayOf(baseSpecification, testSpecification)
+        return buildRotationTest(*fullSpecification, deviceConfigurations = deviceConfigurations)
     }
 
     /**

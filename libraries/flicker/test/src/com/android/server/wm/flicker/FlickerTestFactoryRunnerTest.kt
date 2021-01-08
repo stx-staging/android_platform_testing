@@ -148,6 +148,38 @@ class FlickerTestFactoryRunnerTest {
     }
 
     @Test
+    fun mergeTestConfiguration() {
+        val base: FlickerBuilder.(Bundle) -> Unit = {
+            assertions {
+                windowManagerTrace {
+                    start { it.isEmpty }
+                }
+            }
+        }
+
+        val extension: FlickerBuilder.(Bundle) -> Unit = {
+            assertions {
+                windowManagerTrace {
+                    start { it.isEmpty }
+                }
+            }
+        }
+
+        val factory = FlickerTestRunnerFactory(instrumentation,
+                supportedRotations = listOf(Surface.ROTATION_0))
+        val tests = factory.buildTest(base, extension)
+        assertWithMessage("Factory should have created 3 tests, 1 for transition and 2 " +
+            "tests with a single assertion each")
+                .that(tests)
+                .hasSize(3)
+
+        assertIsEmpty(tests.first()[1] as () -> Flicker)
+        tests.drop(1).forEach { (_, producer, _) ->
+            assertHasSingleAssertion(producer as () -> Flicker)
+        }
+    }
+
+    @Test
     fun checkCleanUp() {
         val factory = FlickerTestRunnerFactory(instrumentation)
         val actual = factory.buildTest { cfg ->
@@ -191,6 +223,5 @@ class FlickerTestFactoryRunnerTest {
         assertWithMessage("First and third tests should not share a runner")
             .that(first.runner)
             .isNotEqualTo(third.runner)
-
     }
 }
