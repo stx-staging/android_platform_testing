@@ -94,6 +94,8 @@ open class WindowManagerState(
         get() = displays.map { it.resumedActivity }.filter { it.isNotEmpty() }.toTypedArray()
     val resumedActivitiesInStacks: Array<String>
         get() = rootTasks.map { it.resumedActivity }.filter { it.isNotEmpty() }.toTypedArray()
+    val hasResumedActivitiesInStacks: Boolean
+        by lazy { rootTasks.any { it.hasResumedActivitiesInTree } }
     val defaultPinnedStackBounds: Rect
         get() = displays
             .lastOrNull { it.defaultPinnedStackBounds.isNotEmpty }?.defaultPinnedStackBounds
@@ -512,7 +514,7 @@ open class WindowManagerState(
             if (focusedActivity.isEmpty()) {
                 append("No focused activity found...")
             }
-            if (resumedActivitiesInStacks.isEmpty()) {
+            if (!hasResumedActivitiesInStacks) {
                 append("No resumed activities found...")
             }
             if (windowStates.isEmpty()) {
@@ -537,7 +539,7 @@ open class WindowManagerState(
     fun isIncomplete(): Boolean {
         return rootTasks.isEmpty() || focusedStackId == -1 || windowStates.isEmpty() ||
             focusedApp.isEmpty() || (validityCheckFocusedWindow && focusedWindow.isEmpty()) ||
-            (focusedActivity.isEmpty() || resumedActivitiesInStacks.isEmpty()) &&
+            (focusedActivity.isEmpty() || !hasResumedActivitiesInStacks) &&
             !keyguardControllerState.isKeyguardShowing
     }
 
