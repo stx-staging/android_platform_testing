@@ -262,15 +262,15 @@ class WindowManagerTraceSubject private constructor(
     fun visibleWindowsShownMoreThanOneConsecutiveEntry(
         ignoreWindows: List<String> = emptyList()
     ): WindowManagerTraceSubject = apply {
-        val visibleWindowsMap = subjects.mapIndexed { index, entrySubject ->
-            entrySubject.wmState.windowStates
+        visibleEntriesShownMoreThanOneConsecutiveTime { subject ->
+            subject.wmState.windowStates
                 .filter { it.isVisible }
                 .filter {
                     ignoreWindows.none { windowName -> windowName in it.title }
                 }
-                .map { it.name to index }
-        }.flatten()
-        visibleEntriesShownMoreThanOneConsecutiveTime(visibleWindowsMap)
+                .map { it.name }
+                .toSet()
+        }
     }
 
     operator fun invoke(

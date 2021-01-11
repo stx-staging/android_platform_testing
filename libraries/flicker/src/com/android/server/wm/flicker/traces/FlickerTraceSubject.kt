@@ -79,32 +79,27 @@ abstract class FlickerTraceSubject<EntrySubject : FlickerSubject>(
      * @param [visibleEntries] a list of all the entries with their name and index
      */
     protected fun visibleEntriesShownMoreThanOneConsecutiveTime(
-        visibleEntries: List<Pair<String, Int>>
+        visibleEntriesProvider: (EntrySubject) -> Set<String>
     ) {
-        visibleEntries.distinct()
-            .groupBy({ it.first }, { it.second })
-            .forEach { (layerName, indexesList) ->
-                val listOfConsecutiveNumbers = getListsOfConsecutiveNumbers(indexesList)
-                listOfConsecutiveNumbers.forEach {
-                    if (it.size < 2) {
-                        val entry = subjects[it.first()]
-                        entry.fail("Element $layerName is not visible for 2 entries " +
-                            "(${it.joinToString(", ")})")
-                    }
-                }
-            }
-    }
+        var lastVisible = visibleEntriesProvider(subjects.first())
+        val lastNew = lastVisible.toMutableSet()
 
-    private fun getListsOfConsecutiveNumbers(indexList: List<Int>):
-        MutableList<MutableList<Int>> {
-        val sequences = mutableListOf(mutableListOf(indexList.first()))
-        indexList.drop(1).forEach {
-            val currBlock = sequences.last()
-            if (it != (currBlock.last() + 1)) {
-                sequences.add(mutableListOf())
+        subjects.drop(1).forEachIndexed { index, entrySubject ->
+            val currentVisible = visibleEntriesProvider(entrySubject)
+            val newVisible = currentVisible.filter { it !in lastVisible }
+            lastNew.removeAll(currentVisible)
+
+            if (lastNew.isNotEmpty()) {
+                val prevEntry = subjects[index]
+                prevEntry.fail("$lastNew is not visible for 2 entries")
             }
-            sequences.last().add(it)
+            lastNew.addAll(newVisible)
+            lastVisible = currentVisible
         }
-        return sequences
+
+        if (lastNew.isNotEmpty()) {
+            val lastEntry = subjects.last()
+            lastEntry.fail("$lastNew is not visible for 2 entries")
+        }
     }
 }

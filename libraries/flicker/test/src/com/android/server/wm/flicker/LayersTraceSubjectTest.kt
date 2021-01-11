@@ -20,6 +20,7 @@ import android.graphics.Region
 import androidx.test.filters.FlakyTest
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject.Companion.assertThat
+import com.android.server.wm.traces.common.layers.LayersTrace
 import com.google.common.truth.Truth
 import org.junit.FixMethodOrder
 import org.junit.Test
@@ -138,12 +139,19 @@ class LayersTraceSubjectTest {
             .contains("is not visible for 2 entries")
     }
 
-    @Test
-    fun testCanDetectVisibleLayersMoreThanOneConsecutiveEntry() {
-        val layersTraceEntries = readLayerTraceFromFile("layers_trace_valid_visible_layers.pb")
-        assertThat(layersTraceEntries)
+    private fun testCanDetectVisibleLayersMoreThanOneConsecutiveEntry(trace: LayersTrace) {
+        assertThat(trace)
             .visibleLayersShownMoreThanOneConsecutiveEntry()
             .forAllEntries()
+    }
+
+    @Test
+    fun testCanDetectVisibleLayersMoreThanOneConsecutiveEntry() {
+        testCanDetectVisibleLayersMoreThanOneConsecutiveEntry(
+            readLayerTraceFromFile("layers_trace_valid_visible_layers.pb"))
+
+        testCanDetectVisibleLayersMoreThanOneConsecutiveEntry(
+            readLayerTraceFromFile("layers_trace_snapshot_visible.pb"))
     }
 
     @Test

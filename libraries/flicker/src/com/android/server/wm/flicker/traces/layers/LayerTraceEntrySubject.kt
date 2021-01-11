@@ -275,7 +275,7 @@ class LayerTraceEntrySubject private constructor(
      *
      * @param layerName Name of the layer to search
      */
-    fun isNotVisible(layerName: String): LayerTraceEntrySubject = apply {
+    fun isInvisible(layerName: String): LayerTraceEntrySubject = apply {
         try {
             isVisible(layerName)
         } catch (e: FlickerSubjectException) {

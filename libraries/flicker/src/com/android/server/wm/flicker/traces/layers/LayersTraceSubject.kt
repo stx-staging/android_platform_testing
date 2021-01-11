@@ -128,15 +128,12 @@ class LayersTraceSubject private constructor(
     fun visibleLayersShownMoreThanOneConsecutiveEntry(
         ignoreLayers: List<String> = emptyList()
     ): LayersTraceSubject = apply {
-        val visibleLayerMap = subjects.mapIndexed { index, entrySubject ->
-            entrySubject.subjects
-                .filter { it.layer?.isVisible == true }
-                .filter {
-                    ignoreLayers.none { layerName -> layerName in (it.layer?.name ?: "") }
-                }
-                .map { (it.layer?.name ?: "") to index }
-        }.flatten()
-        visibleEntriesShownMoreThanOneConsecutiveTime(visibleLayerMap)
+        visibleEntriesShownMoreThanOneConsecutiveTime { subject ->
+            subject.entry.visibleLayers
+                .filter { ignoreLayers.none { layerName -> layerName in it.name } }
+                .map { it.name }
+                .toSet()
+        }
     }
 
     fun hasVisibleRegion(
@@ -169,7 +166,7 @@ class LayersTraceSubject private constructor(
     fun hidesLayer(layerName: String): LayersTraceSubject =
         apply {
             addAssertion("hidesLayer($layerName)") {
-                it.isNotVisible(layerName)
+                it.isInvisible(layerName)
             }
         }
 
