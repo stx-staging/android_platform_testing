@@ -16,7 +16,9 @@
 
 package com.android.server.wm.flicker.monitor
 
+import android.app.Instrumentation
 import android.os.SystemClock
+import androidx.test.platform.app.InstrumentationRegistry
 import com.android.server.wm.flicker.FlickerRunResult
 import com.android.server.wm.flicker.getDefaultFlickerOutputDir
 import com.google.common.truth.Truth
@@ -33,11 +35,12 @@ import java.nio.file.Files
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class ScreenRecorderTest {
+    private val instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation()
     private lateinit var mScreenRecorder: ScreenRecorder
     @Before
     fun setup() {
         val outputDir = getDefaultFlickerOutputDir()
-        mScreenRecorder = ScreenRecorder(outputDir)
+        mScreenRecorder = ScreenRecorder(outputDir, instrumentation.targetContext)
     }
 
     @After

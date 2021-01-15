@@ -79,7 +79,7 @@ public class FlickerBuilderJava {
 
         traceMonitors.add(new WindowManagerTraceMonitor(outputDir));
         traceMonitors.add(new LayersTraceMonitor(outputDir));
-        traceMonitors.add(new ScreenRecorder(outputDir));
+        traceMonitors.add(new ScreenRecorder(outputDir, this.instrumentation.getTargetContext()));
     }
 
     /**
