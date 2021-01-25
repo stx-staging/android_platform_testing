@@ -15,6 +15,10 @@
  */
 package android.platform.test.microbenchmark;
 
+import static android.content.Context.BATTERY_SERVICE;
+import static android.os.BatteryManager.BATTERY_PROPERTY_CAPACITY;
+
+import android.os.BatteryManager;
 import android.os.Bundle;
 import android.platform.test.composer.Iterate;
 import android.platform.test.rule.TracePointRule;
@@ -60,11 +64,15 @@ public class Microbenchmark extends BlockJUnit4ClassRunner {
                 @Override
                 public void evaluate() throws Throwable {}
             };
+    private static final String MIN_BATTERY_LEVEL_OPTION = "min-battery";
 
     private final String mIterationSep;
     private final Bundle mArguments;
     private final boolean mRenameIterations;
+    private final int mMinBatteryLevel;
     private final Map<Description, Integer> mIterations = new HashMap<>();
+
+    private final BatteryManager mBatteryManager;
 
     /**
      * Called reflectively on classes annotated with {@code @RunWith(Microbenchmark.class)}.
@@ -86,6 +94,12 @@ public class Microbenchmark extends BlockJUnit4ClassRunner {
                 arguments.containsKey(ITERATION_SEP_OPTION)
                         ? arguments.getString(ITERATION_SEP_OPTION)
                         : ITERATION_SEP_DEFAULT;
+        mMinBatteryLevel = Integer.parseInt(arguments.getString(MIN_BATTERY_LEVEL_OPTION, "-1"));
+
+        // Get the battery manager for later use.
+        mBatteryManager =
+                (BatteryManager)
+                        InstrumentationRegistry.getContext().getSystemService(BATTERY_SERVICE);
     }
 
     /**
@@ -228,6 +242,10 @@ public class Microbenchmark extends BlockJUnit4ClassRunner {
      */
     @Override
     protected void runChild(final FrameworkMethod method, RunNotifier notifier) {
+        if (isBatteryLevelTooLow()) {
+            throw new TerminateEarlyException("battery level is below threshold.");
+        }
+
         // Update the number of iterations this method has been run.
         if (mRenameIterations) {
             Description original = super.describeChild(method);
@@ -295,6 +313,22 @@ public class Microbenchmark extends BlockJUnit4ClassRunner {
             } catch (Throwable e) {
                 eachNotifier.addFailure(e);
             }
+        }
+    }
+
+    /* Checks if the battery level is below the specified level where the test should terminate. */
+    @VisibleForTesting
+    public boolean isBatteryLevelTooLow() {
+        return mBatteryManager.getIntProperty(BATTERY_PROPERTY_CAPACITY) < mMinBatteryLevel;
+    }
+
+    /**
+     * A {@code RuntimeException} class for terminating test runs early for some specified reason.
+     */
+    @VisibleForTesting
+    static class TerminateEarlyException extends RuntimeException {
+        public TerminateEarlyException(String message) {
+            super(String.format("Terminating early because %s", message));
         }
     }
 }
