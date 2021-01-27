@@ -17,10 +17,13 @@ package android.platform.test.microbenchmark;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.platform.test.microbenchmark.Microbenchmark.TerminateEarlyException;
 import android.platform.test.rule.TracePointRule;
 
@@ -250,6 +253,67 @@ public final class MicrobenchmarkTest {
         assertThat(throwable)
                 .hasMessageThat()
                 .matches("Terminating early because battery level is below threshold.");
+    }
+
+    /** Test that the microbenchmark will align starting with the battery charge counter. */
+    @Test
+    public void testAlignWithBatteryChargeCounter() throws InitializationError {
+        Bundle args = new Bundle();
+        args.putString("align-with-charge-counter", "true");
+        args.putString("counter-decrement-timeout_ms", "5000");
+
+        Microbenchmark runner = Mockito.spy(new Microbenchmark(LoggingTest.class, args));
+        doReturn(99999)
+                .doReturn(99999)
+                .doReturn(99999)
+                .doReturn(88888)
+                .when(runner)
+                .getBatteryChargeCounter();
+        doReturn(10L).when(runner).getCounterPollingInterval();
+
+        RunNotifier notifier = Mockito.mock(RunNotifier.class);
+
+        Thread thread =
+                new Thread(
+                        new Runnable() {
+                            public void run() {
+                                runner.run(notifier);
+                            }
+                        });
+
+        thread.start();
+        SystemClock.sleep(20);
+        verify(notifier, never()).fireTestStarted(any(Description.class));
+        SystemClock.sleep(20);
+        verify(notifier).fireTestStarted(any(Description.class));
+    }
+
+    /** Test that the microbenchmark counter alignment will time out if there's no change. */
+    @Test
+    public void testAlignWithBatteryChargeCounter_timesOut() throws InitializationError {
+        Bundle args = new Bundle();
+        args.putString("align-with-charge-counter", "true");
+        args.putString("counter-decrement-timeout_ms", "30");
+
+        Microbenchmark runner = Mockito.spy(new Microbenchmark(LoggingTest.class, args));
+        doReturn(99999).when(runner).getBatteryChargeCounter();
+        doReturn(10L).when(runner).getCounterPollingInterval();
+
+        RunNotifier notifier = Mockito.mock(RunNotifier.class);
+
+        Thread thread =
+                new Thread(
+                        new Runnable() {
+                            public void run() {
+                                runner.run(notifier);
+                            }
+                        });
+
+        thread.start();
+        SystemClock.sleep(20);
+        verify(notifier, never()).fireTestStarted(any(Description.class));
+        SystemClock.sleep(30);
+        verify(notifier).fireTestStarted(any(Description.class));
     }
 
     /**
