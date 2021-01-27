@@ -16,8 +16,12 @@
 package android.platform.test.microbenchmark;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.verify;
 
 import android.os.Bundle;
+import android.platform.test.microbenchmark.Microbenchmark.TerminateEarlyException;
 import android.platform.test.rule.TracePointRule;
 
 import org.junit.After;
@@ -28,9 +32,13 @@ import org.junit.runner.Description;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.RunWith;
+import org.junit.runner.notification.Failure;
+import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.JUnit4;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -218,6 +226,30 @@ public final class MicrobenchmarkTest {
                         "tight after",
                         "after")
                 .inOrder();
+    }
+
+    /** Test that the microbenchmark will terminate if the battery is too low. */
+    @Test
+    public void testBatteryIsTooLow() throws InitializationError {
+        Microbenchmark runner = Mockito.spy(new Microbenchmark(LoggingTest.class, new Bundle()));
+        doReturn(true).when(runner).isBatteryLevelTooLow();
+
+        RunNotifier notifier = Mockito.mock(RunNotifier.class);
+        runner.run(notifier);
+
+        ArgumentCaptor<Failure> failureCaptor = ArgumentCaptor.forClass(Failure.class);
+        verify(notifier).fireTestFailure(failureCaptor.capture());
+
+        Failure failure = failureCaptor.getValue();
+        Throwable throwable = failure.getException();
+        assertTrue(
+                String.format(
+                        "Exception was not a TerminateEarlyException. Instead, it was: %s",
+                        throwable.getClass()),
+                throwable instanceof TerminateEarlyException);
+        assertThat(throwable)
+                .hasMessageThat()
+                .matches("Terminating early because battery level is below threshold.");
     }
 
     /**
