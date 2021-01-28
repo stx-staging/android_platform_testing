@@ -168,14 +168,16 @@ class LayersTraceParser {
         }
 
         @JvmStatic
-        private fun Layers.FloatRectProto.toRectF(): RectF {
-            val rect = RectF()
-            rect.left = left
-            rect.top = top
-            rect.right = right
-            rect.bottom = bottom
+        private fun Layers.FloatRectProto?.toRectF(): RectF? {
+            return this?.let {
+                val rect = RectF()
+                rect.left = left
+                rect.top = top
+                rect.right = right
+                rect.bottom = bottom
 
-            return rect
+                rect
+            }
         }
 
         @JvmStatic

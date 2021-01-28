@@ -30,13 +30,13 @@ open class DisplayContent(
     val focusedRootTaskId: Int,
     val resumedActivity: String,
     val singleTaskInstance: Boolean,
-    val defaultPinnedStackBounds: Rect,
-    val pinnedStackMovementBounds: Rect,
+    private val _defaultPinnedStackBounds: Rect?,
+    private val _pinnedStackMovementBounds: Rect?,
     val displayRect: Rect,
     val appRect: Rect,
     val dpi: Int,
     val flags: Int,
-    val stableBounds: Rect,
+    private val _stableBounds: Rect?,
     val surfaceSize: Int,
     val focusedApp: String,
     val lastTransition: String,
@@ -48,6 +48,10 @@ open class DisplayContent(
     override val kind: String = KIND
     override val name: String = id.toString()
     override val stableId: String = KIND + title
+
+    val defaultPinnedStackBounds: Rect get() = _defaultPinnedStackBounds ?: Rect()
+    val pinnedStackMovementBounds: Rect get() = _pinnedStackMovementBounds ?: Rect()
+    val stableBounds: Rect get() = _stableBounds ?: Rect()
 
     val rootTasks: Array<ActivityTask>
         get() {
