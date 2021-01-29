@@ -43,7 +43,9 @@ open class WindowState(
     val givenContentInsets: Rect,
     val crop: Rect,
     windowContainer: WindowContainer,
-    val isAppWindow: Boolean
+    val isAppWindow: Boolean,
+    override val rects: Array<Rect> = arrayOf(WindowRect(frame, windowContainer,
+        getWindowTitle(windowContainer.title)))
 ) : WindowContainer(windowContainer, getWindowTitle(windowContainer.title)) {
     override val kind: String = "Window"
 
@@ -52,10 +54,10 @@ open class WindowState(
     val isDebuggerWindow: Boolean = windowType == WINDOW_TYPE_DEBUGGER
     val isValidNavBarType: Boolean = this.type == TYPE_NAVIGATION_BAR
 
-    override val rects: Array<Rect> by lazy { arrayOf(WindowRect(frame, this, title)) }
     val frameRegion: Region = Region(frame)
 
-    override val _subWindows by lazy { this.collectDescendants<WindowState>().toMutableList() }
+    override val windows: Array<WindowState>
+        get() = this.collectDescendants()
 
     private fun getWindowTypeSuffix(windowType: Int): String {
         when (windowType) {

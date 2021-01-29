@@ -49,17 +49,15 @@ open class WindowContainer constructor(
     )
 
     open val name: String = title
-    open val kind: String = "WindowContainer"
-    open val stableId: String by lazy { kind + token }
+    open val kind: String = KIND
+    open val stableId: String = KIND + token
 
-    open val rects: Array<Rect>
-        by lazy { childrenWindows.flatMap { it.rects.toList() }.toTypedArray() }
+    open val rects: Array<Rect> = childrenWindows.flatMap { it.rects.toList() }.toTypedArray()
     open val isFullscreen: Boolean = false
     open val bounds: Rect = Rect()
-    protected open val _subWindows = mutableListOf<WindowState>()
 
-    val windows: Array<WindowState>
-        get() = _subWindows.toTypedArray()
+    open val windows: Array<WindowState>
+        get() = emptyArray()
 
     fun traverseTopDown(): List<WindowContainer> {
         val traverseList = mutableListOf(this)
@@ -131,4 +129,8 @@ open class WindowContainer constructor(
         get() = super.isEmpty &&
             title.isEmpty() &&
             token.isEmpty()
+
+    companion object {
+        private const val KIND = "WindowContainer"
+    }
 }

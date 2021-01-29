@@ -96,7 +96,7 @@ class WindowManagerStateHelperTest {
         )
     }
 
-    private fun createImaginaryVisibleLayers(vararg names: String): Array<Layer> {
+    private fun createImaginaryVisibleLayers(vararg names: String): List<Layer> {
         val root = createImaginaryLayer("root", -1, id = "root".hashCode(), parentId = -1)
         val layers = mutableListOf(root)
         names.forEachIndexed { index, name ->
@@ -104,7 +104,7 @@ class WindowManagerStateHelperTest {
                 createImaginaryLayer(name, index, id = name.hashCode(), parentId = root.id)
             )
         }
-        return layers.toTypedArray()
+        return layers
     }
 
     private fun WindowManagerTrace.asSupplier(

@@ -160,10 +160,7 @@ object WindowManagerTraceParser {
         } catch (e: InvalidProtocolBufferNanoException) {
             throw RuntimeException(e)
         }
-        return WindowManagerTrace(
-            listOf(newTraceEntry(fileProto, timestamp = 0, where = "")),
-            source = "",
-            sourceChecksum = "")
+        return WindowManagerTrace(parseFromDump(fileProto), source = "", sourceChecksum = "")
     }
 
     private fun newTraceEntry(
@@ -421,21 +418,25 @@ object WindowManagerTraceParser {
         )
     }
 
-    private fun newConfiguration(proto: ConfigurationProto?): Configuration {
-        return Configuration(
-            windowConfiguration = if (proto?.windowConfiguration != null) {
-                newWindowConfiguration(proto.windowConfiguration)
-            } else {
-                null
-            },
-            densityDpi = proto?.densityDpi ?: 0,
-            orientation = proto?.orientation ?: 0,
-            screenHeightDp = proto?.screenHeightDp ?: 0,
-            screenWidthDp = proto?.screenHeightDp ?: 0,
-            smallestScreenWidthDp = proto?.smallestScreenWidthDp ?: 0,
-            screenLayout = proto?.screenLayout ?: 0,
-            uiMode = proto?.uiMode ?: 0
-        )
+    private fun newConfiguration(proto: ConfigurationProto?): Configuration? {
+        return if (proto == null) {
+            null
+        } else {
+            Configuration(
+                windowConfiguration = if (proto.windowConfiguration != null) {
+                    newWindowConfiguration(proto.windowConfiguration)
+                } else {
+                    null
+                },
+                densityDpi = proto.densityDpi,
+                orientation = proto.orientation,
+                screenHeightDp = proto.screenHeightDp,
+                screenWidthDp = proto.screenWidthDp,
+                smallestScreenWidthDp = proto.smallestScreenWidthDp,
+                screenLayout = proto.screenLayout,
+                uiMode = proto.uiMode
+            )
+        }
     }
 
     private fun newWindowConfiguration(proto: WindowConfigurationProto): WindowConfiguration {
