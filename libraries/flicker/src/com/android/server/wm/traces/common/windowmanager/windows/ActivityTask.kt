@@ -32,7 +32,7 @@ open class ActivityTask(
     val taskId: Int,
     val rootTaskId: Int,
     val displayId: Int,
-    val lastNonFullscreenBounds: Rect,
+    private val _lastNonFullscreenBounds: Rect?,
     val realActivity: String,
     val origActivity: String,
     val resizeMode: Int,
@@ -49,6 +49,7 @@ open class ActivityTask(
     override val name: String = taskId.toString()
     override val isEmpty: Boolean get() = tasks.isEmpty() && activities.isEmpty()
 
+    val lastNonFullscreenBounds: Rect get() = _lastNonFullscreenBounds ?: Rect()
     val isRootTask: Boolean get() = taskId == rootTaskId
     val tasks: List<ActivityTask>
         get() = this.childrenWindows.reversed().filterIsInstance<ActivityTask>()
