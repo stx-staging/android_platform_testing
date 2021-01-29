@@ -45,9 +45,8 @@ open class DisplayContent(
     val lastOrientation: Int,
     windowContainer: WindowContainer
 ) : WindowContainer(windowContainer) {
-    override val kind: String = KIND
+    override val kind: String = "Display"
     override val name: String = id.toString()
-    override val stableId: String = KIND + title
 
     val rootTasks: Array<ActivityTask>
         get() {
@@ -90,9 +89,5 @@ open class DisplayContent(
 
     override fun toString(): String {
         return "$kind #$id: name=$title mDisplayRect=$displayRect mAppRect=$appRect mFlags=$flags"
-    }
-
-    companion object {
-        private const val KIND = "Display"
     }
 }
