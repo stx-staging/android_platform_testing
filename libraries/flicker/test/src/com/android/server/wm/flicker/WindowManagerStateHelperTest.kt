@@ -81,7 +81,7 @@ class WindowManagerStateHelperTest {
             visibleRegion = Region(0, 0, 1, 1),
             activeBuffer = Buffer(1, 1),
             flags = 0,
-            bounds = rect,
+            _bounds = rect,
             color = Color(0f, 0f, 0f, 1f),
             _isOpaque = true,
             shadowRadius = 0f,
@@ -89,7 +89,7 @@ class WindowManagerStateHelperTest {
             type = "",
             _screenBounds = rect,
             transform = transform,
-            sourceBounds = rect,
+            _sourceBounds = rect,
             currFrame = 0,
             effectiveScalingMode = 0,
             bufferTransform = transform
