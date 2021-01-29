@@ -49,8 +49,9 @@ open class WindowContainer constructor(
     )
 
     open val name: String = title
-    open val kind: String = KIND
-    open val stableId: String = KIND + token
+    private val _kind = this::class.simpleName ?: error("Unable to determine class")
+    open val kind: String = _kind
+    val stableId: String = _kind + token + title
 
     open val rects: Array<Rect> = childrenWindows.flatMap { it.rects.toList() }.toTypedArray()
     open val isFullscreen: Boolean = false
@@ -129,8 +130,4 @@ open class WindowContainer constructor(
         get() = super.isEmpty &&
             title.isEmpty() &&
             token.isEmpty()
-
-    companion object {
-        private const val KIND = "WindowContainer"
-    }
 }

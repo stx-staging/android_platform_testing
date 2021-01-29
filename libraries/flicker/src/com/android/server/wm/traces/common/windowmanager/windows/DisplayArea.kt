@@ -27,9 +27,6 @@ open class DisplayArea(
     val isTaskDisplayArea: Boolean,
     windowContainer: WindowContainer
 ) : WindowContainer(windowContainer) {
-    override val kind: String = KIND
-    override val stableId: String = KIND + title
-
     val activities: Array<Activity>
         get() = if (isTaskDisplayArea) {
             this.collectDescendants()
@@ -47,9 +44,5 @@ open class DisplayArea(
 
     override fun toString(): String {
         return "$kind {$token $title} isTaskArea=$isTaskDisplayArea"
-    }
-
-    companion object {
-        private const val KIND = "DisplayArea"
     }
 }
