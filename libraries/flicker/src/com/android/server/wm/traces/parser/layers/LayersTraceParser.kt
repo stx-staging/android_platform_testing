@@ -138,8 +138,8 @@ class LayersTraceParser {
         ): LayerTraceEntry {
             val layers = protos.map { newLayer(it) }
             val trace = LayerTraceEntry.fromFlattenedLayers(
-                timestamp, layers.toTypedArray(), orphanLayerCallback)
-            return LayerTraceEntry(trace.timestamp, trace.rootLayers.map { it })
+                timestamp, layers, orphanLayerCallback)
+            return LayerTraceEntry(trace.timestamp, trace.rootLayers)
         }
 
         @JvmStatic
