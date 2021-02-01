@@ -60,6 +60,13 @@ open class WindowManagerStateHelper @JvmOverloads constructor(
     private val retryIntervalMs: Long = 500L
 ) {
     private lateinit var homeActivity: ComponentName
+
+    /**
+     * Fetches the current device state
+     */
+    val currentState: Dump
+        get() = computeState(ignoreInvalidStates = true)
+
     /**
      * Queries the supplier for a new device state
      *
