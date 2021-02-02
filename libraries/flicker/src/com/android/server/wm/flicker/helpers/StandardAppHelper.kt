@@ -101,8 +101,6 @@ open class StandardAppHelper @JvmOverloads constructor(
 
     /** {@inheritDoc}  */
     override fun exit() {
-        super.exit()
-
         // Ensure all testing components end up being closed.
         activityManager?.forceStopPackage(component.packageName)
     }
