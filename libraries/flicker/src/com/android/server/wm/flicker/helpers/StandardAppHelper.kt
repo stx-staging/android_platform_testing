@@ -156,6 +156,9 @@ open class StandardAppHelper @JvmOverloads constructor(
         }
         wmHelper.waitForNavBarStatusBarVisible()
         wmHelper.waitForAppTransitionIdle()
+
+        // Ensure WindowManagerService wait until all animations have completed
+        mInstrumentation.getUiAutomation().syncInputTransactions()
     }
 
     companion object {
