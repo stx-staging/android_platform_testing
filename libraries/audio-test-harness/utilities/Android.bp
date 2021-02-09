@@ -14,19 +14,13 @@
  * limitations under the License.
  */
 
-android_test {
-    name: "audiotestharness-instrumentation-app",
-    srcs: ["src/**/*.java"],
-    libs: [
-        "android.test.runner",
-        "android.test.base",
+// Contains the Trade Federation extensions for the Audio Test Harness system.
+// BINARIES ==============================================================
+
+java_binary_host {
+    name: "audiotestharness-audiosystemdiagnostic",
+    srcs: [
+        "src/com/android/media/audiotestharness/utilities/AudioSystemDiagnostic.java",
     ],
-    static_libs: [
-        "androidx.test.ext.junit",
-        "androidx.test.rules",
-        "audiotestharness-client-grpclib",
-    ],
-    dex_preopt: {
-        enabled: false,
-    },
+    manifest: "audiosystemdiagnostic-manifest.inf",
 }
