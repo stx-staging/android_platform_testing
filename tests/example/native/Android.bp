@@ -27,4 +27,9 @@ cc_test {
 
     test_suites: ["general-tests"],
     host_supported: true,
+    // Do not mark as unit tests, to use as a validation in test mapping
+    // and test harness in some situations.
+    test_options: {
+        unit_test: false,
+    },
 }
