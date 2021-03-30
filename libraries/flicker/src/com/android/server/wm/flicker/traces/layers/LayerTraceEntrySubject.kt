@@ -117,7 +117,7 @@ class LayerTraceEntrySubject private constructor(
         val visibleAreas = visibleLayers.map { it.visibleRegion }
 
         val invisibleLayerFacts = selectedLayers
-            .filterNot { it in selectedLayers }
+            .filter { it.isInvisible || it.isHiddenByParent }
             .mapNotNull {
                 when {
                     it.isInvisible -> Fact.fact("Is Invisible", it.visibilityReason)
