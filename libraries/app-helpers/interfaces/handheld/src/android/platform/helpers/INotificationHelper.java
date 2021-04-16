@@ -31,10 +31,11 @@ public interface INotificationHelper extends IAppHelper {
     String UI_NOTIFICATION_ID = "status_bar_latest_event_content";
     String NOTIFICATION_TITLE_TEXT = "TEST NOTIFICATION";
     String NOTIFICATION_CONTENT_TEXT = "Test notification content";
-    String NOTIFICATION_BIG_TEXT = "lorem ipsum dolor sit amet\n"
-            + "lorem ipsum dolor sit amet\n"
-            + "lorem ipsum dolor sit amet\n"
-            + "lorem ipsum dolor sit amet";
+    String NOTIFICATION_BIG_TEXT =
+            "lorem ipsum dolor sit amet\n"
+                    + "lorem ipsum dolor sit amet\n"
+                    + "lorem ipsum dolor sit amet\n"
+                    + "lorem ipsum dolor sit amet";
     String NOTIFICATION_CHANNEL_NAME = "Test Channel";
     String EXPAND_BUTTON_ID = "expand_button";
     String APP_ICON_ID = "icon";
@@ -53,9 +54,9 @@ public interface INotificationHelper extends IAppHelper {
     /**
      * Setup Expectations: None
      *
-     * <p>Posts a number of notifications to the device. Successive calls to this should post
-     * new notifications to those previously posted. Note that this may fail if the helper has
-     * surpassed the system-defined limit for per-package notifications.
+     * <p>Posts a number of notifications to the device. Successive calls to this should post new
+     * notifications to those previously posted. Note that this may fail if the helper has surpassed
+     * the system-defined limit for per-package notifications.
      *
      * @param count The number of notifications to post.
      */
@@ -174,8 +175,8 @@ public interface INotificationHelper extends IAppHelper {
     /**
      * Setup expectations: Notification shade opened.
      *
-     * <p>Taps the chevron or swipes down on the specified notification and checks if the
-     * expanded view contains the expected text.
+     * <p>Taps the chevron or swipes down on the specified notification and checks if the expanded
+     * view contains the expected text.
      *
      * @param notification Notification that should be expanded.
      * @param dragging By swiping down when {@code true}, by tapping the chevron otherwise.
@@ -243,6 +244,19 @@ public interface INotificationHelper extends IAppHelper {
      * @param speed The speed of fling.
      */
     default void flingFeed(UiObject2 container, Direction dir, int speed) {
+        throw new UnsupportedOperationException("Not yet implemented.");
+    }
+
+    /**
+     * Scroll feeds on Notifications screen and implement it by "swipe" API to control the distance.
+     *
+     * <p>Setup expectations: Notification drawer is open with lots of notifications.
+     *
+     * @param container the container with scrollable elements.
+     * @param dir the direction to scroll, must be UP or DOWN.
+     * @param percent The distance to scroll as a percentage of the page's visible size.
+     */
+    default void scrollFeed(UiObject2 container, Direction dir, float percent) {
         throw new UnsupportedOperationException("Not yet implemented.");
     }
 }
