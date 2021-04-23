@@ -17,7 +17,7 @@
 package com.android.server.wm.traces.common
 
 interface ITrace<Entry : ITraceEntry> {
-    val entries: List<Entry>
+    val entries: Array<Entry>
     val source: String
 
     fun getEntry(timestamp: Long): Entry {

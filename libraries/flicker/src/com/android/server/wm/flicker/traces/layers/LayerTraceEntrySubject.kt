@@ -163,7 +163,7 @@ class LayerTraceEntrySubject private constructor(
             .filter { it.name.contains(layerName) }
         for (layer in filteredLayers) {
             if (layer.layer?.isHiddenByParent == true) {
-                reason = Fact.fact("Hidden by parent", layer.layer.parent.name)
+                reason = Fact.fact("Hidden by parent", layer.layer.parent?.name)
                 target = layer
                 continue
             }
