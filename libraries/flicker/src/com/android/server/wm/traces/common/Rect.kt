@@ -31,7 +31,7 @@ open class Rect(
      */
     val isEmpty: Boolean = width == 0 || height == 0
 
-    val isNotEmpty = !isEmpty
+    val isNotEmpty: Boolean = !isEmpty
 
     override fun equals(other: Any?): Boolean {
         return other?.toString() == this.toString()
@@ -51,5 +51,9 @@ open class Rect(
         } else {
             "[$left, $top, $right, $bottom]"
         }
+    }
+
+    companion object {
+        val EMPTY = Rect()
     }
 }

@@ -29,7 +29,7 @@ open class Transform(val type: Int?, val matrix: Matrix) {
     private val isSimpleTransform = isSimpleTransform(type)
 
     fun apply(bounds: RectF?): RectF {
-        return multiplyRect(matrix, bounds ?: RectF())
+        return multiplyRect(matrix, bounds ?: RectF.EMPTY)
     }
 
     //          |dsdx dsdy  tx|
@@ -57,13 +57,12 @@ open class Transform(val type: Int?, val matrix: Matrix) {
         val leftBottom = multiplyVec2(matrix, rect.left, rect.bottom)
         val rightBottom = multiplyVec2(matrix, rect.right, rect.bottom)
 
-        val outrect = RectF()
-        outrect.left = arrayOf(leftTop.x, rightTop.x, leftBottom.x, rightBottom.x).min() ?: 0f
-        outrect.top = arrayOf(leftTop.y, rightTop.y, leftBottom.y, rightBottom.y).min() ?: 0f
-        outrect.right = arrayOf(leftTop.x, rightTop.x, leftBottom.x, rightBottom.x).min() ?: 0f
-        outrect.bottom = arrayOf(leftTop.y, rightTop.y, leftBottom.y, rightBottom.y).min() ?: 0f
-
-        return outrect
+        return RectF(
+            left = arrayOf(leftTop.x, rightTop.x, leftBottom.x, rightBottom.x).min() ?: 0f,
+            top = arrayOf(leftTop.y, rightTop.y, leftBottom.y, rightBottom.y).min() ?: 0f,
+            right = arrayOf(leftTop.x, rightTop.x, leftBottom.x, rightBottom.x).min() ?: 0f,
+            bottom = arrayOf(leftTop.y, rightTop.y, leftBottom.y, rightBottom.y).min() ?: 0f
+        )
     }
 
     private fun multiplyVec2(matrix: Matrix, x: Float, y: Float): Vec2 {

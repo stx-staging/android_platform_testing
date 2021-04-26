@@ -70,12 +70,12 @@ class WindowManagerStateHelperTest {
 
     private fun createImaginaryLayer(name: String, index: Int, id: Int, parentId: Int): Layer {
         val transform = Transform(0, Transform.Matrix(0f, 0f, 0f, 0f, 0f, 0f))
-        val rect = RectF().also {
-            it.left = index.toFloat()
-            it.top = index.toFloat()
-            it.right = index.toFloat() + 1
-            it.bottom = index.toFloat() + 1
-        }
+        val rect = RectF(
+            left = index.toFloat(),
+            top = index.toFloat(),
+            right = index.toFloat() + 1,
+            bottom = index.toFloat() + 1
+        )
         return Layer(
             name,
             id,
@@ -97,8 +97,8 @@ class WindowManagerStateHelperTest {
             effectiveScalingMode = 0,
             bufferTransform = transform,
             hwcCompositionType = 0,
-            hwcCrop = RectF(),
-            hwcFrame = Rect()
+            hwcCrop = RectF.EMPTY,
+            hwcFrame = Rect.EMPTY
         )
     }
 

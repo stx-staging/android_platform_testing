@@ -16,4 +16,10 @@
 
 package com.android.server.wm.traces.common
 
-data class Color(val r: Float, val g: Float, val b: Float, val a: Float)
+data class Color(val r: Float, val g: Float, val b: Float, val a: Float) {
+    val isEmpty: Boolean
+        get() = a == 0f || r < 0 || g < 0 || b < 0
+
+    val isNotEmpty: Boolean
+        get() = !isEmpty
+}

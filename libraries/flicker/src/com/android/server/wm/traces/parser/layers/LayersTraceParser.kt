@@ -152,7 +152,7 @@ class LayersTraceParser {
                     proto.visibleRegion.toRegion(),
                     proto.activeBuffer?.toBuffer(),
                     proto.flags,
-                    proto.bounds?.toRectF() ?: RectF(),
+                    proto.bounds?.toRectF() ?: RectF.EMPTY,
                     proto.color?.toColor(),
                     proto.isOpaque,
                     proto.shadowRadius,
@@ -165,7 +165,7 @@ class LayersTraceParser {
                     proto.effectiveScalingMode,
                     Transform(proto.bufferTransform, position = null),
                     proto.hwcCompositionType,
-                    proto.hwcCrop.toRectF() ?: RectF(),
+                    proto.hwcCrop.toRectF() ?: RectF.EMPTY,
                     proto.hwcFrame.toRect()
             )
         }
@@ -173,13 +173,7 @@ class LayersTraceParser {
         @JvmStatic
         private fun Layers.FloatRectProto?.toRectF(): RectF? {
             return this?.let {
-                val rect = RectF()
-                rect.left = left
-                rect.top = top
-                rect.right = right
-                rect.bottom = bottom
-
-                rect
+                RectF(left = left, top = top, right = right, bottom = bottom)
             }
         }
 
@@ -200,25 +194,10 @@ class LayersTraceParser {
         @JvmStatic
         private fun RegionProto?.toRegion(): Region {
             return if (this == null) {
-                Region(0, 0, 0, 0)
+                Region.EMPTY
             } else {
-                val region = android.graphics.Region(0, 0, 0, 0)
-
-                for (proto: RectProto in this.rect) {
-                    region.union(proto.toAndroidRect())
-                }
-
-                val bounds = region.bounds
-                Region(bounds.left, bounds.top, bounds.right, bounds.bottom)
-            }
-        }
-
-        @JvmStatic
-        private fun RectProto.toAndroidRect(): Rect {
-            return if ((this.right - this.left) <= 0 || (this.bottom - this.top) <= 0) {
-                Rect()
-            } else {
-                Rect(this.left, this.top, this.right, this.bottom)
+                val rects = this.rect.map { it.toRect() }.toTypedArray()
+                return Region(rects)
             }
         }
 
@@ -226,7 +205,7 @@ class LayersTraceParser {
         private fun RectProto?.toRect(): com.android.server.wm.traces.common.Rect {
             return if ((this == null) ||
                 ((this.right - this.left) <= 0 || (this.bottom - this.top) <= 0)) {
-                com.android.server.wm.traces.common.Rect()
+                com.android.server.wm.traces.common.Rect.EMPTY
             } else {
                 com.android.server.wm.traces.common.Rect(
                     this.left, this.top, this.right, this.bottom)

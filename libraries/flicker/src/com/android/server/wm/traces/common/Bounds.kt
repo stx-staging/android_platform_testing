@@ -19,4 +19,7 @@ package com.android.server.wm.traces.common
 data class Bounds(
     val width: Int,
     val height: Int
-)
+) {
+    val isEmpty: Boolean
+        get() = height == 0 || width == 0
+}

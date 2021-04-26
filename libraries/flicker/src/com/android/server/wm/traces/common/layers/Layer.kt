@@ -74,8 +74,8 @@ open class Layer(
         children.add(childLayer)
     }
 
-    val bounds: RectF get() = _bounds ?: RectF()
-    val sourceBounds: RectF get() = _sourceBounds ?: RectF()
+    val bounds: RectF get() = _bounds ?: RectF.EMPTY
+    val sourceBounds: RectF get() = _sourceBounds ?: RectF.EMPTY
 
     /**
      * Checks if the layer's active buffer is empty
@@ -135,12 +135,7 @@ open class Layer(
      */
     val fillsColor: Boolean
         get() {
-            val color = color
-            return (color != null &&
-                    color.a > 0 &&
-                    color.r >= 0 &&
-                    color.g >= 0 &&
-                    color.b >= 0)
+            return color?.isNotEmpty ?: false
         }
 
     /**
@@ -278,7 +273,8 @@ open class Layer(
         }
     }
 
-    fun overlaps(other: Layer): Boolean = this.screenBounds.intersect(other.screenBounds)
+    fun overlaps(other: Layer): Boolean =
+        !this.screenBounds.intersection(other.screenBounds).isEmpty
 
     override fun toString(): String {
         return buildString {
