@@ -28,6 +28,7 @@ import com.android.server.wm.traces.common.RectF
 import com.android.server.wm.traces.common.Region
 import com.android.server.wm.traces.common.layers.Layer
 import com.android.server.wm.traces.common.layers.LayerTraceEntry
+import com.android.server.wm.traces.common.layers.LayerTraceEntryBuilder
 import com.android.server.wm.traces.common.layers.LayersTrace
 import com.android.server.wm.traces.parser.LOG_TAG
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException
@@ -92,7 +93,7 @@ class LayersTraceParser {
                 val entryParseTime = measureTimeMillis {
                     val entry = newEntry(
                         traceProto.elapsedRealtimeNanos, traceProto.layers.layers,
-                        orphanLayerCallback)
+                        traceProto.hwcBlob, traceProto.where, orphanLayerCallback)
                     entries.add(entry)
                 }
                 traceParseTime += entryParseTime
@@ -134,12 +135,14 @@ class LayersTraceParser {
         private fun newEntry(
             timestamp: Long,
             protos: Array<Layers.LayerProto>,
+            hwcBlob: String = "",
+            where: String = "",
             orphanLayerCallback: ((Layer) -> Boolean)? = null
         ): LayerTraceEntry {
             val layers = protos.map { newLayer(it) }
-            val trace = LayerTraceEntry.fromFlattenedLayers(
-                timestamp, layers, orphanLayerCallback)
-            return LayerTraceEntry(trace.timestamp, trace.rootLayers)
+            val builder = LayerTraceEntryBuilder(timestamp, layers, hwcBlob, where)
+            builder.setOrphanLayerCallback(orphanLayerCallback)
+            return builder.build()
         }
 
         @JvmStatic
@@ -150,10 +153,10 @@ class LayersTraceParser {
                     proto.parent,
                     proto.z,
                     proto.visibleRegion.toRegion(),
-                    proto.activeBuffer?.toBuffer(),
+                    proto.activeBuffer.toBuffer(),
                     proto.flags,
                     proto.bounds?.toRectF() ?: RectF.EMPTY,
-                    proto.color?.toColor(),
+                    proto.color.toColor(),
                     proto.isOpaque,
                     proto.shadowRadius,
                     proto.cornerRadius,
@@ -166,7 +169,11 @@ class LayersTraceParser {
                     Transform(proto.bufferTransform, position = null),
                     proto.hwcCompositionType,
                     proto.hwcCrop.toRectF() ?: RectF.EMPTY,
-                    proto.hwcFrame.toRect()
+                    proto.hwcFrame.toRect(),
+                    proto.backgroundBlurRadius,
+                    proto.crop.toRect(),
+                    proto.isRelativeOf,
+                    proto.zOrderRelativeOf
             )
         }
 
@@ -178,13 +185,19 @@ class LayersTraceParser {
         }
 
         @JvmStatic
-        private fun Layers.ColorProto.toColor(): Color {
+        private fun Layers.ColorProto?.toColor(): Color {
+            if (this == null) {
+                return Color.EMPTY
+            }
             return Color(r, g, b, a)
         }
 
         @JvmStatic
-        private fun Layers.ActiveBufferProto.toBuffer(): Buffer {
-            return Buffer(height, width)
+        private fun Layers.ActiveBufferProto?.toBuffer(): Buffer {
+            if (this == null) {
+                return Buffer.EMPTY
+            }
+            return Buffer(width, height, stride, format)
         }
 
         /**

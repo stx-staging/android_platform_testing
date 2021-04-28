@@ -33,8 +33,42 @@ open class Rect(
 
     val isNotEmpty: Boolean = !isEmpty
 
-    override fun equals(other: Any?): Boolean {
-        return other?.toString() == this.toString()
+    /**
+     * Returns a [RectF] version fo this rectangle.
+     */
+    fun toRectF(): RectF {
+        return RectF(left.toFloat(), top.toFloat(), right.toFloat(), bottom.toFloat())
+    }
+
+    override fun equals(other: Any?): Boolean = other?.toString() == this.toString()
+
+    /**
+     * Returns true iff the specified rectangle r is inside or equal to this
+     * rectangle. An empty rectangle never contains another rectangle.
+     *
+     * @param rect The rectangle being tested for containment.
+     * @return true iff the specified rectangle r is inside or equal to this
+     *              rectangle
+     */
+    operator fun contains(rect: Rect): Boolean {
+        val thisRect = toRectF()
+        val otherRect = rect.toRectF()
+        return thisRect.contains(otherRect)
+    }
+
+    /**
+     * If the specified rectangle intersects this rectangle, return true and set
+     * this rectangle to that intersection, otherwise return false and do not
+     * change this rectangle. No check is performed to see if either rectangle
+     * is empty. To just test for intersection, use intersects()
+     *
+     * @param rect The rectangle being intersected with this rectangle.
+     * @return A rectangle with the intersection coordinates
+     */
+    fun intersection(rect: Rect): Rect {
+        val thisRect = toRectF()
+        val otherRect = rect.toRectF()
+        return thisRect.intersection(otherRect).toRect()
     }
 
     override fun hashCode(): Int {

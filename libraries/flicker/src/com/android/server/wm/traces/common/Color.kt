@@ -22,4 +22,8 @@ data class Color(val r: Float, val g: Float, val b: Float, val a: Float) {
 
     val isNotEmpty: Boolean
         get() = !isEmpty
+
+    companion object {
+        val EMPTY = Color(r = -1f, g = -1f, b = -1f, a = 0f)
+    }
 }

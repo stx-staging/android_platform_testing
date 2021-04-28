@@ -31,6 +31,9 @@ class Region(val rects: Array<Rect>) : Rect(
 
     constructor(rect: Rect): this(arrayOf(rect))
 
+    constructor(rect: RectF): this(
+        Rect(rect.left.toInt(), rect.top.toInt(), rect.right.toInt(), rect.bottom.toInt()))
+
     constructor() : this(Rect.EMPTY)
 
     override fun toString(): String {

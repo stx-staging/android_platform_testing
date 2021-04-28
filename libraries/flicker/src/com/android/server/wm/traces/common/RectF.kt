@@ -34,6 +34,15 @@ data class RectF(
         get() = !isEmpty
 
     /**
+     * Returns a [Rect] version fo this rectangle.
+     *
+     * All fractional parts are rounded to 0
+     */
+    fun toRect(): Rect {
+        return Rect(left.toInt(), top.toInt(), right.toInt(), bottom.toInt())
+    }
+
+    /**
      * Returns true iff the specified rectangle r is inside or equal to this
      * rectangle. An empty rectangle never contains another rectangle.
      *
@@ -96,9 +105,7 @@ data class RectF(
      * @param r The rectangle being intersected with this rectangle.
      * @return A rectangle with the intersection coordinates
      */
-    fun intersection(r: RectF): RectF {
-        return intersection(r.left, r.top, r.right, r.bottom)
-    }
+    fun intersection(r: RectF): RectF = intersection(r.left, r.top, r.right, r.bottom)
 
     companion object {
         val EMPTY = RectF()

@@ -24,7 +24,27 @@ open class Transform(val type: Int?, val matrix: Matrix) {
      * Returns true if the applying the transform on an an axis aligned rectangle
      * results in another axis aligned rectangle.
      */
-    val isSimpleRotation = !(type?.isFlagSet(ROT_INVALID_VAL) ?: true)
+    val isSimpleRotation: Boolean = !(type?.isFlagSet(ROT_INVALID_VAL) ?: true)
+
+    /**
+     * The transformation matrix is defined as the product of:
+     * | cos(a) -sin(a) |  \/  | X 0 |
+     * | sin(a)  cos(a) |  /\  | 0 Y |
+     *
+     * where a is a rotation angle, and X and Y are scaling factors.
+     * A transformation matrix is invalid when either X or Y is zero,
+     * as a rotation matrix is valid for any angle. When either X or Y
+     * is 0, then the scaling matrix is not invertible, which makes the
+     * transformation matrix not invertible as well. A 2D matrix with
+     * components | A B | is not invertible if and only if AD - BC = 0.
+     *            | C D |
+     * This check is included above.
+     */
+    val isValid: Boolean
+        get() {
+            // determinant of transform
+            return matrix.dsdx * matrix.dtdy != matrix.dtdx * matrix.dsdy
+        }
 
     private val isSimpleTransform = isSimpleTransform(type)
 
