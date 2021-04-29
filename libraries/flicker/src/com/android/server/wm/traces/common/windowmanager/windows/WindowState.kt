@@ -44,20 +44,20 @@ open class WindowState(
     private val _crop: Rect?,
     windowContainer: WindowContainer,
     val isAppWindow: Boolean,
-    override val rects: Array<Rect> = arrayOf(WindowRect(_frame ?: Rect(), windowContainer,
+    override val rects: Array<Rect> = arrayOf(WindowRect(_frame ?: Rect.EMPTY, windowContainer,
         getWindowTitle(windowContainer.title)))
 ) : WindowContainer(windowContainer, getWindowTitle(windowContainer.title)) {
     override val kind: String = "Window"
     override val isVisible: Boolean get() = super.isVisible && attributes.alpha > 0
 
-    val frame: Rect get() = _frame ?: Rect()
-    val containingFrame: Rect get() = _containingFrame ?: Rect()
-    val parentFrame: Rect get() = _parentFrame ?: Rect()
-    val contentFrame: Rect get() = _contentFrame ?: Rect()
-    val contentInsets: Rect get() = _contentInsets ?: Rect()
-    val surfaceInsets: Rect get() = _surfaceInsets ?: Rect()
-    val givenContentInsets: Rect get() = _givenContentInsets ?: Rect()
-    val crop: Rect get() = _crop ?: Rect()
+    val frame: Rect get() = _frame ?: Rect.EMPTY
+    val containingFrame: Rect get() = _containingFrame ?: Rect.EMPTY
+    val parentFrame: Rect get() = _parentFrame ?: Rect.EMPTY
+    val contentFrame: Rect get() = _contentFrame ?: Rect.EMPTY
+    val contentInsets: Rect get() = _contentInsets ?: Rect.EMPTY
+    val surfaceInsets: Rect get() = _surfaceInsets ?: Rect.EMPTY
+    val givenContentInsets: Rect get() = _givenContentInsets ?: Rect.EMPTY
+    val crop: Rect get() = _crop ?: Rect.EMPTY
 
     val isStartingWindow: Boolean = windowType == WINDOW_TYPE_STARTING
     val isExitingWindow: Boolean = windowType == WINDOW_TYPE_EXITING
