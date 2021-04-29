@@ -48,9 +48,9 @@ open class DisplayContent(
     override val kind: String = "Display"
     override val name: String = id.toString()
 
-    val defaultPinnedStackBounds: Rect get() = _defaultPinnedStackBounds ?: Rect()
-    val pinnedStackMovementBounds: Rect get() = _pinnedStackMovementBounds ?: Rect()
-    val stableBounds: Rect get() = _stableBounds ?: Rect()
+    val defaultPinnedStackBounds: Rect get() = _defaultPinnedStackBounds ?: Rect.EMPTY
+    val pinnedStackMovementBounds: Rect get() = _pinnedStackMovementBounds ?: Rect.EMPTY
+    val stableBounds: Rect get() = _stableBounds ?: Rect.EMPTY
 
     val rootTasks: Array<ActivityTask>
         get() {
