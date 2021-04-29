@@ -208,17 +208,25 @@ open class WindowManagerStateHelper @JvmOverloads constructor(
             val navBarWindowVisible = it.wmState.isWindowVisible(NAV_BAR_WINDOW_NAME)
             val statusBarWindowVisible = it.wmState.isWindowVisible(STATUS_BAR_WINDOW_NAME)
             val navBarLayerVisible = it.layerState.isVisible(NAV_BAR_LAYER_NAME)
+            val navBarLayerAlpha = it.layerState.getLayerWithBuffer(NAV_BAR_LAYER_NAME)
+                ?.color?.a ?: 0f
             val statusBarLayerVisible = it.layerState.isVisible(STATUS_BAR_LAYER_NAME)
+            val statusBarLayerAlpha = it.layerState.getLayerWithBuffer(STATUS_BAR_LAYER_NAME)
+                ?.color?.a ?: 0f
             val result = navBarWindowVisible &&
                 navBarLayerVisible &&
                 statusBarWindowVisible &&
-                statusBarLayerVisible
+                statusBarLayerVisible &&
+                navBarLayerAlpha == 1f &&
+                statusBarLayerAlpha == 1f
 
             Log.v(LOG_TAG, "Current $result " +
                 "navBarWindowVisible($navBarWindowVisible) " +
                 "navBarLayerVisible($navBarLayerVisible) " +
                 "statusBarWindowVisible($statusBarWindowVisible) " +
-                "statusBarLayerVisible($statusBarLayerVisible)")
+                "statusBarLayerVisible($statusBarLayerVisible) " +
+                "navBarLayerAlpha($navBarLayerAlpha) " +
+                "statusBarLayerAlpha($statusBarLayerAlpha)")
 
             result
         }
