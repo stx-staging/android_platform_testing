@@ -32,10 +32,11 @@ import com.android.server.wm.traces.common.windowmanager.WindowManagerState
 import com.android.server.wm.traces.parser.getCurrentStateDump
 import com.android.server.wm.traces.common.windowmanager.windows.ConfigurationContainer
 import com.android.server.wm.traces.common.windowmanager.windows.WindowContainer
+import com.android.server.wm.traces.common.windowmanager.windows.WindowState
 import com.android.server.wm.traces.parser.Condition
 import com.android.server.wm.traces.parser.LOG_TAG
 import com.android.server.wm.traces.parser.toActivityName
-import com.android.server.wm.traces.parser.toAndroidRect
+import com.android.server.wm.traces.parser.toAndroidRegion
 import com.android.server.wm.traces.parser.toWindowName
 
 open class WindowManagerStateHelper @JvmOverloads constructor(
@@ -454,9 +455,9 @@ open class WindowManagerStateHelper @JvmOverloads constructor(
      * Obtains a [WindowContainer] from the current device state, or null if the WindowContainer
      * doesn't exist
      */
-    fun getWindow(activity: ComponentName): WindowContainer? {
+    fun getWindow(activity: ComponentName): WindowState? {
         val windowName = activity.toWindowName()
-        return this.currentState.wmState.windowContainers
+        return this.currentState.wmState.windowStates
             .firstOrNull { it.title == windowName }
     }
 
@@ -465,10 +466,7 @@ open class WindowManagerStateHelper @JvmOverloads constructor(
      */
     fun getWindowRegion(activity: ComponentName): Region {
         val window = getWindow(activity)
-
-        val region = Region()
-        window?.rects?.forEach { region.op(it.toAndroidRect(), Region.Op.UNION) }
-        return region
+        return window?.frameRegion?.toAndroidRegion() ?: Region()
     }
 
     companion object {
