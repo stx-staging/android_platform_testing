@@ -109,11 +109,11 @@ open class WindowManagerState(
     val defaultPinnedStackBounds: Rect
         get() = displays
             .lastOrNull { it.defaultPinnedStackBounds.isNotEmpty }?.defaultPinnedStackBounds
-            ?: Rect()
+            ?: Rect.EMPTY
     val pinnedStackMovementBounds: Rect
         get() = displays
             .lastOrNull { it.defaultPinnedStackBounds.isNotEmpty }?.pinnedStackMovementBounds
-            ?: Rect()
+            ?: Rect.EMPTY
     val focusedStackActivityType: Int
         get() = getRootTask(focusedStackId)?.activityType ?: ACTIVITY_TYPE_UNDEFINED
     val focusedStackWindowingMode: Int
@@ -138,7 +138,7 @@ open class WindowManagerState(
     val allNavigationBarStates: Array<WindowState>
         get() = windowStates.filter { it.isValidNavBarType }.toTypedArray()
     val frontWindow: String? get() = windowStates.map { it.title }.firstOrNull()
-    val stableBounds: Rect get() = getDefaultDisplay()?.stableBounds ?: Rect()
+    val stableBounds: Rect get() = getDefaultDisplay()?.stableBounds ?: Rect.EMPTY
     val inputMethodWindowState: WindowState?
         get() = getWindowStateForAppToken(inputMethodWindowAppToken)
 

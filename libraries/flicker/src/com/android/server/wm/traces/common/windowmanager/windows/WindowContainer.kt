@@ -56,7 +56,7 @@ open class WindowContainer constructor(
 
     open val rects: Array<Rect> = childrenWindows.flatMap { it.rects.toList() }.toTypedArray()
     open val isFullscreen: Boolean = false
-    open val bounds: Rect = Rect()
+    open val bounds: Rect = Rect.EMPTY
 
     val windows: Array<WindowState>
         get() = this.collectDescendants()

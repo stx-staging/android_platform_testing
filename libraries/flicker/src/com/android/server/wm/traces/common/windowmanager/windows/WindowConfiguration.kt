@@ -32,9 +32,9 @@ open class WindowConfiguration(
     val windowingMode: Int,
     val activityType: Int
 ) {
-    val appBounds: Rect get() = _appBounds ?: Rect()
-    val bounds: Rect get() = _bounds ?: Rect()
-    val maxBounds: Rect get() = _maxBounds ?: Rect()
+    val appBounds: Rect get() = _appBounds ?: Rect.EMPTY
+    val bounds: Rect get() = _bounds ?: Rect.EMPTY
+    val maxBounds: Rect get() = _maxBounds ?: Rect.EMPTY
 
     val isEmpty: Boolean
         get() = _appBounds?.isEmpty ?: true &&
