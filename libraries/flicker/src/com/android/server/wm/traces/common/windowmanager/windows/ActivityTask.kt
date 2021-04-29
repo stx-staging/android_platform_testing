@@ -49,7 +49,7 @@ open class ActivityTask(
     override val name: String = taskId.toString()
     override val isEmpty: Boolean get() = tasks.isEmpty() && activities.isEmpty()
 
-    val lastNonFullscreenBounds: Rect get() = _lastNonFullscreenBounds ?: Rect()
+    val lastNonFullscreenBounds: Rect get() = _lastNonFullscreenBounds ?: Rect.EMPTY
     val isRootTask: Boolean get() = taskId == rootTaskId
     val tasks: List<ActivityTask>
         get() = this.childrenWindows.reversed().filterIsInstance<ActivityTask>()
