@@ -50,11 +50,15 @@ open class WindowManagerState(
     val keyguardControllerState: KeyguardControllerState,
     override val timestamp: Long = 0
 ) : ITraceEntry {
-    val kind = "entry"
-    val stableId = "entry"
+    val isVisible: Boolean = true
+    val stableId: String get() = this::class.simpleName ?: error("Unable to determine class")
+    val name: String get() = prettyTimestamp(timestamp)
 
     val windowContainers: Array<WindowContainer>
         get() = root.collectDescendants()
+
+    val children: Array<WindowContainer>
+        get() = root.children.reversedArray()
 
     // Displays in z-order with the top most at the front of the list, starting with primary.
     val displays: Array<DisplayContent>
@@ -141,12 +145,6 @@ open class WindowManagerState(
     val stableBounds: Rect get() = getDefaultDisplay()?.stableBounds ?: Rect.EMPTY
     val inputMethodWindowState: WindowState?
         get() = getWindowStateForAppToken(inputMethodWindowAppToken)
-
-    /**
-     * Returns the rect of all the frames in the entry
-     * Converted to typedArray for better compatibility with JavaScript code
-     */
-    val rects: Array<Rect> = root.rects
 
     fun getDefaultDisplay(): DisplayContent? =
         displays.firstOrNull { it.id == DEFAULT_DISPLAY }
