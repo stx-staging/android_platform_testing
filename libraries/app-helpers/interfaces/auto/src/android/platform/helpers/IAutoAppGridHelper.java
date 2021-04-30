@@ -39,4 +39,18 @@ public interface IAutoAppGridHelper extends IAppHelper, Scrollable {
      * @param appName: name of the application.
      */
     public void openApp(String appName);
+
+    /**
+     * Setup expectations: In App grid.
+     *
+     * <p>Scroll up on page.
+     */
+    boolean scrollUpOnePage();
+
+    /**
+     * Setup expectations: In App grid.
+     *
+     * <p>Scroll down on page.
+     */
+    boolean scrollDownOnePage();
 }
