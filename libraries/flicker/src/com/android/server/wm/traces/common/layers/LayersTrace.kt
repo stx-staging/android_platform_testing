@@ -27,10 +27,9 @@ import com.android.server.wm.traces.common.ITrace
  * access internal Java/Android functionality
  *
  */
-open class LayersTrace(
+data class LayersTrace(
     override val entries: List<LayerTraceEntry>,
-    override val source: String = "",
-    override val sourceChecksum: String = ""
+    override val source: String = ""
 ) : ITrace<LayerTraceEntry>, List<LayerTraceEntry> by entries {
     constructor(entry: LayerTraceEntry): this(listOf(entry))
 

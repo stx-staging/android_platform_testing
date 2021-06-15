@@ -32,7 +32,7 @@ open class Task(
     val taskId: Int,
     val rootTaskId: Int,
     val displayId: Int,
-    _lastNonFullscreenBounds: Rect?,
+    val lastNonFullscreenBounds: Rect,
     val realActivity: String,
     val origActivity: String,
     val resizeMode: Int,
@@ -49,7 +49,6 @@ open class Task(
     override val name: String = taskId.toString()
     override val isEmpty: Boolean get() = tasks.isEmpty() && activities.isEmpty()
 
-    val lastNonFullscreenBounds: Rect = _lastNonFullscreenBounds ?: Rect.EMPTY
     val isRootTask: Boolean get() = taskId == rootTaskId
     val tasks: List<Task>
         get() = this.children.reversed().filterIsInstance<Task>()
@@ -90,7 +89,7 @@ open class Task(
     }
 
     fun getActivity(activityName: String): Activity? {
-        return getActivity { activity -> activity.title == activityName }
+        return getActivity { activity -> activity.title.contains(activityName) }
     }
 
     fun containsActivity(activityName: String) = getActivity(activityName) != null

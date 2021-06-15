@@ -54,9 +54,6 @@ open class WindowContainer constructor(
     open val isFullscreen: Boolean = false
     open val bounds: Rect = Rect.EMPTY
 
-    val windows: Array<WindowState>
-        get() = this.collectDescendants()
-
     fun traverseTopDown(): List<WindowContainer> {
         val traverseList = mutableListOf(this)
 

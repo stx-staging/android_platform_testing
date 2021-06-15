@@ -36,7 +36,7 @@ class LayersTraceEntryTest {
         val error = assertThrows(AssertionError::class.java) {
             assertThat(layersTraceEntries)
                 .first()
-                .contains("ImaginaryLayer")
+                .contains(IMAGINARY_COMPONENT)
         }
         Truth.assertThat(error).hasMessageThat().contains("Trace:")
         Truth.assertThat(error).hasMessageThat().contains("Path: ")

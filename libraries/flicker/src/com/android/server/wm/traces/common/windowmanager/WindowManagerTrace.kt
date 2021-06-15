@@ -30,8 +30,7 @@ import com.android.server.wm.traces.common.ITrace
  */
 open class WindowManagerTrace(
     override val entries: List<WindowManagerState>,
-    override val source: String,
-    override val sourceChecksum: String
+    override val source: String
 ) : ITrace<WindowManagerState>,
     List<WindowManagerState> by entries {
     override fun toString(): String {
