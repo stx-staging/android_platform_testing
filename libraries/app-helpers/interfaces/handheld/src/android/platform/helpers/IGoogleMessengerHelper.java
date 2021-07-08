@@ -81,4 +81,12 @@ public interface IGoogleMessengerHelper extends IAppHelper {
     default public void selectRecipient(int index){
         throw new UnsupportedOperationException("Not yet implemented.");
     }
+
+
+    /**
+     * Setup expectations: Messages is open.
+     * <p>
+     * This method clicks the compose message area.
+     */
+    void clickComposeMessage();
 }
