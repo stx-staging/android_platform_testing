@@ -194,8 +194,9 @@ open class WindowManagerState(
         return pendingActivities.contains(activityName)
     }
 
-    fun getMatchingVisibleWindowState(windowName: String): List<WindowState> {
+    fun getMatchingVisibleWindowState(windowName: String): Array<WindowState> {
         return windowStates.filter { it.isSurfaceShown && it.title.contains(windowName) }
+                .toTypedArray()
     }
 
     fun getNavBarWindow(displayId: Int): WindowState? {

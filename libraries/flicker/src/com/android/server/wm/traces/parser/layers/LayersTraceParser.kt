@@ -98,7 +98,7 @@ class LayersTraceParser {
             }
             Log.v(LOG_TAG, "Parsing duration (Layers Trace): ${traceParseTime}ms " +
                 "(avg ${traceParseTime / entries.size}ms per entry)")
-            return LayersTrace(entries, source?.toString() ?: "")
+            return LayersTrace(entries.toTypedArray(), source?.toString() ?: "")
         }
 
         /**
@@ -137,7 +137,7 @@ class LayersTraceParser {
             where: String = "",
             orphanLayerCallback: ((Layer) -> Boolean)? = null
         ): LayerTraceEntry {
-            val layers = protos.map { newLayer(it) }
+            val layers = protos.map { newLayer(it) }.toTypedArray()
             val builder = LayerTraceEntryBuilder(timestamp, layers, hwcBlob, where)
             builder.setOrphanLayerCallback(orphanLayerCallback)
             return builder.build()

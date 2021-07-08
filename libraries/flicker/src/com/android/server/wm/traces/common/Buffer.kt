@@ -34,6 +34,8 @@ class Buffer(width: Int, height: Int, val stride: Int, val format: Int) : Size(w
         return result
     }
 
+    override fun toString(): String = prettyPrint()
+
     companion object {
         val EMPTY: Buffer = Buffer(0, 0, 0, 0)
 

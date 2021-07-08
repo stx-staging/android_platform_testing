@@ -132,8 +132,7 @@ object WindowManagerTraceParser {
 
         Log.v(LOG_TAG, "Parsing duration (WM Trace): ${traceParseTime}ms " +
             "(avg ${traceParseTime / entries.size}ms per entry)")
-        return WindowManagerTrace(entries, source?.toAbsolutePath()?.toString()
-            ?: "")
+        return WindowManagerTrace(entries.toTypedArray(), "${source?.toAbsolutePath()}")
     }
 
     /**
@@ -145,7 +144,7 @@ object WindowManagerTraceParser {
     @JvmStatic
     fun parseFromDump(proto: WindowManagerServiceDumpProto): WindowManagerTrace {
         return WindowManagerTrace(
-            listOf(newTraceEntry(proto, timestamp = 0, where = "")),
+                arrayOf(newTraceEntry(proto, timestamp = 0, where = "")),
             source = "")
     }
 
@@ -162,7 +161,7 @@ object WindowManagerTraceParser {
         } catch (e: InvalidProtocolBufferNanoException) {
             throw RuntimeException(e)
         }
-        return WindowManagerTrace(parseFromDump(fileProto), source = "")
+        return parseFromDump(fileProto)
     }
 
     private fun newTraceEntry(

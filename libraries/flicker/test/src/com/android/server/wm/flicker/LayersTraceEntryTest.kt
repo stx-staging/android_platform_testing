@@ -107,8 +107,8 @@ class LayersTraceEntryTest {
         Truth.assertThat(trace.entries.first().timestamp).isEqualTo(922839428857)
         Truth.assertThat(trace.entries.last().timestamp).isEqualTo(941432656959)
         Truth.assertThat(trace.entries.first().flattenedLayers).asList().hasSize(57)
-        val layers = trace.entries.first().rootLayers
-        Truth.assertThat(layers[0].children).hasSize(3)
+        val layers = trace.entries.first().children
+        Truth.assertThat(layers[0].children).asList().hasSize(3)
         Truth.assertThat(layers[1].children).isEmpty()
     }
 

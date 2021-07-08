@@ -177,7 +177,7 @@ class LayersTraceSubjectTest {
     private fun detectRootLayer(fileName: String) {
         val layersTrace = readLayerTraceFromFile(fileName)
         for (entry in layersTrace.entries) {
-            val rootLayers = entry.rootLayers
+            val rootLayers = entry.children
             Truth.assertWithMessage("Does not have any root layer")
                     .that(rootLayers.size)
                     .isGreaterThan(0)

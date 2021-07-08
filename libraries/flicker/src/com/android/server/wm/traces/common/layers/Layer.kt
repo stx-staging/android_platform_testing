@@ -57,7 +57,8 @@ data class Layer(
     val isRelativeOf: Boolean,
     val zOrderRelativeOfId: Int
 ) {
-    lateinit var parent: Layer
+    val stableId: String = "$type $id $name"
+    var parent: Layer? = null
     var zOrderRelativeOf: Layer? = null
     var zOrderRelativeParentOf: Int = 0
 
@@ -66,19 +67,22 @@ data class Layer(
      *
      * @return
      */
-    val isRootLayer: Boolean
-        get() {
-            return !::parent.isInitialized
-        }
+    val isRootLayer: Boolean get() = parent == null
 
-    val children = mutableListOf<Layer>()
-    val occludedBy = mutableListOf<Layer>()
-    val partiallyOccludedBy = mutableListOf<Layer>()
-    val coveredBy = mutableListOf<Layer>()
-
-    fun addChild(childLayer: Layer) {
-        children.add(childLayer)
-    }
+    private val _children = mutableListOf<Layer>()
+    private val _occludedBy = mutableListOf<Layer>()
+    private val _partiallyOccludedBy = mutableListOf<Layer>()
+    private val _coveredBy = mutableListOf<Layer>()
+    val children: Array<Layer>
+        get() = _children.toTypedArray()
+    val occludedBy: Array<Layer>
+        get() = _occludedBy.toTypedArray()
+    val partiallyOccludedBy: Array<Layer>
+        get() = _partiallyOccludedBy.toTypedArray()
+    val coveredBy: Array<Layer>
+        get() = _coveredBy.toTypedArray()
+    var isMissing: Boolean = false
+        internal set
 
     /**
      * Checks if the layer's active buffer is empty
@@ -208,7 +212,8 @@ data class Layer(
      * @return
      */
     val isHiddenByParent: Boolean
-        get() = !isRootLayer && (parent.isHiddenByPolicy || parent.isHiddenByParent)
+        get() = !isRootLayer &&
+            (parent?.isHiddenByPolicy == true || parent?.isHiddenByParent == true)
 
     /**
      * Gets a description of why the layer is (in)visible
@@ -221,7 +226,7 @@ data class Layer(
                 isVisible -> ""
                 isContainerLayer -> "ContainerLayer"
                 isHiddenByPolicy -> "Flag is hidden"
-                isHiddenByParent -> "Hidden by parent ${parent.name}"
+                isHiddenByParent -> "Hidden by parent ${parent?.name}"
                 isBufferLayer && isActiveBufferEmpty -> "Buffer is empty"
                 color.isEmpty -> "Alpha is 0"
                 crop?.isEmpty ?: false -> "Crop is 0x0"
@@ -230,8 +235,8 @@ data class Layer(
                 isRelativeOf && zOrderRelativeOf == null -> "RelativeOf layer has been removed"
                 isEffectLayer && !fillsColor && !drawsShadows && !hasBlur ->
                     "Effect layer does not have color fill, shadow or blur"
-                occludedBy.isNotEmpty() -> {
-                    val occludedByIds = occludedBy.joinToString(", ") { it.id.toString() }
+                _occludedBy.isNotEmpty() -> {
+                    val occludedByIds = _occludedBy.joinToString(", ") { it.id.toString() }
                     "Layer is occluded by: $occludedByIds"
                 }
                 visibleRegion?.isEmpty ?: false ->
@@ -246,12 +251,40 @@ data class Layer(
         else -> transform.apply(bounds)
     }
 
+    val absoluteZ: String
+        get() {
+            val zOrderRelativeOf = zOrderRelativeOf
+            return buildString {
+                when {
+                    zOrderRelativeOf != null -> append(zOrderRelativeOf.absoluteZ).append(",")
+                    parent != null -> append(parent?.absoluteZ).append(",")
+                }
+                append(z)
+            }
+        }
+
     fun contains(innerLayer: Layer): Boolean {
         return if (!this.transform.isSimpleRotation || !innerLayer.transform.isSimpleRotation) {
             false
         } else {
             this.screenBounds.contains(innerLayer.screenBounds)
         }
+    }
+
+    fun addChild(childLayer: Layer) {
+        _children.add(childLayer)
+    }
+
+    fun addOccludedBy(layers: Array<Layer>) {
+        _occludedBy.addAll(layers)
+    }
+
+    fun addPartiallyOccludedBy(layers: Array<Layer>) {
+        _partiallyOccludedBy.addAll(layers)
+    }
+
+    fun addCoveredBy(layers: Array<Layer>) {
+        _coveredBy.addAll(layers)
     }
 
     fun overlaps(other: Layer): Boolean =
@@ -262,7 +295,7 @@ data class Layer(
             append(name)
 
             if (activeBuffer.isNotEmpty) {
-                append(" buffer:${activeBuffer.width}x${activeBuffer.height}")
+                append(" buffer:$activeBuffer")
                 append(" frame#$currFrame")
             }
 

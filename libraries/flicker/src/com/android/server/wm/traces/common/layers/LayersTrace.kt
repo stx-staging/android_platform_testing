@@ -28,13 +28,29 @@ import com.android.server.wm.traces.common.ITrace
  *
  */
 data class LayersTrace(
-    override val entries: List<LayerTraceEntry>,
+    override val entries: Array<LayerTraceEntry>,
     override val source: String = ""
-) : ITrace<LayerTraceEntry>, List<LayerTraceEntry> by entries {
-    constructor(entry: LayerTraceEntry): this(listOf(entry))
+) : ITrace<LayerTraceEntry>, List<LayerTraceEntry> by entries.toList() {
+    constructor(entry: LayerTraceEntry): this(arrayOf(entry))
 
     override fun toString(): String {
         return "LayersTrace(Start: ${entries.first()}, " +
             "End: ${entries.last()})"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is LayersTrace) return false
+
+        if (!entries.contentEquals(other.entries)) return false
+        if (source != other.source) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = entries.contentHashCode()
+        result = 31 * result + source.hashCode()
+        return result
     }
 }
