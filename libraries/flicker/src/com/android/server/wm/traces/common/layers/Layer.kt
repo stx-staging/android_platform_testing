@@ -29,7 +29,7 @@ import com.android.server.wm.traces.common.RectF
  * access internal Java/Android functionality
  *
  **/
-open class Layer(
+data class Layer(
     val name: String,
     val id: Int,
     val parentId: Int,
@@ -37,15 +37,15 @@ open class Layer(
     val visibleRegion: Region?,
     val activeBuffer: Buffer,
     val flags: Int,
-    _bounds: RectF?,
+    val bounds: RectF,
     val color: Color,
-    _isOpaque: Boolean,
+    private val _isOpaque: Boolean,
     val shadowRadius: Float,
     val cornerRadius: Float,
     val type: String,
-    _screenBounds: RectF?,
+    private val _screenBounds: RectF?,
     val transform: Transform,
-    _sourceBounds: RectF?,
+    val sourceBounds: RectF,
     val currFrame: Long,
     val effectiveScalingMode: Int,
     val bufferTransform: Transform,
@@ -79,9 +79,6 @@ open class Layer(
     fun addChild(childLayer: Layer) {
         children.add(childLayer)
     }
-
-    val bounds: RectF = _bounds ?: RectF.EMPTY
-    val sourceBounds: RectF = _sourceBounds ?: RectF.EMPTY
 
     /**
      * Checks if the layer's active buffer is empty
@@ -135,10 +132,7 @@ open class Layer(
      *
      * @return
      */
-    val fillsColor: Boolean
-        get() {
-            return color.isNotEmpty
-        }
+    val fillsColor: Boolean get() = color.isNotEmpty
 
     /**
      * Checks if the [Layer] draws a shadow
@@ -209,13 +203,6 @@ open class Layer(
     val isEffectLayer: Boolean get() = type == "EffectLayer"
 
     /**
-     * Checks if the [Layer] is not visible
-     *
-     * @return
-     */
-    val isInvisible: Boolean get() = !isVisible
-
-    /**
      * Checks if the [Layer] is hidden by its parent
      *
      * @return
@@ -283,43 +270,5 @@ open class Layer(
                 append(" visible:$visibleRegion")
             }
         }
-    }
-
-    override fun equals(other: Any?): Boolean {
-        return other is Layer &&
-            other.parentId == this.parentId &&
-            other.name == this.name &&
-            other.flags == this.flags &&
-            other.currFrame == this.currFrame &&
-            other.activeBuffer == this.activeBuffer &&
-            other.screenBounds == this.screenBounds
-    }
-
-    override fun hashCode(): Int {
-        var result = name.hashCode()
-        result = 31 * result + id
-        result = 31 * result + parentId
-        result = 31 * result + z
-        result = 31 * result + visibleRegion.hashCode()
-        result = 31 * result + activeBuffer.hashCode()
-        result = 31 * result + flags
-        result = 31 * result + bounds.hashCode()
-        result = 31 * result + color.hashCode()
-        result = 31 * result + isOpaque.hashCode()
-        result = 31 * result + shadowRadius.hashCode()
-        result = 31 * result + cornerRadius.hashCode()
-        result = 31 * result + type.hashCode()
-        result = 31 * result + screenBounds.hashCode()
-        result = 31 * result + transform.hashCode()
-        result = 31 * result + sourceBounds.hashCode()
-        result = 31 * result + currFrame.hashCode()
-        result = 31 * result + effectiveScalingMode
-        result = 31 * result + bufferTransform.hashCode()
-        result = 31 * result + parent.hashCode()
-        result = 31 * result + children.hashCode()
-        result = 31 * result + occludedBy.hashCode()
-        result = 31 * result + partiallyOccludedBy.hashCode()
-        result = 31 * result + coveredBy.hashCode()
-        return result
     }
 }

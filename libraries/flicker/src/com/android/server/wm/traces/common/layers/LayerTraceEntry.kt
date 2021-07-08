@@ -106,7 +106,7 @@ open class LayerTraceEntry constructor(
      * Check if at least one window which matches provided window name is visible.
      */
     fun isVisible(windowName: String): Boolean =
-        visibleLayers.any { it.name == windowName }
+        visibleLayers.any { it.name.contains(windowName) }
 
     override fun toString(): String {
         return prettyTimestamp(timestamp)
