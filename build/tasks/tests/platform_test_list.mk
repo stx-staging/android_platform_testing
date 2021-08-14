@@ -5,12 +5,11 @@ platform_tests += \
     ActivityManagerPerfTestsStubApp3 \
     ActivityManagerPerfTestsTestApp \
     AndroidTVJankTests \
+    AndroidXComposeStartupApp \
     ApiDemos \
     AppCompatibilityTest \
     AppLaunch \
     AppLaunchWear \
-    AppLinkFunctionalTests \
-    AppLinkTestApp \
     AppTransitionTests \
     AutoLocTestApp \
     AutoLocVersionedTestApp_v1 \
@@ -85,7 +84,9 @@ platform_tests += \
     PlatformCommonScenarioTests \
     PowerPerfTest \
     SettingsUITests \
-    SimpleServiceTestApp \
+    SimpleServiceTestApp1 \
+    SimpleServiceTestApp2 \
+    SimpleServiceTestApp3 \
     SimpleTestApp \
     skia_dm \
     skia_nanobench \
