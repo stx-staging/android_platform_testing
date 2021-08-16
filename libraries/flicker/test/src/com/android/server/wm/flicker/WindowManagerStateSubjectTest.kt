@@ -110,6 +110,52 @@ class WindowManagerStateSubjectTest {
     }
 
     @Test
+    fun canDetectWindowCoversExactlyRegion_exactSize() {
+        val entry = assertThat(trace)
+                .entry(traceFirstFrameTimestamp)
+
+        entry.frameRegion(WindowManagerStateHelper.STATUS_BAR_COMPONENT)
+                .coversExactly(Region(0, 0, 1440, 171))
+        entry.frameRegion(LAUNCHER_COMPONENT)
+                .coversExactly(Region(0, 0, 1440, 2960))
+    }
+
+    @Test
+    fun canDetectWindowCoversExactlyRegion_smallerRegion() {
+        val subject = assertThat(trace).entry(traceFirstFrameTimestamp)
+        var failure = assertThrows(FlickerSubjectException::class.java) {
+            subject.frameRegion(WindowManagerStateHelper.STATUS_BAR_COMPONENT)
+                    .coversAtMost(Region(0, 0, 100, 100))
+        }
+        assertFailure(failure).factValue("Out-of-bounds region")
+                .contains("SkRegion((100,0,1440,100)(0,100,1440,171))")
+
+        failure = assertThrows(FlickerSubjectException::class.java) {
+            subject.frameRegion(LAUNCHER_COMPONENT)
+                    .coversAtMost(Region(0, 0, 100, 100))
+        }
+        assertFailure(failure).factValue("Out-of-bounds region")
+                .contains("SkRegion((100,0,1440,100)(0,100,1440,2960))")
+    }
+
+    @Test
+    fun canDetectWindowCoversExactlyRegion_largerRegion() {
+        val subject = assertThat(trace).entry(traceFirstFrameTimestamp)
+        var failure = assertThrows(FlickerSubjectException::class.java) {
+            subject.frameRegion(WindowManagerStateHelper.STATUS_BAR_COMPONENT)
+                    .coversAtLeast(Region(0, 0, 1441, 171))
+        }
+        assertFailure(failure).factValue("Uncovered region").contains("SkRegion((1440,0,1441,171))")
+
+        failure = assertThrows(FlickerSubjectException::class.java) {
+            subject.frameRegion(LAUNCHER_COMPONENT)
+                    .coversAtLeast(Region(0, 0, 1440, 2961))
+        }
+        assertFailure(failure).factValue("Uncovered region")
+                .contains("SkRegion((0,2960,1440,2961))")
+    }
+
+    @Test
     fun canDetectWindowCoversAtMostRegion_extactSize() {
         val entry = assertThat(trace)
             .entry(9213763541297)
