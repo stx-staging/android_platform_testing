@@ -37,20 +37,18 @@ class AssertionEngine {
         AppLaunchDetector()
     )
 
-    fun analyze(wmTrace: WindowManagerTrace, sfTrace: LayersTrace): ErrorTrace {
-        val allStates = mutableListOf<ErrorState>()
-
-        for (flickerDetector in flickerDetectors) {
-            allStates.addAll(flickerDetector.analyze(wmTrace, sfTrace).entries.asList())
+    fun analyze(wmTrace: WindowManagerTrace, layersTrace: LayersTrace): ErrorTrace {
+        val allStates = flickerDetectors.flatMap {
+            it.analyze(wmTrace, layersTrace).entries.asList()
         }
 
         /* Ensure all error states with same timestamp are merged */
         val errorStates = allStates.distinct()
                 .groupBy({ it.timestamp }, { it.errors.asList() })
-                .mapValues { ErrorState(it.value.flatten().toTypedArray(), it.key) }
+                .mapValues { (key, value) -> ErrorState(value.flatten().toTypedArray(), key) }
                 .values.toTypedArray()
 
-        val errorTrace = ErrorTrace(errorStates, "")
+        val errorTrace = ErrorTrace(errorStates, source = "")
         writeFile(errorTrace)
         return errorTrace
     }

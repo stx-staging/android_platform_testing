@@ -52,10 +52,10 @@ class TaggingEngine {
          */
         val tagStates = allStates.distinct()
             .groupBy({ it.timestamp }, { it.tags.asList() })
-            .mapValues { TagState(it.key, it.value.flatten().toTypedArray()) }
+            .mapValues { (key, value) -> TagState(key, value.flatten().toTypedArray()) }
             .values.toTypedArray()
 
-        val tagTrace = TagTrace(tagStates, "")
+        val tagTrace = TagTrace(tagStates, source = "")
         writeFile(tagTrace)
         return tagTrace
     }
