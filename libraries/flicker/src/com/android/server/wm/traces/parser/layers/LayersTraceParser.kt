@@ -18,7 +18,7 @@ package com.android.server.wm.traces.parser.layers
 
 import android.graphics.Rect
 import android.surfaceflinger.nano.Layers
-import android.surfaceflinger.nano.Layers.RectProto
+import android.surfaceflinger.nano.Common.RectProto
 import android.surfaceflinger.nano.Layers.RegionProto
 import android.surfaceflinger.nano.Layerstrace
 import android.util.Log
