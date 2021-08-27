@@ -30,6 +30,7 @@ open class LayerTraceEntry constructor(
     override val timestamp: Long, // hierarchical representation of layers
     val hwcBlob: String,
     val where: String,
+    val displays: Array<Display>,
     _rootLayers: Array<Layer>
 ) : ITraceEntry {
     val isVisible = true
@@ -130,5 +131,15 @@ open class LayerTraceEntry constructor(
 
     override fun equals(other: Any?): Boolean {
         return other is LayerTraceEntry && other.timestamp == this.timestamp
+    }
+
+    override fun hashCode(): Int {
+        var result = timestamp.hashCode()
+        result = 31 * result + hwcBlob.hashCode()
+        result = 31 * result + where.hashCode()
+        result = 31 * result + displays.contentHashCode()
+        result = 31 * result + isVisible.hashCode()
+        result = 31 * result + flattenedLayers.contentHashCode()
+        return result
     }
 }
