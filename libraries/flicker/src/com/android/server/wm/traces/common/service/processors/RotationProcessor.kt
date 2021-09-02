@@ -19,11 +19,11 @@ package com.android.server.wm.traces.common.service.processors
 import com.android.server.wm.traces.common.DeviceStateDump
 import com.android.server.wm.traces.common.FlickerComponentName
 import com.android.server.wm.traces.common.RectF
+import com.android.server.wm.traces.common.WindowManagerConditionsFactory
 import com.android.server.wm.traces.common.layers.LayerTraceEntry
 import com.android.server.wm.traces.common.tags.Tag
 import com.android.server.wm.traces.common.tags.Transition
 import com.android.server.wm.traces.common.windowmanager.WindowManagerState
-import com.android.server.wm.traces.common.WindowManagerConditionsFactory
 
 /**
  * Processor to detect rotations.
@@ -70,7 +70,7 @@ class RotationProcessor(logger: (String) -> Unit) : TransitionProcessor(logger) 
      * Initial FSM state, obtains the current display size and start searching
      * for display size changes
      */
-    open inner class InitialState(
+    inner class InitialState(
         tags: MutableMap<Long, MutableList<Tag>>
     ) : BaseState(tags) {
         override fun doProcessState(

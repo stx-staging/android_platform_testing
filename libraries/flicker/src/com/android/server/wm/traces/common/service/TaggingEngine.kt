@@ -22,6 +22,7 @@ import com.android.server.wm.traces.common.service.processors.ImeAppearProcessor
 import com.android.server.wm.traces.common.service.processors.ImeDisappearProcessor
 import com.android.server.wm.traces.common.service.processors.PipCloseProcessor
 import com.android.server.wm.traces.common.service.processors.PipEnterProcessor
+import com.android.server.wm.traces.common.service.processors.PipExitProcessor
 import com.android.server.wm.traces.common.service.processors.RotationProcessor
 import com.android.server.wm.traces.common.tags.TagState
 import com.android.server.wm.traces.common.tags.TagTrace
@@ -50,7 +51,8 @@ class TaggingEngine(
         ImeDisappearProcessor(logger),
         RotationProcessor(logger),
         PipEnterProcessor(logger),
-        PipCloseProcessor(logger)
+        PipCloseProcessor(logger),
+        PipExitProcessor(logger)
     )
 
     /**
