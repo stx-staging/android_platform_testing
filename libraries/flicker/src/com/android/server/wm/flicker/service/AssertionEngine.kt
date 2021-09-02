@@ -19,7 +19,6 @@ package com.android.server.wm.flicker.service
 import android.util.Log
 import androidx.annotation.VisibleForTesting
 import com.android.server.wm.flicker.service.FlickerService.Companion.getFassFilePath
-import com.android.server.wm.flicker.service.detectors.AppLaunchDetector
 import com.android.server.wm.traces.common.errors.ErrorState
 import com.android.server.wm.traces.common.errors.ErrorTrace
 import com.android.server.wm.traces.common.layers.LayersTrace
@@ -39,7 +38,6 @@ import java.nio.file.Path
 class AssertionEngine(private val outputDir: Path, private val testTag: String) {
     private val flickerDetectors = mapOf<IFlickerDetector, Transition>(
         // TODO: Add new detectors to invoke
-        AppLaunchDetector() to Transition.APP_LAUNCH
     )
 
     fun analyze(
