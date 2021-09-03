@@ -117,8 +117,10 @@ class AssertionEngine(private val outputDir: Path, private val testTag: String) 
     ): List<WindowManagerTrace> {
         val wmTags = transitionTags
             .filter { transitionTag ->
-                transitionTag.tag.layerId == -1 && transitionTag.tag.transition == transition
-            }
+                transitionTag.tag.taskId > 0 ||
+                transitionTag.tag.windowToken.isNotEmpty() ||
+                transitionTag.isEmpty()
+            }.filter { transitionTag -> transitionTag.tag.transition == transition }
 
         return wmTags.map { tag -> wmTrace.filter(tag.startTimestamp, tag.endTimestamp) }
     }
@@ -138,9 +140,8 @@ class AssertionEngine(private val outputDir: Path, private val testTag: String) 
         transition: Transition
     ): List<LayersTrace> {
         val layersTags = transitionTags
-            .filter { transitionTag ->
-                transitionTag.tag.layerId > 0 && transitionTag.tag.transition == transition
-            }
+            .filter { transitionTag -> transitionTag.tag.layerId > 0 || transitionTag.isEmpty() }
+            .filter { transitionTag -> transitionTag.tag.transition == transition }
 
         return layersTags.map { tag ->
             layersTrace.filter(tag.startTimestamp, tag.endTimestamp)
