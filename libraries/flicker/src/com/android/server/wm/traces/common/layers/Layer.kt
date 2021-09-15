@@ -92,7 +92,7 @@ data class Layer(
     val isRotating: Boolean
         get() = isTransformFlagSet(Transform.ROTATE_VAL)
 
-    fun isTransformFlagSet(transform: Int): Boolean =
+    private fun isTransformFlagSet(transform: Int): Boolean =
             this.transform.type?.isFlagSet(transform) ?: false
 
     /**
