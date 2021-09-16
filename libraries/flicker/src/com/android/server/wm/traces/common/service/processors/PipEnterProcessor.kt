@@ -140,6 +140,9 @@ class PipEnterProcessor(logger: (String) -> Unit) : TransitionProcessor(logger) 
                         layerId = pipWindow.layerId
                 )
             }
+            // reset all scaling layers
+            allScalingLayers.clear()
+
             logger.invoke("($startTimestamp) PIP enter started.")
             return WaitPipEnterFinished(tags, pipWindow.layerId)
         }
@@ -162,9 +165,6 @@ class PipEnterProcessor(logger: (String) -> Unit) : TransitionProcessor(logger) 
                 // tag on the last complete state at the start
                 logger.invoke("(${current.wmState.timestamp}) PIP enter finished.")
                 addEndTransitionTag(current, Transition.PIP_ENTER, layerId = layerId)
-
-                // reset all scaling layers
-                allScalingLayers.clear()
 
                 // return to start to wait for a second PIP enter
                 WaitPipEnterStart(tags)

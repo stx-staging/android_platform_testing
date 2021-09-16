@@ -213,7 +213,8 @@ object WindowManagerConditionsFactory {
         layerId: Int
     ): Condition<DeviceStateDump<WindowManagerState, LayerTraceEntry>> =
         Condition("isPipWindowLayerSizeMatch") {
-            val pipWindow = it.wmState.pinnedWindows.first { it.layerId == layerId }
+            val pipWindow = it.wmState.pinnedWindows.firstOrNull { it.layerId == layerId }
+                ?: error("Unable to find window with layerId $layerId")
             val windowHeight = pipWindow.frame.height.toFloat()
             val windowWidth = pipWindow.frame.width.toFloat()
 
