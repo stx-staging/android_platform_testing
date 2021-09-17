@@ -18,12 +18,12 @@ package com.android.server.wm.flicker.service.processors
 
 import com.android.server.wm.flicker.readLayerTraceFromFile
 import com.android.server.wm.flicker.readWmTraceFromFile
-import com.android.server.wm.traces.common.service.processors.PipCloseProcessor
+import com.android.server.wm.traces.common.service.processors.PipExpandProcessor
 import com.google.common.truth.Truth
 import org.junit.Test
 
-class PipCloseProcessorTest {
-    private val processor = PipCloseProcessor { }
+class PipExpandProcessorTest {
+    private val processor = PipExpandProcessor { }
 
     private val tagsPipExpanding by lazy {
         val wmTrace = readWmTraceFromFile(

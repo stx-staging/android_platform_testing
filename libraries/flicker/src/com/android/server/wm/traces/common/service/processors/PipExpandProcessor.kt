@@ -25,45 +25,17 @@ import com.android.server.wm.traces.common.tags.Tag
 import com.android.server.wm.traces.common.tags.Transition
 import com.android.server.wm.traces.common.windowmanager.WindowManagerState
 
-class PipCloseProcessor(logger: (String) -> Unit) : TransitionProcessor(logger) {
-    private val transition = Transition.PIP_CLOSE
+/**
+ * This processor creates tags when an pip window starts to expand from window to full screen app.
+ * @param logger logs by invoking any event messages
+ */
+class PipExpandProcessor(logger: (String) -> Unit) : TransitionProcessor(logger) {
+    override val transition = Transition.PIP_CLOSE
     private val scalingLayers =
         HashMap<Int, DeviceStateDump<WindowManagerState, LayerTraceEntry>>()
 
     override fun getInitialState(tags: MutableMap<Long, MutableList<Tag>>) =
         WaitUntilAppIsNoLongerPinned(tags)
-
-    /**
-     * Base state for the FSM, check if there are more WM and SF states to process,
-     * if so, process, otherwise closes open tags and returns null
-     */
-    abstract inner class BaseState(tags: MutableMap<Long, MutableList<Tag>>) : FSMState(tags) {
-        abstract fun doProcessState(
-            previous: DeviceStateDump<WindowManagerState, LayerTraceEntry>?,
-            current: DeviceStateDump<WindowManagerState, LayerTraceEntry>,
-            next: DeviceStateDump<WindowManagerState, LayerTraceEntry>
-        ): FSMState
-
-        override fun process(
-            previous: DeviceStateDump<WindowManagerState, LayerTraceEntry>?,
-            current: DeviceStateDump<WindowManagerState, LayerTraceEntry>,
-            next: DeviceStateDump<WindowManagerState, LayerTraceEntry>?
-        ): FSMState? {
-            return when (next) {
-                null -> {
-                    // last state
-                    logger.invoke("(${current.layerState.timestamp}) Trace has reached the end")
-                    if (hasOpenTag()) {
-                        logger.invoke("(${current.layerState.timestamp}) Has an open tag, " +
-                            "closing it on the last SF state")
-                        addEndTransitionTag(current, transition)
-                    }
-                    null
-                }
-                else -> doProcessState(previous, current, next)
-            }
-        }
-    }
 
     /**
      * We wait until the pip app is no longer pinned and is ready to expand.
