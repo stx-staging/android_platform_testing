@@ -189,10 +189,10 @@ object WindowManagerConditionsFactory {
         layerId: Int,
         transform: Int
     ): Condition<DeviceStateDump<WindowManagerState, LayerTraceEntry>> =
-            Condition("isLayerTransformFlagSet[$layerId, $transform]") {
-                val layer = it.layerState.getLayerById(layerId)
-                layer?.transform?.type?.isFlagSet(transform) ?: false
-            }
+        Condition("isLayerTransformFlagSet[$layerId, $transform]") {
+            val layer = it.layerState.getLayerById(layerId)
+            layer?.transform?.type?.isFlagSet(transform) ?: false
+        }
 
     fun isLayerTransformIdentity(
         layerId: Int
