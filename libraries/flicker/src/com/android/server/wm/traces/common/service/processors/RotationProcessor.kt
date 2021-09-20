@@ -19,11 +19,11 @@ package com.android.server.wm.traces.common.service.processors
 import com.android.server.wm.traces.common.DeviceStateDump
 import com.android.server.wm.traces.common.FlickerComponentName
 import com.android.server.wm.traces.common.RectF
+import com.android.server.wm.traces.common.WindowManagerConditionsFactory
 import com.android.server.wm.traces.common.layers.LayerTraceEntry
 import com.android.server.wm.traces.common.tags.Tag
 import com.android.server.wm.traces.common.tags.Transition
 import com.android.server.wm.traces.common.windowmanager.WindowManagerState
-import com.android.server.wm.traces.common.WindowManagerConditionsFactory
 
 /**
  * Processor to detect rotations.
@@ -184,7 +184,7 @@ class RotationProcessor(logger: (String) -> Unit) : TransitionProcessor(logger) 
     }
 
     companion object {
-        private fun LayerTraceEntry.screenBounds() = this.displays.sortedBy { it.id }.firstOrNull()
+        private fun LayerTraceEntry.screenBounds() = this.displays.minByOrNull { it.id }
             ?.layerStackSpace?.toRectF() ?: this.children
             .sortedBy { it.id }
             .firstOrNull { it.isRootLayer }

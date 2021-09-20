@@ -52,7 +52,7 @@ class AppLaunchProcessor(logger: (String) -> Unit) : TransitionProcessor(logger)
                     if (hasOpenTag()) {
                         logger.invoke("(${current.layerState.timestamp}) Has an open tag, " +
                                 "closing it on the last SF state")
-                        addEndTransitionTag(current, Transition.IME_APPEAR)
+                        addEndTransitionTag(current, Transition.APP_LAUNCH)
                     }
                     null
                 }
@@ -114,7 +114,7 @@ class AppLaunchProcessor(logger: (String) -> Unit) : TransitionProcessor(logger)
                 }.taskId
                 logger.invoke("(${current.wmState.timestamp}) " +
                     "Task $taskId appears to have launched")
-                addStartTransitionTag(current, Transition.IME_APPEAR, taskId = taskId)
+                addStartTransitionTag(current, Transition.APP_LAUNCH, taskId = taskId)
                 WaitAppLaunchEnded(tags, taskId)
             } else {
                 logger.invoke("(${current.wmState.timestamp}) No Start of App Launch Detected")
