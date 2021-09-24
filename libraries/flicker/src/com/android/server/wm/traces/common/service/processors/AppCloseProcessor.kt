@@ -29,8 +29,12 @@ import com.android.server.wm.traces.common.tags.Transition
 import com.android.server.wm.traces.common.windowmanager.WindowManagerState
 import com.android.server.wm.traces.common.windowmanager.windows.WindowState
 
+/**
+ * This processor creates tags when an app is closed.
+ * @param logger logs by invoking any event messages
+ */
 class AppCloseProcessor(logger: (String) -> Unit) : TransitionProcessor(logger) {
-    private val transition = Transition.APP_CLOSE
+    override val transition = Transition.APP_CLOSE
     private val areLayersAnimating = WindowManagerConditionsFactory.hasLayersAnimating()
     private val wmStateIdle = WindowManagerConditionsFactory
         .isAppTransitionIdle(/* default display */ 0)
@@ -40,37 +44,6 @@ class AppCloseProcessor(logger: (String) -> Unit) : TransitionProcessor(logger) 
 
     override fun getInitialState(tags: MutableMap<Long, MutableList<Tag>>) =
         RetrieveClosingAppLayerId(tags)
-
-    /**
-     * Base state for the FSM, check if there are more WM and SF states to process
-     */
-    abstract inner class BaseState(tags: MutableMap<Long, MutableList<Tag>>) : FSMState(tags) {
-        protected abstract fun doProcessState(
-            previous: DeviceStateDump<WindowManagerState, LayerTraceEntry>?,
-            current: DeviceStateDump<WindowManagerState, LayerTraceEntry>,
-            next: DeviceStateDump<WindowManagerState, LayerTraceEntry>
-        ): FSMState
-
-        override fun process(
-            previous: DeviceStateDump<WindowManagerState, LayerTraceEntry>?,
-            current: DeviceStateDump<WindowManagerState, LayerTraceEntry>,
-            next: DeviceStateDump<WindowManagerState, LayerTraceEntry>?
-        ): FSMState? {
-            return when (next) {
-                null -> {
-                    // last state
-                    logger.invoke("(${current.layerState.timestamp}) Trace has reached the end")
-                    if (hasOpenTag()) {
-                        logger.invoke("(${current.layerState.timestamp}) Has an open tag, " +
-                            "closing it on the last SF state")
-                        addEndTransitionTag(current, transition)
-                    }
-                    null
-                }
-                else -> doProcessState(previous, current, next)
-            }
-        }
-    }
 
     /**
      * Initial FSM state that passes the current app launch activity if any to the next state.
