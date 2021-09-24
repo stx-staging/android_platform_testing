@@ -41,11 +41,13 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class SwitchToGuestFromNonAdmin {
 
+    private static final String userName = MultiUserConstants.SECONDARY_USER_NAME;
     private static final String guestUser = MultiUserConstants.GUEST_NAME;
-    private static final int WAIT_TIME = 60000;
+    private static final int WAIT_TIME = 10000;
     private final MultiUserHelper mMultiUserHelper = MultiUserHelper.getInstance();
     private HelperAccessor<IAutoUserHelper> mUsersHelper;
     private HelperAccessor<IAutoSettingHelper> mSettingHelper;
+    private int mTargetUserId;
 
     public SwitchToGuestFromNonAdmin() {
         mUsersHelper = new HelperAccessor<>(IAutoUserHelper.class);
@@ -57,11 +59,6 @@ public class SwitchToGuestFromNonAdmin {
         AutoUtility.exitSuw();
     }
 
-    @Before
-    public void openAccountsFacet() {
-        mSettingHelper.get().openSetting(AutoConfigConstants.PROFILE_ACCOUNT_SETTINGS);
-    }
-
     @After
     public void goBackToHomeScreen() {
         mSettingHelper.get().goBackToSettingsScreen();
@@ -69,10 +66,13 @@ public class SwitchToGuestFromNonAdmin {
 
     @Test
     public void testSwitchToGuest() throws Exception {
-        // add new user
         UserInfo initialUser = mMultiUserHelper.getCurrentForegroundUserInfo();
-        mUsersHelper.get().addUser();
-        // switched to new user account
+        // add new user
+        mTargetUserId = mMultiUserHelper.createUser(userName, false);
+        SystemClock.sleep(WAIT_TIME);
+        // switch to new user
+        mMultiUserHelper.switchAndWaitForStable(
+            mTargetUserId, MultiUserConstants.WAIT_FOR_IDLE_TIME_MS);
         UserInfo newUser = mMultiUserHelper.getCurrentForegroundUserInfo();
         // switch to guest from new user
         mUsersHelper.get().switchUser(newUser.name, guestUser);
@@ -80,7 +80,6 @@ public class SwitchToGuestFromNonAdmin {
         UserInfo currentUser = mMultiUserHelper.getCurrentForegroundUserInfo();
         assertTrue(currentUser.name.equals(guestUser));
         // switch to initial user and delete new user before terminating the test
-        SystemClock.sleep(WAIT_TIME);
         mMultiUserHelper.switchAndWaitForStable(
             initialUser.id, MultiUserConstants.WAIT_FOR_IDLE_TIME_MS);
         mMultiUserHelper.removeUser(newUser);
