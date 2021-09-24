@@ -18,6 +18,7 @@ package android.platform.tests;
 
 import static junit.framework.Assert.assertTrue;
 
+import android.os.SystemClock;
 import android.content.pm.UserInfo;
 import android.platform.helpers.AutoConfigConstants;
 import android.platform.helpers.AutoUtility;
@@ -40,6 +41,7 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class DeleteCurrentNonAdminUser {
 
+    private static final int WAIT_TIME = 60000;
     private final MultiUserHelper mMultiUserHelper = MultiUserHelper.getInstance();
     private HelperAccessor<IAutoUserHelper> mUsersHelper;
     private HelperAccessor<IAutoSettingHelper> mSettingHelper;
@@ -75,6 +77,7 @@ public class DeleteCurrentNonAdminUser {
         mUsersHelper.get().deleteCurrentUser();
         // goes to guest user, switch back to initial user
         UserInfo guestUser = mMultiUserHelper.getCurrentForegroundUserInfo();
+        SystemClock.sleep(WAIT_TIME);
         mMultiUserHelper.switchAndWaitForStable(
             initialUser.id, MultiUserConstants.WAIT_FOR_IDLE_TIME_MS);
         // verify that user is deleted
