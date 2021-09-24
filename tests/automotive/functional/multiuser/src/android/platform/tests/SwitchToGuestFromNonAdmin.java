@@ -18,6 +18,7 @@ package android.platform.tests;
 
 import static junit.framework.Assert.assertTrue;
 
+import android.os.SystemClock;
 import android.content.pm.UserInfo;
 import android.platform.helpers.AutoConfigConstants;
 import android.platform.helpers.AutoUtility;
@@ -41,6 +42,7 @@ import org.junit.runner.RunWith;
 public class SwitchToGuestFromNonAdmin {
 
     private static final String guestUser = MultiUserConstants.GUEST_NAME;
+    private static final int WAIT_TIME = 60000;
     private final MultiUserHelper mMultiUserHelper = MultiUserHelper.getInstance();
     private HelperAccessor<IAutoUserHelper> mUsersHelper;
     private HelperAccessor<IAutoSettingHelper> mSettingHelper;
@@ -78,6 +80,7 @@ public class SwitchToGuestFromNonAdmin {
         UserInfo currentUser = mMultiUserHelper.getCurrentForegroundUserInfo();
         assertTrue(currentUser.name.equals(guestUser));
         // switch to initial user and delete new user before terminating the test
+        SystemClock.sleep(WAIT_TIME);
         mMultiUserHelper.switchAndWaitForStable(
             initialUser.id, MultiUserConstants.WAIT_FOR_IDLE_TIME_MS);
         mMultiUserHelper.removeUser(newUser);
