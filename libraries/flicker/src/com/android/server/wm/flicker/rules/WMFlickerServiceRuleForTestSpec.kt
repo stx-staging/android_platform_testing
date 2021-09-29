@@ -86,7 +86,7 @@ class WMFlickerServiceRuleForTestSpec(
     private fun failIfAnyError(errors: List<ErrorTrace>) {
         val errorMsg = errors.joinToString("\n") { runs ->
             runs.entries.joinToString { state ->
-                state.errors.joinToString { it.message }
+                state.errors.joinToString { "${it.assertionName}\n${it.message}" }
             }
         }
         if (errorMsg.isNotEmpty()) {
