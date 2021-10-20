@@ -67,13 +67,12 @@ class ImeAppearProcessor(logger: (String) -> Unit) : TransitionProcessor(logger)
             current: DeviceStateDump<WindowManagerState, LayerTraceEntry>
         ): FSMState {
             logger.invoke("(${current.layerState.timestamp}) IME appear started.")
-            // Tag the layer of the app that generates an IME layer
-            val appLayerId = current.wmState.visibleWindows.first { window ->
-                window.isAppWindow
-            }.layerId
-
-            addStartTransitionTag(current, transition, layerId = appLayerId)
-            return WaitImeAppearFinished(tags, appLayerId)
+            // add factory method as well
+            val inputMethodLayer = current.layerState.visibleLayers.first {
+                it.name.contains(FlickerComponentName.IME.toLayerName())
+            }
+            addStartTransitionTag(current, transition, layerId = inputMethodLayer.id)
+            return WaitImeAppearFinished(tags, inputMethodLayer.id)
         }
     }
 
