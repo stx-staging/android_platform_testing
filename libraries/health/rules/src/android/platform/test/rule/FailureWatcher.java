@@ -70,9 +70,12 @@ public class FailureWatcher extends TestWatcher {
         onError(mDevice, description, e);
     }
 
+    public static File diagFile(String fileName) {
+        return new File(getInstrumentation().getTargetContext().getFilesDir(), fileName);
+    }
+
     public static File diagFile(Description description, String prefix, String ext) {
-        return new File(
-                getInstrumentation().getTargetContext().getFilesDir(),
+        return diagFile(
                 prefix
                         + "-"
                         + description.getTestClass().getSimpleName()
@@ -153,7 +156,7 @@ public class FailureWatcher extends TestWatcher {
         dumpCommand(cmd, out);
     }
 
-    private static void dumpCommand(String cmd, File out) {
+    public static void dumpCommand(String cmd, File out) {
         try (BufferedOutputStream buffered = new BufferedOutputStream(new FileOutputStream(out))) {
             dumpCommand(cmd, buffered);
         } catch (IOException ex) {
