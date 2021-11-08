@@ -26,29 +26,37 @@ public interface IQuickSettingsHelper extends IAppHelper {
     public enum State {
         ON,
         OFF,
+        UNAVAILABLE,
     }
 
     /** Represents a Quick Setting switch that can be toggled ON and OFF during a test. */
     public enum Setting {
-        AIRPLANE("Airplane", 2000),
-        AUTO_ROTATE("Auto-rotate", 2000),
-        BLUETOOTH("Bluetooth", 15000),
-        DO_NOT_DISTURB("Do Not Disturb", 2000),
-        FLASHLIGHT("Flashlight", 5000),
-        NIGHT_LIGHT("Night Light", 2000),
-        WIFI("Wi-Fi", 10000);
+        AIRPLANE("Airplane", "airplane", 2000),
+        AUTO_ROTATE("Auto-rotate", "rotation", 2000),
+        BLUETOOTH("Bluetooth", "bt", 15000),
+        DO_NOT_DISTURB("Do Not Disturb", "dnd", 2000),
+        FLASHLIGHT("Flashlight", "flashlight", 5000),
+        NIGHT_LIGHT("Night Light", "night", 2000),
+        WIFI("Wi-Fi", "wifi", 10000);
 
         private final String mContentDescSubstring;
+        private final String mTileName;
         private final long mExpectedWait;
 
-        Setting(String substring, long wait) {
+        Setting(String substring, String tileName, long wait) {
             mContentDescSubstring = substring;
+            mTileName = tileName;
             mExpectedWait = wait;
         }
 
         /** Returns a substring to identify the {@code Setting} by content description. */
         public String getContentDescSubstring() {
             return mContentDescSubstring;
+        }
+
+        /** Returns a substring to identify the {@code Setting} by content description. */
+        public String getTileName() {
+            return mTileName;
         }
 
         /** Returns the longest expected wait time for this option to be toggled ON or OFF. */
@@ -62,6 +70,10 @@ public interface IQuickSettingsHelper extends IAppHelper {
      * already found to be in {@code state}, then no operation is performed. There are no setup
      * requirements to call this method, except that {@code setting} is available from the test and
      * in the Quick Settings menu.
+     *
+     * @param setting The setting defined in enum {@link Setting}
+     * @param tileName The name of tile spec which recognized by quick settings host
+     * @param state The state of specific setting
      */
-    public void toggleSetting(Setting setting, State state);
+    public void toggleSetting(Setting setting, String tileName, State state);
 }
