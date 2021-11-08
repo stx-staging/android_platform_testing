@@ -16,20 +16,33 @@
 
 package android.platform.helpers;
 
-/** An App Helper interface for the Quick Settings bar. */
+/**
+ * An App Helper interface for the Quick Settings bar.
+ *
+ * @deprecated use {@link android.system.helpers.QuickSettingsHelper} instead.
+ */
+@Deprecated
 public interface IQuickSettingsHelper extends IAppHelper {
     /**
      * Represents the state of a Quick Setting. Currently this is limited to ON and OFF states;
      * however, other states will be added in the future, for example to differentiate between
      * paired and un-paired, active bluetooth states.
+     *
+     * @deprecated use {@link android.system.helpers.QuickSettingsHelper} instead.
      */
+    @Deprecated
     public enum State {
         ON,
         OFF,
         UNAVAILABLE,
     }
 
-    /** Represents a Quick Setting switch that can be toggled ON and OFF during a test. */
+    /**
+     * Represents a Quick Setting switch that can be toggled ON and OFF during a test.
+     *
+     * @deprecated use {@link android.system.helpers.QuickSettingsHelper} instead.
+     */
+    @Deprecated
     public enum Setting {
         AIRPLANE("Airplane", "airplane", 2000),
         AUTO_ROTATE("Auto-rotate", "rotation", 2000),
@@ -74,6 +87,8 @@ public interface IQuickSettingsHelper extends IAppHelper {
      * @param setting The setting defined in enum {@link Setting}
      * @param tileName The name of tile spec which recognized by quick settings host
      * @param state The state of specific setting
+     * @deprecated use {@link android.system.helpers.QuickSettingsHelper} instead.
      */
+    @Deprecated
     public void toggleSetting(Setting setting, String tileName, State state);
 }
