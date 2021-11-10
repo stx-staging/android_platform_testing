@@ -34,8 +34,13 @@ import com.android.server.wm.flicker.rules.RemoveAllTasksButHomeRule
 import com.android.server.wm.flicker.traces.eventlog.EventLogSubject
 import com.android.server.wm.flicker.traces.layers.LayerTraceEntrySubject
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
+import com.android.server.wm.flicker.traces.region.RegionTraceSubject
 import com.android.server.wm.flicker.traces.windowmanager.WindowManagerStateSubject
 import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
+import com.android.server.wm.traces.common.FlickerComponentName
+import com.android.server.wm.traces.common.RegionEntry
+import com.android.server.wm.traces.common.RegionTrace
+import com.android.server.wm.traces.parser.toFlickerRegion
 import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
 
@@ -153,6 +158,21 @@ data class FlickerTestParameter(
     }
 
     /**
+     * Execute [assertion] on the visible region of a component on the WM trace
+     *
+     * @param component The component for which we want to get the visible region for to run the
+     *                  assertion on
+     * @param assertion Assertion predicate
+     */
+    fun assertWmVisibleRegion(
+        component: FlickerComponentName,
+        assertion: RegionTraceSubject.() -> Unit
+    ) {
+        val assertionData = buildWMVisibleRegionAssertion(component, assertion)
+        this.flicker.checkAssertion(assertionData)
+    }
+
+    /**
      * Execute [assertion] on the initial state of a SF trace (before transition)
      *
      * @param assertion Assertion predicate
@@ -189,6 +209,21 @@ data class FlickerTestParameter(
      */
     fun assertLayersTag(tag: String, assertion: LayerTraceEntrySubject.() -> Unit) {
         val assertionData = buildLayersTagAssertion(tag, assertion)
+        this.flicker.checkAssertion(assertionData)
+    }
+
+    /**
+     * Execute [assertion] on the visible region of a component on the layers trace
+     *
+     * @param component The component for which we want to get the visible region for to run the
+     *                  assertion on
+     * @param assertion Assertion predicate
+     */
+    fun assertLayersVisibleRegion(
+        component: FlickerComponentName,
+        assertion: RegionTraceSubject.() -> Unit
+    ) {
+        val assertionData = buildLayersVisibleRegionAssertion(component, assertion)
         this.flicker.checkAssertion(assertionData)
     }
 
@@ -268,6 +303,30 @@ data class FlickerTestParameter(
 
         @VisibleForTesting
         @JvmStatic
+        fun buildWMVisibleRegionAssertion(
+            component: FlickerComponentName,
+            assertion: RegionTraceSubject.() -> Unit
+        ): AssertionData {
+            val closedAssertion: WindowManagerTraceSubject.() -> Unit = {
+                // convert WindowManagerTraceSubject to RegionTraceSubject
+                val regionTrace = RegionTrace(component, subjects.map {
+                    RegionEntry(it.frameRegion(component).region.toFlickerRegion(), it.timestamp)
+                }.toTypedArray(), trace.source)
+                val regionTraceSubject = RegionTraceSubject.assertThat(regionTrace, this)
+
+                // add assertions to the regionTraceSubject's AssertionChecker
+                assertion(regionTraceSubject)
+                // loop through all entries to validate assertions
+                regionTraceSubject.forAllEntries()
+            }
+
+            return AssertionData(tag = AssertionTag.ALL,
+                expectedSubjectClass = WindowManagerTraceSubject::class,
+                assertion = closedAssertion as FlickerSubject.() -> Unit)
+        }
+
+        @VisibleForTesting
+        @JvmStatic
         fun buildLayersStartAssertion(assertion: LayerTraceEntrySubject.() -> Unit): AssertionData =
             AssertionData(tag = AssertionTag.START,
                 expectedSubjectClass = LayerTraceEntrySubject::class,
@@ -303,6 +362,30 @@ data class FlickerTestParameter(
             assertion = assertion as FlickerSubject.() -> Unit)
 
         @VisibleForTesting
+        @JvmStatic
+        fun buildLayersVisibleRegionAssertion(
+            component: FlickerComponentName,
+            assertion: RegionTraceSubject.() -> Unit
+        ): AssertionData {
+            val closedAssertion: LayersTraceSubject.() -> Unit = {
+                // convert LayersTraceSubject to RegionTraceSubject
+                // convert WindowManagerTraceSubject to RegionTraceSubject
+                val regionTrace = RegionTrace(component, subjects.map {
+                    RegionEntry(it.visibleRegion(component).region.toFlickerRegion(), it.timestamp)
+                }.toTypedArray(), trace.source)
+                val regionTraceSubject = RegionTraceSubject.assertThat(regionTrace, this)
+
+                // add assertions to the regionTraceSubject's AssertionChecker
+                assertion(regionTraceSubject)
+                // loop through all entries to validate assertions
+                regionTraceSubject.forAllEntries()
+            }
+
+            return AssertionData(tag = AssertionTag.ALL,
+                    expectedSubjectClass = LayersTraceSubject::class,
+                    assertion = closedAssertion as FlickerSubject.() -> Unit)
+        }
+
         @JvmStatic
         fun buildEventLogAssertion(assertion: EventLogSubject.() -> Unit): AssertionData =
             AssertionData(tag = AssertionTag.ALL,

@@ -19,7 +19,7 @@ package com.android.server.wm.flicker.traces.windowmanager
 import com.android.server.wm.flicker.assertions.Assertion
 import com.android.server.wm.flicker.assertions.FlickerSubject
 import com.android.server.wm.flicker.traces.FlickerFailureStrategy
-import com.android.server.wm.flicker.traces.RegionSubject
+import com.android.server.wm.flicker.traces.region.RegionSubject
 import com.android.server.wm.traces.common.windowmanager.windows.WindowState
 import com.google.common.truth.Fact
 import com.google.common.truth.FailureMetadata

@@ -39,6 +39,10 @@ fun Rect.toAndroidRect(): android.graphics.Rect {
     return android.graphics.Rect(left, top, right, bottom)
 }
 
+fun android.graphics.Region.toFlickerRegion(): Region {
+    return Region(bounds.left, bounds.top, bounds.right, bounds.bottom)
+}
+
 /**
  * Subtracts [other] region from this [this] region
  */

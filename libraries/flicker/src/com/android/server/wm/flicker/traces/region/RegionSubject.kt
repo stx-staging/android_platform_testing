@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.traces
+package com.android.server.wm.flicker.traces.region
 
 import androidx.annotation.VisibleForTesting
 import com.android.server.wm.flicker.assertions.FlickerSubject
+import com.android.server.wm.flicker.traces.FlickerFailureStrategy
 import com.android.server.wm.traces.common.Rect
 import com.android.server.wm.traces.common.RectF
 import com.android.server.wm.traces.common.Region
+import com.android.server.wm.traces.common.RegionEntry
 import com.android.server.wm.traces.parser.toAndroidRect
 import com.android.server.wm.traces.parser.toAndroidRegion
 import com.google.common.truth.Fact
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.StandardSubjectBuilder
+import com.google.common.truth.Subject.Factory
 
 /**
  * Truth subject for [Rect] objects, used to make assertions over behaviors that occur on a
@@ -600,5 +603,16 @@ class RegionSubject(
         @JvmOverloads
         fun assertThat(region: Region?, parent: FlickerSubject? = null): RegionSubject =
                 assertThat(region?.toAndroidRegion(), parent)
+
+        /**
+         * User-defined entry point
+         *
+         * @param regionEntry to assert
+         * @param parent containing the entry
+         */
+        @JvmStatic
+        @JvmOverloads
+        fun assertThat(regionEntry: RegionEntry?, parent: FlickerSubject? = null): RegionSubject =
+                assertThat(regionEntry?.region, parent)
     }
 }

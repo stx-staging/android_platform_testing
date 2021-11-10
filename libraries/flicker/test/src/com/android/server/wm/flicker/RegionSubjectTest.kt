@@ -16,7 +16,7 @@
 
 package com.android.server.wm.flicker
 
-import com.android.server.wm.flicker.traces.RegionSubject
+import com.android.server.wm.flicker.traces.region.RegionSubject
 import com.android.server.wm.traces.common.Rect
 import com.google.common.truth.Truth
 import org.junit.FixMethodOrder
