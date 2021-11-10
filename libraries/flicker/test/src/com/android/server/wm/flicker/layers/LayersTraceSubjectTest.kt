@@ -58,6 +58,7 @@ class LayersTraceSubjectTest {
         val layersTraceEntries = readLayerTraceFromFile("layers_trace_emptyregion.pb")
         try {
             assertThat(layersTraceEntries)
+                .visibleRegion()
                 .coversAtLeast(DISPLAY_REGION)
                 .forAllEntries()
             error("Assertion should not have passed")

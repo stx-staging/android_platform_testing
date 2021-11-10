@@ -102,7 +102,7 @@ class LayerTraceEntrySubjectTest {
                 .coversExactly(expectedVisibleRegion)
         }
         assertFailure(error)
-            .factValue("Could not find")
+            .factValue("Could not find layers")
                 .contains(IMAGINARY_COMPONENT.toWindowName())
     }
 
