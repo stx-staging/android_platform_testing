@@ -165,10 +165,10 @@ data class FlickerTestParameter(
      * @param assertion Assertion predicate
      */
     fun assertWmVisibleRegion(
-        component: FlickerComponentName,
+        vararg components: FlickerComponentName,
         assertion: RegionTraceSubject.() -> Unit
     ) {
-        val assertionData = buildWMVisibleRegionAssertion(component, assertion)
+        val assertionData = buildWMVisibleRegionAssertion(components = components, assertion)
         this.flicker.checkAssertion(assertionData)
     }
 
@@ -220,10 +220,10 @@ data class FlickerTestParameter(
      * @param assertion Assertion predicate
      */
     fun assertLayersVisibleRegion(
-        component: FlickerComponentName,
+        vararg components: FlickerComponentName,
         assertion: RegionTraceSubject.() -> Unit
     ) {
-        val assertionData = buildLayersVisibleRegionAssertion(component, assertion)
+        val assertionData = buildLayersVisibleRegionAssertion(components = components, assertion)
         this.flicker.checkAssertion(assertionData)
     }
 
@@ -304,13 +304,13 @@ data class FlickerTestParameter(
         @VisibleForTesting
         @JvmStatic
         fun buildWMVisibleRegionAssertion(
-            component: FlickerComponentName,
+            vararg components: FlickerComponentName,
             assertion: RegionTraceSubject.() -> Unit
         ): AssertionData {
             val closedAssertion: WindowManagerTraceSubject.() -> Unit = {
                 // convert WindowManagerTraceSubject to RegionTraceSubject
-                val regionTrace = RegionTrace(component, subjects.map {
-                    RegionEntry(it.frameRegion(component).region.toFlickerRegion(), it.timestamp)
+                val regionTrace = RegionTrace(components, subjects.map {
+                    RegionEntry(it.frameRegion(*components).region.toFlickerRegion(), it.timestamp)
                 }.toTypedArray(), trace.source)
                 val regionTraceSubject = RegionTraceSubject.assertThat(regionTrace, this)
 
@@ -364,14 +364,17 @@ data class FlickerTestParameter(
         @VisibleForTesting
         @JvmStatic
         fun buildLayersVisibleRegionAssertion(
-            component: FlickerComponentName,
+            vararg components: FlickerComponentName,
             assertion: RegionTraceSubject.() -> Unit
         ): AssertionData {
             val closedAssertion: LayersTraceSubject.() -> Unit = {
                 // convert LayersTraceSubject to RegionTraceSubject
                 // convert WindowManagerTraceSubject to RegionTraceSubject
-                val regionTrace = RegionTrace(component, subjects.map {
-                    RegionEntry(it.visibleRegion(component).region.toFlickerRegion(), it.timestamp)
+                val regionTrace = RegionTrace(components, subjects.map {
+                    RegionEntry(
+                        it.visibleRegion(*components).region.toFlickerRegion(),
+                        it.timestamp
+                    )
                 }.toTypedArray(), trace.source)
                 val regionTraceSubject = RegionTraceSubject.assertThat(regionTrace, this)
 

@@ -26,7 +26,7 @@ package com.android.server.wm.traces.common
  *
  */
 data class RegionTrace(
-    val component: FlickerComponentName?,
+    val components: Array<out FlickerComponentName>,
     override val entries: Array<RegionEntry>,
     override val source: String
 ) : ITrace<RegionEntry>,
@@ -35,6 +35,7 @@ data class RegionTrace(
         if (this === other) return true
         if (other !is RegionTrace) return false
 
+        if (!components.contentEquals(other.components)) return false
         if (!entries.contentEquals(other.entries)) return false
         if (source != other.source) return false
 
@@ -42,7 +43,8 @@ data class RegionTrace(
     }
 
     override fun hashCode(): Int {
-        var result = entries.contentHashCode()
+        var result = components.contentHashCode()
+        result = 31 * result + entries.contentHashCode()
         result = 31 * result + source.hashCode()
         return result
     }

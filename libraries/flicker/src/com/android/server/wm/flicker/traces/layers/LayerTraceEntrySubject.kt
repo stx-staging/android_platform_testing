@@ -105,13 +105,22 @@ class LayerTraceEntrySubject private constructor(
      *   Composition Engine (CE) -- visibleRegion in the proto definition. Otherwise calculates
      *   the visible region when the information is not available from the CE
      */
+    @JvmOverloads
     fun visibleRegion(
         vararg components: FlickerComponentName,
         useCompositionEngineRegionOnly: Boolean = true
     ): RegionSubject {
         val layerNames = components.map { it.toLayerName() }
-        val selectedLayers = subjects
-            .filter { s -> components.isEmpty() || layerNames.any { s.name.contains(it) } }
+        val selectedLayers = if (components.isEmpty()) {
+            // No filters so use all subjects
+            subjects
+        } else {
+            subjects.filter {
+                subject -> layerNames.any {
+                    layerName -> subject.name.contains(layerName)
+                }
+            }
+        }
 
         if (selectedLayers.isEmpty()) {
             val str = if (layerNames.isNotEmpty()) layerNames.joinToString() else "<any>"

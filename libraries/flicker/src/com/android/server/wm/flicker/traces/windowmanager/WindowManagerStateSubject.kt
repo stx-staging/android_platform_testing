@@ -117,8 +117,17 @@ class WindowManagerStateSubject private constructor(
      */
     fun frameRegion(vararg components: FlickerComponentName): RegionSubject {
         val windowNames = components.map { it.toWindowName() }
-        val selectedWindows = subjects
-            .filter { s -> components.isEmpty() || windowNames.any { s.name.contains(it) } }
+
+        val selectedWindows = if (components.isEmpty()) {
+            // No filters so use all subjects
+            subjects
+        } else {
+            subjects.filter {
+                subject -> windowNames.any {
+                    layerName -> subject.name.contains(layerName)
+                }
+            }
+        }
 
         if (selectedWindows.isEmpty()) {
             val str = if (windowNames.isNotEmpty()) windowNames.joinToString() else "<any>"

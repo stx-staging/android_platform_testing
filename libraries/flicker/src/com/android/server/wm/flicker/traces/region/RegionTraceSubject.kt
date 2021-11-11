@@ -35,11 +35,18 @@ class RegionTraceSubject(
     override val parent: FlickerSubject?
 ) : FlickerTraceSubject<RegionSubject>(fm, trace) {
 
-    private val component: FlickerComponentName? = trace.component
+    private val components: Array<out FlickerComponentName> = trace.components
 
     override val subjects by lazy {
         trace.entries.map { RegionSubject.assertThat(it, this) }
     }
+
+    private val componentsAsString get() =
+        if (components.isEmpty()) {
+            "<any>"
+        } else {
+            "[" + components.joinToString() + "]"
+        }
 
     /**
      * Asserts that the visible area covered by any [Layer] with [Layer.name] containing any of
@@ -53,7 +60,7 @@ class RegionTraceSubject(
     fun coversAtMost(
         testRegion: Region
     ): RegionTraceSubject = apply {
-        addAssertion("coversAtMost($testRegion, ${component?.toLayerName()}") {
+        addAssertion("coversAtMost($testRegion, $componentsAsString") {
             it.coversAtMost(testRegion)
         }
     }
@@ -109,7 +116,7 @@ class RegionTraceSubject(
     fun coversAtLeast(
         testRegion: Region
     ): RegionTraceSubject = apply {
-        addAssertion("coversAtLeast($testRegion, ${component?.toLayerName()})") {
+        addAssertion("coversAtLeast($testRegion, $componentsAsString)") {
             it.coversAtLeast(testRegion)
         }
     }
@@ -163,7 +170,7 @@ class RegionTraceSubject(
     fun coversExactly(
         expectedVisibleRegion: Region
     ): RegionTraceSubject = apply {
-        addAssertion("coversExactly($component$expectedVisibleRegion)") {
+        addAssertion("coversExactly($expectedVisibleRegion, $componentsAsString)") {
             it.coversExactly(expectedVisibleRegion)
         }
     }
