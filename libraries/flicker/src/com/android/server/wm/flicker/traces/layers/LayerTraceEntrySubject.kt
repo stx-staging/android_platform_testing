@@ -100,7 +100,7 @@ class LayerTraceEntrySubject private constructor(
     /**
      * Obtains the region occupied by all layers with name containing [components]
      *
-     * @param components Component to search
+     * @param components Components to search for
      * @param useCompositionEngineRegionOnly If true, uses only the region calculated from the
      *   Composition Engine (CE) -- visibleRegion in the proto definition. Otherwise calculates
      *   the visible region when the information is not available from the CE

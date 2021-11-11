@@ -112,10 +112,21 @@ class WindowManagerStateSubject private constructor(
 
     /**
      * Obtains the region occupied by all windows with name containing any of [components]
+     * alias of [visibleRegion]
+     *
+     * @param components Components to search
+     * @deprecated using [visibleRegion] is preferred
+     */
+    fun frameRegion(vararg components: FlickerComponentName): RegionSubject {
+        return visibleRegion(*components)
+    }
+
+    /**
+     * Obtains the region occupied by all windows with name containing any of [components]
      *
      * @param components Components to search
      */
-    fun frameRegion(vararg components: FlickerComponentName): RegionSubject {
+    fun visibleRegion(vararg components: FlickerComponentName): RegionSubject {
         val windowNames = components.map { it.toWindowName() }
 
         val selectedWindows = if (components.isEmpty()) {
@@ -131,13 +142,14 @@ class WindowManagerStateSubject private constructor(
 
         if (selectedWindows.isEmpty()) {
             val str = if (windowNames.isNotEmpty()) windowNames.joinToString() else "<any>"
-            fail(Fact.fact(ASSERTION_TAG, "frameRegion($str)"),
-                    Fact.fact("Could not find", str))
+            fail(Fact.fact(ASSERTION_TAG, "visibleRegion($str)"),
+                    Fact.fact("Could not find windows", str))
         }
 
         val visibleWindows = selectedWindows.filter { it.isVisible }
-        val frameRegions = visibleWindows.mapNotNull { it.windowState?.frameRegion }.toTypedArray()
-        return RegionSubject.assertThat(frameRegions, this)
+        val visibleRegions = visibleWindows
+                .mapNotNull { it.windowState?.frameRegion }.toTypedArray()
+        return RegionSubject.assertThat(visibleRegions, this)
     }
 
     /**

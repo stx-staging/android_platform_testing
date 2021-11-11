@@ -20,11 +20,13 @@ import com.android.server.wm.flicker.assertions.Assertion
 import com.android.server.wm.flicker.assertions.FlickerSubject
 import com.android.server.wm.flicker.traces.FlickerFailureStrategy
 import com.android.server.wm.flicker.traces.FlickerTraceSubject
+import com.android.server.wm.flicker.traces.region.RegionTraceSubject
 import com.android.server.wm.traces.common.FlickerComponentName
+import com.android.server.wm.traces.common.RegionEntry
+import com.android.server.wm.traces.common.RegionTrace
 import com.android.server.wm.traces.common.layers.Layer
 import com.android.server.wm.traces.common.layers.LayersTrace
-import com.android.server.wm.traces.parser.toAndroidRect
-import com.android.server.wm.traces.parser.toAndroidRegion
+import com.android.server.wm.traces.parser.toFlickerRegion
 import com.google.common.truth.Fact
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.FailureStrategy
@@ -220,6 +222,29 @@ class LayersTraceSubject private constructor(
         addAssertion("isSplashScreenVisibleFor(${component.toLayerName()})", isOptional) {
             it.isSplashScreenVisibleFor(component)
         }
+    }
+
+    /**
+     * Obtains the trace of regions occupied by all layers with name containing [components]
+     *
+     * @param components Components to search for
+     * @param useCompositionEngineRegionOnly If true, uses only the region calculated from the
+     *   Composition Engine (CE) -- visibleRegion in the proto definition. Otherwise calculates
+     *   the visible region when the information is not available from the CE
+     */
+    @JvmOverloads
+    fun visibleRegion(
+        vararg components: FlickerComponentName,
+        useCompositionEngineRegionOnly: Boolean = true
+    ): RegionTraceSubject {
+        val regionTrace = RegionTrace(components, subjects.map {
+            RegionEntry(
+                    it.visibleRegion(components = components, useCompositionEngineRegionOnly)
+                            .region.toFlickerRegion(),
+                    it.timestamp
+            )
+        }.toTypedArray(), trace.source)
+        return RegionTraceSubject.assertThat(regionTrace, this)
     }
 
     /**

@@ -20,9 +20,13 @@ import com.android.server.wm.flicker.assertions.Assertion
 import com.android.server.wm.flicker.assertions.FlickerSubject
 import com.android.server.wm.flicker.traces.FlickerFailureStrategy
 import com.android.server.wm.flicker.traces.FlickerTraceSubject
+import com.android.server.wm.flicker.traces.region.RegionTraceSubject
 import com.android.server.wm.traces.common.FlickerComponentName
+import com.android.server.wm.traces.common.RegionEntry
+import com.android.server.wm.traces.common.RegionTrace
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 import com.android.server.wm.traces.common.windowmanager.windows.WindowState
+import com.android.server.wm.traces.parser.toFlickerRegion
 import com.android.server.wm.traces.parser.toAndroidRect
 import com.android.server.wm.traces.parser.toAndroidRegion
 import com.google.common.truth.Fact
@@ -352,6 +356,19 @@ class WindowManagerTraceSubject private constructor(
         addAssertion("$aboveWindowTitle is above $belowWindowTitle") {
             it.isAboveWindow(aboveWindow, belowWindow)
         }
+    }
+
+    /**
+     * Obtains the trace of regions occupied by all windows with name containing any of [components]
+     *
+     * @param components Components to search
+     */
+    fun visibleRegion(vararg components: FlickerComponentName): RegionTraceSubject {
+        val regionTrace = RegionTrace(components, subjects.map {
+            RegionEntry(it.visibleRegion(*components).region.toFlickerRegion(), it.timestamp)
+        }.toTypedArray(), trace.source)
+
+        return RegionTraceSubject.assertThat(regionTrace, this)
     }
 
     /**
