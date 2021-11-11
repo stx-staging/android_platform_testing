@@ -66,11 +66,6 @@ class WindowManagerTraceSubject private constructor(
 ) : FlickerTraceSubject<WindowManagerStateSubject>(fm, trace) {
     override val selfFacts
         get() = super.selfFacts.toMutableList()
-            .also {
-                if (trace.hasSource()) {
-                    it.add(Fact.fact("Trace file", trace.source))
-                }
-            }
 
     override val subjects by lazy {
         trace.entries.map { WindowManagerStateSubject.assertThat(it, this, this) }
@@ -366,7 +361,7 @@ class WindowManagerTraceSubject private constructor(
     fun visibleRegion(vararg components: FlickerComponentName): RegionTraceSubject {
         val regionTrace = RegionTrace(components, subjects.map {
             RegionEntry(it.visibleRegion(*components).region.toFlickerRegion(), it.timestamp)
-        }.toTypedArray(), trace.source)
+        }.toTypedArray())
 
         return RegionTraceSubject.assertThat(regionTrace, this)
     }

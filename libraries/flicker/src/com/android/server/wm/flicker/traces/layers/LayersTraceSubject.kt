@@ -27,7 +27,6 @@ import com.android.server.wm.traces.common.RegionTrace
 import com.android.server.wm.traces.common.layers.Layer
 import com.android.server.wm.traces.common.layers.LayersTrace
 import com.android.server.wm.traces.parser.toFlickerRegion
-import com.google.common.truth.Fact
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.FailureStrategy
 import com.google.common.truth.StandardSubjectBuilder
@@ -64,11 +63,6 @@ class LayersTraceSubject private constructor(
 ) : FlickerTraceSubject<LayerTraceEntrySubject>(fm, trace) {
     override val selfFacts
         get() = super.selfFacts.toMutableList()
-            .also {
-                if (trace.hasSource()) {
-                    it.add(Fact.fact("Trace file", trace.source))
-                }
-            }
     override val subjects by lazy {
         trace.entries.map { LayerTraceEntrySubject.assertThat(it, trace, this) }
     }
@@ -243,7 +237,7 @@ class LayersTraceSubject private constructor(
                             .region.toFlickerRegion(),
                     it.timestamp
             )
-        }.toTypedArray(), trace.source)
+        }.toTypedArray())
         return RegionTraceSubject.assertThat(regionTrace, this)
     }
 

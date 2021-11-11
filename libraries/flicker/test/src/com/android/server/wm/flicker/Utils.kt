@@ -28,12 +28,10 @@ import com.android.server.wm.traces.parser.windowmanager.WindowManagerTraceParse
 import com.google.common.io.ByteStreams
 import com.google.common.truth.ExpectFailure
 import com.google.common.truth.TruthFailureSubject
-import java.nio.file.Paths
 
 internal fun readWmTraceFromFile(relativePath: String): WindowManagerTrace {
     return try {
-        WindowManagerTraceParser.parseFromTrace(readTestFile(relativePath),
-            source = Paths.get(relativePath))
+        WindowManagerTraceParser.parseFromTrace(readTestFile(relativePath))
     } catch (e: Exception) {
         throw RuntimeException(e)
     }
@@ -55,8 +53,7 @@ internal fun readLayerTraceFromFile(
         LayersTraceParser.parseFromTrace(
             readTestFile(relativePath),
             ignoreLayersStackMatchNoDisplay = false,
-            ignoreLayersInVirtualDisplay = false,
-            source = Paths.get(relativePath)
+            ignoreLayersInVirtualDisplay = false
         ) { ignoreOrphanLayers }
     } catch (e: Exception) {
         throw RuntimeException(e)
@@ -65,8 +62,7 @@ internal fun readLayerTraceFromFile(
 
 internal fun readTagTraceFromFile(relativePath: String): TagTrace {
     return try {
-        TagTraceParserUtil.parseFromTrace(readTestFile(relativePath),
-            source = Paths.get(relativePath))
+        TagTraceParserUtil.parseFromTrace(readTestFile(relativePath))
     } catch (e: Exception) {
         throw RuntimeException(e)
     }
