@@ -127,7 +127,7 @@ class LayerTraceEntrySubject private constructor(
             fail(listOf(
                 Fact.fact(ASSERTION_TAG, "visibleRegion($str)"),
                 Fact.fact("Use composition engine region", useCompositionEngineRegionOnly),
-                Fact.fact("Could not find", str))
+                Fact.fact("Could not find layers", str))
             )
         }
 

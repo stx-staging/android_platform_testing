@@ -27,6 +27,7 @@ import com.android.server.wm.traces.parser.tags.TagTraceParserUtil
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerTraceParser
 import com.google.common.io.ByteStreams
 import com.google.common.truth.ExpectFailure
+import com.google.common.truth.Truth
 import com.google.common.truth.TruthFailureSubject
 
 internal fun readWmTraceFromFile(relativePath: String): WindowManagerTrace {
@@ -106,4 +107,16 @@ fun assertFailure(failure: Throwable?): TruthFailureSubject {
     }
     require(target is AssertionError) { "Unknown failure $target" }
     return ExpectFailure.assertThat(target)
+}
+
+fun assertThatErrorContainsDebugInfo(error: Throwable, withBlameEntry: Boolean = true) {
+    Truth.assertThat(error).hasMessageThat().contains("What?")
+    Truth.assertThat(error).hasMessageThat().contains("Where?")
+    Truth.assertThat(error).hasMessageThat().contains("Facts")
+    Truth.assertThat(error).hasMessageThat().contains("Trace start")
+    Truth.assertThat(error).hasMessageThat().contains("Trace end")
+
+    if (withBlameEntry) {
+        Truth.assertThat(error).hasMessageThat().contains("Entry")
+    }
 }

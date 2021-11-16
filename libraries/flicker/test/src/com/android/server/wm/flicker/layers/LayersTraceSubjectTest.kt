@@ -50,7 +50,6 @@ class LayersTraceSubjectTest {
         }
         Truth.assertThat(error).hasMessageThat().contains("Trace start")
         Truth.assertThat(error).hasMessageThat().contains("Trace end")
-        Truth.assertThat(error).hasMessageThat().contains("Trace file")
     }
 
     @Test

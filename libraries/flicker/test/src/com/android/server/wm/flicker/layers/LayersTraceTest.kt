@@ -16,6 +16,7 @@
 
 package com.android.server.wm.flicker.layers
 
+import com.android.server.wm.flicker.assertThatErrorContainsDebugInfo
 import com.android.server.wm.flicker.assertThrows
 import com.android.server.wm.flicker.readLayerTraceFromFile
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
@@ -123,9 +124,7 @@ class LayersTraceTest {
             LayersTraceSubject.assertThat(layersTraceEntries)
                     .isEmpty()
         }
-        Truth.assertThat(error).hasMessageThat().contains("Trace start")
-        Truth.assertThat(error).hasMessageThat().contains("Trace start")
-        Truth.assertThat(error).hasMessageThat().contains("Trace file")
+        assertThatErrorContainsDebugInfo(error, withBlameEntry = false)
     }
 
     @Test

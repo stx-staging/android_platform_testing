@@ -22,6 +22,7 @@ import com.android.server.wm.flicker.IMAGINARY_COMPONENT
 import com.android.server.wm.flicker.LAUNCHER_COMPONENT
 import com.android.server.wm.flicker.SIMPLE_APP_COMPONENT
 import com.android.server.wm.flicker.assertFailure
+import com.android.server.wm.flicker.assertThatErrorContainsDebugInfo
 import com.android.server.wm.flicker.assertThrows
 import com.android.server.wm.flicker.assertions.FlickerSubject
 import com.android.server.wm.flicker.readLayerTraceFromFile
@@ -47,11 +48,8 @@ class LayerTraceEntrySubjectTest {
                 .first()
                 .visibleRegion(IMAGINARY_COMPONENT)
         }
+        assertThatErrorContainsDebugInfo(error)
         Truth.assertThat(error).hasMessageThat().contains(IMAGINARY_COMPONENT.className)
-        Truth.assertThat(error).hasMessageThat().contains("Trace start")
-        Truth.assertThat(error).hasMessageThat().contains("Trace start")
-        Truth.assertThat(error).hasMessageThat().contains("Trace file")
-        Truth.assertThat(error).hasMessageThat().contains("Entry")
         Truth.assertThat(error).hasMessageThat().contains(FlickerSubject.ASSERTION_TAG)
     }
 

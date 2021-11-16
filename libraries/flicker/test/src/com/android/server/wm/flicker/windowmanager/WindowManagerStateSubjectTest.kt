@@ -26,6 +26,7 @@ import com.android.server.wm.flicker.SHELL_SPLIT_SCREEN_PRIMARY_COMPONENT
 import com.android.server.wm.flicker.SHELL_SPLIT_SCREEN_SECONDARY_COMPONENT
 import com.android.server.wm.flicker.WALLPAPER_COMPONENT
 import com.android.server.wm.flicker.assertFailure
+import com.android.server.wm.flicker.assertThatErrorContainsDebugInfo
 import com.android.server.wm.flicker.assertThrows
 import com.android.server.wm.flicker.assertions.FlickerSubject
 import com.android.server.wm.flicker.readWmTraceFromFile
@@ -65,11 +66,8 @@ class WindowManagerStateSubjectTest {
         val error = assertThrows(AssertionError::class.java) {
             assertThat(trace).first().visibleRegion(IMAGINARY_COMPONENT)
         }
+        assertThatErrorContainsDebugInfo(error)
         Truth.assertThat(error).hasMessageThat().contains(IMAGINARY_COMPONENT.className)
-        Truth.assertThat(error).hasMessageThat().contains("Trace start")
-        Truth.assertThat(error).hasMessageThat().contains("Trace start")
-        Truth.assertThat(error).hasMessageThat().contains("Trace file")
-        Truth.assertThat(error).hasMessageThat().contains("Entry")
         Truth.assertThat(error).hasMessageThat().contains(FlickerSubject.ASSERTION_TAG)
     }
 
