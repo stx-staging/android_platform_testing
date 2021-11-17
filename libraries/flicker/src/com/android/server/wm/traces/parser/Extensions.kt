@@ -31,44 +31,12 @@ import com.android.server.wm.traces.common.windowmanager.WindowManagerState
 
 internal const val LOG_TAG = "AMWM_FLICKER"
 
-fun Region.toAndroidRegion(): android.graphics.Region {
-    return android.graphics.Region(left, top, right, bottom)
-}
-
 fun Rect.toAndroidRect(): android.graphics.Rect {
     return android.graphics.Rect(left, top, right, bottom)
 }
 
-fun android.graphics.Region.toFlickerRegion(): Region {
-    return Region(bounds.left, bounds.top, bounds.right, bounds.bottom)
-}
-
-/**
- * Subtracts [other] region from this [this] region
- */
-fun Region.minus(other: Region): android.graphics.Region = minus(other.toAndroidRegion())
-
-/**
- * Subtracts [other] region from this [this] region
- */
-fun Region.minus(other: android.graphics.Region): android.graphics.Region {
-    val thisRegion = this.toAndroidRegion()
-    thisRegion.op(other, android.graphics.Region.Op.XOR)
-    return thisRegion
-}
-
-/**
- * Adds [other] region to this [this] region
- */
-fun Region.plus(other: Region): android.graphics.Region = plus(other.toAndroidRegion())
-
-/**
- * Adds [other] region to this [this] region
- */
-fun Region.plus(other: android.graphics.Region): android.graphics.Region {
-    val thisRegion = this.toAndroidRegion()
-    thisRegion.op(other, android.graphics.Region.Op.XOR)
-    return thisRegion
+fun android.graphics.Rect.toFlickerRect(): Rect {
+    return Rect(left, top, right, bottom)
 }
 
 private fun executeCommand(uiAutomation: UiAutomation, cmd: String): ByteArray {

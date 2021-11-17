@@ -16,7 +16,6 @@
 
 package com.android.server.wm.flicker.windowmanager
 
-import android.graphics.Region
 import com.android.server.wm.flicker.CHROME_SPLASH_SCREEN_COMPONENT
 import com.android.server.wm.flicker.IMAGINARY_COMPONENT
 import com.android.server.wm.flicker.LAUNCHER_COMPONENT
@@ -34,6 +33,7 @@ import com.android.server.wm.flicker.traces.FlickerSubjectException
 import com.android.server.wm.flicker.traces.windowmanager.WindowManagerStateSubject
 import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject.Companion.assertThat
 import com.android.server.wm.traces.common.FlickerComponentName
+import com.android.server.wm.traces.common.region.Region
 import com.android.server.wm.traces.common.windowmanager.WindowManagerState
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 import com.android.server.wm.traces.common.windowmanager.windows.ConfigurationContainer

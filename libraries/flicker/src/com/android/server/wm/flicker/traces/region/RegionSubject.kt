@@ -23,9 +23,6 @@ import com.android.server.wm.traces.common.Rect
 import com.android.server.wm.traces.common.RectF
 import com.android.server.wm.traces.common.region.Region
 import com.android.server.wm.traces.common.region.RegionEntry
-import com.android.server.wm.traces.parser.toAndroidRect
-import com.android.server.wm.traces.parser.toAndroidRegion
-import com.android.server.wm.traces.parser.toFlickerRegion
 import com.google.common.truth.Fact
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.StandardSubjectBuilder
@@ -38,11 +35,11 @@ import com.google.common.truth.Subject.Factory
 class RegionSubject(
     fm: FailureMetadata,
     override val parent: FlickerSubject?,
-    val regionEntry: RegionEntry
+    val regionEntry: RegionEntry,
+    override val timestamp: Long
 ) : FlickerSubject(fm, regionEntry) {
-    override val timestamp: Long get() = regionEntry.timestamp
 
-    val region = regionEntry.region.toAndroidRegion()
+    val region = regionEntry.region
 
     private val topPositionSubject
         get() = check(MSG_ERROR_TOP_POSITION).that(region.bounds.top)
@@ -64,7 +61,7 @@ class RegionSubject(
      * {@inheritDoc}
      */
     override fun clone(): FlickerSubject {
-        return RegionSubject(fm, parent, regionEntry)
+        return RegionSubject(fm, parent, regionEntry, timestamp)
     }
 
     /**
@@ -75,7 +72,7 @@ class RegionSubject(
         return super.fail(newReason)
     }
 
-    private fun assertLeftRightAndAreaEquals(other: android.graphics.Region) {
+    private fun assertLeftRightAndAreaEquals(other: Region) {
         leftPositionSubject.isEqualTo(other.bounds.left)
         rightPositionSubject.isEqualTo(other.bounds.right)
         areaSubject.isEqualTo(other.bounds.area)
@@ -84,28 +81,18 @@ class RegionSubject(
     /**
      * Subtracts [other] from this subject [region]
      */
-    fun minus(other: Region): RegionSubject = minus(other.toAndroidRegion())
-
-    /**
-     * Subtracts [other] from this subject [region]
-     */
-    fun minus(other: android.graphics.Region): RegionSubject {
-        val remainingRegion = android.graphics.Region(this.region)
-        remainingRegion.op(other, android.graphics.Region.Op.XOR)
+    fun minus(other: Region): RegionSubject {
+        val remainingRegion = Region(this.region)
+        remainingRegion.op(other, Region.Op.XOR)
         return assertThat(remainingRegion, this, timestamp)
     }
 
     /**
      * Adds [other] to this subject [region]
      */
-    fun plus(other: Region): RegionSubject = plus(other.toAndroidRegion())
-
-    /**
-     * Adds [other] to this subject [region]
-     */
-    fun plus(other: android.graphics.Region): RegionSubject {
-        val remainingRegion = android.graphics.Region(this.region)
-        remainingRegion.op(other, android.graphics.Region.Op.UNION)
+    fun plus(other: Region): RegionSubject {
+        val remainingRegion = Region(this.region)
+        remainingRegion.op(other, Region.Op.UNION)
         return assertThat(remainingRegion, this, timestamp)
     }
 
@@ -126,7 +113,7 @@ class RegionSubject(
      * Also checks that the left and right positions, as well as area, don't change
      */
     fun isHigherOrEqual(other: Rect): RegionSubject = apply {
-        isHigherOrEqual(other.toAndroidRect())
+        isHigherOrEqual(Region(other))
     }
 
     /**
@@ -136,26 +123,6 @@ class RegionSubject(
      * Also checks that the left and right positions, as well as area, don't change
      */
     fun isHigherOrEqual(other: Region): RegionSubject = apply {
-        isHigherOrEqual(other.toAndroidRegion())
-    }
-
-    /**
-     * Asserts that the top and bottom coordinates of [other] are smaller or equal to
-     * those of [region].
-     *
-     * Also checks that the left and right positions, as well as area, don't change
-     */
-    fun isHigherOrEqual(other: android.graphics.Rect): RegionSubject = apply {
-        isHigherOrEqual(android.graphics.Region(other))
-    }
-
-    /**
-     * Asserts that the top and bottom coordinates of [other] are smaller or equal to
-     * those of [region].
-     *
-     * Also checks that the left and right positions, as well as area, don't change
-     */
-    fun isHigherOrEqual(other: android.graphics.Region): RegionSubject = apply {
         assertLeftRightAndAreaEquals(other)
         topPositionSubject.isAtMost(other.bounds.top)
         bottomPositionSubject.isAtMost(other.bounds.bottom)
@@ -178,7 +145,7 @@ class RegionSubject(
      * Also checks that the left and right positions, as well as area, don't change
      */
     fun isLowerOrEqual(other: Rect): RegionSubject = apply {
-        isLowerOrEqual(other.toAndroidRect())
+        isLowerOrEqual(Region(other))
     }
 
     /**
@@ -187,17 +154,7 @@ class RegionSubject(
      *
      * Also checks that the left and right positions, as well as area, don't change
      */
-    fun isLowerOrEqual(other: android.graphics.Rect): RegionSubject = apply {
-        isLowerOrEqual(android.graphics.Region(other))
-    }
-
-    /**
-     * Asserts that the top and bottom coordinates of [other] are greater or equal to
-     * those of [region].
-     *
-     * Also checks that the left and right positions, as well as area, don't change
-     */
-    fun isLowerOrEqual(other: android.graphics.Region): RegionSubject = apply {
+    fun isLowerOrEqual(other: Region): RegionSubject = apply {
         assertLeftRightAndAreaEquals(other)
         topPositionSubject.isAtLeast(other.bounds.top)
         bottomPositionSubject.isAtLeast(other.bounds.bottom)
@@ -219,7 +176,7 @@ class RegionSubject(
      * Also checks that the left and right positions, as well as area, don't change
      */
     fun isHigher(other: Rect): RegionSubject = apply {
-        isHigher(other.toAndroidRect())
+        isHigher(Region(other))
     }
 
     /**
@@ -227,16 +184,7 @@ class RegionSubject(
      *
      * Also checks that the left and right positions, as well as area, don't change
      */
-    fun isHigher(other: android.graphics.Rect): RegionSubject = apply {
-        isHigher(android.graphics.Region(other))
-    }
-
-    /**
-     * Asserts that the top and bottom coordinates of [other] are smaller than those of [region].
-     *
-     * Also checks that the left and right positions, as well as area, don't change
-     */
-    fun isHigher(other: android.graphics.Region): RegionSubject = apply {
+    fun isHigher(other: Region): RegionSubject = apply {
         assertLeftRightAndAreaEquals(other)
         topPositionSubject.isLessThan(other.bounds.top)
         bottomPositionSubject.isLessThan(other.bounds.bottom)
@@ -258,7 +206,7 @@ class RegionSubject(
      * Also checks that the left and right positions, as well as area, don't change
      */
     fun isLower(other: Rect): RegionSubject = apply {
-        isLower(other.toAndroidRect())
+        isLower(Region(other))
     }
 
     /**
@@ -266,16 +214,7 @@ class RegionSubject(
      *
      * Also checks that the left and right positions, as well as area, don't change
      */
-    fun isLower(other: android.graphics.Rect): RegionSubject = apply {
-        isLower(android.graphics.Region(other))
-    }
-
-    /**
-     * Asserts that the top and bottom coordinates of [other] are greater than those of [region].
-     *
-     * Also checks that the left and right positions, as well as area, don't change
-     */
-    fun isLower(other: android.graphics.Region): RegionSubject = apply {
+    fun isLower(other: Region): RegionSubject = apply {
         assertLeftRightAndAreaEquals(other)
         topPositionSubject.isGreaterThan(other.bounds.top)
         bottomPositionSubject.isGreaterThan(other.bounds.bottom)
@@ -287,27 +226,17 @@ class RegionSubject(
      *
      * @param testRegion Expected covered area
      */
-    fun coversAtMost(testRegion: android.graphics.Region): RegionSubject = apply {
+    fun coversAtMost(testRegion: Region): RegionSubject = apply {
         val testRect = testRegion.bounds
-        val intersection = android.graphics.Region(region)
-        val covers = intersection.op(testRect, android.graphics.Region.Op.INTERSECT) &&
-            !intersection.op(region, android.graphics.Region.Op.XOR)
+        val intersection = Region(region)
+        val covers = intersection.op(testRect, Region.Op.INTERSECT) &&
+            !intersection.op(region, Region.Op.XOR)
 
         if (!covers) {
             fail(Fact.fact("Region to test", testRegion),
                 Fact.fact("Covered region", region),
                 Fact.fact("Out-of-bounds region", intersection))
         }
-    }
-
-    /**
-     * Asserts that [region] covers at most [testRegion], that is, its area doesn't cover any
-     * point outside of [testRegion].
-     *
-     * @param testRegion Expected covered area
-     */
-    fun coversAtMost(testRegion: Region): RegionSubject = apply {
-        coversAtMost(testRegion.toAndroidRegion())
     }
 
     /**
@@ -321,41 +250,21 @@ class RegionSubject(
     }
 
     /**
-     * Asserts that [region] covers at most [testRect], that is, its area doesn't cover any
-     * point outside of [testRect].
-     *
-     * @param testRect Expected covered area
-     */
-    fun coversAtMost(testRect: android.graphics.Rect): RegionSubject = apply {
-        coversAtMost(android.graphics.Region(testRect))
-    }
-
-    /**
-     * Asserts that [region] covers at least [testRegion], that is, its area covers each point
-     * in the region
-     *
-     * @param testRegion Expected covered area
-     */
-    fun coversAtLeast(testRegion: android.graphics.Region): RegionSubject = apply {
-        val intersection = android.graphics.Region(region)
-        val covers = intersection.op(testRegion, android.graphics.Region.Op.INTERSECT) &&
-            !intersection.op(testRegion, android.graphics.Region.Op.XOR)
-
-        if (!covers) {
-            fail(Fact.fact("Region to test", testRegion),
-                Fact.fact("Covered region", region),
-                Fact.fact("Uncovered region", intersection))
-        }
-    }
-
-    /**
      * Asserts that [region] covers at least [testRegion], that is, its area covers each point
      * in the region
      *
      * @param testRegion Expected covered area
      */
     fun coversAtLeast(testRegion: Region): RegionSubject = apply {
-        coversAtLeast(testRegion.toAndroidRegion())
+        val intersection = Region(region)
+        val covers = intersection.op(testRegion, Region.Op.INTERSECT) &&
+            !intersection.op(testRegion, Region.Op.XOR)
+
+        if (!covers) {
+            fail(Fact.fact("Region to test", testRegion),
+                Fact.fact("Covered region", region),
+                Fact.fact("Uncovered region", intersection))
+        }
     }
 
     /**
@@ -369,23 +278,13 @@ class RegionSubject(
     }
 
     /**
-     * Asserts that [region] covers at least [testRect], that is, its area covers each point
-     * in the region
-     *
-     * @param testRect Expected covered area
-     */
-    fun coversAtLeast(testRect: android.graphics.Rect): RegionSubject = apply {
-        coversAtLeast(android.graphics.Region(testRect))
-    }
-
-    /**
      * Asserts that [region] covers at exactly [testRegion]
      *
      * @param testRegion Expected covered area
      */
-    fun coversExactly(testRegion: android.graphics.Region): RegionSubject = apply {
-        val intersection = android.graphics.Region(region)
-        val isNotEmpty = intersection.op(testRegion, android.graphics.Region.Op.XOR)
+    fun coversExactly(testRegion: Region): RegionSubject = apply {
+        val intersection = Region(region)
+        val isNotEmpty = intersection.op(testRegion, Region.Op.XOR)
 
         if (isNotEmpty) {
             fail(Fact.fact("Region to test", testRegion),
@@ -395,30 +294,12 @@ class RegionSubject(
     }
 
     /**
-     * Asserts that [region] covers at exactly [testRegion]
-     *
-     * @param testRegion Expected covered area
-     */
-    fun coversExactly(testRegion: Region): RegionSubject = apply {
-        coversExactly(testRegion.toAndroidRegion())
-    }
-
-    /**
      * Asserts that [region] covers at exactly [testRect]
      *
      * @param testRect Expected covered area
      */
     fun coversExactly(testRect: Rect): RegionSubject = apply {
-        coversExactly(testRect.toAndroidRect())
-    }
-
-    /**
-     * Asserts that [region] covers at exactly [testRect]
-     *
-     * @param testRect Expected covered area
-     */
-    fun coversExactly(testRect: android.graphics.Rect): RegionSubject = apply {
-        coversExactly(android.graphics.Region(testRect))
+        coversExactly(Region(testRect))
     }
 
     /**
@@ -426,9 +307,9 @@ class RegionSubject(
      *
      * @param testRegion Other area
      */
-    fun overlaps(testRegion: android.graphics.Region): RegionSubject = apply {
-        val intersection = android.graphics.Region(region)
-        val isEmpty = !intersection.op(testRegion, android.graphics.Region.Op.INTERSECT)
+    fun overlaps(testRegion: Region): RegionSubject = apply {
+        val intersection = Region(region)
+        val isEmpty = !intersection.op(testRegion, Region.Op.INTERSECT)
 
         if (isEmpty) {
             fail(Fact.fact("Region to test", testRegion),
@@ -438,30 +319,12 @@ class RegionSubject(
     }
 
     /**
-     * Asserts that [region] and [testRegion] overlap
-     *
-     * @param testRegion Other area
-     */
-    fun overlaps(testRegion: Region): RegionSubject = apply {
-        overlaps(testRegion.toAndroidRegion())
-    }
-
-    /**
-     * Asserts that [region] and [testRect] overlap
-     *
-     * @param testRect Other area
-     */
-    fun overlaps(testRect: android.graphics.Rect): RegionSubject = apply {
-        overlaps(android.graphics.Region(testRect))
-    }
-
-    /**
      * Asserts that [region] and [testRect] overlap
      *
      * @param testRect Other area
      */
     fun overlaps(testRect: Rect): RegionSubject = apply {
-        overlaps(testRect.toAndroidRect())
+        overlaps(Region(testRect))
     }
 
     /**
@@ -469,9 +332,9 @@ class RegionSubject(
      *
      * @param testRegion Other area
      */
-    fun notOverlaps(testRegion: android.graphics.Region): RegionSubject = apply {
-        val intersection = android.graphics.Region(region)
-        val isEmpty = !intersection.op(testRegion, android.graphics.Region.Op.INTERSECT)
+    fun notOverlaps(testRegion: Region): RegionSubject = apply {
+        val intersection = Region(region)
+        val isEmpty = !intersection.op(testRegion, Region.Op.INTERSECT)
 
         if (!isEmpty) {
             fail(Fact.fact("Region to test", testRegion),
@@ -481,30 +344,12 @@ class RegionSubject(
     }
 
     /**
-     * Asserts that [region] and [testRegion] don't overlap
-     *
-     * @param testRegion Other area
-     */
-    fun notOverlaps(testRegion: Region): RegionSubject = apply {
-        notOverlaps(testRegion.toAndroidRegion())
-    }
-
-    /**
-     * Asserts that [region] and [testRect] don't overlap
-     *
-     * @param testRect Other area
-     */
-    fun notOverlaps(testRect: android.graphics.Rect): RegionSubject = apply {
-        notOverlaps(android.graphics.Region(testRect))
-    }
-
-    /**
      * Asserts that [region] and [testRect] don't overlap
      *
      * @param testRect Other area
      */
     fun notOverlaps(testRect: Rect): RegionSubject = apply {
-        notOverlaps(testRect.toAndroidRect())
+        notOverlaps(Region(testRect))
     }
 
     companion object {
@@ -523,11 +368,11 @@ class RegionSubject(
         @VisibleForTesting
         const val MSG_ERROR_AREA = "Incorrect rect area"
 
-        private fun mergeRegions(regions: Array<Region>): android.graphics.Region {
-            val result = android.graphics.Region()
+        private fun mergeRegions(regions: Array<Region>): Region {
+            val result = Region.EMPTY
             regions.forEach { region ->
                 region.rects.forEach { rect ->
-                    result.op(rect.toAndroidRect(), android.graphics.Region.Op.UNION)
+                    result.op(rect, Region.Op.UNION)
                 }
             }
             return result
@@ -540,26 +385,24 @@ class RegionSubject(
         fun getFactory(
             parent: FlickerSubject?,
             timestamp: Long
-        ) = Factory { fm: FailureMetadata, region: android.graphics.Region? ->
-            val androidRegion = region ?: android.graphics.Region()
-            val subjectRegion = RegionEntry(androidRegion.toFlickerRegion(), timestamp.toString())
-            RegionSubject(fm, parent, subjectRegion)
+        ) = Factory { fm: FailureMetadata, region: Region? ->
+            val regionEntry = RegionEntry(region ?: Region.EMPTY, timestamp.toString())
+            RegionSubject(fm, parent, regionEntry, timestamp)
         }
 
         /**
          * User-defined entry point for existing android regions
          */
         @JvmStatic
-        @JvmOverloads
         fun assertThat(
-            region: android.graphics.Region?,
+            region: Region?,
             parent: FlickerSubject? = null,
-            timestamp: Long = 0
+            timestamp: Long
         ): RegionSubject {
             val strategy = FlickerFailureStrategy()
             val subject = StandardSubjectBuilder.forCustomFailureStrategy(strategy)
                 .about(getFactory(parent, timestamp))
-                .that(region ?: android.graphics.Region()) as RegionSubject
+                .that(region ?: Region.EMPTY) as RegionSubject
             strategy.init(subject)
             return subject
         }
@@ -569,7 +412,7 @@ class RegionSubject(
          */
         @JvmStatic
         @JvmOverloads
-        fun assertThat(rect: Array<Rect>, parent: FlickerSubject? = null, timestamp: Long = 0):
+        fun assertThat(rect: Array<Rect>, parent: FlickerSubject? = null, timestamp: Long):
             RegionSubject = assertThat(Region(rect), parent, timestamp)
 
         /**
@@ -577,7 +420,7 @@ class RegionSubject(
          */
         @JvmStatic
         @JvmOverloads
-        fun assertThat(rect: Rect?, parent: FlickerSubject? = null, timestamp: Long = 0):
+        fun assertThat(rect: Rect?, parent: FlickerSubject? = null, timestamp: Long):
             RegionSubject = assertThat(Region(rect), parent, timestamp)
 
         /**
@@ -585,7 +428,7 @@ class RegionSubject(
          */
         @JvmStatic
         @JvmOverloads
-        fun assertThat(rect: RectF?, parent: FlickerSubject? = null, timestamp: Long = 0):
+        fun assertThat(rect: RectF?, parent: FlickerSubject? = null, timestamp: Long):
             RegionSubject = assertThat(rect?.toRect(), parent, timestamp)
 
         /**
@@ -593,7 +436,7 @@ class RegionSubject(
          */
         @JvmStatic
         @JvmOverloads
-        fun assertThat(rect: Array<RectF>, parent: FlickerSubject? = null, timestamp: Long = 0):
+        fun assertThat(rect: Array<RectF>, parent: FlickerSubject? = null, timestamp: Long):
             RegionSubject = assertThat(
                 mergeRegions(rect.map { Region(it.toRect()) }.toTypedArray()), parent, timestamp)
 
@@ -602,16 +445,8 @@ class RegionSubject(
          */
         @JvmStatic
         @JvmOverloads
-        fun assertThat(regions: Array<Region>, parent: FlickerSubject? = null, timestamp: Long = 0):
+        fun assertThat(regions: Array<Region>, parent: FlickerSubject? = null, timestamp: Long):
             RegionSubject = assertThat(mergeRegions(regions), parent, timestamp)
-
-        /**
-         * User-defined entry point for existing regions
-         */
-        @JvmStatic
-        @JvmOverloads
-        fun assertThat(region: Region?, parent: FlickerSubject? = null, timestamp: Long = 0):
-            RegionSubject = assertThat(region?.toAndroidRegion(), parent, timestamp)
 
         /**
          * User-defined entry point
@@ -621,8 +456,7 @@ class RegionSubject(
          */
         @JvmStatic
         @JvmOverloads
-        fun assertThat(regionEntry: RegionEntry?, parent: FlickerSubject? = null,
-                       timestamp: Long = 0):
+        fun assertThat(regionEntry: RegionEntry?, parent: FlickerSubject? = null, timestamp: Long):
             RegionSubject = assertThat(regionEntry?.region, parent, timestamp)
     }
 }

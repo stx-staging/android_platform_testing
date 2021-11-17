@@ -27,7 +27,6 @@ import com.android.server.wm.traces.common.region.Region
 import com.android.server.wm.traces.common.windowmanager.WindowManagerState
 import com.android.server.wm.traces.common.windowmanager.windows.Activity
 import com.android.server.wm.traces.common.windowmanager.windows.WindowState
-import com.android.server.wm.traces.parser.toAndroidRegion
 import com.google.common.truth.Fact
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.FailureStrategy
@@ -269,8 +268,8 @@ class WindowManagerStateSubject private constructor(
             val (ourTitle, ourRegion) = regions[i]
             for (j in i + 1 until regions.size) {
                 val (otherTitle, otherRegion) = regions[j]
-                if (ourRegion.toAndroidRegion().op(otherRegion.toAndroidRegion(),
-                        android.graphics.Region.Op.INTERSECT)) {
+                if (ourRegion.op(otherRegion,
+                        Region.Op.INTERSECT)) {
                     val window = foundWindows[ourTitle] ?: error("Window $ourTitle not found")
                     val windowSubject = subjects.first { it.windowState == window }
                     windowSubject.fail(Fact.fact(ASSERTION_TAG,

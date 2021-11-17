@@ -88,7 +88,7 @@ class LayersTraceTest {
                 .that(layer?.visibleRegion?.isEmpty).isFalse()
         Truth.assertWithMessage("App should visible region")
                 .that(layer?.visibleRegion?.toString())
-                .contains("(346, 1583) - (1094, 2839)")
+                .contains("SkRegion((346,1583,1094,2839))")
 
         val splashScreenLayer = entry.getLayerWithBuffer(
                 "Splash Screen com.android.server.wm.flicker.testapp.SimpleActivity#0")
@@ -96,7 +96,7 @@ class LayersTraceTest {
                 .that(layer?.visibleRegion?.isEmpty).isFalse()
         Truth.assertWithMessage("Splash screen visible region")
                 .that(layer?.visibleRegion?.toString())
-                .contains("(346, 1583) - (1094, 2839)")
+                .contains("SkRegion((346,1583,1094,2839))")
     }
 
     @Test
@@ -114,7 +114,8 @@ class LayersTraceTest {
         Truth.assertWithMessage("Layer $layerName should be partially occluded")
                 .that(partiallyOccludedBy.joinToString())
                 .contains("Splash Screen com.android.server.wm.flicker.testapp#0 buffer:w:1440, " +
-                        "h:3040, stride:1472, format:1 frame#1 visible:(346, 1583) - (1094, 2839)")
+                        "h:3040, stride:1472, format:1 frame#1 visible:" +
+                        "SkRegion((346,1583,1094,2839))")
     }
 
     @Test

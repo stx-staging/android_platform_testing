@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker
+package com.android.server.wm.flicker.region
 
+import com.android.server.wm.flicker.assertThrows
 import com.android.server.wm.flicker.traces.region.RegionSubject
 import com.android.server.wm.traces.common.Rect
 import com.google.common.truth.Truth
@@ -25,7 +26,7 @@ import org.junit.runners.MethodSorters
 
 /**
  * Contains [RegionSubject] tests. To run this test:
- * `atest FlickerLibTest:RectSubjectTest`
+ * `atest FlickerLibTest:RegionSubjectTest`
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class RegionSubjectTest {

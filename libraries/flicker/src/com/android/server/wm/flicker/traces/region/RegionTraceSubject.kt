@@ -16,15 +16,13 @@
 
 package com.android.server.wm.flicker.traces.region
 
-import android.graphics.Rect
-import android.graphics.Region
 import com.android.server.wm.flicker.assertions.FlickerSubject
 import com.android.server.wm.flicker.traces.FlickerFailureStrategy
 import com.android.server.wm.flicker.traces.FlickerTraceSubject
 import com.android.server.wm.traces.common.FlickerComponentName
+import com.android.server.wm.traces.common.Rect
+import com.android.server.wm.traces.common.region.Region
 import com.android.server.wm.traces.common.region.RegionTrace
-import com.android.server.wm.traces.parser.toAndroidRect
-import com.android.server.wm.traces.parser.toAndroidRegion
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.StandardSubjectBuilder
 import com.google.common.truth.Subject.Factory
@@ -76,33 +74,7 @@ class RegionTraceSubject(
     @JvmOverloads
     fun coversAtMost(
         testRegion: Rect
-    ): RegionTraceSubject = this.coversAtMost(Region(testRegion))
-
-    /**
-     * Asserts that the visible area covered by any [Layer] with [Layer.name] containing any of
-     * [component] covers at most [testRegion], that is, if the area of any layer doesn't
-     * cover any point outside of [testRegion].
-     *
-     * @param testRegion Expected covered area
-     * @param component Name of the layer to search
-     */
-    @JvmOverloads
-    fun coversAtMost(
-        testRegion: com.android.server.wm.traces.common.Rect
-    ): RegionTraceSubject = this.coversAtMost(testRegion.toAndroidRect())
-
-    /**
-     * Asserts that the visible area covered by any [Layer] with [Layer.name] containing any of
-     * [component] covers at most [testRegion], that is, if the area of any layer doesn't
-     * cover any point outside of [testRegion].
-     *
-     * @param testRegion Expected covered area
-     * @param component Name of the layer to search
-     */
-    @JvmOverloads
-    fun coversAtMost(
-        testRegion: com.android.server.wm.traces.common.region.Region
-    ): RegionTraceSubject = this.coversAtMost(testRegion.toAndroidRegion())
+    ): RegionTraceSubject = this.coversAtMost(testRegion)
 
     /**
      * Asserts that the visible area covered by any [Layer] with [Layer.name] containing any of
@@ -132,32 +104,6 @@ class RegionTraceSubject(
     fun coversAtLeast(
         testRegion: Rect
     ): RegionTraceSubject = this.coversAtLeast(Region(testRegion))
-
-    /**
-     * Asserts that the visible area covered by any [Layer] with [Layer.name] containing any of
-     * [component] covers at least [testRegion], that is, if its area of the layer's visible
-     * region covers each point in the region.
-     *
-     * @param testRegion Expected covered area
-     * @param component Name of the layer to search
-     */
-    @JvmOverloads
-    fun coversAtLeast(
-        testRegion: com.android.server.wm.traces.common.Rect
-    ): RegionTraceSubject = this.coversAtLeast(testRegion.toAndroidRect())
-
-    /**
-     * Asserts that the visible area covered by any [Layer] with [Layer.name] containing any of
-     * [component] covers at least [testRegion], that is, if its area of the layer's visible
-     * region covers each point in the region.
-     *
-     * @param testRegion Expected covered area
-     * @param component Name of the layer to search
-     */
-    @JvmOverloads
-    fun coversAtLeast(
-        testRegion: com.android.server.wm.traces.common.region.Region
-    ): RegionTraceSubject = this.coversAtLeast(testRegion.toAndroidRegion())
 
     /**
      * Asserts that a [Layer] with [Layer.name] containing any of [component] has a visible region
