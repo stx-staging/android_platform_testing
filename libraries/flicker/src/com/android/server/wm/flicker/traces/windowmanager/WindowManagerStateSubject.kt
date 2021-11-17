@@ -149,7 +149,7 @@ class WindowManagerStateSubject private constructor(
         val visibleWindows = selectedWindows.filter { it.isVisible }
         val visibleRegions = visibleWindows
                 .mapNotNull { it.windowState?.frameRegion }.toTypedArray()
-        return RegionSubject.assertThat(visibleRegions, this)
+        return RegionSubject.assertThat(visibleRegions, this, timestamp)
     }
 
     /**

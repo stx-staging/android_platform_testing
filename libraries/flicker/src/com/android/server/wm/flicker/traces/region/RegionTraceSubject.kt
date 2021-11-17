@@ -38,7 +38,7 @@ class RegionTraceSubject(
     private val components: Array<out FlickerComponentName> = trace.components
 
     override val subjects by lazy {
-        trace.entries.map { RegionSubject.assertThat(it, this) }
+        trace.entries.map { RegionSubject.assertThat(it, this, it.timestamp) }
     }
 
     private val componentsAsString get() =

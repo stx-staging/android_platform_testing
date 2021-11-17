@@ -134,10 +134,10 @@ class LayerTraceEntrySubject private constructor(
         val visibleLayers = selectedLayers.filter { it.isVisible }
         return if (useCompositionEngineRegionOnly) {
             val visibleAreas = visibleLayers.mapNotNull { it.layer?.visibleRegion }.toTypedArray()
-            RegionSubject.assertThat(visibleAreas, this)
+            RegionSubject.assertThat(visibleAreas, this, timestamp)
         } else {
             val visibleAreas = visibleLayers.mapNotNull { it.layer?.screenBounds }.toTypedArray()
-            RegionSubject.assertThat(visibleAreas, this)
+            RegionSubject.assertThat(visibleAreas, this, timestamp)
         }
     }
 

@@ -63,13 +63,15 @@ class LayerSubject private constructor(
     /**
      * Visible region calculated by the Composition Engine
      */
-    val visibleRegion: RegionSubject get() = RegionSubject.assertThat(layer?.visibleRegion, this)
+    val visibleRegion: RegionSubject get() =
+        RegionSubject.assertThat(layer?.visibleRegion, this, timestamp)
 
     /**
      * Visible region calculated by the Composition Engine (when available) or calculated
      * based on the layer bounds and transform
      */
-    val screenBounds: RegionSubject get() = RegionSubject.assertThat(layer?.screenBounds, this)
+    val screenBounds: RegionSubject get() =
+        RegionSubject.assertThat(layer?.screenBounds, this, timestamp)
 
     override val selfFacts = if (layer != null) {
         listOf(Fact.fact("Frame", layer.currFrame), Fact.fact("Layer", layer.name))

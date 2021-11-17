@@ -360,7 +360,7 @@ class WindowManagerTraceSubject private constructor(
      */
     fun visibleRegion(vararg components: FlickerComponentName): RegionTraceSubject {
         val regionTrace = RegionTrace(components, subjects.map {
-            RegionEntry(it.visibleRegion(*components).region.toFlickerRegion(), it.timestamp)
+            it.visibleRegion(*components).regionEntry
         }.toTypedArray())
 
         return RegionTraceSubject.assertThat(regionTrace, this)

@@ -22,11 +22,9 @@ import com.android.server.wm.flicker.traces.FlickerFailureStrategy
 import com.android.server.wm.flicker.traces.FlickerTraceSubject
 import com.android.server.wm.flicker.traces.region.RegionTraceSubject
 import com.android.server.wm.traces.common.FlickerComponentName
-import com.android.server.wm.traces.common.RegionEntry
-import com.android.server.wm.traces.common.RegionTrace
 import com.android.server.wm.traces.common.layers.Layer
 import com.android.server.wm.traces.common.layers.LayersTrace
-import com.android.server.wm.traces.parser.toFlickerRegion
+import com.android.server.wm.traces.common.RegionTrace
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.FailureStrategy
 import com.google.common.truth.StandardSubjectBuilder
@@ -232,11 +230,8 @@ class LayersTraceSubject private constructor(
         useCompositionEngineRegionOnly: Boolean = true
     ): RegionTraceSubject {
         val regionTrace = RegionTrace(components, subjects.map {
-            RegionEntry(
-                    it.visibleRegion(components = components, useCompositionEngineRegionOnly)
-                            .region.toFlickerRegion(),
-                    it.timestamp
-            )
+            it.visibleRegion(components = components, useCompositionEngineRegionOnly)
+                            .regionEntry
         }.toTypedArray())
         return RegionTraceSubject.assertThat(regionTrace, this)
     }
