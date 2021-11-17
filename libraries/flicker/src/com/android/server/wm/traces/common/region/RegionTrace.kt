@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.traces.common
+package com.android.server.wm.traces.common.region
+
+import com.android.server.wm.traces.common.FlickerComponentName
+import com.android.server.wm.traces.common.ITrace
 
 /**
  * Contains a collection of parsed Region trace entries.

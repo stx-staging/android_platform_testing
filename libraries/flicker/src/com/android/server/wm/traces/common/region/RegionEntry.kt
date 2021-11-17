@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.traces.common
+package com.android.server.wm.traces.common.region
+
+import com.android.server.wm.traces.common.ITraceEntry
 
 /**
  * Represents a single Region trace entry.

@@ -22,7 +22,7 @@ import com.android.server.wm.flicker.assertions.FlickerSubject
 import com.android.server.wm.flicker.traces.FlickerFailureStrategy
 import com.android.server.wm.flicker.traces.FlickerTraceSubject
 import com.android.server.wm.traces.common.FlickerComponentName
-import com.android.server.wm.traces.common.RegionTrace
+import com.android.server.wm.traces.common.region.RegionTrace
 import com.android.server.wm.traces.parser.toAndroidRect
 import com.android.server.wm.traces.parser.toAndroidRegion
 import com.google.common.truth.FailureMetadata
@@ -101,7 +101,7 @@ class RegionTraceSubject(
      */
     @JvmOverloads
     fun coversAtMost(
-        testRegion: com.android.server.wm.traces.common.Region
+        testRegion: com.android.server.wm.traces.common.region.Region
     ): RegionTraceSubject = this.coversAtMost(testRegion.toAndroidRegion())
 
     /**
@@ -156,7 +156,7 @@ class RegionTraceSubject(
      */
     @JvmOverloads
     fun coversAtLeast(
-        testRegion: com.android.server.wm.traces.common.Region
+        testRegion: com.android.server.wm.traces.common.region.Region
     ): RegionTraceSubject = this.coversAtLeast(testRegion.toAndroidRegion())
 
     /**

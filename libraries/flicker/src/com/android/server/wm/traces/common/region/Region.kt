@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.traces.common
+package com.android.server.wm.traces.common.region
+
+import com.android.server.wm.traces.common.Rect
+import com.android.server.wm.traces.common.RectF
 
 /**
  * Wrapper for RegionProto (frameworks/native/services/surfaceflinger/layerproto/common.proto)

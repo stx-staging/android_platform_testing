@@ -21,8 +21,8 @@ import com.android.server.wm.flicker.assertions.FlickerSubject
 import com.android.server.wm.flicker.traces.FlickerFailureStrategy
 import com.android.server.wm.traces.common.Rect
 import com.android.server.wm.traces.common.RectF
-import com.android.server.wm.traces.common.Region
-import com.android.server.wm.traces.common.RegionEntry
+import com.android.server.wm.traces.common.region.Region
+import com.android.server.wm.traces.common.region.RegionEntry
 import com.android.server.wm.traces.parser.toAndroidRect
 import com.android.server.wm.traces.parser.toAndroidRegion
 import com.android.server.wm.traces.parser.toFlickerRegion

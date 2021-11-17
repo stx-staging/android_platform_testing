@@ -27,7 +27,7 @@ import com.android.server.wm.flicker.traces.FlickerSubjectException
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject.Companion.assertThat
 import com.android.server.wm.traces.common.FlickerComponentName
-import com.android.server.wm.traces.common.Region
+import com.android.server.wm.traces.common.region.Region
 import com.android.server.wm.traces.common.layers.LayersTrace
 import com.android.server.wm.traces.parser.minus
 import com.google.common.truth.Truth

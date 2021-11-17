@@ -24,7 +24,7 @@ import com.android.server.wm.flicker.traces.region.RegionTraceSubject
 import com.android.server.wm.traces.common.FlickerComponentName
 import com.android.server.wm.traces.common.layers.Layer
 import com.android.server.wm.traces.common.layers.LayersTrace
-import com.android.server.wm.traces.common.RegionTrace
+import com.android.server.wm.traces.common.region.RegionTrace
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.FailureStrategy
 import com.google.common.truth.StandardSubjectBuilder

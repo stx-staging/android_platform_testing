@@ -22,14 +22,9 @@ import com.android.server.wm.flicker.traces.FlickerFailureStrategy
 import com.android.server.wm.flicker.traces.FlickerTraceSubject
 import com.android.server.wm.flicker.traces.region.RegionTraceSubject
 import com.android.server.wm.traces.common.FlickerComponentName
-import com.android.server.wm.traces.common.RegionEntry
-import com.android.server.wm.traces.common.RegionTrace
+import com.android.server.wm.traces.common.region.RegionTrace
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 import com.android.server.wm.traces.common.windowmanager.windows.WindowState
-import com.android.server.wm.traces.parser.toFlickerRegion
-import com.android.server.wm.traces.parser.toAndroidRect
-import com.android.server.wm.traces.parser.toAndroidRegion
-import com.google.common.truth.Fact
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.FailureStrategy
 import com.google.common.truth.StandardSubjectBuilder

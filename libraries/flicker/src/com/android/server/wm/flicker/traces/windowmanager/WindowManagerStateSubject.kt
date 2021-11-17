@@ -23,7 +23,7 @@ import com.android.server.wm.flicker.assertions.FlickerSubject
 import com.android.server.wm.flicker.traces.FlickerFailureStrategy
 import com.android.server.wm.flicker.traces.region.RegionSubject
 import com.android.server.wm.traces.common.FlickerComponentName
-import com.android.server.wm.traces.common.Region
+import com.android.server.wm.traces.common.region.Region
 import com.android.server.wm.traces.common.windowmanager.WindowManagerState
 import com.android.server.wm.traces.common.windowmanager.windows.Activity
 import com.android.server.wm.traces.common.windowmanager.windows.WindowState
