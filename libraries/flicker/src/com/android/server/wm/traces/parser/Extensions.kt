@@ -25,7 +25,6 @@ import android.util.Log
 import com.android.server.wm.traces.common.DeviceStateDump
 import com.android.server.wm.traces.common.FlickerComponentName
 import com.android.server.wm.traces.common.Rect
-import com.android.server.wm.traces.common.region.Region
 import com.android.server.wm.traces.common.layers.LayerTraceEntry
 import com.android.server.wm.traces.common.windowmanager.WindowManagerState
 
