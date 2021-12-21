@@ -40,6 +40,7 @@ public class StatsdStatsHelper implements ICollectorHelper<Long> {
     static final String PULLED_ATOM_STATS_PREFIX = "pulled_atom_stats";
     static final String ATOM_METRIC_STATS_PREFIX = "atom_metric_stats";
     static final String DETECTED_LOG_LOSS_STATS_PREFIX = "detected_log_loss_stats";
+    static final String EVENT_QUEUE_OVERFLOW_STATS_PREFIX = "event_queue_overflow_stats";
 
     interface IStatsdHelper {
         StatsLog.StatsdStatsReport getStatsdStatsReport();
@@ -87,8 +88,14 @@ public class StatsdStatsHelper implements ICollectorHelper<Long> {
         populatePulledAtomStats(report.pulledAtomStats, resultMap);
         populateAtomMetricStats(report.atomMetricStats, resultMap);
         populateDetectedLogLossStats(report.detectedLogLoss, resultMap);
+        populateEventQueueOverflowStats(report.queueOverflow, resultMap);
 
         return resultMap;
+    }
+
+    @Override
+    public boolean stopCollecting() {
+        return true;
     }
 
     private static void populateAtomStats(
@@ -99,6 +106,7 @@ public class StatsdStatsHelper implements ICollectorHelper<Long> {
         for (final StatsLog.StatsdStatsReport.AtomStats dataItem : atomStats) {
             final String metricKeyPrefixWithTag =
                     MetricUtility.constructKey(metricKeyPrefix, String.valueOf(dataItem.tag));
+
             resultMap.put(
                     MetricUtility.constructKey(metricKeyPrefixWithTag, "count"),
                     Long.valueOf(dataItem.count));
@@ -351,9 +359,24 @@ public class StatsdStatsHelper implements ICollectorHelper<Long> {
         }
     }
 
-    /** No op. */
-    @Override
-    public boolean stopCollecting() {
-        return true;
+    private static void populateEventQueueOverflowStats(
+            StatsLog.StatsdStatsReport.EventQueueOverflow queueOverflow,
+            Map<String, Long> resultMap) {
+        if (queueOverflow == null) {
+            return;
+        }
+        final String metricKeyPrefix =
+                MetricUtility.constructKey(STATSDSTATS_PREFIX, EVENT_QUEUE_OVERFLOW_STATS_PREFIX);
+
+        resultMap.put(
+                MetricUtility.constructKey(metricKeyPrefix, "count"),
+                Long.valueOf(queueOverflow.count));
+        resultMap.put(
+                MetricUtility.constructKey(metricKeyPrefix, "max_queue_history_nanos"),
+                Long.valueOf(queueOverflow.maxQueueHistoryNs));
+        resultMap.put(
+                MetricUtility.constructKey(metricKeyPrefix, "min_queue_history_nanos"),
+                Long.valueOf(queueOverflow.minQueueHistoryNs));
     }
+
 }
