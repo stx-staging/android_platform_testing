@@ -47,11 +47,13 @@ public class StatsdStatsHelperTest {
         static final int CONFIG_STATS_CONDITION_COUNT = 2;
         static final int CONFIG_STATS_ALERT_COUNT = 2;
         static final int CONFIG_STATS_MATCHER_COUNT = 2;
+        static final int PULLED_ATOM_STATS_COUNT = 2;
 
         public TestNonEmptyStatsdHelper() {
             populateAtomStatsTestData(testReport);
             populateConfigStatsTestData(testReport);
             populateAnomalyAlarmStatsTestData(testReport);
+            populatePulledAtomStatsTestData(testReport);
         }
 
         private static void populateAtomStatsTestData(StatsLog.StatsdStatsReport testReport) {
@@ -151,6 +153,34 @@ public class StatsdStatsHelperTest {
                 StatsLog.StatsdStatsReport testReport) {
             testReport.anomalyAlarmStats = new StatsLog.StatsdStatsReport.AnomalyAlarmStats();
             testReport.anomalyAlarmStats.alarmsRegistered = 1;
+        }
+
+        private void populatePulledAtomStatsTestData(StatsLog.StatsdStatsReport testReport) {
+            testReport.pulledAtomStats =
+                    new StatsLog.StatsdStatsReport.PulledAtomStats[PULLED_ATOM_STATS_COUNT];
+
+            for (int i = 0; i < PULLED_ATOM_STATS_COUNT; i++) {
+                testReport.pulledAtomStats[i] = new StatsLog.StatsdStatsReport.PulledAtomStats();
+                int fieldValue = i + 1;
+                testReport.pulledAtomStats[i].atomId = fieldValue++;
+                testReport.pulledAtomStats[i].totalPull = fieldValue++;
+                testReport.pulledAtomStats[i].totalPullFromCache = fieldValue++;
+                testReport.pulledAtomStats[i].minPullIntervalSec = fieldValue++;
+                testReport.pulledAtomStats[i].averagePullTimeNanos = fieldValue++;
+                testReport.pulledAtomStats[i].maxPullTimeNanos = fieldValue++;
+                testReport.pulledAtomStats[i].averagePullDelayNanos = fieldValue++;
+                testReport.pulledAtomStats[i].dataError = fieldValue++;
+                testReport.pulledAtomStats[i].pullTimeout = fieldValue++;
+                testReport.pulledAtomStats[i].pullExceedMaxDelay = fieldValue++;
+                testReport.pulledAtomStats[i].pullFailed = fieldValue++;
+                testReport.pulledAtomStats[i].emptyData = fieldValue++;
+                testReport.pulledAtomStats[i].registeredCount = fieldValue++;
+                testReport.pulledAtomStats[i].unregisteredCount = fieldValue++;
+                testReport.pulledAtomStats[i].atomErrorCount = fieldValue++;
+                testReport.pulledAtomStats[i].binderCallFailed = fieldValue++;
+                testReport.pulledAtomStats[i].failedUidProviderNotFound = fieldValue++;
+                testReport.pulledAtomStats[i].pullerNotFound = fieldValue++;
+            }
         }
 
         @Override
@@ -282,6 +312,78 @@ public class StatsdStatsHelperTest {
         assertEquals(result.get(metricKey), Long.valueOf(1));
     }
 
+    private static void verifyPulledAtomStats(Map<String, Long> result, int pulledAtomStatsCount) {
+        for (int i = 0; i < pulledAtomStatsCount; i++) {
+            int fieldValue = i + 1;
+            final String metricKeyPrefix =
+                    MetricUtility.constructKey(
+                            StatsdStatsHelper.STATSDSTATS_PREFIX,
+                            StatsdStatsHelper.PULLED_ATOM_STATS_PREFIX,
+                            String.valueOf(fieldValue++));
+            assertEquals(
+                    result.get(MetricUtility.constructKey(metricKeyPrefix, "total_pull")),
+                    Long.valueOf(fieldValue++));
+            assertEquals(
+                    result.get(
+                            MetricUtility.constructKey(metricKeyPrefix, "total_pull_from_cache")),
+                    Long.valueOf(fieldValue++));
+            assertEquals(
+                    result.get(
+                            MetricUtility.constructKey(metricKeyPrefix, "min_pull_interval_sec")),
+                    Long.valueOf(fieldValue++));
+            assertEquals(
+                    result.get(
+                            MetricUtility.constructKey(metricKeyPrefix, "average_pull_time_nanos")),
+                    Long.valueOf(fieldValue++));
+            assertEquals(
+                    result.get(MetricUtility.constructKey(metricKeyPrefix, "max_pull_time_nanos")),
+                    Long.valueOf(fieldValue++));
+            assertEquals(
+                    result.get(
+                            MetricUtility.constructKey(
+                                    metricKeyPrefix, "average_pull_delay_nanos")),
+                    Long.valueOf(fieldValue++));
+            assertEquals(
+                    result.get(MetricUtility.constructKey(metricKeyPrefix, "data_error")),
+                    Long.valueOf(fieldValue++));
+            assertEquals(
+                    result.get(MetricUtility.constructKey(metricKeyPrefix, "pull_timeout")),
+                    Long.valueOf(fieldValue++));
+            assertEquals(
+                    result.get(
+                            MetricUtility.constructKey(metricKeyPrefix, "pull_exceed_max_delay")),
+                    Long.valueOf(fieldValue++));
+            assertEquals(
+                    result.get(MetricUtility.constructKey(metricKeyPrefix, "pull_failed")),
+                    Long.valueOf(fieldValue++));
+            assertEquals(
+                    result.get(MetricUtility.constructKey(metricKeyPrefix, "empty_data")),
+                    Long.valueOf(fieldValue++));
+            assertEquals(
+                    result.get(
+                            MetricUtility.constructKey(metricKeyPrefix, "pull_registered_count")),
+                    Long.valueOf(fieldValue++));
+            assertEquals(
+                    result.get(
+                            MetricUtility.constructKey(metricKeyPrefix, "pull_unregistered_count")),
+                    Long.valueOf(fieldValue++));
+            assertEquals(
+                    result.get(MetricUtility.constructKey(metricKeyPrefix, "atom_error_count")),
+                    Long.valueOf(fieldValue++));
+            assertEquals(
+                    result.get(MetricUtility.constructKey(metricKeyPrefix, "binder_call_failed")),
+                    Long.valueOf(fieldValue++));
+            assertEquals(
+                    result.get(
+                            MetricUtility.constructKey(
+                                    metricKeyPrefix, "failed_uid_provider_not_found")),
+                    Long.valueOf(fieldValue++));
+            assertEquals(
+                    result.get(MetricUtility.constructKey(metricKeyPrefix, "puller_not_found")),
+                    Long.valueOf(fieldValue++));
+        }
+    }
+
     @Test
     public void testNonEmptyReport() throws Exception {
         StatsdStatsHelper.IStatsdHelper statsdHelper = new TestNonEmptyStatsdHelper();
@@ -298,6 +400,7 @@ public class StatsdStatsHelperTest {
                 TestNonEmptyStatsdHelper.CONFIG_STATS_MATCHER_COUNT,
                 TestNonEmptyStatsdHelper.CONFIG_STATS_ALERT_COUNT);
         verifyAnomalyAlarmStats(result);
+        verifyPulledAtomStats(result, TestNonEmptyStatsdHelper.PULLED_ATOM_STATS_COUNT);
         assertTrue(statsdStatsHelper.stopCollecting());
     }
 

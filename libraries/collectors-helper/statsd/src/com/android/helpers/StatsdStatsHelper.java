@@ -37,6 +37,7 @@ public class StatsdStatsHelper implements ICollectorHelper<Long> {
     static final String ALERT_STATS_PREFIX = "alert_stats";
     static final String CONFIG_STATS_PREFIX = "config_stats";
     static final String ANOMALY_ALARM_STATS_PREFIX = "anomaly_alarm_stats";
+    static final String PULLED_ATOM_STATS_PREFIX = "pulled_atom_stats";
 
     interface IStatsdHelper {
         StatsLog.StatsdStatsReport getStatsdStatsReport();
@@ -81,6 +82,7 @@ public class StatsdStatsHelper implements ICollectorHelper<Long> {
         populateAtomStats(report.atomStats, resultMap);
         populateConfigStats(report.configStats, resultMap);
         populateAnomalyAlarmStats(report.anomalyAlarmStats, resultMap);
+        populatePulledAtomStats(report.pulledAtomStats, resultMap);
 
         return resultMap;
     }
@@ -201,6 +203,69 @@ public class StatsdStatsHelper implements ICollectorHelper<Long> {
                 MetricUtility.constructKey(
                         STATSDSTATS_PREFIX, ANOMALY_ALARM_STATS_PREFIX, "alarms_registered");
         resultMap.put(metricKey, Long.valueOf(anomalyAlarmStats.alarmsRegistered));
+    }
+
+    private static void populatePulledAtomStats(
+            StatsLog.StatsdStatsReport.PulledAtomStats[] pulledAtomStats,
+            Map<String, Long> resultMap) {
+        final String metricKeyPrefix =
+                MetricUtility.constructKey(STATSDSTATS_PREFIX, PULLED_ATOM_STATS_PREFIX);
+
+        for (final StatsLog.StatsdStatsReport.PulledAtomStats dataItem : pulledAtomStats) {
+            final String metricKeyWithTag =
+                    MetricUtility.constructKey(metricKeyPrefix, String.valueOf(dataItem.atomId));
+            resultMap.put(
+                    MetricUtility.constructKey(metricKeyWithTag, "total_pull"),
+                    Long.valueOf(dataItem.totalPull));
+            resultMap.put(
+                    MetricUtility.constructKey(metricKeyWithTag, "total_pull_from_cache"),
+                    Long.valueOf(dataItem.totalPullFromCache));
+            resultMap.put(
+                    MetricUtility.constructKey(metricKeyWithTag, "min_pull_interval_sec"),
+                    Long.valueOf(dataItem.minPullIntervalSec));
+            resultMap.put(
+                    MetricUtility.constructKey(metricKeyWithTag, "average_pull_time_nanos"),
+                    Long.valueOf(dataItem.averagePullTimeNanos));
+            resultMap.put(
+                    MetricUtility.constructKey(metricKeyWithTag, "max_pull_time_nanos"),
+                    Long.valueOf(dataItem.maxPullTimeNanos));
+            resultMap.put(
+                    MetricUtility.constructKey(metricKeyWithTag, "average_pull_delay_nanos"),
+                    Long.valueOf(dataItem.averagePullDelayNanos));
+            resultMap.put(
+                    MetricUtility.constructKey(metricKeyWithTag, "data_error"),
+                    Long.valueOf(dataItem.dataError));
+            resultMap.put(
+                    MetricUtility.constructKey(metricKeyWithTag, "pull_timeout"),
+                    Long.valueOf(dataItem.pullTimeout));
+            resultMap.put(
+                    MetricUtility.constructKey(metricKeyWithTag, "pull_exceed_max_delay"),
+                    Long.valueOf(dataItem.pullExceedMaxDelay));
+            resultMap.put(
+                    MetricUtility.constructKey(metricKeyWithTag, "pull_failed"),
+                    Long.valueOf(dataItem.pullFailed));
+            resultMap.put(
+                    MetricUtility.constructKey(metricKeyWithTag, "empty_data"),
+                    Long.valueOf(dataItem.emptyData));
+            resultMap.put(
+                    MetricUtility.constructKey(metricKeyWithTag, "pull_registered_count"),
+                    Long.valueOf(dataItem.registeredCount));
+            resultMap.put(
+                    MetricUtility.constructKey(metricKeyWithTag, "pull_unregistered_count"),
+                    Long.valueOf(dataItem.unregisteredCount));
+            resultMap.put(
+                    MetricUtility.constructKey(metricKeyWithTag, "atom_error_count"),
+                    Long.valueOf(dataItem.atomErrorCount));
+            resultMap.put(
+                    MetricUtility.constructKey(metricKeyWithTag, "binder_call_failed"),
+                    Long.valueOf(dataItem.binderCallFailed));
+            resultMap.put(
+                    MetricUtility.constructKey(metricKeyWithTag, "failed_uid_provider_not_found"),
+                    Long.valueOf(dataItem.failedUidProviderNotFound));
+            resultMap.put(
+                    MetricUtility.constructKey(metricKeyWithTag, "puller_not_found"),
+                    Long.valueOf(dataItem.pullerNotFound));
+        }
     }
 
     /** No op. */
