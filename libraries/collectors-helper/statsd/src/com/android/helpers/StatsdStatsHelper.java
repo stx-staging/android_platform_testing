@@ -36,6 +36,7 @@ public class StatsdStatsHelper implements ICollectorHelper<Long> {
     static final String METRIC_STATS_PREFIX = "metric_stats";
     static final String ALERT_STATS_PREFIX = "alert_stats";
     static final String CONFIG_STATS_PREFIX = "config_stats";
+    static final String ANOMALY_ALARM_STATS_PREFIX = "anomaly_alarm_stats";
 
     interface IStatsdHelper {
         StatsLog.StatsdStatsReport getStatsdStatsReport();
@@ -79,6 +80,7 @@ public class StatsdStatsHelper implements ICollectorHelper<Long> {
         final StatsLog.StatsdStatsReport report = mStatsdHelper.getStatsdStatsReport();
         populateAtomStats(report.atomStats, resultMap);
         populateConfigStats(report.configStats, resultMap);
+        populateAnomalyAlarmStats(report.anomalyAlarmStats, resultMap);
 
         return resultMap;
     }
@@ -187,6 +189,18 @@ public class StatsdStatsHelper implements ICollectorHelper<Long> {
                             "alerted_times");
             resultMap.put(metricKey, Long.valueOf(dataItem.alertedTimes));
         }
+    }
+
+    private static void populateAnomalyAlarmStats(
+            StatsLog.StatsdStatsReport.AnomalyAlarmStats anomalyAlarmStats,
+            Map<String, Long> resultMap) {
+        if (anomalyAlarmStats == null) {
+            return;
+        }
+        final String metricKey =
+                MetricUtility.constructKey(
+                        STATSDSTATS_PREFIX, ANOMALY_ALARM_STATS_PREFIX, "alarms_registered");
+        resultMap.put(metricKey, Long.valueOf(anomalyAlarmStats.alarmsRegistered));
     }
 
     /** No op. */

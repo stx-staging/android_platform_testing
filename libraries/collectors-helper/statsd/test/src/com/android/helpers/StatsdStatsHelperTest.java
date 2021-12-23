@@ -51,9 +51,10 @@ public class StatsdStatsHelperTest {
         public TestNonEmptyStatsdHelper() {
             populateAtomStatsTestData(testReport);
             populateConfigStatsTestData(testReport);
+            populateAnomalyAlarmStatsTestData(testReport);
         }
 
-        private void populateAtomStatsTestData(StatsLog.StatsdStatsReport testReport) {
+        private static void populateAtomStatsTestData(StatsLog.StatsdStatsReport testReport) {
             testReport.atomStats = new StatsLog.StatsdStatsReport.AtomStats[ATOM_STATS_COUNT];
 
             for (int i = 0; i < ATOM_STATS_COUNT; i++) {
@@ -65,7 +66,7 @@ public class StatsdStatsHelperTest {
             }
         }
 
-        private void populateConfigStatsTestData(StatsLog.StatsdStatsReport testReport) {
+        private static void populateConfigStatsTestData(StatsLog.StatsdStatsReport testReport) {
             testReport.configStats = new StatsLog.StatsdStatsReport.ConfigStats[CONFIG_STATS_COUNT];
             for (int i = 0; i < CONFIG_STATS_COUNT; i++) {
                 testReport.configStats[i] = new StatsLog.StatsdStatsReport.ConfigStats();
@@ -86,7 +87,7 @@ public class StatsdStatsHelperTest {
             }
         }
 
-        private StatsLog.StatsdStatsReport.AlertStats[] populateConfigStatsAlertTestData(
+        private static StatsLog.StatsdStatsReport.AlertStats[] populateConfigStatsAlertTestData(
                 int configStatsAlertCount) {
             StatsLog.StatsdStatsReport.AlertStats[] alertStats =
                     new StatsLog.StatsdStatsReport.AlertStats[configStatsAlertCount];
@@ -101,7 +102,7 @@ public class StatsdStatsHelperTest {
             return alertStats;
         }
 
-        private StatsLog.StatsdStatsReport.MetricStats[] populateConfigStatsMetricTestData(
+        private static StatsLog.StatsdStatsReport.MetricStats[] populateConfigStatsMetricTestData(
                 int configStatsMetricCount) {
             StatsLog.StatsdStatsReport.MetricStats[] metricStats =
                     new StatsLog.StatsdStatsReport.MetricStats[configStatsMetricCount];
@@ -116,8 +117,8 @@ public class StatsdStatsHelperTest {
             return metricStats;
         }
 
-        private StatsLog.StatsdStatsReport.ConditionStats[] populateConfigStatsConditionTestData(
-                int configStatsConditionCount) {
+        private static StatsLog.StatsdStatsReport.ConditionStats[]
+                populateConfigStatsConditionTestData(int configStatsConditionCount) {
             StatsLog.StatsdStatsReport.ConditionStats[] conditionStats =
                     new StatsLog.StatsdStatsReport.ConditionStats[configStatsConditionCount];
 
@@ -131,7 +132,7 @@ public class StatsdStatsHelperTest {
             return conditionStats;
         }
 
-        private StatsLog.StatsdStatsReport.MatcherStats[] populateConfigStatsMatcherTestData(
+        private static StatsLog.StatsdStatsReport.MatcherStats[] populateConfigStatsMatcherTestData(
                 int configStatsMatcherCount) {
             StatsLog.StatsdStatsReport.MatcherStats[] matcherStats =
                     new StatsLog.StatsdStatsReport.MatcherStats[configStatsMatcherCount];
@@ -144,6 +145,12 @@ public class StatsdStatsHelperTest {
             }
 
             return matcherStats;
+        }
+
+        private static void populateAnomalyAlarmStatsTestData(
+                StatsLog.StatsdStatsReport testReport) {
+            testReport.anomalyAlarmStats = new StatsLog.StatsdStatsReport.AnomalyAlarmStats();
+            testReport.anomalyAlarmStats.alarmsRegistered = 1;
         }
 
         @Override
@@ -233,7 +240,7 @@ public class StatsdStatsHelperTest {
         }
     }
 
-    private void verifyConfigStats(
+    private static void verifyConfigStats(
             Map<String, Long> result,
             int configStatsCount,
             int configStatsMetricCount,
@@ -266,6 +273,15 @@ public class StatsdStatsHelperTest {
         }
     }
 
+    private static void verifyAnomalyAlarmStats(Map<String, Long> result) {
+        final String metricKeyPrefix =
+                MetricUtility.constructKey(
+                        StatsdStatsHelper.STATSDSTATS_PREFIX,
+                        StatsdStatsHelper.ANOMALY_ALARM_STATS_PREFIX);
+        final String metricKey = MetricUtility.constructKey(metricKeyPrefix, "alarms_registered");
+        assertEquals(result.get(metricKey), Long.valueOf(1));
+    }
+
     @Test
     public void testNonEmptyReport() throws Exception {
         StatsdStatsHelper.IStatsdHelper statsdHelper = new TestNonEmptyStatsdHelper();
@@ -281,6 +297,7 @@ public class StatsdStatsHelperTest {
                 TestNonEmptyStatsdHelper.CONFIG_STATS_CONDITION_COUNT,
                 TestNonEmptyStatsdHelper.CONFIG_STATS_MATCHER_COUNT,
                 TestNonEmptyStatsdHelper.CONFIG_STATS_ALERT_COUNT);
+        verifyAnomalyAlarmStats(result);
         assertTrue(statsdStatsHelper.stopCollecting());
     }
 
