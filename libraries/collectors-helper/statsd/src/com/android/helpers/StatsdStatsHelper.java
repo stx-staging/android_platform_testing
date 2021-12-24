@@ -38,6 +38,7 @@ public class StatsdStatsHelper implements ICollectorHelper<Long> {
     static final String CONFIG_STATS_PREFIX = "config_stats";
     static final String ANOMALY_ALARM_STATS_PREFIX = "anomaly_alarm_stats";
     static final String PULLED_ATOM_STATS_PREFIX = "pulled_atom_stats";
+    static final String ATOM_METRIC_STATS_PREFIX = "atom_metric_stats";
 
     interface IStatsdHelper {
         StatsLog.StatsdStatsReport getStatsdStatsReport();
@@ -83,6 +84,7 @@ public class StatsdStatsHelper implements ICollectorHelper<Long> {
         populateConfigStats(report.configStats, resultMap);
         populateAnomalyAlarmStats(report.anomalyAlarmStats, resultMap);
         populatePulledAtomStats(report.pulledAtomStats, resultMap);
+        populateAtomMetricStats(report.atomMetricStats, resultMap);
 
         return resultMap;
     }
@@ -265,6 +267,56 @@ public class StatsdStatsHelper implements ICollectorHelper<Long> {
             resultMap.put(
                     MetricUtility.constructKey(metricKeyWithTag, "puller_not_found"),
                     Long.valueOf(dataItem.pullerNotFound));
+        }
+    }
+
+    private static void populateAtomMetricStats(
+            StatsLog.StatsdStatsReport.AtomMetricStats[] atomMetricStats,
+            Map<String, Long> resultMap) {
+        final String metricKeyPrefix =
+                MetricUtility.constructKey(STATSDSTATS_PREFIX, ATOM_METRIC_STATS_PREFIX);
+
+        for (StatsLog.StatsdStatsReport.AtomMetricStats dataItem : atomMetricStats) {
+            final String metricKeyPrefixWithTag =
+                    MetricUtility.constructKey(metricKeyPrefix, String.valueOf(dataItem.metricId));
+
+            resultMap.put(
+                    MetricUtility.constructKey(
+                            metricKeyPrefixWithTag, "hard_dimension_limit_reached"),
+                    dataItem.hardDimensionLimitReached);
+            resultMap.put(
+                    MetricUtility.constructKey(metricKeyPrefixWithTag, "late_log_event_skipped"),
+                    dataItem.lateLogEventSkipped);
+            resultMap.put(
+                    MetricUtility.constructKey(metricKeyPrefixWithTag, "skipped_forward_buckets"),
+                    dataItem.skippedForwardBuckets);
+            resultMap.put(
+                    MetricUtility.constructKey(metricKeyPrefixWithTag, "bad_value_type"),
+                    dataItem.badValueType);
+            resultMap.put(
+                    MetricUtility.constructKey(
+                            metricKeyPrefixWithTag, "condition_change_in_next_bucket"),
+                    dataItem.conditionChangeInNextBucket);
+            resultMap.put(
+                    MetricUtility.constructKey(metricKeyPrefixWithTag, "invalidated_bucket"),
+                    dataItem.invalidatedBucket);
+            resultMap.put(
+                    MetricUtility.constructKey(metricKeyPrefixWithTag, "bucket_dropped"),
+                    dataItem.bucketDropped);
+            resultMap.put(
+                    MetricUtility.constructKey(
+                            metricKeyPrefixWithTag, "min_bucket_boundary_delay_ns"),
+                    dataItem.minBucketBoundaryDelayNs);
+            resultMap.put(
+                    MetricUtility.constructKey(
+                            metricKeyPrefixWithTag, "max_bucket_boundary_delay_ns"),
+                    dataItem.maxBucketBoundaryDelayNs);
+            resultMap.put(
+                    MetricUtility.constructKey(metricKeyPrefixWithTag, "bucket_unknown_condition"),
+                    dataItem.bucketUnknownCondition);
+            resultMap.put(
+                    MetricUtility.constructKey(metricKeyPrefixWithTag, "bucket_count"),
+                    dataItem.bucketCount);
         }
     }
 

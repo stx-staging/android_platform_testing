@@ -48,12 +48,14 @@ public class StatsdStatsHelperTest {
         static final int CONFIG_STATS_ALERT_COUNT = 2;
         static final int CONFIG_STATS_MATCHER_COUNT = 2;
         static final int PULLED_ATOM_STATS_COUNT = 2;
+        static final int ATOM_METRIC_STATS_COUNT = 1;
 
         public TestNonEmptyStatsdHelper() {
             populateAtomStatsTestData(testReport);
             populateConfigStatsTestData(testReport);
             populateAnomalyAlarmStatsTestData(testReport);
             populatePulledAtomStatsTestData(testReport);
+            populateAtomMetricStatsTestData(testReport);
         }
 
         private static void populateAtomStatsTestData(StatsLog.StatsdStatsReport testReport) {
@@ -155,7 +157,7 @@ public class StatsdStatsHelperTest {
             testReport.anomalyAlarmStats.alarmsRegistered = 1;
         }
 
-        private void populatePulledAtomStatsTestData(StatsLog.StatsdStatsReport testReport) {
+        private static void populatePulledAtomStatsTestData(StatsLog.StatsdStatsReport testReport) {
             testReport.pulledAtomStats =
                     new StatsLog.StatsdStatsReport.PulledAtomStats[PULLED_ATOM_STATS_COUNT];
 
@@ -180,6 +182,27 @@ public class StatsdStatsHelperTest {
                 testReport.pulledAtomStats[i].binderCallFailed = fieldValue++;
                 testReport.pulledAtomStats[i].failedUidProviderNotFound = fieldValue++;
                 testReport.pulledAtomStats[i].pullerNotFound = fieldValue++;
+            }
+        }
+
+        private static void populateAtomMetricStatsTestData(StatsLog.StatsdStatsReport testReport) {
+            testReport.atomMetricStats =
+                    new StatsLog.StatsdStatsReport.AtomMetricStats[ATOM_METRIC_STATS_COUNT];
+            for (int i = 0; i < ATOM_METRIC_STATS_COUNT; i++) {
+                testReport.atomMetricStats[i] = new StatsLog.StatsdStatsReport.AtomMetricStats();
+                int fieldValue = i + 1;
+                testReport.atomMetricStats[i].metricId = fieldValue++;
+                testReport.atomMetricStats[i].hardDimensionLimitReached = fieldValue++;
+                testReport.atomMetricStats[i].lateLogEventSkipped = fieldValue++;
+                testReport.atomMetricStats[i].skippedForwardBuckets = fieldValue++;
+                testReport.atomMetricStats[i].badValueType = fieldValue++;
+                testReport.atomMetricStats[i].conditionChangeInNextBucket = fieldValue++;
+                testReport.atomMetricStats[i].invalidatedBucket = fieldValue++;
+                testReport.atomMetricStats[i].bucketDropped = fieldValue++;
+                testReport.atomMetricStats[i].minBucketBoundaryDelayNs = fieldValue++;
+                testReport.atomMetricStats[i].maxBucketBoundaryDelayNs = fieldValue++;
+                testReport.atomMetricStats[i].bucketUnknownCondition = fieldValue++;
+                testReport.atomMetricStats[i].bucketCount = fieldValue++;
             }
         }
 
@@ -384,6 +407,62 @@ public class StatsdStatsHelperTest {
         }
     }
 
+    private static void verifyAtomMetricStats(Map<String, Long> result, int atomMetricCount) {
+        for (int i = 0; i < atomMetricCount; i++) {
+            int fieldValue = i + 1;
+            final String metricKeyPrefix =
+                    MetricUtility.constructKey(
+                            StatsdStatsHelper.STATSDSTATS_PREFIX,
+                            StatsdStatsHelper.ATOM_METRIC_STATS_PREFIX,
+                            String.valueOf(fieldValue++));
+            assertEquals(
+                    result.get(
+                            MetricUtility.constructKey(
+                                    metricKeyPrefix, "hard_dimension_limit_reached")),
+                    Long.valueOf(fieldValue++));
+            assertEquals(
+                    result.get(
+                            MetricUtility.constructKey(metricKeyPrefix, "late_log_event_skipped")),
+                    Long.valueOf(fieldValue++));
+            assertEquals(
+                    result.get(
+                            MetricUtility.constructKey(metricKeyPrefix, "skipped_forward_buckets")),
+                    Long.valueOf(fieldValue++));
+            assertEquals(
+                    result.get(MetricUtility.constructKey(metricKeyPrefix, "bad_value_type")),
+                    Long.valueOf(fieldValue++));
+            assertEquals(
+                    result.get(
+                            MetricUtility.constructKey(
+                                    metricKeyPrefix, "condition_change_in_next_bucket")),
+                    Long.valueOf(fieldValue++));
+            assertEquals(
+                    result.get(MetricUtility.constructKey(metricKeyPrefix, "invalidated_bucket")),
+                    Long.valueOf(fieldValue++));
+            assertEquals(
+                    result.get(MetricUtility.constructKey(metricKeyPrefix, "bucket_dropped")),
+                    Long.valueOf(fieldValue++));
+            assertEquals(
+                    result.get(
+                            MetricUtility.constructKey(
+                                    metricKeyPrefix, "min_bucket_boundary_delay_ns")),
+                    Long.valueOf(fieldValue++));
+            assertEquals(
+                    result.get(
+                            MetricUtility.constructKey(
+                                    metricKeyPrefix, "max_bucket_boundary_delay_ns")),
+                    Long.valueOf(fieldValue++));
+            assertEquals(
+                    result.get(
+                            MetricUtility.constructKey(
+                                    metricKeyPrefix, "bucket_unknown_condition")),
+                    Long.valueOf(fieldValue++));
+            assertEquals(
+                    result.get(MetricUtility.constructKey(metricKeyPrefix, "bucket_count")),
+                    Long.valueOf(fieldValue++));
+        }
+    }
+
     @Test
     public void testNonEmptyReport() throws Exception {
         StatsdStatsHelper.IStatsdHelper statsdHelper = new TestNonEmptyStatsdHelper();
@@ -401,6 +480,7 @@ public class StatsdStatsHelperTest {
                 TestNonEmptyStatsdHelper.CONFIG_STATS_ALERT_COUNT);
         verifyAnomalyAlarmStats(result);
         verifyPulledAtomStats(result, TestNonEmptyStatsdHelper.PULLED_ATOM_STATS_COUNT);
+        verifyAtomMetricStats(result, TestNonEmptyStatsdHelper.ATOM_METRIC_STATS_COUNT);
         assertTrue(statsdStatsHelper.stopCollecting());
     }
 
