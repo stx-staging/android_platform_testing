@@ -49,6 +49,7 @@ public class StatsdStatsHelperTest {
         static final int CONFIG_STATS_MATCHER_COUNT = 2;
         static final int PULLED_ATOM_STATS_COUNT = 2;
         static final int ATOM_METRIC_STATS_COUNT = 1;
+        static final int DETECTED_LOG_LOSS_STATS_COUNT = 1;
 
         public TestNonEmptyStatsdHelper() {
             populateAtomStatsTestData(testReport);
@@ -56,6 +57,7 @@ public class StatsdStatsHelperTest {
             populateAnomalyAlarmStatsTestData(testReport);
             populatePulledAtomStatsTestData(testReport);
             populateAtomMetricStatsTestData(testReport);
+            populateDetectedLogLossStatsTestData(testReport);
         }
 
         private static void populateAtomStatsTestData(StatsLog.StatsdStatsReport testReport) {
@@ -203,6 +205,23 @@ public class StatsdStatsHelperTest {
                 testReport.atomMetricStats[i].maxBucketBoundaryDelayNs = fieldValue++;
                 testReport.atomMetricStats[i].bucketUnknownCondition = fieldValue++;
                 testReport.atomMetricStats[i].bucketCount = fieldValue++;
+            }
+        }
+
+        private static void populateDetectedLogLossStatsTestData(
+                StatsLog.StatsdStatsReport testReport) {
+            testReport.detectedLogLoss =
+                    new StatsLog.StatsdStatsReport.LogLossStats[DETECTED_LOG_LOSS_STATS_COUNT];
+
+            for (int i = 0; i < DETECTED_LOG_LOSS_STATS_COUNT; i++) {
+                testReport.detectedLogLoss[i] = new StatsLog.StatsdStatsReport.LogLossStats();
+                int fieldValue = i + 1;
+                testReport.detectedLogLoss[i].detectedTimeSec = fieldValue++;
+                testReport.detectedLogLoss[i].count = fieldValue++;
+                testReport.detectedLogLoss[i].lastError = fieldValue++;
+                testReport.detectedLogLoss[i].lastTag = fieldValue++;
+                testReport.detectedLogLoss[i].uid = fieldValue++;
+                testReport.detectedLogLoss[i].pid = fieldValue++;
             }
         }
 
@@ -463,6 +482,33 @@ public class StatsdStatsHelperTest {
         }
     }
 
+    private static void verifyDetectedLogLossStats(
+            Map<String, Long> result, int logLossStatsCount) {
+        for (int i = 0; i < logLossStatsCount; i++) {
+            int fieldValue = i + 1;
+            final String metricKeyPrefix =
+                    MetricUtility.constructKey(
+                            StatsdStatsHelper.STATSDSTATS_PREFIX,
+                            StatsdStatsHelper.DETECTED_LOG_LOSS_STATS_PREFIX,
+                            String.valueOf(fieldValue++));
+            assertEquals(
+                    result.get(MetricUtility.constructKey(metricKeyPrefix, "count")),
+                    Long.valueOf(fieldValue++));
+            assertEquals(
+                    result.get(MetricUtility.constructKey(metricKeyPrefix, "last_error")),
+                    Long.valueOf(fieldValue++));
+            assertEquals(
+                    result.get(MetricUtility.constructKey(metricKeyPrefix, "last_tag")),
+                    Long.valueOf(fieldValue++));
+            assertEquals(
+                    result.get(MetricUtility.constructKey(metricKeyPrefix, "uid")),
+                    Long.valueOf(fieldValue++));
+            assertEquals(
+                    result.get(MetricUtility.constructKey(metricKeyPrefix, "pid")),
+                    Long.valueOf(fieldValue++));
+        }
+    }
+
     @Test
     public void testNonEmptyReport() throws Exception {
         StatsdStatsHelper.IStatsdHelper statsdHelper = new TestNonEmptyStatsdHelper();
@@ -481,6 +527,7 @@ public class StatsdStatsHelperTest {
         verifyAnomalyAlarmStats(result);
         verifyPulledAtomStats(result, TestNonEmptyStatsdHelper.PULLED_ATOM_STATS_COUNT);
         verifyAtomMetricStats(result, TestNonEmptyStatsdHelper.ATOM_METRIC_STATS_COUNT);
+        verifyDetectedLogLossStats(result, TestNonEmptyStatsdHelper.DETECTED_LOG_LOSS_STATS_COUNT);
         assertTrue(statsdStatsHelper.stopCollecting());
     }
 
