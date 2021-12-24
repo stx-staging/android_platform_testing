@@ -58,6 +58,7 @@ public class StatsdStatsHelperTest {
             populatePulledAtomStatsTestData(testReport);
             populateAtomMetricStatsTestData(testReport);
             populateDetectedLogLossStatsTestData(testReport);
+            populateEventQueueOverflowStatsTestData(testReport);
         }
 
         private static void populateAtomStatsTestData(StatsLog.StatsdStatsReport testReport) {
@@ -223,6 +224,15 @@ public class StatsdStatsHelperTest {
                 testReport.detectedLogLoss[i].uid = fieldValue++;
                 testReport.detectedLogLoss[i].pid = fieldValue++;
             }
+        }
+
+        private static void populateEventQueueOverflowStatsTestData(
+                StatsLog.StatsdStatsReport testReport) {
+            testReport.queueOverflow = new StatsLog.StatsdStatsReport.EventQueueOverflow();
+            int fieldValue = 1;
+            testReport.queueOverflow.count = fieldValue++;
+            testReport.queueOverflow.minQueueHistoryNs = fieldValue++;
+            testReport.queueOverflow.maxQueueHistoryNs = fieldValue++;
         }
 
         @Override
@@ -509,6 +519,24 @@ public class StatsdStatsHelperTest {
         }
     }
 
+    private static void verifyEventQueueOverfowStats(Map<String, Long> result) {
+        final String metricKeyPrefix =
+                MetricUtility.constructKey(
+                        StatsdStatsHelper.STATSDSTATS_PREFIX,
+                        StatsdStatsHelper.EVENT_QUEUE_OVERFLOW_STATS_PREFIX);
+
+        int fieldValue = 1;
+        assertEquals(
+                result.get(MetricUtility.constructKey(metricKeyPrefix, "count")),
+                Long.valueOf(fieldValue++));
+        assertEquals(
+                result.get(MetricUtility.constructKey(metricKeyPrefix, "min_queue_history_nanos")),
+                Long.valueOf(fieldValue++));
+        assertEquals(
+                result.get(MetricUtility.constructKey(metricKeyPrefix, "max_queue_history_nanos")),
+                Long.valueOf(fieldValue++));
+    }
+
     @Test
     public void testNonEmptyReport() throws Exception {
         StatsdStatsHelper.IStatsdHelper statsdHelper = new TestNonEmptyStatsdHelper();
@@ -528,6 +556,7 @@ public class StatsdStatsHelperTest {
         verifyPulledAtomStats(result, TestNonEmptyStatsdHelper.PULLED_ATOM_STATS_COUNT);
         verifyAtomMetricStats(result, TestNonEmptyStatsdHelper.ATOM_METRIC_STATS_COUNT);
         verifyDetectedLogLossStats(result, TestNonEmptyStatsdHelper.DETECTED_LOG_LOSS_STATS_COUNT);
+        verifyEventQueueOverfowStats(result);
         assertTrue(statsdStatsHelper.stopCollecting());
     }
 
