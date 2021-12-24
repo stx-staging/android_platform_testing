@@ -39,6 +39,7 @@ public class StatsdStatsHelper implements ICollectorHelper<Long> {
     static final String ANOMALY_ALARM_STATS_PREFIX = "anomaly_alarm_stats";
     static final String PULLED_ATOM_STATS_PREFIX = "pulled_atom_stats";
     static final String ATOM_METRIC_STATS_PREFIX = "atom_metric_stats";
+    static final String DETECTED_LOG_LOSS_STATS_PREFIX = "detected_log_loss_stats";
 
     interface IStatsdHelper {
         StatsLog.StatsdStatsReport getStatsdStatsReport();
@@ -85,6 +86,7 @@ public class StatsdStatsHelper implements ICollectorHelper<Long> {
         populateAnomalyAlarmStats(report.anomalyAlarmStats, resultMap);
         populatePulledAtomStats(report.pulledAtomStats, resultMap);
         populateAtomMetricStats(report.atomMetricStats, resultMap);
+        populateDetectedLogLossStats(report.detectedLogLoss, resultMap);
 
         return resultMap;
     }
@@ -317,6 +319,35 @@ public class StatsdStatsHelper implements ICollectorHelper<Long> {
             resultMap.put(
                     MetricUtility.constructKey(metricKeyPrefixWithTag, "bucket_count"),
                     dataItem.bucketCount);
+        }
+    }
+
+    private static void populateDetectedLogLossStats(
+            StatsLog.StatsdStatsReport.LogLossStats[] detectedLogLoss,
+            Map<String, Long> resultMap) {
+        final String metricKeyPrefix =
+                MetricUtility.constructKey(STATSDSTATS_PREFIX, DETECTED_LOG_LOSS_STATS_PREFIX);
+
+        for (final StatsLog.StatsdStatsReport.LogLossStats dataItem : detectedLogLoss) {
+            final String metricKeyPrefixWithTag =
+                    MetricUtility.constructKey(
+                            metricKeyPrefix, String.valueOf(dataItem.detectedTimeSec));
+
+            resultMap.put(
+                    MetricUtility.constructKey(metricKeyPrefixWithTag, "count"),
+                    Long.valueOf(dataItem.count));
+            resultMap.put(
+                    MetricUtility.constructKey(metricKeyPrefixWithTag, "last_error"),
+                    Long.valueOf(dataItem.lastError));
+            resultMap.put(
+                    MetricUtility.constructKey(metricKeyPrefixWithTag, "last_tag"),
+                    Long.valueOf(dataItem.lastTag));
+            resultMap.put(
+                    MetricUtility.constructKey(metricKeyPrefixWithTag, "uid"),
+                    Long.valueOf(dataItem.uid));
+            resultMap.put(
+                    MetricUtility.constructKey(metricKeyPrefixWithTag, "pid"),
+                    Long.valueOf(dataItem.pid));
         }
     }
 
