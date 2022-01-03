@@ -31,8 +31,8 @@ open class Rect(
 ) {
     val height: Int get() = bottom - top
     val width: Int get() = right - left
-    fun centerX(): Int = left + right / 2
-    fun centerY(): Int = top + bottom / 2
+    fun centerX(): Int = (left + right) / 2
+    fun centerY(): Int = (top + bottom) / 2
     /**
      * Returns true if the rectangle is empty (left >= right or top >= bottom)
      */
