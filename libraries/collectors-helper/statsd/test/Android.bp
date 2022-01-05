@@ -33,7 +33,8 @@ java_library {
         "platform-test-rules",
         "statsdprotonano",
         "mockito-target-minus-junit4",
-        "launcher-aosp-tapl"
+        "launcher-aosp-tapl",
+        "systemui-tapl"
     ],
 
     platform_apis: true,
