@@ -16,6 +16,7 @@
 
 package com.android.server.wm.traces.common.layers
 
+import com.android.server.wm.traces.common.FlickerComponentName
 import com.android.server.wm.traces.common.ITraceEntry
 import com.android.server.wm.traces.common.Rect
 import com.android.server.wm.traces.common.RectF
@@ -126,7 +127,9 @@ open class LayerTraceEntry constructor(
      */
     fun isAnimating(windowName: String = ""): Boolean {
         val layers = visibleLayers.filter { it.name.contains(windowName) }
-        return layers.any { layer -> !layer.transform.isSimpleRotation }
+        val layersAnimating = layers.any { layer -> !layer.transform.isSimpleRotation }
+        val pipAnimating = isVisible(FlickerComponentName.PIP_CONTENT_OVERLAY.toWindowName())
+        return layersAnimating || pipAnimating
     }
 
     /**
