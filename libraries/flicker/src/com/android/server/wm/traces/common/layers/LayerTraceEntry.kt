@@ -123,7 +123,10 @@ open class LayerTraceEntry constructor(
     fun getLayerById(layerId: Int): Layer? = this.flattenedLayers.firstOrNull { it.id == layerId }
 
     /**
-     * Checks the transform of any layer is not a simple rotation
+     * Checks if any layer in the screen is animating.
+     *
+     * The screen is animating when a layer is not simple rotation, of when the pip overlay
+     * layer is visible
      */
     fun isAnimating(windowName: String = ""): Boolean {
         val layers = visibleLayers.filter { it.name.contains(windowName) }
