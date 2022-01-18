@@ -98,12 +98,12 @@ public class FailureWatcher extends TestWatcher {
 
         final StringBuilder sb = new StringBuilder();
 
-        UiObject2 object = device.findObject(By.res("android", "alertTitle"));
+        UiObject2 object = device.findObject(By.res("android", "alertTitle").pkg("android"));
         if (object != null) {
             sb.append("TITLE: ").append(object.getText());
         }
 
-        object = device.findObject(By.res("android", "message"));
+        object = device.findObject(By.res("android", "message").pkg("android"));
         if (object != null) {
             sb.append(" PACKAGE: ")
                     .append(object.getApplicationPackage())
