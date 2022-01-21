@@ -32,13 +32,13 @@ java_library_static {
 }
 
 java_library_host {
-    name: "sts-common-util-hostsidelib",
+    name: "sts-common-util-lib",
     visibility: [
         "//platform_testing/libraries/sts-common-util/host-side",
     ],
     srcs: ["src/**/*.java"],
     static_libs: [
-        "compatibility-common-util-hostsidelib",
+        "compatibility-common-util-lib",
     ],
     libs: [
         "junit",

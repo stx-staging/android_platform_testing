@@ -23,7 +23,7 @@ java_library_host {
     srcs: ["src/**/*.java"],
 
     static_libs: [
-        "sts-common-util-hostsidelib",
+        "sts-common-util-lib",
     ],
 
     libs: [
