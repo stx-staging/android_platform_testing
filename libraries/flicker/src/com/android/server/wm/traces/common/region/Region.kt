@@ -209,7 +209,7 @@ class Region(rects: Array<Rect> = arrayOf()) {
         }
     }
 
-    private fun prettyPrint(): String {
+    fun prettyPrint(): String {
         val iter = Iterator(this)
         val result = StringBuilder("SkRegion(")
         while (!iter.done()) {
