@@ -275,7 +275,7 @@ public class AutoSettingsConfigUtility implements IAutoConfigUtility {
                 AutoConfigConstants.SEARCH_RESULTS,
                 new AutoConfigResource(
                         AutoConfigConstants.RESOURCE_ID,
-                        "recycler_view",
+                        "car_ui_recycler_view",
                         SETTING_INTELLIGENCE_PACKAGE));
         fullSettingsConfiguration.addResource(
                 AutoConfigConstants.UP_BUTTON,
