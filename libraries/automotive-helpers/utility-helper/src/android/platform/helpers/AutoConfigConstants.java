@@ -188,6 +188,7 @@ public class AutoConfigConstants {
     public static final String DIALED_NUMBER = "DIALED_NUMBER";
     public static final String MAKE_CALL = "MAKE_CALL";
     public static final String DELETE_NUMBER = "DELETE_NUMBER";
+    // Digit Constants Reused for Security PIN
     public static final String DIGIT_ZERO = "0";
     public static final String DIGIT_ONE = "1";
     public static final String DIGIT_TWO = "2";
