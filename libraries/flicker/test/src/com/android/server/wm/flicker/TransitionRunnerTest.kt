@@ -26,7 +26,7 @@ import org.junit.Test
 import org.junit.runners.MethodSorters
 
 /**
- * Contains [TransitionRunnerTest] and [TransitionRunnerCached] tests.
+ * Contains [TransitionRunner] tests.
  *
  * To run this test: `atest FlickerLibTest:TransitionRunnerTest`
  */
@@ -59,24 +59,6 @@ class TransitionRunnerTest {
         Truth.assertThat(executed).isTrue()
         Truth.assertThat(result.executionErrors).isEmpty()
         Truth.assertThat(result.runs).hasSize(4)
-    }
-
-    @Test
-    fun canRunTransitionCached() {
-        val runner = TransitionRunnerCached()
-        var executed = false
-        val flicker = FlickerBuilder(instrumentation)
-            .apply {
-                transitions {
-                    executed = true
-                }
-            }.build(runner)
-        val result = runner.execute(flicker)
-        executed = false
-        val cachedResult = runner.execute(flicker)
-        runner.cleanUp()
-        Truth.assertThat(executed).isFalse()
-        Truth.assertThat(cachedResult).isEqualTo(result)
     }
 
     @Test
