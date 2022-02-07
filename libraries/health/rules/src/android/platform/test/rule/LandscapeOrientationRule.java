@@ -15,15 +15,16 @@
  */
 package android.platform.test.rule;
 
+import android.graphics.Rect;
 import android.os.RemoteException;
-import android.os.SystemClock;
+import android.platform.helpers.CommonUtils;
+
+import androidx.test.uiautomator.By;
+import androidx.test.uiautomator.UiObject2;
 
 import com.android.launcher3.tapl.LauncherInstrumentation;
 
 import org.junit.runner.Description;
-
-import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
-import static org.junit.Assert.assertEquals;
 
 /**
  * Locks landscape orientation before running a test and goes back to natural orientation
@@ -35,25 +36,28 @@ public class LandscapeOrientationRule extends TestWatcher {
     @Override
     protected void starting(Description description) {
         try {
-            getUiDevice().setOrientationNatural();
-            int currentOrientation = getContext().getResources().getConfiguration().orientation;
-            if (currentOrientation != ORIENTATION_LANDSCAPE) { // ORIENTATION_PORTRAIT
-                getUiDevice().pressHome();
-                mLauncher.setEnableRotation(true);
-                getUiDevice().setOrientationLeft();
-                for (int i = 0; i != 100; ++i) {
-                    int rotatedOrientation =
-                            getContext().getResources().getConfiguration().orientation;
-                    if (rotatedOrientation == ORIENTATION_LANDSCAPE) break;
-                    if (i == 99) {
-                        assertEquals(
-                                "Orientation should be landscape",
-                                ORIENTATION_LANDSCAPE,
-                                rotatedOrientation);
-                    }
-                    SystemClock.sleep(100);
-                }
-            }
+            getUiDevice().pressHome();
+            mLauncher.setEnableRotation(true);
+            getUiDevice().setOrientationLeft();
+
+            CommonUtils.waitForNullDiag(
+                    () -> {
+                        final UiObject2 launcher =
+                                getUiDevice()
+                                        .findObject(
+                                                By.res("android", "content")
+                                                        .pkg(
+                                                                getUiDevice()
+                                                                        .getLauncherPackageName()));
+                        if (launcher == null) return "Launcher is not found";
+
+                        final Rect launcherRectangle = launcher.getVisibleBounds();
+                        if (launcherRectangle.width() < launcherRectangle.height()) {
+                            return "Visible orientation is not landscape";
+                        }
+
+                        return null; // No error == success.
+                    });
         } catch (RemoteException e) {
             String message = "RemoteException when forcing landscape rotation on the device";
             throw new RuntimeException(message, e);
@@ -63,9 +67,7 @@ public class LandscapeOrientationRule extends TestWatcher {
     @Override
     protected void finished(Description description) {
         try {
-            if (!getUiDevice().isNaturalOrientation()) {
-                getUiDevice().setOrientationNatural();
-            }
+            getUiDevice().setOrientationNatural();
             mLauncher.setEnableRotation(false);
             getUiDevice().unfreezeRotation();
         } catch (RemoteException e) {
