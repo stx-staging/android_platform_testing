@@ -49,7 +49,6 @@ java_library {
         "package-helper",
         "statsd-helper",
         "launcher-aosp-tapl",
-        "systemui-helper",
     ],
     srcs: ["src/**/*.java"],
     exclude_srcs: [
