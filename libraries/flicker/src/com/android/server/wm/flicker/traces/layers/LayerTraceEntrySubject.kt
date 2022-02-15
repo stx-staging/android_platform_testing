@@ -20,7 +20,7 @@ import com.android.server.wm.flicker.assertions.Assertion
 import com.android.server.wm.flicker.assertions.FlickerSubject
 import com.android.server.wm.flicker.traces.FlickerFailureStrategy
 import com.android.server.wm.flicker.traces.FlickerSubjectException
-import com.android.server.wm.flicker.traces.RegionSubject
+import com.android.server.wm.flicker.traces.region.RegionSubject
 import com.android.server.wm.traces.common.FlickerComponentName
 import com.android.server.wm.traces.common.layers.Layer
 import com.android.server.wm.traces.common.layers.LayerTraceEntry
@@ -98,36 +98,46 @@ class LayerTraceEntrySubject private constructor(
     }
 
     /**
-     * Obtains the region occupied by all layers with name containing [component]
+     * Obtains the region occupied by all layers with name containing [components]
      *
-     * @param component Component to search
+     * @param components Components to search for
      * @param useCompositionEngineRegionOnly If true, uses only the region calculated from the
      *   Composition Engine (CE) -- visibleRegion in the proto definition. Otherwise calculates
      *   the visible region when the information is not available from the CE
      */
+    @JvmOverloads
     fun visibleRegion(
-        component: FlickerComponentName? = null,
+        vararg components: FlickerComponentName,
         useCompositionEngineRegionOnly: Boolean = true
     ): RegionSubject {
-        val layerName = component?.toLayerName() ?: ""
-        val selectedLayers = subjects
-            .filter { it.name.contains(layerName) }
+        val layerNames = components.map { it.toLayerName() }
+        val selectedLayers = if (components.isEmpty()) {
+            // No filters so use all subjects
+            subjects
+        } else {
+            subjects.filter {
+                subject -> layerNames.any {
+                    layerName -> subject.name.contains(layerName)
+                }
+            }
+        }
 
         if (selectedLayers.isEmpty()) {
+            val str = if (layerNames.isNotEmpty()) layerNames.joinToString() else "<any>"
             fail(listOf(
-                Fact.fact(ASSERTION_TAG, "visibleRegion(${component?.toLayerName() ?: "<any>"})"),
+                Fact.fact(ASSERTION_TAG, "visibleRegion($str)"),
                 Fact.fact("Use composition engine region", useCompositionEngineRegionOnly),
-                Fact.fact("Could not find", layerName))
+                Fact.fact("Could not find layers", str))
             )
         }
 
         val visibleLayers = selectedLayers.filter { it.isVisible }
         return if (useCompositionEngineRegionOnly) {
             val visibleAreas = visibleLayers.mapNotNull { it.layer?.visibleRegion }.toTypedArray()
-            RegionSubject.assertThat(visibleAreas, this)
+            RegionSubject.assertThat(visibleAreas, this, timestamp)
         } else {
             val visibleAreas = visibleLayers.mapNotNull { it.layer?.screenBounds }.toTypedArray()
-            RegionSubject.assertThat(visibleAreas, this)
+            RegionSubject.assertThat(visibleAreas, this, timestamp)
         }
     }
 
@@ -165,28 +175,32 @@ class LayerTraceEntrySubject private constructor(
     fun isVisible(component: FlickerComponentName): LayerTraceEntrySubject = apply {
         contains(component)
         var target: FlickerSubject? = null
-        var reason: Fact? = null
+        var reason = listOf<Fact>()
         val layerName = component.toLayerName()
         val filteredLayers = subjects
             .filter { it.name.contains(layerName) }
         for (layer in filteredLayers) {
             if (layer.layer?.isHiddenByParent == true) {
-                reason = Fact.fact("Hidden by parent", layer.layer.parent?.name)
+                reason = listOf(Fact.fact("Hidden by parent", layer.layer.parent?.name))
                 target = layer
                 continue
             }
             if (layer.isInvisible) {
-                reason = Fact.fact("Is Invisible", layer.layer?.visibilityReason)
+                reason = layer.layer?.visibilityReason
+                    ?.map { Fact.fact("Is Invisible", it) }
+                    ?: emptyList()
                 target = layer
                 continue
             }
-            reason = null
+            reason = emptyList()
             target = null
             break
         }
 
-        reason?.run {
-            target?.fail(Fact.fact(ASSERTION_TAG, "isVisible(${component.toLayerName()})"), reason)
+        if (reason.isNotEmpty()) {
+            target?.fail(
+                Fact.fact(ASSERTION_TAG, "isVisible(${component.toLayerName()})"),
+                *reason.toTypedArray())
         }
     }
 

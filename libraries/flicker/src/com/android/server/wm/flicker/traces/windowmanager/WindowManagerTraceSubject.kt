@@ -20,12 +20,11 @@ import com.android.server.wm.flicker.assertions.Assertion
 import com.android.server.wm.flicker.assertions.FlickerSubject
 import com.android.server.wm.flicker.traces.FlickerFailureStrategy
 import com.android.server.wm.flicker.traces.FlickerTraceSubject
+import com.android.server.wm.flicker.traces.region.RegionTraceSubject
 import com.android.server.wm.traces.common.FlickerComponentName
-import com.android.server.wm.traces.common.Rect
-import com.android.server.wm.traces.common.Region
+import com.android.server.wm.traces.common.region.RegionTrace
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 import com.android.server.wm.traces.common.windowmanager.windows.WindowState
-import com.google.common.truth.Fact
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.FailureStrategy
 import com.google.common.truth.StandardSubjectBuilder
@@ -62,11 +61,6 @@ class WindowManagerTraceSubject private constructor(
 ) : FlickerTraceSubject<WindowManagerStateSubject>(fm, trace) {
     override val selfFacts
         get() = super.selfFacts.toMutableList()
-            .also {
-                if (trace.hasSource()) {
-                    it.add(Fact.fact("Trace file", trace.source))
-                }
-            }
 
     override val subjects by lazy {
         trace.entries.map { WindowManagerStateSubject.assertThat(it, this, this) }
@@ -277,6 +271,18 @@ class WindowManagerTraceSubject private constructor(
     }
 
     /**
+     * Checks if there are no visible app windows.
+     *
+     * @param isOptional If this assertion is optional or must pass
+     */
+    @JvmOverloads
+    fun hasNoVisibleAppWindow(isOptional: Boolean = false): WindowManagerTraceSubject = apply {
+        addAssertion("hasNoVisibleAppWindow()", isOptional) {
+            it.hasNoVisibleAppWindow()
+        }
+    }
+
+    /**
      * Checks if the activity with title containing [component] is visible
      *
      * In the case that an app is stopped in the background (e.g. OS stopped it to release memory)
@@ -355,183 +361,16 @@ class WindowManagerTraceSubject private constructor(
     }
 
     /**
-     * Asserts the visible area covered by the [WindowState]s matching [component] covers at least
-     * [testRegion], that is, if its area of the window's bounds cover each point in the region.
+     * Obtains the trace of regions occupied by all windows with name containing any of [components]
      *
-     * @param component Component to search
-     * @param testRegion Expected visible area of the window
+     * @param components Components to search
      */
-    fun coversAtLeast(
-        testRegion: Region,
-        component: FlickerComponentName?
-    ): WindowManagerTraceSubject = apply {
-        addAssertion("coversAtLeastRegion(${component?.toWindowName()}, $testRegion)") {
-            it.frameRegion(component).coversAtLeast(testRegion)
-        }
-    }
+    fun visibleRegion(vararg components: FlickerComponentName): RegionTraceSubject {
+        val regionTrace = RegionTrace(components, subjects.map {
+            it.visibleRegion(*components).regionEntry
+        }.toTypedArray())
 
-    /**
-     * Asserts the visible area covered by the [WindowState]s matching [component] covers at least
-     * [testRegion], that is, if its area of the window's bounds cover each point in the region.
-     *
-     * @param component Component to search
-     * @param testRegion Expected visible area of the window
-     */
-    fun coversAtLeast(
-        testRegion: android.graphics.Region,
-        component: FlickerComponentName?
-    ): WindowManagerTraceSubject = apply {
-        addAssertion("coversAtLeastRegion(${component?.toWindowName()}, $testRegion)") {
-            it.frameRegion(component).coversAtLeast(testRegion)
-        }
-    }
-
-    /**
-     * Asserts the visible area covered by the [WindowState]s matching [component] covers at least
-     * [testRect], that is, if its area of the window's bounds cover each point in the region.
-     *
-     * @param component Component to search
-     * @param testRect Expected visible area of the window
-     */
-    fun coversAtLeast(
-        testRect: android.graphics.Rect,
-        component: FlickerComponentName?
-    ): WindowManagerTraceSubject = apply {
-        addAssertion("coversAtLeastRegion(${component?.toWindowName()}, $testRect)") {
-            it.frameRegion(component).coversAtLeast(testRect)
-        }
-    }
-
-    /**
-     * Asserts the visible area covered by the [WindowState]s matching [component] covers at least
-     * [testRect], that is, if its area of the window's bounds cover each point in the region.
-     *
-     * @param component Component to search
-     * @param testRect Expected visible area of the window
-     */
-    fun coversAtLeast(
-        testRect: Rect,
-        component: FlickerComponentName?
-    ): WindowManagerTraceSubject = apply {
-        addAssertion("coversAtLeastRegion(${component?.toWindowName()}, $testRect)") {
-            it.frameRegion(component).coversAtLeast(testRect)
-        }
-    }
-
-    /**
-     * Asserts the visible area covered by the [WindowState]s matching [component] covers at most
-     * [testRegion], that is, if the area of the window state bounds don't cover any point outside
-     * of [testRegion].
-     *
-     * @param component Component to search
-     * @param testRegion Expected visible area of the window
-     */
-    fun coversAtMost(
-        testRegion: Region,
-        component: FlickerComponentName?
-    ): WindowManagerTraceSubject = apply {
-        addAssertion("coversAtMostRegion(${component?.toWindowName()}, $testRegion)") {
-            it.frameRegion(component).coversAtMost(testRegion)
-        }
-    }
-
-    /**
-     * Asserts the visible area covered by the [WindowState]s matching [component] covers at most
-     * [testRegion], that is, if the area of the window state bounds don't cover any point outside
-     * of [testRegion].
-     *
-     * @param component Component to search
-     * @param testRegion Expected visible area of the window
-     */
-    fun coversAtMost(
-        testRegion: android.graphics.Region,
-        component: FlickerComponentName?
-    ): WindowManagerTraceSubject = apply {
-        addAssertion("coversAtMostRegion(${component?.toWindowName()}, $testRegion)") {
-            it.frameRegion(component).coversAtMost(testRegion)
-        }
-    }
-
-    /**
-     * Asserts the visible area covered by the [WindowState]s matching [component] covers at most
-     * [testRect], that is, if the area of the window state bounds don't cover any point outside
-     * of [testRect].
-     *
-     * @param component Component to search
-     * @param testRect Expected visible area of the window
-     */
-    fun coversAtMost(
-        testRect: Rect,
-        component: FlickerComponentName?
-    ): WindowManagerTraceSubject = apply {
-        addAssertion("coversAtMostRegion(${component?.toWindowName()}, $testRect)") {
-            it.frameRegion(component).coversAtMost(testRect)
-        }
-    }
-
-    /**
-     * Asserts the visible area covered by the [WindowState]s matching [component] covers at most
-     * [testRect], that is, if the area of the window state bounds don't cover any point outside
-     * of [testRect].
-     *
-     * @param component Component to search
-     * @param testRect Expected visible area of the window
-     */
-    fun coversAtMost(
-        testRect: android.graphics.Rect,
-        component: FlickerComponentName?
-    ): WindowManagerTraceSubject = apply {
-        addAssertion("coversAtMostRegion(${component?.toWindowName()}, $testRect)") {
-            it.frameRegion(component).coversAtMost(testRect)
-        }
-    }
-
-    /**
-     * Asserts the visible area covered by the [WindowState]s matching [component] covers exactly
-     * [testRegion].
-     *
-     * @param component Component to search
-     * @param testRegion Expected visible area of the window
-     */
-    fun coversExactly(
-        testRegion: android.graphics.Region,
-        component: FlickerComponentName?
-    ): WindowManagerTraceSubject = apply {
-        addAssertion("coversExactly(${component?.toWindowName()}, $testRegion)") {
-            it.frameRegion(component).coversExactly(testRegion)
-        }
-    }
-
-    /**
-     * Asserts the visible area covered by the [WindowState]s matching [component] covers exactly
-     * [testRegion].
-     *
-     * @param component Component to search
-     * @param testRect Expected visible area of the window
-     */
-    fun coversExactly(
-        testRect: Rect,
-        component: FlickerComponentName?
-    ): WindowManagerTraceSubject = apply {
-        addAssertion("coversExactly(${component?.toWindowName()}, $testRect)") {
-            it.frameRegion(component).coversExactly(testRect)
-        }
-    }
-
-    /**
-     * Asserts the visible area covered by the [WindowState]s matching [component] covers exactly
-     * [testRect].
-     *
-     * @param component Component to search
-     * @param testRect Expected visible area of the window
-     */
-    fun coversExactly(
-        testRect: android.graphics.Rect,
-        component: FlickerComponentName?
-    ): WindowManagerTraceSubject = apply {
-        addAssertion("coversExactly(${component?.toWindowName()}, $testRect)") {
-            it.frameRegion(component).coversExactly(testRect)
-        }
+        return RegionTraceSubject.assertThat(regionTrace, this)
     }
 
     /**

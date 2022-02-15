@@ -95,9 +95,10 @@ open class WindowManagerState(
                 activity?.isVisible ?: true
             }
             .toTypedArray()
+    val visibleAppWindows: Array<WindowState>
+        get() = visibleWindows.filter { it.isAppWindow }.toTypedArray()
     val topVisibleAppWindow: String
-        get() = visibleWindows
-            .filter { it.isAppWindow }
+        get() = visibleAppWindows
             .map { it.title }
             .firstOrNull() ?: ""
     val pinnedWindows: Array<WindowState>
@@ -296,12 +297,13 @@ open class WindowManagerState(
     fun isComplete(): Boolean = !isIncomplete()
     fun isIncomplete(): Boolean {
         return rootTasks.isEmpty() || focusedStackId == -1 || windowStates.isEmpty() ||
-            (focusedApp.isEmpty() && homeActivity == null) || focusedWindow.isEmpty() ||
+            // overview screen has no focused window
+            ((focusedApp.isEmpty() || focusedWindow.isEmpty()) && homeActivity == null) ||
             (focusedActivity.isEmpty() || resumedActivities.isEmpty()) &&
             !keyguardControllerState.isKeyguardShowing
     }
 
-    fun asTrace(): WindowManagerTrace = WindowManagerTrace(arrayOf(this), source = "")
+    fun asTrace(): WindowManagerTrace = WindowManagerTrace(arrayOf(this))
 
     override fun toString(): String {
         return "${prettyTimestamp(timestamp)} (timestamp=$timestamp)"

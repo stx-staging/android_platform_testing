@@ -16,7 +16,10 @@
 
 package com.android.server.wm.traces.common.layers
 
+import com.android.server.wm.traces.common.FlickerComponentName
 import com.android.server.wm.traces.common.ITraceEntry
+import com.android.server.wm.traces.common.Rect
+import com.android.server.wm.traces.common.RectF
 import com.android.server.wm.traces.common.prettyTimestamp
 
 /**
@@ -44,8 +47,10 @@ open class LayerTraceEntry constructor(
         val opaqueLayers = mutableListOf<Layer>()
         val transparentLayers = mutableListOf<Layer>()
         val layers = mutableListOf<Layer>()
+        // some of the flickerlib traces are old and don't have the display data on the trace
+        val mainDisplaySize = displays.firstOrNull { !it.isVirtual }?.layerStackSpace ?: Rect.EMPTY
         val roots = rootLayers.fillOcclusionState(
-            opaqueLayers, transparentLayers).toMutableList()
+            opaqueLayers, transparentLayers, mainDisplaySize.toRectF()).toMutableList()
         while (roots.isNotEmpty()) {
             val layer = roots.removeAt(0)
             layers.add(layer)
@@ -76,7 +81,8 @@ open class LayerTraceEntry constructor(
 
     private fun Array<Layer>.fillOcclusionState(
         opaqueLayers: MutableList<Layer>,
-        transparentLayers: MutableList<Layer>
+        transparentLayers: MutableList<Layer>,
+        displaySize: RectF
     ): Array<Layer> {
         val traversalList = topDownTraversal().reversed()
 
@@ -85,13 +91,16 @@ open class LayerTraceEntry constructor(
 
             if (visible) {
                 val occludedBy = opaqueLayers
-                        .filter { it.contains(layer) && !it.hasRoundedCorners }.toTypedArray()
+                    .filter { it.contains(layer, displaySize) && !it.hasRoundedCorners }
+                    .toTypedArray()
                 layer.addOccludedBy(occludedBy)
                 val partiallyOccludedBy = opaqueLayers
-                        .filter { it.overlaps(layer) && it !in layer.occludedBy }
-                        .toTypedArray()
+                    .filter { it.overlaps(layer, displaySize) && it !in layer.occludedBy }
+                    .toTypedArray()
                 layer.addPartiallyOccludedBy(partiallyOccludedBy)
-                val coveredBy = transparentLayers.filter { it.overlaps(layer) }.toTypedArray()
+                val coveredBy = transparentLayers
+                    .filter { it.overlaps(layer, displaySize) }
+                    .toTypedArray()
                 layer.addCoveredBy(coveredBy)
 
                 if (layer.isOpaque) {
@@ -114,11 +123,16 @@ open class LayerTraceEntry constructor(
     fun getLayerById(layerId: Int): Layer? = this.flattenedLayers.firstOrNull { it.id == layerId }
 
     /**
-     * Checks the transform of any layer is not a simple rotation
+     * Checks if any layer in the screen is animating.
+     *
+     * The screen is animating when a layer is not simple rotation, of when the pip overlay
+     * layer is visible
      */
     fun isAnimating(windowName: String = ""): Boolean {
         val layers = visibleLayers.filter { it.name.contains(windowName) }
-        return layers.any { layer -> !layer.transform.isSimpleRotation }
+        val layersAnimating = layers.any { layer -> !layer.transform.isSimpleRotation }
+        val pipAnimating = isVisible(FlickerComponentName.PIP_CONTENT_OVERLAY.toWindowName())
+        return layersAnimating || pipAnimating
     }
 
     /**
@@ -127,7 +141,7 @@ open class LayerTraceEntry constructor(
     fun isVisible(windowName: String): Boolean =
         visibleLayers.any { it.name.contains(windowName) }
 
-    fun asTrace(): LayersTrace = LayersTrace(arrayOf(this), source = "")
+    fun asTrace(): LayersTrace = LayersTrace(arrayOf(this))
 
     override fun toString(): String {
         return "${prettyTimestamp(timestamp)} (timestamp=$timestamp)"

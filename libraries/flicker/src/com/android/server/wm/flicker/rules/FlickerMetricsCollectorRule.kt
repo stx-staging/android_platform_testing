@@ -22,6 +22,7 @@ import com.android.server.wm.flicker.service.FlickerCollectionListener
 import com.android.server.wm.flicker.service.assertors.AssertionConfigParser
 import com.android.server.wm.flicker.service.assertors.AssertionData
 import com.android.server.wm.traces.common.errors.Error
+import com.google.common.annotations.VisibleForTesting
 import org.junit.rules.TestWatcher
 import org.junit.runner.Description
 
@@ -29,9 +30,9 @@ import org.junit.runner.Description
  * Call the {@link FlickerCollectionListener} and get the generated {@link ErrorTrace} from
  * the {@link FlickerService}.
  */
-class FlickerMetricsCollectorRule(
+open class FlickerMetricsCollectorRule(
     private val collectionListener: FlickerCollectionListener = FlickerCollectionListener(),
-    private val instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation()
+    instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation()
 ) : TestWatcher() {
 
     init {
@@ -39,6 +40,11 @@ class FlickerMetricsCollectorRule(
     }
 
     override fun starting(description: Description?) {
+        // The class name we get from the test description object may contain the iteration number
+        // (e.g. #3 for iteration 3) at the end of the class name. We want to remove that as that
+        // isn't actually part of the class name.
+        val className = description?.className?.replace("\\$[0-9]+\$".toRegex(), "")
+        collectionListener.setTransitionClassName(className)
         collectionListener.testStarted(description)
     }
 
@@ -70,6 +76,11 @@ class FlickerMetricsCollectorRule(
     fun checkFlakyAssertions() {
         val errors = filterErrors(AssertionConfigParser.FLAKY_KEY)
         failIfAnyError(errors)
+    }
+
+    @VisibleForTesting
+    fun getMetrics(): Map<String, Int> {
+        return collectionListener.getMetrics()
     }
 
     private fun failIfAnyError(errors: List<Error>) {

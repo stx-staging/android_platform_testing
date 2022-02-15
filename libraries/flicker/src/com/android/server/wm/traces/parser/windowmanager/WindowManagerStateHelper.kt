@@ -20,7 +20,6 @@ import android.app.ActivityTaskManager
 import android.app.Instrumentation
 import android.app.WindowConfiguration
 import android.graphics.Rect
-import android.graphics.Region
 import android.os.SystemClock
 import android.util.Log
 import android.view.Display
@@ -36,9 +35,9 @@ import com.android.server.wm.traces.parser.LOG_TAG
 import com.android.server.wm.traces.common.WaitCondition
 import com.android.server.wm.traces.common.layers.LayerTraceEntry
 import com.android.server.wm.traces.common.WindowManagerConditionsFactory
+import com.android.server.wm.traces.common.region.Region
 import com.android.server.wm.traces.common.windowmanager.WindowManagerState
 import com.android.server.wm.traces.parser.getCurrentStateDump
-import com.android.server.wm.traces.parser.toAndroidRegion
 
 open class WindowManagerStateHelper @JvmOverloads constructor(
     /**
@@ -335,6 +334,34 @@ open class WindowManagerStateHelper @JvmOverloads constructor(
             .waitFor()
 
     /**
+     * Waits until a window is in PIP mode. That is:
+     *
+     * - wait until a window is pinned ([WindowManagerState.pinnedWindows])
+     * - no layers animating
+     * - and [FlickerComponentName.PIP_CONTENT_OVERLAY] is no longer visible
+     */
+    fun waitPipShown(): Boolean =
+        createConditionBuilder()
+            .withCondition(WindowManagerConditionsFactory.hasLayersAnimating().negate())
+            .withCondition(WindowManagerConditionsFactory.hasPipWindow())
+            .build()
+            .waitFor()
+
+    /**
+     * Waits until a window is no longer in PIP mode. That is:
+     *
+     * - wait until there are no pinned ([WindowManagerState.pinnedWindows])
+     * - no layers animating
+     * - and [FlickerComponentName.PIP_CONTENT_OVERLAY] is no longer visible
+     */
+    fun waitPipGone(): Boolean =
+        createConditionBuilder()
+            .withCondition(WindowManagerConditionsFactory.hasLayersAnimating().negate())
+            .withCondition(WindowManagerConditionsFactory.hasPipWindow().negate())
+            .build()
+            .waitFor()
+
+    /**
      * Obtains a [WindowContainer] from the current device state, or null if the WindowContainer
      * doesn't exist
      */
@@ -349,6 +376,6 @@ open class WindowManagerStateHelper @JvmOverloads constructor(
      */
     fun getWindowRegion(activity: FlickerComponentName): Region {
         val window = getWindow(activity)
-        return window?.frameRegion?.toAndroidRegion() ?: Region()
+        return window?.frameRegion ?: Region.EMPTY
     }
 }
