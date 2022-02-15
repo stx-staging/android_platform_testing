@@ -17,7 +17,10 @@ package android.platform.test.rule;
 
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+
+import android.os.Bundle;
 
 import com.android.helpers.GarbageCollectionHelper;
 
@@ -67,10 +70,63 @@ public class GarbageCollectRuleTest {
                 Description.createTestDescription("clzz", "mthd")).evaluate();
     }
 
+    /**
+     * Tests that this rule will gc before and after the test if an app is supplied.
+     */
+    @Test
+    public void testCallsGcBeforeAndAfterTest() throws Throwable {
+        Bundle gcEndBundle = new Bundle();
+        gcEndBundle.putString(GarbageCollectRule.GC_RULE_END, "true");
+        GarbageCollectRule rule = new TestableGarbageCollectRule(gcEndBundle, "package.name1");
+        Statement testStatement = new Statement() {
+            @Override
+            public void evaluate() throws Throwable {
+                // Assert that garbage collection was called before the test.
+                verify(mGcHelper).setUp("package.name1");
+            }
+        };
+
+        rule.apply(testStatement,
+                Description.createTestDescription("clzz", "mthd")).evaluate();
+        verify(mGcHelper, times(2)).garbageCollect();
+    }
+
+    /**
+     * Tests that this rule will gc only before the test if an app is supplied.
+     */
+    @Test
+    public void testCallsGcOnlyBeforeTest() throws Throwable {
+        Bundle gcEndBundle = new Bundle();
+        gcEndBundle.putString(GarbageCollectRule.GC_RULE_END, "false");
+        GarbageCollectRule rule = new TestableGarbageCollectRule(gcEndBundle, "package.name1");
+        Statement testStatement = new Statement() {
+            @Override
+            public void evaluate() throws Throwable {
+                // Assert that garbage collection was called before the test.
+                verify(mGcHelper).setUp("package.name1");
+            }
+        };
+
+        rule.apply(testStatement,
+                Description.createTestDescription("clzz", "mthd")).evaluate();
+        verify(mGcHelper, times(1)).garbageCollect();
+    }
 
     private class TestableGarbageCollectRule extends GarbageCollectRule {
+        private Bundle mBundle;
+
+        public TestableGarbageCollectRule(Bundle bundle, String app) {
+            super(app);
+            mBundle = bundle;
+        }
+
         public TestableGarbageCollectRule(String app) {
             super(app);
+        }
+
+        @Override
+        protected Bundle getArguments() {
+            return mBundle;
         }
 
         @Override
