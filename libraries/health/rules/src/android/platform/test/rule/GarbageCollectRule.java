@@ -21,7 +21,6 @@ import androidx.annotation.VisibleForTesting;
 import com.android.helpers.GarbageCollectionHelper;
 
 import org.junit.runner.Description;
-import org.junit.runners.model.InitializationError;
 
 /**
  * This rule will gc the provided apps before running each test method.
@@ -30,28 +29,50 @@ public class GarbageCollectRule extends TestWatcher {
 
     private static final String TAG = GarbageCollectRule.class.getSimpleName();
 
-    private final GarbageCollectionHelper mGcHelper;
+    private GarbageCollectionHelper mGcHelper;
+
+    @VisibleForTesting
+    static final String GC_APPS = "gc-app-package-names";
 
     @VisibleForTesting
     static final String GC_RULE_END = "gc-on-rule-end";
 
-    public GarbageCollectRule() throws InitializationError {
-        throw new InitializationError("Must supply an application for garbage collection.");
+    public GarbageCollectRule() {
+        mGcHelper = initGcHelper();
     }
 
     public GarbageCollectRule(String... applications) {
-        mGcHelper = initGcHelper();
+        mGcHelper = initGcHelper(applications);
+    }
+
+    private GarbageCollectionHelper initGcHelper(String... applications) {
+        // Check if package names are passed via test arguments and split the comma separated
+        // package names.
+        if (applications == null || applications.length == 0) {
+            if (getArguments() != null && getArguments().getString(GC_APPS) != null) {
+                applications = getArguments().getString(GC_APPS).split(",");
+            } else {
+                Log.e(TAG, "Cannot force garbage collection because package names are empty.");
+                return null;
+            }
+        }
+
+        mGcHelper = getGcHelper();
         mGcHelper.setUp(applications);
+        return mGcHelper;
     }
 
     @VisibleForTesting
-    GarbageCollectionHelper initGcHelper() {
+    GarbageCollectionHelper getGcHelper() {
         return new GarbageCollectionHelper();
     }
 
     @Override
     protected void starting(Description description) {
-        Log.v(TAG, "Force Garbage collection at the starting of the rule");
+        if (mGcHelper == null) {
+            return;
+        }
+        Log.v(TAG, "Force Garbage collection at the starting of the rule.");
         mGcHelper.garbageCollect();
     }
 
@@ -59,7 +80,7 @@ public class GarbageCollectRule extends TestWatcher {
     protected void finished(Description description) {
 
         // By default do not force the GC at the end of the rule.
-        if (getArguments() == null)
+        if (mGcHelper == null || getArguments() == null)
             return;
 
         // Check if GC is needed at the end of the rule.
@@ -68,7 +89,7 @@ public class GarbageCollectRule extends TestWatcher {
             return;
         }
 
-        Log.v(TAG, "Force Garbage collection at the end of the rule");
+        Log.v(TAG, "Force Garbage collection at the end of the rule.");
         mGcHelper.garbageCollect();
     }
 }
