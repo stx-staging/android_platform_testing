@@ -108,7 +108,13 @@ class WindowManagerStateHelperTest {
             backgroundBlurRadius = 0,
             isRelativeOf = false,
             zOrderRelativeOfId = -1,
-            stackId = 0
+            stackId = 0,
+            requestedTransform = transform,
+            requestedColor = Color(0f, 0f, 0f, 1f),
+            cornerRadiusCrop = RectF.EMPTY,
+            inputTransform = transform,
+            inputRegion = Region.from(rect.toRect())
+
         )
     }
 
