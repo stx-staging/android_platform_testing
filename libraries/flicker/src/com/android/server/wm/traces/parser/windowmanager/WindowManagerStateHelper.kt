@@ -77,7 +77,7 @@ open class WindowManagerStateHelper @JvmOverloads constructor(
                 waitForValidState()
             }
             return internalState ?: error("Unable to fetch an internal state")
-    }
+        }
 
     protected open fun updateCurrState(
         value: DeviceStateDump<WindowManagerState, LayerTraceEntry>
@@ -97,23 +97,31 @@ open class WindowManagerStateHelper @JvmOverloads constructor(
      * Wait for the activities to appear in proper stacks and for valid state in AM and WM.
      * @param waitForActivityState array of activity states to wait for.
      */
-    fun waitForValidState(vararg waitForActivityState: WaitForValidActivityState) =
+    private fun waitForValidState(vararg waitForActivityState: WaitForValidActivityState) =
         waitFor(waitForValidStateCondition(*waitForActivityState))
 
-    fun waitForFullScreenApp(component: FlickerComponentName) = waitFor(isAppFullScreen(component)))
+    fun waitForFullScreenApp(component: FlickerComponentName) =
+        require(
+        waitFor(isAppFullScreen(component))) {
+        "Expected ${component.toWindowName()} to be in full screen"
+    }
 
-    fun waitForHomeActivityVisible() = waitFor(isHomeActivityVisible)
+    fun waitForHomeActivityVisible() = require(waitFor(isHomeActivityVisible)) {
+        "Expected home activity to be visible"
+    }
 
-    fun waitForRecentsActivityVisible(): Boolean =
-        waitFor("isRecentsActivityVisible") { it.wmState.isRecentsActivityVisible }
+    fun waitForRecentsActivityVisible() = require(
+        waitFor("isRecentsActivityVisible") { it.wmState.isRecentsActivityVisible }) {
+        "Expected recents activity to be visible"
+    }
 
     /**
      * Wait for specific rotation for the default display. Values are Surface#Rotation
      */
     @JvmOverloads
-    fun waitForRotation(rotation: Int, displayId: Int = Display.DEFAULT_DISPLAY): Boolean {
+    fun waitForRotation(rotation: Int, displayId: Int = Display.DEFAULT_DISPLAY) {
         val hasRotationCondition = WindowManagerConditionsFactory.hasRotation(rotation, displayId)
-        return waitFor(
+        val result = waitFor(
             WindowManagerConditionsFactory.isAppTransitionIdle(Display.DEFAULT_DISPLAY),
             Condition("waitForRotation[$rotation]") {
                 if (!it.wmState.canRotate) {
@@ -123,13 +131,14 @@ open class WindowManagerStateHelper @JvmOverloads constructor(
                     hasRotationCondition.isSatisfied(it)
                 }
             })
+        require(result) { "Could not change rotation" }
     }
 
     fun waitForActivityState(activity: FlickerComponentName, activityState: String): Boolean {
         val activityName = activity.toActivityName()
         return waitFor("state of $activityName to be $activityState") {
-                it.wmState.hasActivityState(activityName, activityState)
-            }
+            it.wmState.hasActivityState(activityName, activityState)
+        }
     }
 
     /**
@@ -140,33 +149,38 @@ open class WindowManagerStateHelper @JvmOverloads constructor(
             WindowManagerConditionsFactory.isNavBarVisible(),
             WindowManagerConditionsFactory.isStatusBarVisible())
 
-    fun waitForVisibleWindow(component: FlickerComponentName): Boolean =
+    fun waitForVisibleWindow(component: FlickerComponentName) = require(
         waitFor(
-            WindowManagerConditionsFactory.containsActivity(component),
-            WindowManagerConditionsFactory.containsWindow(component),
-            WindowManagerConditionsFactory.isActivityVisible(component),
-            WindowManagerConditionsFactory.isWindowSurfaceShown(component),
-            WindowManagerConditionsFactory.isAppTransitionIdle(Display.DEFAULT_DISPLAY))
+            WindowManagerConditionsFactory.isWindowVisible(component),
+            WindowManagerConditionsFactory.isAppTransitionIdle(Display.DEFAULT_DISPLAY))) {
+        "Expected window ${component.toWindowName()} to be visible"
+    }
 
-    fun waitForActivityRemoved(component: FlickerComponentName): Boolean =
+    fun waitForActivityRemoved(component: FlickerComponentName) = require(
         waitFor(
             WindowManagerConditionsFactory.containsActivity(component).negate(),
             WindowManagerConditionsFactory.containsWindow(component).negate(),
-            WindowManagerConditionsFactory.isAppTransitionIdle(Display.DEFAULT_DISPLAY))
+            WindowManagerConditionsFactory.isAppTransitionIdle(Display.DEFAULT_DISPLAY))) {
+        "Expected activity ${component.toWindowName()} to have been removed"
+    }
 
     @JvmOverloads
     fun waitForAppTransitionIdle(displayId: Int = Display.DEFAULT_DISPLAY): Boolean =
         waitFor(WindowManagerConditionsFactory.isAppTransitionIdle(displayId))
 
-    fun waitForWindowSurfaceDisappeared(component: FlickerComponentName): Boolean =
+    fun waitForWindowSurfaceDisappeared(component: FlickerComponentName) = require(
         waitFor(
             WindowManagerConditionsFactory.isWindowSurfaceShown(component).negate(),
-            WindowManagerConditionsFactory.isAppTransitionIdle(Display.DEFAULT_DISPLAY))
+            WindowManagerConditionsFactory.isAppTransitionIdle(Display.DEFAULT_DISPLAY))) {
+        "Expected surface ${component.toLayerName()} to disappear"
+    }
 
-    fun waitForSurfaceAppeared(surfaceName: String): Boolean =
+    fun waitForSurfaceAppeared(component: FlickerComponentName) = require(
         waitFor(
-            WindowManagerConditionsFactory.isWindowSurfaceShown(surfaceName),
-            WindowManagerConditionsFactory.isAppTransitionIdle(Display.DEFAULT_DISPLAY))
+            WindowManagerConditionsFactory.isWindowSurfaceShown(component),
+            WindowManagerConditionsFactory.isAppTransitionIdle(Display.DEFAULT_DISPLAY))) {
+        "Expected surface ${component.toLayerName()} to appear"
+    }
 
     fun waitFor(
         vararg conditions: Condition<DeviceStateDump<WindowManagerState, LayerTraceEntry>>
@@ -185,14 +199,14 @@ open class WindowManagerStateHelper @JvmOverloads constructor(
     /**
      * Waits until the IME window and layer are visible
      */
-    fun waitImeShown(): Boolean = waitFor(imeShownCondition)
+    fun waitImeShown() = require(waitFor(imeShownCondition)) { "Expected IME to be visible" }
 
     /**
      * Waits until the IME layer is no longer visible. Cannot wait for the window as
      * its visibility information is updated at a later state and is not reliable in
      * the trace
      */
-    fun waitImeGone() = waitFor(imeGoneCondition)
+    fun waitImeGone() = require(waitFor(imeGoneCondition)) { "Expected IME not to be visible" }
 
     /**
      * Waits until a window is in PIP mode. That is:
@@ -201,7 +215,7 @@ open class WindowManagerStateHelper @JvmOverloads constructor(
      * - no layers animating
      * - and [FlickerComponentName.PIP_CONTENT_OVERLAY] is no longer visible
      */
-    fun waitPipShown(): Boolean = waitFor(pipShownCondition)
+    fun waitPipShown() = require(waitFor(pipShownCondition)) { "Expected PIP window to be visible" }
 
     /**
      * Waits until a window is no longer in PIP mode. That is:
@@ -210,7 +224,7 @@ open class WindowManagerStateHelper @JvmOverloads constructor(
      * - no layers animating
      * - and [FlickerComponentName.PIP_CONTENT_OVERLAY] is no longer visible
      */
-    fun waitPipGone(): Boolean = waitFor(pipGoneCondition)
+    fun waitPipGone() = require(waitFor(pipGoneCondition)) { "Expected PIP window to be gone" }
 
     /**
      * Obtains a [WindowContainer] from the current device state, or null if the WindowContainer
@@ -321,7 +335,8 @@ open class WindowManagerStateHelper @JvmOverloads constructor(
                         if (!ws.isWindowingModeCompatible(activityState.windowingMode)) {
                             continue
                         }
-                        if (activityState.activityType != WindowConfiguration.ACTIVITY_TYPE_UNDEFINED &&
+                        if (activityState.activityType !=
+                                WindowConfiguration.ACTIVITY_TYPE_UNDEFINED &&
                             ws.activityType != activityState.activityType) {
                             continue
                         }
