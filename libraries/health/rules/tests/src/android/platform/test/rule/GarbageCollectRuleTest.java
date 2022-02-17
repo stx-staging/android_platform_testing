@@ -15,7 +15,6 @@
  */
 package android.platform.test.rule;
 
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -28,7 +27,6 @@ import org.junit.Test;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
 
 /**
@@ -39,17 +37,22 @@ public class GarbageCollectRuleTest {
     private final GarbageCollectionHelper mGcHelper = mock(GarbageCollectionHelper.class);
 
     /**
-     * Tests that this rule will fail to register if no apps are supplied.
+     * Tests that this rule will not call gc before the test if an app not supplied.
      */
     @Test
-    public void testNoAppToGcFails() {
-        try {
-            GarbageCollectRule rule = new GarbageCollectRule();
-            fail("An initialization error should have been thrown, but wasn't.");
-        } catch (InitializationError e) {
-            return;
-        }
+    public void testNoGcBeforeTest() throws Throwable {
+        GarbageCollectRule rule = new TestableGarbageCollectRule();
+        Statement testStatement = new Statement() {
+            @Override
+            public void evaluate() throws Throwable {
+            }
+        };
+
+        rule.apply(testStatement,
+                Description.createTestDescription("clzz", "mthd")).evaluate();
+        verify(mGcHelper, times(0)).garbageCollect();
     }
+
 
     /**
      * Tests that this rule will gc before the test if an app is supplied.
@@ -115,6 +118,10 @@ public class GarbageCollectRuleTest {
     private class TestableGarbageCollectRule extends GarbageCollectRule {
         private Bundle mBundle;
 
+        public TestableGarbageCollectRule() {
+            super();
+        }
+
         public TestableGarbageCollectRule(Bundle bundle, String app) {
             super(app);
             mBundle = bundle;
@@ -130,7 +137,7 @@ public class GarbageCollectRuleTest {
         }
 
         @Override
-        GarbageCollectionHelper initGcHelper() {
+        GarbageCollectionHelper getGcHelper() {
             return mGcHelper;
         }
     }
