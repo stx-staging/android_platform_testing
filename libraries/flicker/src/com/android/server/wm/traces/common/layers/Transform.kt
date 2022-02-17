@@ -121,6 +121,10 @@ open class Transform(val type: Int?, val matrix: Matrix33) {
         return "$transformType ${matrix.prettyPrint()}"
     }
 
+    fun getTypeAsString(): String {
+        return typeFlags.joinToString("|")
+    }
+
     override fun toString(): String = prettyPrint()
 
     fun apply(bounds: RectF?): RectF {
