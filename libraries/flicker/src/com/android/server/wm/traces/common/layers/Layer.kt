@@ -57,7 +57,12 @@ data class Layer(
     val crop: Rect?,
     val isRelativeOf: Boolean,
     val zOrderRelativeOfId: Int,
-    val stackId: Int
+    val stackId: Int,
+    val requestedTransform: Transform,
+    val requestedColor: Color,
+    val cornerRadiusCrop: RectF,
+    val inputTransform: Transform,
+    val inputRegion: Region?
 ) {
     val stableId: String = "$type $id $name"
     var parent: Layer? = null
@@ -381,6 +386,11 @@ data class Layer(
         if (isMissing != other.isMissing) return false
         if (isOpaque != other.isOpaque) return false
         if (screenBounds != other.screenBounds) return false
+        if (requestedTransform != other.requestedTransform) return false
+        if (requestedColor != other.requestedColor) return false
+        if (cornerRadiusCrop != other.cornerRadiusCrop) return false
+        if (inputTransform != other.inputTransform) return false
+        if (inputRegion != other.inputRegion) return false
 
         return true
     }
@@ -417,6 +427,11 @@ data class Layer(
         result = 31 * result + isMissing.hashCode()
         result = 31 * result + isOpaque.hashCode()
         result = 31 * result + screenBounds.hashCode()
+        result = 31 * result + requestedTransform.hashCode()
+        result = 31 * result + requestedColor.hashCode()
+        result = 31 * result + cornerRadiusCrop.hashCode()
+        result = 31 * result + inputTransform.hashCode()
+        result = 31 * result + (inputRegion?.hashCode() ?: 0)
         return result
     }
 }
