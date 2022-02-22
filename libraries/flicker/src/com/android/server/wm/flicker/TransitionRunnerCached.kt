@@ -51,7 +51,8 @@ class TransitionRunnerCached @JvmOverloads constructor(
      */
     override fun cleanUp() {
         super.cleanUp()
-        result?.cleanUp()
+        result?.saveTraces()
+        result?.checkForExecutionErrors()
         result = null
     }
 }

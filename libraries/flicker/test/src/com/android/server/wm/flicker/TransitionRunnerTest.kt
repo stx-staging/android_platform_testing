@@ -16,9 +16,11 @@
 
 package com.android.server.wm.flicker
 
+import android.view.WindowManagerGlobal
 import androidx.test.platform.app.InstrumentationRegistry
 import com.android.server.wm.flicker.dsl.FlickerBuilder
 import com.google.common.truth.Truth
+import org.junit.After
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
@@ -32,6 +34,15 @@ import org.junit.runners.MethodSorters
 class TransitionRunnerTest {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
 
+    @After
+    fun assertTracingStopped() {
+        val windowManager = WindowManagerGlobal.getWindowManagerService()
+        Truth.assertWithMessage("Layers Trace not stopped")
+                .that(windowManager.isLayerTracing).isFalse()
+        Truth.assertWithMessage("WM Trace not stopped")
+                .that(windowManager.isWindowTraceEnabled).isFalse()
+    }
+
     @Test
     fun canRunTransition() {
         val runner = TransitionRunner()
@@ -44,8 +55,9 @@ class TransitionRunnerTest {
             }.build(runner)
         Truth.assertThat(executed).isFalse()
         val result = runner.execute(flicker)
+        runner.cleanUp()
         Truth.assertThat(executed).isTrue()
-        Truth.assertThat(result.error).isNull()
+        Truth.assertThat(result.executionErrors).isEmpty()
         Truth.assertThat(result.runs).hasSize(4)
     }
 
@@ -62,7 +74,47 @@ class TransitionRunnerTest {
         val result = runner.execute(flicker)
         executed = false
         val cachedResult = runner.execute(flicker)
+        runner.cleanUp()
         Truth.assertThat(executed).isFalse()
         Truth.assertThat(cachedResult).isEqualTo(result)
+    }
+
+    @Test
+    fun storesTransitionExecutionErrors() {
+        val runner = TransitionRunner()
+        val flicker = FlickerBuilder(instrumentation)
+            .apply {
+                transitions {
+                    throw RuntimeException("Failed to execute transition")
+                }
+            }.build(runner)
+        val result = runner.execute(flicker)
+        runner.cleanUp()
+        Truth.assertThat(result.executionErrors).isNotEmpty()
+    }
+
+    @Test
+    fun keepsSuccessfulTransitionExecutions() {
+        val repetitions = 3
+        var transitionRunCounter = 0
+
+        val runner = TransitionRunner()
+        val flicker = FlickerBuilder(instrumentation)
+                .apply {
+                    transitions {
+                        transitionRunCounter++
+                        if (transitionRunCounter == repetitions) {
+                            // fail on last transition repetition
+                            throw RuntimeException("Failed to execute transition")
+                        }
+                    }
+                }.repeat { repetitions }.build(runner)
+        val result = runner.execute(flicker)
+        runner.cleanUp()
+        Truth.assertThat(result.executionErrors).isNotEmpty()
+        // One for each monitor for each repetition expect the last one
+        // for which the transition failed to execute
+        val expectedResultCount = flicker.traceMonitors.size * (repetitions - 1)
+        Truth.assertThat(result.runs.size).isEqualTo(expectedResultCount)
     }
 }
