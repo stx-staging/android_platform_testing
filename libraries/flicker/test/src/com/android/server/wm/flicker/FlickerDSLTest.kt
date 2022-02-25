@@ -18,6 +18,7 @@ package com.android.server.wm.flicker
 
 import android.app.Instrumentation
 import androidx.test.platform.app.InstrumentationRegistry
+import com.android.compatibility.common.util.SystemUtil
 import com.android.server.wm.flicker.FlickerResult.Companion.CombinedExecutionError
 import com.android.server.wm.flicker.TransitionRunner.Companion.TestSetupFailure
 import com.android.server.wm.flicker.TransitionRunner.Companion.TestTeardownFailure
@@ -35,9 +36,11 @@ import com.android.server.wm.flicker.traces.windowmanager.WindowManagerStateSubj
 import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
 import com.google.common.truth.Truth
 import org.junit.Assert
+import org.junit.Before
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
+import java.nio.file.Files
 import java.nio.file.Paths
 import kotlin.reflect.KClass
 
@@ -50,6 +53,12 @@ import kotlin.reflect.KClass
 class FlickerDSLTest {
     private val instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation()
     private var executed = false
+
+    @Before
+    fun before() {
+        // Clear the trace output directory
+        SystemUtil.runShellCommand("rm -rf $OUT_DIR && mkdir $OUT_DIR")
+    }
 
     @Test
     fun checkBuiltWMStartAssertion() {
@@ -358,6 +367,21 @@ class FlickerDSLTest {
         }
     }
 
+    @Test
+    fun savesTracesOfFailedTransitionExecution() {
+        val builder = FlickerBuilder(instrumentation)
+        builder.transitions {
+            throw RuntimeException("Failed to execute transition")
+        }
+        val flicker = builder.build()
+        val OUT_DIR = getDefaultFlickerOutputDir()
+
+        runFlicker(flicker, PASS_ASSERTION)
+        val file = OUT_DIR.resolve("${FlickerRunResult.Companion.RunStatus.RUN_FAILED}_trace")
+        Truth.assertWithMessage("Expected $file to exist but it didn't")
+                .that(Files.exists(file)).isTrue()
+    }
+
     private fun runAndAssertExecuted(assertion: AssertionData) {
         executed = false
         val builder = FlickerBuilder(instrumentation)
@@ -442,5 +466,6 @@ class FlickerDSLTest {
                 expectedSubjectClass = LayerTraceEntrySubject::class) {
             this.fail("Expected exception")
         }
+        private val OUT_DIR = getDefaultFlickerOutputDir()
     }
 }

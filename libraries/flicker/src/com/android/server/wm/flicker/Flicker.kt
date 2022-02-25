@@ -117,17 +117,21 @@ class Flicker(
         if (result == null) {
             execute()
         } else {
-            if (result.runs.isEmpty()) {
+            if (result.successfulRuns.isEmpty()) {
                 // Only throw the execution exception here if there are no successful transition
                 // runs, otherwise we want to execute the assertions on the successful runs and only
                 // throw the exception after we have collected the transition assertion data, in
-                // which case the execution exception with be thrown in the
+                // which case the execution exception will be thrown in the
                 // result.checkForExecutionErrors() call in this.clear().
                 val executionError = if (result.executionErrors.size == 1) {
                     result.executionErrors[0]
                 } else {
                     result.combinedExecutionError
                 }
+
+                // Save any traces with the proper prefixes before failing
+                result.saveTraces()
+
                 throw executionError
             }
         }

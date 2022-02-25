@@ -39,7 +39,7 @@ class ScreenRecorderTest {
     @Before
     fun setup() {
         val outputDir = getDefaultFlickerOutputDir()
-        mScreenRecorder = ScreenRecorder(outputDir, instrumentation.targetContext)
+        mScreenRecorder = ScreenRecorder(instrumentation.targetContext, outputDir)
     }
 
     @After

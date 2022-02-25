@@ -18,7 +18,6 @@ package com.android.server.wm.flicker
 
 import com.android.server.wm.flicker.assertions.AssertionData
 import com.android.server.wm.flicker.assertions.FlickerAssertionError
-import com.android.server.wm.flicker.assertions.FlickerAssertionErrorBuilder
 import com.google.common.truth.Truth
 
 /**
@@ -28,7 +27,7 @@ data class FlickerResult(
     /**
      * Result of each transition run
      */
-    @JvmField val runs: List<FlickerRunResult> = listOf(),
+    @JvmField val runResults: List<FlickerRunResult> = listOf(),
     /**
      * List of test created during the execution
      */
@@ -38,6 +37,11 @@ data class FlickerResult(
      */
     @JvmField val executionErrors: List<Throwable> = listOf()
 ) {
+    /** Successful runs on which we can run assertions */
+    val successfulRuns: List<FlickerRunResult> = runResults.filter { it.status.isSuccessfulRun }
+    /** Failed runs due to execution errors which we shouldn't run assertions on */
+    private val failedRuns: List<FlickerRunResult> = runResults.filter { it.status.isFailedRun }
+
     val combinedExecutionError = CombinedExecutionError(executionErrors)
 
     /**
@@ -51,20 +55,13 @@ data class FlickerResult(
      * @throws AssertionError If the assertion fail or the transition crashed
      */
     internal fun checkAssertion(assertion: AssertionData): List<FlickerAssertionError> {
-        Truth.assertWithMessage("No transitions were not executed").that(runs).isNotEmpty()
-        val filteredRuns = runs.filter { it.assertionTag == assertion.tag }
-        val currFailures = filteredRuns.mapNotNull { run ->
-            try {
-                assertion.checkAssertion(run)
-                null
-            } catch (error: Throwable) {
-                FlickerAssertionErrorBuilder()
-                    .fromError(error)
-                    .atTag(assertion.tag)
-                    .withTrace(run.traceFile)
-                    .build()
-            }
-        }
+        Truth.assertWithMessage("Expected to have runResults but none were found")
+                .that(runResults).isNotEmpty()
+        Truth.assertWithMessage("No transitions were not executed successful")
+                .that(successfulRuns).isNotEmpty()
+
+        val filteredRuns = successfulRuns.filter { it.assertionTag == assertion.tag }
+        val currFailures = filteredRuns.mapNotNull { run -> run.checkAssertion(assertion) }
         failures.addAll(currFailures)
         return currFailures
     }
@@ -85,10 +82,10 @@ data class FlickerResult(
      * Add a prefix to all trace files indicating the test status (pass/fail)
      */
     fun saveTraces() {
-        runs.forEach { it.saveTraces(failures) }
+        runResults.forEach { it.saveTraces(failures) }
     }
 
-    fun isEmpty(): Boolean = executionErrors.isEmpty() && runs.isEmpty()
+    fun isEmpty(): Boolean = executionErrors.isEmpty() && successfulRuns.isEmpty()
 
     fun isNotEmpty(): Boolean = !isEmpty()
 

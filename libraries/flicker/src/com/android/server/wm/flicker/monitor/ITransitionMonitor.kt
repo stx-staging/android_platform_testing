@@ -34,7 +34,7 @@ interface ITransitionMonitor : FlickerRunResult.IResultSetter {
      * Moves the trace file from the default location via a shell command since the test app does
      * not have security privileges to access /data/misc/wmtrace.
      *
-     * IMPORTANT: Should support being called multiple times
+     * Should support being called multiple times.
      */
     fun saveToFile(): Path?
 }

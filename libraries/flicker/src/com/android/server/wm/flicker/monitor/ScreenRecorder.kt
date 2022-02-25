@@ -35,8 +35,8 @@ import java.nio.file.Path
 
 /** Captures screen contents and saves it as a mp4 video file.  */
 open class ScreenRecorder @JvmOverloads constructor(
-    outputDir: Path = getDefaultFlickerOutputDir(),
     private val context: Context,
+    outputDir: Path = getDefaultFlickerOutputDir(),
     private val maxDurationMs: Int = MAX_DURATION_MS,
     private val maxFileSizeBytes: Long = MAX_FILESIZE_BYTES,
     private val width: Int = 720,

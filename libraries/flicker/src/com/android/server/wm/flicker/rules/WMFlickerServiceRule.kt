@@ -70,8 +70,7 @@ open class WMFlickerServiceRule @JvmOverloads constructor(
         traceMonitors.add(WindowManagerTraceMonitor(outputDir))
         traceMonitors.add(LayersTraceMonitor(outputDir))
         traceMonitors.add(ScreenRecorder(
-            outputDir,
-            InstrumentationRegistry.getInstrumentation().targetContext)
+            InstrumentationRegistry.getInstrumentation().targetContext, outputDir)
         )
     }
 

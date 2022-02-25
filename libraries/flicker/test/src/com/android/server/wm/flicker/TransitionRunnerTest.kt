@@ -18,18 +18,29 @@ package com.android.server.wm.flicker
 
 import android.view.WindowManagerGlobal
 import androidx.test.platform.app.InstrumentationRegistry
+import com.android.server.wm.flicker.FlickerRunResult.Companion.RunStatus
 import com.android.server.wm.flicker.dsl.FlickerBuilder
+import com.android.server.wm.flicker.monitor.ITransitionMonitor
+import com.android.server.wm.flicker.monitor.LayersTraceMonitor
+import com.android.server.wm.flicker.monitor.ScreenRecorder
+import com.android.server.wm.flicker.monitor.WindowManagerTraceMonitor
 import com.google.common.truth.Truth
 import org.junit.After
 import org.junit.FixMethodOrder
 import org.junit.Test
+import org.junit.runner.RunWith
 import org.junit.runners.MethodSorters
+import org.mockito.Mockito
+// import org.mockito.kotlin.any
+import org.mockito.junit.MockitoJUnitRunner
+import java.lang.RuntimeException
 
 /**
  * Contains [TransitionRunner] tests.
  *
  * To run this test: `atest FlickerLibTest:TransitionRunnerTest`
  */
+@RunWith(MockitoJUnitRunner::class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class TransitionRunnerTest {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
@@ -58,7 +69,7 @@ class TransitionRunnerTest {
         runner.cleanUp()
         Truth.assertThat(executed).isTrue()
         Truth.assertThat(result.executionErrors).isEmpty()
-        Truth.assertThat(result.runs).hasSize(4)
+        Truth.assertThat(result.successfulRuns).hasSize(4)
     }
 
     @Test
@@ -97,6 +108,107 @@ class TransitionRunnerTest {
         // One for each monitor for each repetition expect the last one
         // for which the transition failed to execute
         val expectedResultCount = flicker.traceMonitors.size * (repetitions - 1)
-        Truth.assertThat(result.runs.size).isEqualTo(expectedResultCount)
+        Truth.assertThat(result.successfulRuns.size).isEqualTo(expectedResultCount)
+    }
+
+    @Test
+    fun storesSuccessExecutionStatusInRunResult() {
+        val runner = TransitionRunner()
+        val flicker = FlickerBuilder(instrumentation)
+                .apply {
+                    transitions {}
+                }.repeat { 3 }.build(runner)
+        val results = runner.execute(flicker).runResults
+        for (result in results) {
+            Truth.assertThat(result.status).isEqualTo(RunStatus.SUCCESS)
+        }
+    }
+
+    @Test
+    fun storesFailedExecutionStatusInRunResult() {
+        val runner = TransitionRunner()
+        val flicker = FlickerBuilder(instrumentation)
+                .apply {
+                    transitions {
+                        throw RuntimeException("Failed to execute transition")
+                    }
+                }.repeat { 3 }.build(runner)
+        val results = runner.execute(flicker).runResults
+        for (result in results) {
+            Truth.assertThat(result.status).isEqualTo(RunStatus.RUN_FAILED)
+        }
+    }
+
+    @Test
+    fun savesTraceOnTransitionExecutionErrors() {
+        val runner = TransitionRunner()
+        val spyMonitors = createSpyMonitors()
+        val flicker = FlickerBuilder(instrumentation, traceMonitors = spyMonitors)
+                .apply {
+                    transitions {
+                        throw Throwable()
+                    }
+                }
+                .build(runner)
+        runner.execute(flicker)
+        for (spyMonitor in spyMonitors) {
+            val orderedVerifier = Mockito.inOrder(spyMonitor)
+            orderedVerifier.verify(spyMonitor).start()
+            orderedVerifier.verify(spyMonitor).stop()
+            orderedVerifier.verify(spyMonitor).setResult(MockitoHelper.anyObject())
+            orderedVerifier.verify(spyMonitor).saveToFile()
+        }
+    }
+
+    @Test
+    fun savesTraceOnRunCleanupErrors() {
+        val runner = TransitionRunner()
+        val spyMonitors = createSpyMonitors()
+        val flicker = FlickerBuilder(instrumentation, traceMonitors = spyMonitors)
+                .apply {
+                    transitions {}
+                    teardown {
+                        eachRun {
+                            throw RuntimeException("Fail on run teardown")
+                        }
+                    }
+                }
+                .build(runner)
+        runner.execute(flicker)
+        for (spyMonitor in spyMonitors) {
+            Mockito.verify(spyMonitor, Mockito.atLeast(1)).saveToFile()
+        }
+    }
+
+    @Test
+    fun savesTraceOnTestCleanupErrors() {
+        val runner = TransitionRunner()
+        val spyMonitors = createSpyMonitors()
+        val flicker = FlickerBuilder(instrumentation, traceMonitors = spyMonitors)
+                .apply {
+                    transitions {}
+                    teardown {
+                        test {
+                            throw RuntimeException("Fail on test teardown")
+                        }
+                    }
+                }
+                .build(runner)
+        runner.execute(flicker)
+        for (spyMonitor in spyMonitors) {
+            Mockito.verify(spyMonitor, Mockito.atLeast(1)).saveToFile()
+        }
+    }
+
+    companion object {
+        // TODO: Get org.mockito.kotlin to work to avoid doing this
+        object MockitoHelper {
+            fun <T> anyObject(): T {
+                Mockito.any<T>()
+                return uninitialized()
+            }
+            @Suppress("UNCHECKED_CAST")
+            fun <T> uninitialized(): T = null as T
+        }
     }
 }

@@ -19,7 +19,9 @@ package com.android.server.wm.flicker
 import android.util.Log
 import androidx.annotation.VisibleForTesting
 import com.android.compatibility.common.util.ZipUtil
+import com.android.server.wm.flicker.assertions.AssertionData
 import com.android.server.wm.flicker.assertions.FlickerAssertionError
+import com.android.server.wm.flicker.assertions.FlickerAssertionErrorBuilder
 import com.android.server.wm.flicker.assertions.FlickerSubject
 import com.android.server.wm.flicker.dsl.AssertionTag
 import com.android.server.wm.flicker.traces.FlickerTraceSubject
@@ -67,8 +69,16 @@ class FlickerRunResult private constructor(
      * Truth subject that corresponds to a list of [FocusEvent]
      */
     @VisibleForTesting
-    val eventLogSubject: EventLogSubject?
+    val eventLogSubject: EventLogSubject?,
+    /**
+     * The execution status of the run
+     */
+    status: RunStatus
 ) {
+    var status = status
+        get
+        private set
+
     fun getSubjects(): List<FlickerSubject> {
         val result = mutableListOf<FlickerSubject>()
 
@@ -89,23 +99,41 @@ class FlickerRunResult private constructor(
         saveTraceFile(containsFailure)
     }
 
-    private fun saveTraceFile(isFailure: Boolean) {
+    private fun saveTraceFile(failedFlickerAssertions: Boolean) {
         if (traceFile == null || !Files.exists(traceFile)) {
             return
         }
         try {
-            val prefix = if (isFailure) FAIL_PREFIX else PASS_PREFIX
+            val prefix = if (status.isFailedRun) {
+                status.prefix
+            } else {
+                if (failedFlickerAssertions) ASSERTION_FAIL_PREFIX else ASSERTION_PASS_PREFIX
+            }
             val newFileName = prefix + traceFile.fileName.toString()
             val target = traceFile.resolveSibling(newFileName)
             Files.move(traceFile, target, StandardCopyOption.REPLACE_EXISTING)
         } catch (e: IOException) {
-            Log.e(FLICKER_TAG, "Unable do delete $this", e)
+            Log.e(FLICKER_TAG, "Unable to save $this", e)
         }
     }
 
     private fun containsFailure(failures: List<FlickerAssertionError>): Boolean {
         return failures.mapNotNull { it.traceFile }.any { failureTrace ->
             traceFile == failureTrace
+        }
+    }
+
+    fun checkAssertion(assertion: AssertionData): FlickerAssertionError? {
+        return try {
+            assertion.checkAssertion(this)
+            null
+        } catch (error: Throwable) {
+            status = RunStatus.ASSERTION_FAILED
+            FlickerAssertionErrorBuilder()
+                    .fromError(error)
+                    .atTag(assertion.tag)
+                    .withTrace(this.traceFile)
+                    .build()
         }
     }
 
@@ -125,6 +153,8 @@ class FlickerRunResult private constructor(
         private var wmTraceData: AsyncSubjectParser<WindowManagerTraceSubject>? = null
         private var layersTraceData: AsyncSubjectParser<LayersTraceSubject>? = null
         var screenRecording: Path? = null
+
+        var status: RunStatus = RunStatus.UNDEFINED
 
         /**
          * List of focus events, if collected
@@ -163,7 +193,8 @@ class FlickerRunResult private constructor(
                 assertionTag,
                 wmSubject,
                 layersSubject,
-                eventLogSubject
+                eventLogSubject,
+                status
             )
         }
 
@@ -254,8 +285,19 @@ class FlickerRunResult private constructor(
     }
 
     companion object {
-        private const val PASS_PREFIX = "PASS_"
-        private const val FAIL_PREFIX = "FAIL_"
+        private const val ASSERTION_PASS_PREFIX = "PASS"
+        private const val ASSERTION_FAIL_PREFIX = "FAIL"
         private val SCOPE = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
+        enum class RunStatus(val prefix: String = "") {
+            UNDEFINED("???"),
+            RUN_FAILED("FAILED_RUN"),
+            ASSERTION_FAILED("FAIL"),
+            SUCCESS("PASS");
+
+            val isSuccessfulRun: Boolean get() = this == SUCCESS
+
+            val isFailedRun: Boolean get() = !isSuccessfulRun
+        }
     }
 }
