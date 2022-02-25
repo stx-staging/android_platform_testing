@@ -219,7 +219,8 @@ open class TransitionRunner {
     private fun saveResult(flicker: Flicker, iteration: Int): List<FlickerRunResult> {
         val resultBuilder = FlickerRunResult.Builder()
         flicker.traceMonitors.forEach {
-            it.save(resultBuilder)
+            it.saveToFile()
+            resultBuilder.setResultFrom(it)
         }
 
         return resultBuilder.buildAll(flicker.testName, iteration)

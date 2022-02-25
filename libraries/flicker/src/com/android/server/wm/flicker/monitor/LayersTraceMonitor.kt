@@ -61,8 +61,9 @@ open class LayersTraceMonitor @JvmOverloads constructor(
     override val isEnabled: Boolean
         get() = windowManager.isLayerTracing
 
-    override fun setResult(flickerRunResultBuilder: FlickerRunResult.Builder, traceFile: Path) {
-        flickerRunResultBuilder.setLayersTrace(traceFile) {
+    override fun setResult(builder: FlickerRunResult.Builder) {
+        val traceFile = saveToFile()
+        builder.setLayersTrace(traceFile) {
             Log.v(FLICKER_TAG, "Parsing Layers trace")
             val traceData = Files.readAllBytes(traceFile)
             val layersTrace = LayersTraceParser.parseFromTrace(traceData)

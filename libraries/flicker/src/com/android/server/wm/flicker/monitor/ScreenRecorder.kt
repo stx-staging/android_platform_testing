@@ -133,8 +133,8 @@ open class ScreenRecorder @JvmOverloads constructor(
     override val isEnabled: Boolean
         get() = mediaRecorder != null
 
-    override fun setResult(flickerRunResultBuilder: FlickerRunResult.Builder, traceFile: Path) {
-        flickerRunResultBuilder.screenRecording = traceFile
+    override fun setResult(builder: FlickerRunResult.Builder) {
+        builder.screenRecording = saveToFile()
     }
 
     override fun toString(): String {

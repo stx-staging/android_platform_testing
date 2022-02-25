@@ -18,7 +18,6 @@ package com.android.server.wm.flicker
 
 import android.app.Instrumentation
 import androidx.test.platform.app.InstrumentationRegistry
-import com.android.compatibility.common.util.SystemUtil
 import com.android.server.wm.flicker.FlickerResult.Companion.CombinedExecutionError
 import com.android.server.wm.flicker.TransitionRunner.Companion.TestSetupFailure
 import com.android.server.wm.flicker.TransitionRunner.Companion.TestTeardownFailure
@@ -39,8 +38,6 @@ import org.junit.Assert
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
-import java.nio.file.Files
-import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.reflect.KClass
 

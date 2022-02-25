@@ -20,7 +20,7 @@ import com.android.server.wm.flicker.FlickerRunResult
 import java.nio.file.Path
 
 /** Collects test artifacts during a UI transition.  */
-interface ITransitionMonitor {
+interface ITransitionMonitor : FlickerRunResult.IResultSetter {
     /** Starts monitor.  */
     fun start()
 
@@ -31,11 +31,10 @@ interface ITransitionMonitor {
      * Saves trace file to the external storage directory suffixing the name with the testtag and
      * iteration.
      *
-     *
      * Moves the trace file from the default location via a shell command since the test app does
      * not have security privileges to access /data/misc/wmtrace.
      *
-     * @param flickerRunResultBuilder Flicker run results
+     * IMPORTANT: Should support being called multiple times
      */
-    fun save(flickerRunResultBuilder: FlickerRunResult.Builder?): Path?
+    fun saveToFile(): Path?
 }

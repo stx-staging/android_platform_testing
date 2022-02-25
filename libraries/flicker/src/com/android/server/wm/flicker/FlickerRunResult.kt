@@ -243,6 +243,14 @@ class FlickerRunResult private constructor(
 
             return result
         }
+
+        fun setResultFrom(resultSetter: IResultSetter) {
+            resultSetter.setResult(this)
+        }
+    }
+
+    interface IResultSetter {
+        fun setResult(builder: Builder)
     }
 
     companion object {

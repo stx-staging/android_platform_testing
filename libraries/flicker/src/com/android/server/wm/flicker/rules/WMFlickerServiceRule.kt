@@ -17,7 +17,6 @@
 package com.android.server.wm.flicker.rules
 
 import androidx.test.platform.app.InstrumentationRegistry
-import com.android.server.wm.flicker.FlickerRunResult
 import com.android.server.wm.flicker.getDefaultFlickerOutputDir
 import com.android.server.wm.flicker.monitor.LayersTraceMonitor
 import com.android.server.wm.flicker.monitor.ScreenRecorder
@@ -54,10 +53,9 @@ open class WMFlickerServiceRule @JvmOverloads constructor(
     }
 
     override fun finished(description: Description?) {
-        val builder = FlickerRunResult.Builder()
         traceMonitors.forEach {
             it.stop()
-            it.save(builder)
+            it.saveToFile()
         }
 
         Files.createDirectories(outputDir)
