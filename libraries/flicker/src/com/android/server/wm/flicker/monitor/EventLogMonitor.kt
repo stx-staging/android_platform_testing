@@ -22,7 +22,6 @@ import com.android.server.wm.flicker.FlickerRunResult
 import com.android.server.wm.flicker.traces.eventlog.FocusEvent
 import com.android.server.wm.flicker.traces.eventlog.FocusEvent.Focus
 import java.io.IOException
-import java.nio.file.Path
 import java.util.UUID
 
 /**
@@ -70,10 +69,6 @@ open class EventLogMonitor : ITransitionMonitor, FlickerRunResult.IResultSetter 
         }
         // Read event log from log marker till end
         _logs = getEventLogs(EVENT_LOG_INPUT_FOCUS_TAG)
-    }
-
-    override fun saveToFile(): Path? {
-        return null
     }
 
     override fun setResult(builder: FlickerRunResult.Builder) {

@@ -18,6 +18,7 @@ package com.android.server.wm.flicker
 
 import android.util.Log
 import com.android.server.wm.flicker.FlickerRunResult.Companion.RunStatus
+import com.android.server.wm.flicker.monitor.IFileGeneratingMonitor
 import com.android.server.wm.flicker.monitor.ITransitionMonitor
 import com.android.server.wm.traces.common.ConditionList
 import com.android.server.wm.traces.common.WindowManagerConditionsFactory
@@ -94,7 +95,7 @@ open class TransitionRunner {
                 runTransitionSetup(flicker)
                 runTransition(flicker)
                 runTransitionTeardown(flicker)
-                processRunTraces(flicker, runs, RunStatus.SUCCESS)
+                processRunTraces(flicker, runs, RunStatus.ASSERTION_SUCCESS)
             }
 
             runTestTeardown(flicker)
@@ -122,9 +123,7 @@ open class TransitionRunner {
             // transitions nor save any results for this run. We simply want to run the test
             // teardown.
             executionErrors.add(e)
-            flicker.traceMonitors.forEach { it.tryStop() }
             safeExecution(flicker, runs, executionErrors) {
-                processRunTraces(flicker, runs, RunStatus.RUN_FAILED)
                 runTestTeardown(flicker)
             }
         } catch (e: TransitionExecutionFailure) {
@@ -151,17 +150,6 @@ open class TransitionRunner {
             // If we fail to process the run traces we still want to run the teardowns and report
             // the execution error.
             executionErrors.add(e)
-            // Because the traces were not successfully processed we won't have a reference to the
-            // traces when handling execution errors to save the traces then, so we need to save the
-            // traces now to aid debugging of the error.
-            flicker.traceMonitors.forEach {
-                val traceFile = it.saveToFile()
-                if (traceFile != null) {
-                    val newFileName = RunStatus.RUN_FAILED.prefix + traceFile.fileName.toString()
-                    val dst = traceFile.resolveSibling(newFileName)
-                    Utils.moveFile(traceFile, dst)
-                }
-            }
             safeExecution(flicker, runs, executionErrors) {
                 runTransitionTeardown(flicker)
                 runTestTeardown(flicker)
@@ -170,6 +158,9 @@ open class TransitionRunner {
             // If we fail in the execution of the test teardown there is nothing else to do apart
             // from reporting the execution error.
             executionErrors.add(e)
+            for (run in runs) {
+                run.setRunFailed()
+            }
         }
     }
 
@@ -188,6 +179,16 @@ open class TransitionRunner {
             val runResults = buildRunResults(flicker, iteration, status)
             runs.addAll(runResults)
         } catch (e: Throwable) {
+            // We have failed to add the results to the runs, so we can effectively consider these
+            // results as "lost" as they won't be used from now forth. So we can safely rename
+            // to file to indicate the failure and make it easier to find in the archives.
+            flicker.traceMonitors.forEach {
+                // All monitors that generate files we want to keep in the archives should implement
+                // IFileGeneratingMonitor
+                if (it is IFileGeneratingMonitor) {
+                    Utils.addStatusToFileName(it.outputFile, RunStatus.PARSING_FAILURE)
+                }
+            }
             throw TraceProcessingFailure(e)
         }
     }
@@ -247,13 +248,11 @@ open class TransitionRunner {
         status: RunStatus
     ): List<FlickerRunResult> {
         val resultBuilder = FlickerRunResult.Builder()
-        resultBuilder.status = status
         flicker.traceMonitors.forEach {
-            it.saveToFile()
             resultBuilder.setResultFrom(it)
         }
 
-        return resultBuilder.buildAll(flicker.testName, iteration)
+        return resultBuilder.buildAll(flicker.testName, iteration, status)
     }
 
     private fun ITransitionMonitor.tryStop() {

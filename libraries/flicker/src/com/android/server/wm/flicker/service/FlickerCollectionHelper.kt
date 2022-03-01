@@ -70,7 +70,6 @@ class FlickerCollectionHelper : ICollectorHelper<Int> {
         Log.i(LOG_TAG, "getMetrics")
         traceMonitors.forEach {
             it.stop()
-            it.saveToFile()
         }
 
         Files.createDirectories(outputDir)

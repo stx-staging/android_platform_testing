@@ -19,6 +19,7 @@ package com.android.server.wm.flicker.monitor
 import android.app.Instrumentation
 import android.os.SystemClock
 import androidx.test.platform.app.InstrumentationRegistry
+import com.android.compatibility.common.util.SystemUtil
 import com.android.server.wm.flicker.getDefaultFlickerOutputDir
 import com.google.common.truth.Truth
 import org.junit.After
@@ -40,6 +41,11 @@ class ScreenRecorderTest {
     fun setup() {
         val outputDir = getDefaultFlickerOutputDir()
         mScreenRecorder = ScreenRecorder(instrumentation.targetContext, outputDir)
+    }
+
+    @Before
+    fun clearOutputDir() {
+        SystemUtil.runShellCommand("rm -rf ${getDefaultFlickerOutputDir()}")
     }
 
     @After
@@ -64,8 +70,7 @@ class ScreenRecorderTest {
         mScreenRecorder.start()
         SystemClock.sleep(3000)
         mScreenRecorder.stop()
-        val trace = mScreenRecorder.saveToFile()
+        val trace = mScreenRecorder.outputFile
         Truth.assertWithMessage("Trace file $trace not found").that(Files.exists(trace)).isTrue()
-        Files.deleteIfExists(trace)
     }
 }

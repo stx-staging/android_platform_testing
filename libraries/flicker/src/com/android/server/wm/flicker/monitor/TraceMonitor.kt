@@ -30,15 +30,27 @@ import java.nio.file.Paths
 abstract class TraceMonitor internal constructor(
     outputDir: Path,
     val sourceFile: Path
-) : ITransitionMonitor, FlickerRunResult.IResultSetter {
+) : ITransitionMonitor, FlickerRunResult.IResultSetter, IFileGeneratingMonitor {
     @VisibleForTesting
-    val outputFile: Path = outputDir.resolve(sourceFile.fileName)
+    override val outputFile: Path = outputDir.resolve(sourceFile.fileName)
     abstract val isEnabled: Boolean
 
-    override fun saveToFile(): Path {
+    final override fun start() {
+        startTracing()
+    }
+
+    final override fun stop() {
+        stopTracing()
+        moveTraceFileToOutputDir()
+    }
+
+    abstract fun startTracing()
+    abstract fun stopTracing()
+
+    internal fun moveTraceFileToOutputDir(): Path {
         Files.createDirectories(outputFile.parent)
         if (sourceFile != outputFile) {
-            Utils.copyFile(sourceFile, outputFile)
+            Utils.moveFile(sourceFile, outputFile)
         }
         require(Files.exists(outputFile)) { "Unable to save trace file $outputFile" }
         return outputFile

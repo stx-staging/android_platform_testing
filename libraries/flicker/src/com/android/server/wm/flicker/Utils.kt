@@ -17,9 +17,14 @@
 package com.android.server.wm.flicker
 
 import com.android.compatibility.common.util.SystemUtil
+import com.android.server.wm.flicker.FlickerRunResult.Companion.RunStatus
 import java.nio.file.Path
 
 object Utils {
+    fun renameFile(src: Path, dst: Path) {
+        SystemUtil.runShellCommand("mv $src $dst")
+    }
+
     fun copyFile(src: Path, dst: Path) {
         SystemUtil.runShellCommand("cp $src $dst")
         SystemUtil.runShellCommand("chmod a+r $dst")
@@ -34,5 +39,11 @@ object Utils {
         //       in b/162072200, to prevent this, ensure the files are readable after copying
         copyFile(src, dst)
         SystemUtil.runShellCommand("rm $src")
+    }
+
+    fun addStatusToFileName(traceFile: Path, status: RunStatus) {
+        val newFileName = "${status.prefix}_${traceFile.fileName}"
+        val dst = traceFile.resolveSibling(newFileName)
+        renameFile(traceFile, dst)
     }
 }

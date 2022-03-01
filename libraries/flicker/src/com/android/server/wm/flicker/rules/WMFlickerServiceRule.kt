@@ -55,7 +55,6 @@ open class WMFlickerServiceRule @JvmOverloads constructor(
     override fun finished(description: Description?) {
         traceMonitors.forEach {
             it.stop()
-            it.saveToFile()
         }
 
         Files.createDirectories(outputDir)

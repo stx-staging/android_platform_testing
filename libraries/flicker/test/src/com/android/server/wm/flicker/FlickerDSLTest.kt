@@ -40,8 +40,7 @@ import org.junit.Before
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
-import java.nio.file.Files
-import java.nio.file.Paths
+import java.lang.RuntimeException
 import kotlin.reflect.KClass
 
 /**
@@ -272,15 +271,6 @@ class FlickerDSLTest {
     }
 
     @Test
-    fun canDetectSaveResultsExecutionError() {
-        val builder = FlickerBuilder(instrumentation,
-                outputDir = Paths.get("/some/output/dir/that/does/not/exist"))
-        builder.transitions(SIMPLE_TRANSITION)
-        val flicker = builder.build()
-        runAndAssertFlickerFailsWithException(flicker, TransitionExecutionFailure::class.java)
-    }
-
-    @Test
     fun canDetectTransitionTeardownExecutionError() {
         val builder = FlickerBuilder(instrumentation)
         builder.transitions(SIMPLE_TRANSITION)
@@ -376,10 +366,32 @@ class FlickerDSLTest {
         val flicker = builder.build()
         val OUT_DIR = getDefaultFlickerOutputDir()
 
-        runFlicker(flicker, PASS_ASSERTION)
-        val file = OUT_DIR.resolve("${FlickerRunResult.Companion.RunStatus.RUN_FAILED}_trace")
-        Truth.assertWithMessage("Expected $file to exist but it didn't")
-                .that(Files.exists(file)).isTrue()
+        try {
+            runFlicker(flicker, PASS_ASSERTION)
+        } catch (e: TransitionExecutionFailure) {
+            // A TransitionExecutionFailure is expected
+        }
+        assertArchiveContainsAllTraces(runStatus = FlickerRunResult.Companion.RunStatus.RUN_FAILED)
+    }
+
+    @Test
+    fun savesTracesForAllIterations() {
+        val runner = TransitionRunner()
+        val repetitions = 5
+        val flicker = FlickerBuilder(instrumentation)
+                .apply {
+                    transitions {}
+                }
+                .repeat { repetitions }
+                .build(runner)
+        runner.execute(flicker)
+
+        for (iteration in 0 until repetitions) {
+            assertArchiveContainsAllTraces(
+                runStatus = FlickerRunResult.Companion.RunStatus.ASSERTION_SUCCESS,
+                iteration = iteration
+            )
+        }
     }
 
     private fun runAndAssertExecuted(assertion: AssertionData) {

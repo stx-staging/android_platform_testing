@@ -81,7 +81,7 @@ abstract class TraceMonitorTest<T : TransitionMonitor> {
     fun captureTrace() {
         traceMonitor.start()
         traceMonitor.stop()
-        val savedTrace = traceMonitor.saveToFile()
+        val savedTrace = traceMonitor.outputFile
         val testFile = savedTrace.toFile()
         Truth.assertWithMessage("File $testFile exists").that(testFile.exists()).isTrue()
         val trace = Files.toByteArray(testFile)

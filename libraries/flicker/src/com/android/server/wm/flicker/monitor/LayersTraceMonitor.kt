@@ -41,7 +41,7 @@ open class LayersTraceMonitor @JvmOverloads constructor(
 
     private val windowManager = WindowManagerGlobal.getWindowManagerService()
 
-    override fun start() {
+    override fun startTracing() {
         try {
             windowManager.setLayerTracingFlags(traceFlags)
             windowManager.isLayerTracing = true
@@ -50,7 +50,7 @@ open class LayersTraceMonitor @JvmOverloads constructor(
         }
     }
 
-    override fun stop() {
+    override fun stopTracing() {
         try {
             windowManager.isLayerTracing = false
         } catch (e: RemoteException) {
@@ -62,10 +62,9 @@ open class LayersTraceMonitor @JvmOverloads constructor(
         get() = windowManager.isLayerTracing
 
     override fun setResult(builder: FlickerRunResult.Builder) {
-        val traceFile = saveToFile()
-        builder.setLayersTrace(traceFile) {
+        builder.setLayersTrace(outputFile) {
             Log.v(FLICKER_TAG, "Parsing Layers trace")
-            val traceData = Files.readAllBytes(traceFile)
+            val traceData = Files.readAllBytes(outputFile)
             val layersTrace = LayersTraceParser.parseFromTrace(traceData)
             LayersTraceSubject.assertThat(layersTrace)
         }

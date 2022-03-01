@@ -129,9 +129,6 @@ class Flicker(
                     result.combinedExecutionError
                 }
 
-                // Save any traces with the proper prefixes before failing
-                result.saveTraces()
-
                 throw executionError
             }
         }
@@ -161,7 +158,6 @@ class Flicker(
     fun clear() {
         Log.v(FLICKER_TAG, "Cleaning up spec $testName")
         runner.cleanUp()
-        result?.saveTraces()
         result?.checkForExecutionErrors()
         result = null
     }

@@ -35,9 +35,8 @@ import com.android.server.wm.traces.common.layers.LayersTrace
 import com.android.server.wm.traces.common.windowmanager.WindowManagerState
 import java.io.File
 import java.io.IOException
-import java.nio.file.Files
+import java.lang.Exception
 import java.nio.file.Path
-import java.nio.file.StandardCopyOption
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.CoroutineScope
@@ -50,9 +49,9 @@ import kotlinx.coroutines.SupervisorJob
  */
 class FlickerRunResult private constructor(
     /**
-     * Path to the trace files associated with the result (incl. screen recording)
+     * The trace files associated with the result (incl. screen recording)
      */
-    @JvmField val traceFile: Path?,
+    _traceFile: Path?,
     /**
      * Determines which assertions to run (e.g., start, end, all, or a custom tag)
      */
@@ -69,15 +68,52 @@ class FlickerRunResult private constructor(
      * Truth subject that corresponds to a list of [FocusEvent]
      */
     @VisibleForTesting
-    val eventLogSubject: EventLogSubject?,
-    /**
-     * The execution status of the run
-     */
-    status: RunStatus
+    val eventLogSubject: EventLogSubject?
 ) {
-    var status = status
-        get
+    var traceFile = _traceFile
         private set
+
+    private val traceName = traceFile?.fileName ?: "UNNAMED_TRACE"
+
+    var status: RunStatus = RunStatus.UNDEFINED
+        private set(value) {
+            if (field != value) {
+                if (field.isFailure) {
+                    throw Exception("Status of run already set to a failed status $field and " +
+                            "can't be changed to $value.")
+                }
+                field = value
+                syncFileWithStatus()
+            }
+        }
+
+    fun setRunFailed() {
+        status = RunStatus.RUN_FAILED
+    }
+
+    val isSuccessfulRun: Boolean get() = !isFailedRun
+    val isFailedRun: Boolean get() {
+        require(status != RunStatus.UNDEFINED) {
+            "RunStatus cannot be UNDEFINED for $traceName ($assertionTag)"
+        }
+        // Other types of failures can only happen if the run has succeeded
+        return status == RunStatus.RUN_FAILED
+    }
+
+    private fun syncFileWithStatus() {
+        // Since we don't expect this to run in a multi-threaded context this is fine
+        val localTraceFile = traceFile
+        if (localTraceFile != null) {
+            try {
+                val newFileName = "${status.prefix}_$traceName"
+                val dst = localTraceFile.resolveSibling(newFileName)
+                Utils.renameFile(localTraceFile, dst)
+                traceFile = dst
+            } catch (e: IOException) {
+                Log.e(FLICKER_TAG, "Unable to update file status $this", e)
+            }
+        }
+    }
 
     fun getSubjects(): List<FlickerSubject> {
         val result = mutableListOf<FlickerSubject>()
@@ -87,40 +123,6 @@ class FlickerRunResult private constructor(
         eventLogSubject?.run { result.add(this) }
 
         return result
-    }
-
-    /**
-     * Rename the trace files according to the run status (pass/fail)
-     *
-     * @param failures List of all failures during the flicker execution
-     */
-    fun saveTraces(failures: List<FlickerAssertionError>) {
-        val containsFailure = containsFailure(failures)
-        saveTraceFile(containsFailure)
-    }
-
-    private fun saveTraceFile(failedFlickerAssertions: Boolean) {
-        if (traceFile == null || !Files.exists(traceFile)) {
-            return
-        }
-        try {
-            val prefix = if (status.isFailedRun) {
-                status.prefix
-            } else {
-                if (failedFlickerAssertions) ASSERTION_FAIL_PREFIX else ASSERTION_PASS_PREFIX
-            }
-            val newFileName = prefix + traceFile.fileName.toString()
-            val target = traceFile.resolveSibling(newFileName)
-            Files.move(traceFile, target, StandardCopyOption.REPLACE_EXISTING)
-        } catch (e: IOException) {
-            Log.e(FLICKER_TAG, "Unable to save $this", e)
-        }
-    }
-
-    private fun containsFailure(failures: List<FlickerAssertionError>): Boolean {
-        return failures.mapNotNull { it.traceFile }.any { failureTrace ->
-            traceFile == failureTrace
-        }
     }
 
     fun checkAssertion(assertion: AssertionData): FlickerAssertionError? {
@@ -164,21 +166,21 @@ class FlickerRunResult private constructor(
         /**
          * Parses a [WindowManagerTraceSubject]
          *
-         * @param path of the trace file to parse
+         * @param traceFile of the trace file to parse
          * @param parser lambda to parse the trace into a [WindowManagerTraceSubject]
          */
-        fun setWmTrace(path: Path, parser: (Path) -> WindowManagerTraceSubject?) {
-            wmTraceData = AsyncSubjectParser(path, parser)
+        fun setWmTrace(traceFile: Path, parser: (Path) -> WindowManagerTraceSubject?) {
+            wmTraceData = AsyncSubjectParser(traceFile, parser)
         }
 
         /**
          * Parses a [LayersTraceSubject]
          *
-         * @param path of the trace file to parse
+         * @param traceFile of the trace file to parse
          * @param parser lambda to parse the trace into a [LayersTraceSubject]
          */
-        fun setLayersTrace(path: Path, parser: (Path) -> LayersTraceSubject?) {
-            layersTraceData = AsyncSubjectParser(path, parser)
+        fun setLayersTrace(traceFile: Path, parser: (Path) -> LayersTraceSubject?) {
+            layersTraceData = AsyncSubjectParser(traceFile, parser)
         }
 
         private fun buildResult(
@@ -193,8 +195,7 @@ class FlickerRunResult private constructor(
                 assertionTag,
                 wmSubject,
                 layersSubject,
-                eventLogSubject,
-                status
+                eventLogSubject
             )
         }
 
@@ -266,13 +267,18 @@ class FlickerRunResult private constructor(
             return compressedFile.toPath()
         }
 
-        fun buildAll(testName: String, iteration: Int): List<FlickerRunResult> {
-            val result = buildTraceResults(testName, iteration).toMutableList()
+        fun buildAll(testName: String, iteration: Int, status: RunStatus): List<FlickerRunResult> {
+            val results = buildTraceResults(testName, iteration).toMutableList()
             if (eventLog != null) {
-                result.add(buildEventLogResult())
+                results.add(buildEventLogResult())
             }
 
-            return result
+            require(status != RunStatus.UNDEFINED) { "Valid RunStatus must be provided" }
+            for (result in results) {
+                result.status = status
+            }
+
+            return results
         }
 
         fun setResultFrom(resultSetter: IResultSetter) {
@@ -285,19 +291,30 @@ class FlickerRunResult private constructor(
     }
 
     companion object {
-        private const val ASSERTION_PASS_PREFIX = "PASS"
-        private const val ASSERTION_FAIL_PREFIX = "FAIL"
         private val SCOPE = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
-        enum class RunStatus(val prefix: String = "") {
-            UNDEFINED("???"),
-            RUN_FAILED("FAILED_RUN"),
-            ASSERTION_FAILED("FAIL"),
-            SUCCESS("PASS");
+        enum class RunStatus(val prefix: String = "", val isFailure: Boolean) {
+            UNDEFINED("???", false),
 
-            val isSuccessfulRun: Boolean get() = this == SUCCESS
+            RUN_SUCCESS("UNCHECKED", false),
+            ASSERTION_SUCCESS("PASS", false),
 
-            val isFailedRun: Boolean get() = !isSuccessfulRun
+            RUN_FAILED("FAILED_RUN", true),
+            PARSING_FAILURE("FAILED_PARSING", true),
+            ASSERTION_FAILED("FAIL", true);
+
+            companion object {
+                fun merge(runStatuses: List<RunStatus>): RunStatus {
+                    val precedence = listOf(ASSERTION_FAILED, RUN_FAILED, ASSERTION_SUCCESS)
+                    for (status in precedence) {
+                        if (runStatuses.any { it == status }) {
+                            return status
+                        }
+                    }
+
+                    return UNDEFINED
+                }
+            }
         }
     }
 }

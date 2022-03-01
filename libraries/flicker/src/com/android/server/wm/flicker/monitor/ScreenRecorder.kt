@@ -88,7 +88,7 @@ open class ScreenRecorder @JvmOverloads constructor(
         this.mediaRecorder = recorder
     }
 
-    override fun start() {
+    override fun startTracing() {
         if (mediaRecorder != null) {
             Log.i(FLICKER_TAG, "Screen recorder already running")
             return
@@ -111,7 +111,7 @@ open class ScreenRecorder @JvmOverloads constructor(
             "Screen recorder didn't start" }
     }
 
-    override fun stop() {
+    override fun stopTracing() {
         if (mediaRecorder == null) {
             Log.i(FLICKER_TAG, "Screen recorder was not started")
             return
@@ -134,7 +134,7 @@ open class ScreenRecorder @JvmOverloads constructor(
         get() = mediaRecorder != null
 
     override fun setResult(builder: FlickerRunResult.Builder) {
-        builder.screenRecording = saveToFile()
+        builder.screenRecording = outputFile
     }
 
     override fun toString(): String {

@@ -38,9 +38,9 @@ data class FlickerResult(
     @JvmField val executionErrors: List<Throwable> = listOf()
 ) {
     /** Successful runs on which we can run assertions */
-    val successfulRuns: List<FlickerRunResult> = runResults.filter { it.status.isSuccessfulRun }
+    val successfulRuns: List<FlickerRunResult> = runResults.filter { it.isSuccessfulRun }
     /** Failed runs due to execution errors which we shouldn't run assertions on */
-    private val failedRuns: List<FlickerRunResult> = runResults.filter { it.status.isFailedRun }
+    private val failedRuns: List<FlickerRunResult> = runResults.filter { it.isFailedRun }
 
     val combinedExecutionError = CombinedExecutionError(executionErrors)
 
@@ -76,13 +76,6 @@ data class FlickerResult(
             }
             throw combinedExecutionError
         }
-    }
-
-    /**
-     * Add a prefix to all trace files indicating the test status (pass/fail)
-     */
-    fun saveTraces() {
-        runResults.forEach { it.saveTraces(failures) }
     }
 
     fun isEmpty(): Boolean = executionErrors.isEmpty() && successfulRuns.isEmpty()

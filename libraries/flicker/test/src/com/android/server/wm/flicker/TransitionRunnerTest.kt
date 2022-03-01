@@ -18,20 +18,16 @@ package com.android.server.wm.flicker
 
 import android.view.WindowManagerGlobal
 import androidx.test.platform.app.InstrumentationRegistry
+import com.android.compatibility.common.util.SystemUtil
 import com.android.server.wm.flicker.FlickerRunResult.Companion.RunStatus
 import com.android.server.wm.flicker.dsl.FlickerBuilder
-import com.android.server.wm.flicker.monitor.ITransitionMonitor
-import com.android.server.wm.flicker.monitor.LayersTraceMonitor
-import com.android.server.wm.flicker.monitor.ScreenRecorder
-import com.android.server.wm.flicker.monitor.WindowManagerTraceMonitor
 import com.google.common.truth.Truth
 import org.junit.After
+import org.junit.Before
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.MethodSorters
-import org.mockito.Mockito
-// import org.mockito.kotlin.any
 import org.mockito.junit.MockitoJUnitRunner
 import java.lang.RuntimeException
 
@@ -52,6 +48,11 @@ class TransitionRunnerTest {
                 .that(windowManager.isLayerTracing).isFalse()
         Truth.assertWithMessage("WM Trace not stopped")
                 .that(windowManager.isWindowTraceEnabled).isFalse()
+    }
+
+    @Before
+    fun clearOutputDir() {
+        SystemUtil.runShellCommand("rm -rf ${getDefaultFlickerOutputDir()}")
     }
 
     @Test
@@ -120,7 +121,7 @@ class TransitionRunnerTest {
                 }.repeat { 3 }.build(runner)
         val results = runner.execute(flicker).runResults
         for (result in results) {
-            Truth.assertThat(result.status).isEqualTo(RunStatus.SUCCESS)
+            Truth.assertThat(result.status).isEqualTo(RunStatus.ASSERTION_SUCCESS)
         }
     }
 
@@ -142,8 +143,7 @@ class TransitionRunnerTest {
     @Test
     fun savesTraceOnTransitionExecutionErrors() {
         val runner = TransitionRunner()
-        val spyMonitors = createSpyMonitors()
-        val flicker = FlickerBuilder(instrumentation, traceMonitors = spyMonitors)
+        val flicker = FlickerBuilder(instrumentation)
                 .apply {
                     transitions {
                         throw Throwable()
@@ -151,20 +151,14 @@ class TransitionRunnerTest {
                 }
                 .build(runner)
         runner.execute(flicker)
-        for (spyMonitor in spyMonitors) {
-            val orderedVerifier = Mockito.inOrder(spyMonitor)
-            orderedVerifier.verify(spyMonitor).start()
-            orderedVerifier.verify(spyMonitor).stop()
-            orderedVerifier.verify(spyMonitor).setResult(MockitoHelper.anyObject())
-            orderedVerifier.verify(spyMonitor).saveToFile()
-        }
+
+        assertArchiveContainsAllTraces(runStatus = RunStatus.RUN_FAILED)
     }
 
     @Test
     fun savesTraceOnRunCleanupErrors() {
         val runner = TransitionRunner()
-        val spyMonitors = createSpyMonitors()
-        val flicker = FlickerBuilder(instrumentation, traceMonitors = spyMonitors)
+        val flicker = FlickerBuilder(instrumentation)
                 .apply {
                     transitions {}
                     teardown {
@@ -175,16 +169,14 @@ class TransitionRunnerTest {
                 }
                 .build(runner)
         runner.execute(flicker)
-        for (spyMonitor in spyMonitors) {
-            Mockito.verify(spyMonitor, Mockito.atLeast(1)).saveToFile()
-        }
+
+        assertArchiveContainsAllTraces(runStatus = RunStatus.RUN_FAILED)
     }
 
     @Test
     fun savesTraceOnTestCleanupErrors() {
         val runner = TransitionRunner()
-        val spyMonitors = createSpyMonitors()
-        val flicker = FlickerBuilder(instrumentation, traceMonitors = spyMonitors)
+        val flicker = FlickerBuilder(instrumentation)
                 .apply {
                     transitions {}
                     teardown {
@@ -195,20 +187,7 @@ class TransitionRunnerTest {
                 }
                 .build(runner)
         runner.execute(flicker)
-        for (spyMonitor in spyMonitors) {
-            Mockito.verify(spyMonitor, Mockito.atLeast(1)).saveToFile()
-        }
-    }
 
-    companion object {
-        // TODO: Get org.mockito.kotlin to work to avoid doing this
-        object MockitoHelper {
-            fun <T> anyObject(): T {
-                Mockito.any<T>()
-                return uninitialized()
-            }
-            @Suppress("UNCHECKED_CAST")
-            fun <T> uninitialized(): T = null as T
-        }
+        assertArchiveContainsAllTraces(runStatus = RunStatus.RUN_FAILED)
     }
 }

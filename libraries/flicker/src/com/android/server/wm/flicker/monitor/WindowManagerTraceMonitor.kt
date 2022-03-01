@@ -38,7 +38,7 @@ open class WindowManagerTraceMonitor @JvmOverloads constructor(
     sourceFile: Path = TRACE_DIR.resolve("wm_trace$WINSCOPE_EXT")
 ) : TransitionMonitor(outputDir, sourceFile) {
     private val windowManager = WindowManagerGlobal.getWindowManagerService()
-    override fun start() {
+    override fun startTracing() {
         try {
             windowManager.startWindowTrace()
         } catch (e: RemoteException) {
@@ -46,7 +46,7 @@ open class WindowManagerTraceMonitor @JvmOverloads constructor(
         }
     }
 
-    override fun stop() {
+    override fun stopTracing() {
         try {
             windowManager.stopWindowTrace()
         } catch (e: RemoteException) {
@@ -58,10 +58,9 @@ open class WindowManagerTraceMonitor @JvmOverloads constructor(
         get() = windowManager.isWindowTraceEnabled
 
     override fun setResult(flickerRunResultBuilder: FlickerRunResult.Builder) {
-        val traceFile = saveToFile()
-        flickerRunResultBuilder.setWmTrace(traceFile) {
+        flickerRunResultBuilder.setWmTrace(outputFile) {
             Log.v(FLICKER_TAG, "Parsing WM trace")
-            val traceData = Files.readAllBytes(traceFile)
+            val traceData = Files.readAllBytes(outputFile)
             val wmTrace = WindowManagerTraceParser.parseFromTrace(traceData)
             WindowManagerTraceSubject.assertThat(wmTrace)
         }
