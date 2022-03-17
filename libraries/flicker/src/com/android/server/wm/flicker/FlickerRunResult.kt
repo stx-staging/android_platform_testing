@@ -35,7 +35,6 @@ import com.android.server.wm.traces.common.layers.LayersTrace
 import com.android.server.wm.traces.common.windowmanager.WindowManagerState
 import java.io.File
 import java.io.IOException
-import java.lang.Exception
 import java.nio.file.Path
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
@@ -215,11 +214,22 @@ class FlickerRunResult private constructor(
             assertionTag: String,
             wmTrace: WindowManagerTrace?,
             layersTrace: LayersTrace?,
+            wmTraceFile: Path?,
+            layersTraceFile: Path?,
+            testName: String,
+            iteration: Int,
             status: RunStatus
         ): FlickerRunResult {
             val wmSubject = wmTrace?.let { WindowManagerTraceSubject.assertThat(it).first() }
             val layersSubject = layersTrace?.let { LayersTraceSubject.assertThat(it).first() }
-            return buildResult(assertionTag, wmSubject, layersSubject, status)
+
+            val traceFiles = mutableListOf<File>()
+            wmTraceFile?.let { traceFiles.add(it.toFile()) }
+            layersTraceFile?.let { traceFiles.add(it.toFile()) }
+            val traceFile = compress(traceFiles, "${assertionTag}_${testName}_$iteration.zip")
+
+            return buildResult(assertionTag, wmSubject, layersSubject, status,
+                    traceFile = traceFile)
         }
 
         @VisibleForTesting
@@ -260,13 +270,17 @@ class FlickerRunResult private constructor(
             layersTraceData?.trace?.let { traceFiles.add(it.toFile()) }
             screenRecording?.let { traceFiles.add(it.toFile()) }
 
+            return compress(traceFiles, "${testName}_$iteration.zip")
+        }
+
+        private fun compress(traceFiles: List<File>, archiveName: String): Path? {
             val files = traceFiles.filter { it.exists() }
             if (files.isEmpty()) {
                 return null
             }
 
             val firstFile = files.first()
-            val compressedFile = firstFile.resolveSibling("${testName}_$iteration.zip")
+            val compressedFile = firstFile.resolveSibling(archiveName)
             ZipUtil.createZip(traceFiles, compressedFile)
             traceFiles.forEach {
                 it.delete()

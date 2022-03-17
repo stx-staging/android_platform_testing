@@ -309,6 +309,10 @@ open class TransitionRunner {
                 tag,
                 deviceState.wmState?.asTrace(),
                 deviceState.layerState?.asTrace(),
+                wmTraceFile,
+                layersTraceFile,
+                flicker.testName,
+                iteration,
                 // Undefined until it is updated in processRunTraces
                 RunStatus.UNDEFINED
             )
