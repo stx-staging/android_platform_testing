@@ -73,14 +73,17 @@ class FlickerRunResult private constructor(
     var traceFile = _traceFile
         private set
 
-    private val traceName = traceFile?.fileName ?: "UNNAMED_TRACE"
+    internal val traceName = traceFile?.fileName ?: "UNNAMED_TRACE"
 
     var status: RunStatus = RunStatus.UNDEFINED
-        private set(value) {
+        internal set(value) {
             if (field != value) {
-                if (field.isFailure) {
-                    throw Exception("Status of run already set to a failed status $field and " +
-                            "can't be changed to $value.")
+                require(value != RunStatus.UNDEFINED) {
+                    "Can't set status to UNDEFINED after being defined"
+                }
+                require(!field.isFailure) {
+                    "Status of run already set to a failed status $field " +
+                            "and can't be changed to $value."
                 }
                 field = value
                 syncFileWithStatus()
@@ -126,6 +129,7 @@ class FlickerRunResult private constructor(
     }
 
     fun checkAssertion(assertion: AssertionData): FlickerAssertionError? {
+        require(status != RunStatus.UNDEFINED) { "A valid RunStatus has not been provided" }
         return try {
             assertion.checkAssertion(this)
             null
@@ -156,8 +160,6 @@ class FlickerRunResult private constructor(
         private var layersTraceData: AsyncSubjectParser<LayersTraceSubject>? = null
         var screenRecording: Path? = null
 
-        var status: RunStatus = RunStatus.UNDEFINED
-
         /**
          * List of focus events, if collected
          */
@@ -187,16 +189,19 @@ class FlickerRunResult private constructor(
             assertionTag: String,
             wmSubject: FlickerSubject?,
             layersSubject: FlickerSubject?,
+            status: RunStatus,
             traceFile: Path? = null,
             eventLogSubject: EventLogSubject? = null
         ): FlickerRunResult {
-            return FlickerRunResult(
+            val result = FlickerRunResult(
                 traceFile,
                 assertionTag,
                 wmSubject,
                 layersSubject,
                 eventLogSubject
             )
+            result.status = status
+            return result
         }
 
         /**
@@ -209,39 +214,42 @@ class FlickerRunResult private constructor(
         fun buildStateResult(
             assertionTag: String,
             wmTrace: WindowManagerTrace?,
-            layersTrace: LayersTrace?
+            layersTrace: LayersTrace?,
+            status: RunStatus
         ): FlickerRunResult {
             val wmSubject = wmTrace?.let { WindowManagerTraceSubject.assertThat(it).first() }
             val layersSubject = layersTrace?.let { LayersTraceSubject.assertThat(it).first() }
-            return buildResult(assertionTag, wmSubject, layersSubject)
+            return buildResult(assertionTag, wmSubject, layersSubject, status)
         }
 
         @VisibleForTesting
-        fun buildEventLogResult(): FlickerRunResult {
+        fun buildEventLogResult(status: RunStatus): FlickerRunResult {
             val events = eventLog ?: emptyList()
             return buildResult(
                 AssertionTag.ALL,
                 wmSubject = null,
                 layersSubject = null,
-                eventLogSubject = EventLogSubject.assertThat(events)
+                eventLogSubject = EventLogSubject.assertThat(events),
+                status = status
             )
         }
 
         @VisibleForTesting
         fun buildTraceResults(
             testName: String,
-            iteration: Int
+            iteration: Int,
+            status: RunStatus
         ): List<FlickerRunResult> = runBlocking {
             val wmSubject = wmTraceData?.promise?.await()
             val layersSubject = layersTraceData?.promise?.await()
 
             val traceFile = compress(testName, iteration)
             val traceResult = buildResult(
-                AssertionTag.ALL, wmSubject, layersSubject, traceFile = traceFile)
+                AssertionTag.ALL, wmSubject, layersSubject, traceFile = traceFile, status = status)
             val initialStateResult = buildResult(
-                AssertionTag.START, wmSubject?.first(), layersSubject?.first())
+                AssertionTag.START, wmSubject?.first(), layersSubject?.first(), status = status)
             val finalStateResult = buildResult(
-                AssertionTag.END, wmSubject?.last(), layersSubject?.last())
+                AssertionTag.END, wmSubject?.last(), layersSubject?.last(), status = status)
 
             listOf(initialStateResult, finalStateResult, traceResult)
         }
@@ -268,14 +276,9 @@ class FlickerRunResult private constructor(
         }
 
         fun buildAll(testName: String, iteration: Int, status: RunStatus): List<FlickerRunResult> {
-            val results = buildTraceResults(testName, iteration).toMutableList()
+            val results = buildTraceResults(testName, iteration, status).toMutableList()
             if (eventLog != null) {
-                results.add(buildEventLogResult())
-            }
-
-            require(status != RunStatus.UNDEFINED) { "Valid RunStatus must be provided" }
-            for (result in results) {
-                result.status = status
+                results.add(buildEventLogResult(status = status))
             }
 
             return results

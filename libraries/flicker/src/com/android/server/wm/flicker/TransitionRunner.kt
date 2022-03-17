@@ -191,6 +191,13 @@ open class TransitionRunner {
             }
             throw TraceProcessingFailure(e)
         }
+
+        // Update the status of all the tags created in this iteration and add them to runs
+        for (result in tagsResults) {
+            result.status = status
+            runs.add(result)
+        }
+        tagsResults.clear()
     }
 
     @Throws(TestSetupFailure::class)
@@ -301,7 +308,9 @@ open class TransitionRunner {
             val result = builder.buildStateResult(
                 tag,
                 deviceState.wmState?.asTrace(),
-                deviceState.layerState?.asTrace()
+                deviceState.layerState?.asTrace(),
+                // Undefined until it is updated in processRunTraces
+                RunStatus.UNDEFINED
             )
             tagsResults.add(result)
         } catch (e: IOException) {

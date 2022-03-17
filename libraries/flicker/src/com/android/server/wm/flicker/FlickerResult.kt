@@ -16,6 +16,7 @@
 
 package com.android.server.wm.flicker
 
+import com.android.server.wm.flicker.FlickerRunResult.Companion.RunStatus
 import com.android.server.wm.flicker.assertions.AssertionData
 import com.android.server.wm.flicker.assertions.FlickerAssertionError
 import com.google.common.truth.Truth
@@ -37,6 +38,15 @@ data class FlickerResult(
      */
     @JvmField val executionErrors: List<Throwable> = listOf()
 ) {
+    init {
+        for (result in runResults) {
+            require(result.status != RunStatus.UNDEFINED) {
+                "Can't create FlickerResult from RunResult ${result.traceName} " +
+                        "(${result.assertionTag}) with UNDEFINED status."
+            }
+        }
+    }
+
     /** Successful runs on which we can run assertions */
     val successfulRuns: List<FlickerRunResult> = runResults.filter { it.isSuccessfulRun }
     /** Failed runs due to execution errors which we shouldn't run assertions on */
