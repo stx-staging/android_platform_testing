@@ -428,6 +428,11 @@ public interface INotificationHelper extends IAppHelper {
         throw new UnsupportedOperationException("Not yet implemented.");
     }
 
+    /** Closes the notification shade by swiping up. */
+    default void swipeToClose() {
+        throw new UnsupportedOperationException("Not yet implemented.");
+    }
+
     /**
      * Scroll feeds on Notifications screen and implement it by "swipe" API to control the distance.
      *
