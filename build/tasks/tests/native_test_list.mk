@@ -80,11 +80,8 @@ native_tests := \
     libcutils_test_static \
     libgui_test \
     libhidl_test \
-    libinput_tests \
     libjavacore-unit-tests \
     liblog-unit-tests \
-    libminijail_unittest_gtest \
-    libnativehelper_tests \
     libnetworkstats_test \
     libprocinfo_test \
     libtextclassifier_tests \
@@ -99,7 +96,6 @@ native_tests := \
     memory_replay_tests \
     memunreachable_test \
     minadbd_test \
-    minikin_tests \
     mj_system_unittest_gtest \
     mj_util_unittest_gtest \
     mtp_ffs_handle_test \
@@ -234,7 +230,6 @@ native_tests := \
     NeuralNetworksTest_operations \
     NeuralNetworksTest_static \
     NeuralNetworksTest_utils \
-    SurfaceFlinger_test \
     lmkd_unit_test \
     vrflinger_test
 
