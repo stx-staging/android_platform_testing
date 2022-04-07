@@ -21,6 +21,10 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import androidx.test.platform.app.InstrumentationRegistry
+import java.io.File
+import java.io.FileNotFoundException
+import java.io.FileOutputStream
+import java.io.IOException
 import org.junit.rules.TestRule
 import org.junit.rules.TestWatcher
 import org.junit.runner.Description
@@ -29,10 +33,6 @@ import platform.test.screenshot.matchers.BitmapMatcher
 import platform.test.screenshot.matchers.MSSIMMatcher
 import platform.test.screenshot.matchers.PixelPerfectMatcher
 import platform.test.screenshot.proto.ScreenshotResultProto
-import java.io.File
-import java.io.FileNotFoundException
-import java.io.FileOutputStream
-import java.io.IOException
 
 /**
  * Rule to be added to a test to facilitate screenshot testing.
@@ -51,7 +51,8 @@ open class ScreenshotTestRule(
     val goldenImagePathManager: GoldenImagePathManager
 ) : TestRule {
 
-    private val resultBinaryProtoFileSuffix = ".pb"
+    private val imageExtension = ".png"
+    private val resultBinaryProtoFileSuffix = "goldResult.pb"
     // This is used in CI to identify the files.
     private val resultProtoFileSuffix = "goldResult.textproto"
 
@@ -82,8 +83,8 @@ open class ScreenshotTestRule(
     private fun fetchExpectedImage(goldenIdentifier: String): Bitmap? {
         val instrument = InstrumentationRegistry.getInstrumentation()
         return listOf(
-                instrument.targetContext.applicationContext,
-                instrument.context
+            instrument.targetContext.applicationContext,
+            instrument.context
         ).map {
             try {
                 it.assets.open(
@@ -198,7 +199,8 @@ open class ScreenshotTestRule(
             .addMetadata(
                 ScreenshotResultProto.Metadata.newBuilder()
                     .setKey("repoRootPath")
-                    .setValue(goldenImagePathManager.deviceLocalPath))
+                    .setValue(goldenImagePathManager.deviceLocalPath)
+            )
 
         if (comparisonStatistics != null) {
             resultProto.comparisonStatistics = comparisonStatistics
@@ -246,11 +248,11 @@ open class ScreenshotTestRule(
     internal fun getPathOnDeviceFor(fileType: OutputFileType): File {
         val fileName = when (fileType) {
             OutputFileType.IMAGE_ACTUAL ->
-                "${testIdentifier}_actual$goldenImagePathManager.imageExtension"
+                "${testIdentifier}_actual_$goldenImagePathManager.$imageExtension"
             OutputFileType.IMAGE_EXPECTED ->
-                "${testIdentifier}_expected$goldenImagePathManager.imageExtension"
+                "${testIdentifier}_expected_$goldenImagePathManager.$imageExtension"
             OutputFileType.IMAGE_DIFF ->
-                "${testIdentifier}_diff$goldenImagePathManager.imageExtension"
+                "${testIdentifier}_diff_$goldenImagePathManager.$imageExtension"
             OutputFileType.RESULT_PROTO -> "${testIdentifier}_$resultProtoFileSuffix"
             OutputFileType.RESULT_BIN_PROTO -> "${testIdentifier}_$resultBinaryProtoFileSuffix"
         }
