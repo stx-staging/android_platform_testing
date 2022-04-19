@@ -15,9 +15,10 @@
  */
 package android.platform.test.rule
 
+import android.app.Instrumentation
 import android.os.Build
-import android.platform.helpers.CommonUtils
-import android.platform.helpers.ui.UiAutomatorUtils
+import android.support.test.uiautomator.UiDevice
+import androidx.test.InstrumentationRegistry
 import com.android.internal.R
 import kotlin.annotation.AnnotationRetention.RUNTIME
 import kotlin.annotation.AnnotationTarget.ANNOTATION_CLASS
@@ -33,7 +34,7 @@ import org.junit.runners.model.Statement
 class DeviceTypeRule : TestRule {
 
     private val isFoldable = isFoldable()
-    private val isLargeScreen = CommonUtils.isLargeScreen()
+    private val isLargeScreen = isLargeScreen()
 
     override fun apply(base: Statement, description: Description): Statement {
         if (description.getAnnotation(LargeScreenOnly::class.java) != null && !isLargeScreen) {
@@ -51,10 +52,16 @@ class DeviceTypeRule : TestRule {
 }
 
 private fun isFoldable(): Boolean {
-    return UiAutomatorUtils.getContext()
+    return getInstrumentation()
+        .targetContext
         .resources
         .getIntArray(R.array.config_foldedDeviceStates)
         .isNotEmpty()
+}
+
+private fun isLargeScreen(): Boolean {
+    val sizeDp = getUiDevice().displaySizeDp
+    return sizeDp.x >= LARGE_SCREEN_DP_THRESHOLD && sizeDp.y >= LARGE_SCREEN_DP_THRESHOLD
 }
 
 private fun createAssumptionViolatedStatement(message: String) =
@@ -63,6 +70,12 @@ private fun createAssumptionViolatedStatement(message: String) =
             throw AssumptionViolatedException(message)
         }
     }
+
+private fun getInstrumentation(): Instrumentation = InstrumentationRegistry.getInstrumentation()
+
+private fun getUiDevice(): UiDevice = UiDevice.getInstance(getInstrumentation())
+
+private const val LARGE_SCREEN_DP_THRESHOLD = 600
 
 @Retention(RUNTIME) @Target(ANNOTATION_CLASS, CLASS) annotation class LargeScreenOnly
 
