@@ -31,7 +31,6 @@ java_library {
         "flickerlib",
         "statsd-helper",
         "health-testing-utils",
-        "systemui-helper",
     ],
     srcs: [
         "src/**/*.java",
