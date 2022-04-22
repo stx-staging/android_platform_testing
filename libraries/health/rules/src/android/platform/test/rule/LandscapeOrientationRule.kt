@@ -13,71 +13,65 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.platform.test.rule;
+package android.platform.test.rule
 
-import static android.platform.test.util.HealthTestingUtils.waitForNullDiag;
-
-import android.graphics.Rect;
-import android.os.RemoteException;
-
-import androidx.test.uiautomator.By;
-import androidx.test.uiautomator.UiObject2;
-
-import com.android.launcher3.tapl.LauncherInstrumentation;
-
-import org.junit.runner.Description;
+import android.graphics.Rect
+import android.os.RemoteException
+import android.platform.test.util.HealthTestingUtils
+import androidx.test.uiautomator.By
+import com.android.launcher3.tapl.LauncherInstrumentation
+import org.junit.runner.Description
 
 /**
  * Locks landscape orientation before running a test and goes back to natural orientation
  * afterwards.
+ *
+ * Landscape orientation is defined as visible launcher width > height.
  */
-public class LandscapeOrientationRule extends TestWatcher {
-    private final LauncherInstrumentation mLauncher = new LauncherInstrumentation();
+class LandscapeOrientationRule : TestWatcher() {
 
-    private interface Condition {
-        boolean isTrue() throws Throwable;
-    }
+    private val mLauncher = LauncherInstrumentation()
 
-    @Override
-    protected void starting(Description description) {
+    override fun starting(description: Description) {
         try {
-            getUiDevice().pressHome();
-            mLauncher.setEnableRotation(true);
-            getUiDevice().setOrientationLeft();
-
-            waitForNullDiag(
-                    () -> {
-                        final UiObject2 launcher =
-                                getUiDevice()
-                                        .findObject(
-                                                By.res("android", "content")
-                                                        .pkg(
-                                                                getUiDevice()
-                                                                        .getLauncherPackageName()));
-                        if (launcher == null) return "Launcher is not found";
-
-                        final Rect launcherRectangle = launcher.getVisibleBounds();
-                        if (launcherRectangle.width() < launcherRectangle.height()) {
-                            return "Visible orientation is not landscape";
-                        }
-
-                        return null; // No error == success.
-                    });
-        } catch (RemoteException e) {
-            String message = "RemoteException when forcing landscape rotation on the device";
-            throw new RuntimeException(message, e);
+            uiDevice.pressHome()
+            mLauncher.setEnableRotation(true)
+            if (launcherVisibleBounds?.isLandscape == true) {
+                // In the case of tablets, the default orientation might be landscape already.
+                return
+            }
+            uiDevice.setOrientationLeft()
+            HealthTestingUtils.waitForNullDiag {
+                when (launcherVisibleBounds?.isLandscape) {
+                    false -> "Visible orientation is not landscape"
+                    null -> "Launcher is not found"
+                    true -> null // No error == success.
+                }
+            }
+        } catch (e: RemoteException) {
+            throw RuntimeException(
+                "RemoteException when forcing landscape rotation on the device", e)
         }
     }
 
-    @Override
-    protected void finished(Description description) {
+    override fun finished(description: Description) {
         try {
-            getUiDevice().setOrientationNatural();
-            mLauncher.setEnableRotation(false);
-            getUiDevice().unfreezeRotation();
-        } catch (RemoteException e) {
-            String message = "RemoteException when restoring natural rotation of the device";
-            throw new RuntimeException(message, e);
+            uiDevice.setOrientationNatural()
+            mLauncher.setEnableRotation(false)
+            uiDevice.unfreezeRotation()
+        } catch (e: RemoteException) {
+            val message = "RemoteException when restoring natural rotation of the device"
+            throw RuntimeException(message, e)
         }
     }
+
+    private val launcherVisibleBounds: Rect?
+        get() {
+            val launcher =
+                uiDevice.findObject(By.res("android", "content").pkg(uiDevice.launcherPackageName))
+            return launcher?.visibleBounds
+        }
+
+    private val Rect.isLandscape: Boolean
+        get() = this.width() > this.height()
 }

@@ -13,38 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.platform.test.rule;
+package android.platform.test.rule
 
-import org.junit.rules.TestRule;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import android.platform.test.rule.OrientationRule.Landscape
+import org.junit.rules.TestRule
+import org.junit.runner.Description
+import org.junit.runners.model.Statement
 
 /**
  * This rule will lock orientation before running a test class and unlock after. The orientation is
- * portrait by default, and landscape if the test or one of its superclasses is marked with
- * the @Landscape annotation.
+ * natural by default, and landscape if the test or one of its superclasses is marked with the
+ * [Landscape] annotation.
  */
-public class OrientationRule implements TestRule {
-    @Override
-    public Statement apply(Statement base, Description description) {
-        final boolean landscape = hasLandscapeAnnotation(description.getTestClass());
-        final TestRule orientationRule =
-                landscape ? new LandscapeOrientationRule() : new NaturalOrientationRule();
-        return orientationRule.apply(base, description);
+class OrientationRule : TestRule {
+
+    override fun apply(base: Statement, description: Description): Statement {
+        val landscape = hasLandscapeAnnotation(description.testClass)
+        val orientationRule =
+            if (landscape) LandscapeOrientationRule() else NaturalOrientationRule()
+        return orientationRule.apply(base, description)
     }
 
-    private boolean hasLandscapeAnnotation(Class<?> testClass) {
-        if (testClass == null) return false;
-        if (testClass.isAnnotationPresent(Landscape.class)) return true;
-        return hasLandscapeAnnotation(testClass.getSuperclass());
-    }
+    private fun hasLandscapeAnnotation(testClass: Class<*>?): Boolean =
+        if (testClass == null) false
+        else if (testClass.isAnnotationPresent(Landscape::class.java)) true
+        else hasLandscapeAnnotation(testClass.superclass)
 
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target({ElementType.TYPE})
-    public @interface Landscape {}
+    @Retention(AnnotationRetention.RUNTIME)
+    @Target(AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.CLASS)
+    annotation class Landscape
 }
