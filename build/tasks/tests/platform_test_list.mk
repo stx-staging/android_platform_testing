@@ -108,6 +108,7 @@ platform_tests += \
     UpdateExternalLocTestApp_v2_none \
     UpdateExtToIntLocTestApp_v1_ext \
     UpdateExtToIntLocTestApp_v2_int \
+    uwb_snippet \
     VersatileTestApp_Auto \
     VersatileTestApp_External \
     VersatileTestApp_Internal \
