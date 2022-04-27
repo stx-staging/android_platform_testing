@@ -61,7 +61,8 @@ internal enum class OutputFileType {
     IMAGE_ACTUAL,
     IMAGE_EXPECTED,
     IMAGE_DIFF,
-    RESULT_PROTO
+    RESULT_PROTO,
+    RESULT_BIN_PROTO
 }
 
 /**
@@ -101,6 +102,7 @@ open class ScreenshotTestRule(
     private val repoRootPathForGoldens = config.repoRootPathForGoldens.trim('/')
     private val pathToGoldensInRepo = config.pathToGoldensInRepo.trim('/')
     private val imageExtension = ".png"
+    private val resultBinaryProtoFileSuffix = ".pb"
     // This is used in CI to identify the files.
     private val resultProtoFileSuffix = "goldResult.textproto"
 
@@ -302,6 +304,12 @@ open class ScreenshotTestRule(
             report.putString(bundleKeyPrefix + OutputFileType.RESULT_PROTO, it.absolutePath)
         }
 
+        writeToDevice(OutputFileType.RESULT_BIN_PROTO) {
+            it.write(resultProto.build().toByteArray())
+        }.also {
+            report.putString(bundleKeyPrefix + OutputFileType.RESULT_BIN_PROTO, it.absolutePath)
+        }
+
         InstrumentationRegistry.getInstrumentation().sendStatus(bundleStatusInProgress, report)
     }
 
@@ -311,6 +319,7 @@ open class ScreenshotTestRule(
             OutputFileType.IMAGE_EXPECTED -> "${testIdentifier}_expected$imageExtension"
             OutputFileType.IMAGE_DIFF -> "${testIdentifier}_diff$imageExtension"
             OutputFileType.RESULT_PROTO -> "${testIdentifier}_$resultProtoFileSuffix"
+            OutputFileType.RESULT_BIN_PROTO -> "${testIdentifier}_$resultBinaryProtoFileSuffix"
         }
         return File(deviceOutputDirectory, fileName)
     }
