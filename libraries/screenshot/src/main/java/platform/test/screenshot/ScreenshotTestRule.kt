@@ -72,20 +72,29 @@ internal enum class OutputFileType {
  * into the device to be retrieved later.
  *
  * @param config To configure where this rule should look for goldens.
+ * @param outputRootDir The root directory for output files.
  *
  * @see Bitmap.assertAgainstGolden
  */
 @SuppressLint("SyntheticAccessor")
 open class ScreenshotTestRule(
-    config: ScreenshotTestRuleConfig = ScreenshotTestRuleConfig()
+    val config: ScreenshotTestRuleConfig = ScreenshotTestRuleConfig(),
+    val outputRootDir: String? = null
 ) : TestRule {
+
+    val deviceOutputRootDirectory: File? =
+        if (outputRootDir != null) {
+            File(outputRootDir)
+        } else {
+            InstrumentationRegistry.getInstrumentation().getContext().externalCacheDir
+        }
 
     /**
      * Directory on the device that is used to store the output files.
      */
     val deviceOutputDirectory
         get() = File(
-            InstrumentationRegistry.getInstrumentation().getContext().externalCacheDir,
+            deviceOutputRootDirectory,
             "platform_screenshots"
         )
 
