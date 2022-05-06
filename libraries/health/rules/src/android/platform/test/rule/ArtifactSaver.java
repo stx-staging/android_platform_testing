@@ -88,7 +88,7 @@ public class ArtifactSaver {
         // Dump accessibility hierarchy
         try {
             device.dumpWindowHierarchy(artifactFile(description, "AccessibilityHierarchy", "uix"));
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             android.util.Log.e(TAG, "Failed to save accessibility hierarchy", ex);
         }
 
