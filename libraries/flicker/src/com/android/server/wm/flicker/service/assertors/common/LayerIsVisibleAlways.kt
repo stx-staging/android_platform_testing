@@ -16,20 +16,22 @@
 
 package com.android.server.wm.flicker.service.assertors.common
 
+import com.android.server.wm.flicker.service.assertors.ComponentBuilder
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
-import com.android.server.wm.traces.common.tags.Tag
+import com.android.server.wm.traces.common.transition.Transition
 
 /**
  * Checks if the [componentMatcher] layer is visible during the entire transition
  */
-class LayerIsVisibleAlways(windowName: String) : ComponentBaseTest(windowName) {
+class LayerIsVisibleAlways(component: ComponentBuilder) :
+    BaseAssertionBuilderWithComponent(component) {
     /** {@inheritDoc} */
     override fun doEvaluate(
-        tag: Tag,
+        transition: Transition,
         wmSubject: WindowManagerTraceSubject,
         layerSubject: LayersTraceSubject
     ) {
-        layerSubject.isVisible(componentMatcher).forAllEntries()
+        layerSubject.isVisible(component(transition)).forAllEntries()
     }
 }

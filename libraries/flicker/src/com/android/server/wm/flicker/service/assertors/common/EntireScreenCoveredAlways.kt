@@ -16,19 +16,19 @@
 
 package com.android.server.wm.flicker.service.assertors.common
 
-import com.android.server.wm.flicker.service.assertors.BaseAssertion
+import com.android.server.wm.flicker.service.assertors.BaseAssertionBuilder
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
-import com.android.server.wm.traces.common.tags.Tag
+import com.android.server.wm.traces.common.transition.Transition
 
 /**
  * Checks if the stack space of all displays is fully covered by any visible layer,
  * during the whole transitions
  */
-class EntireScreenCoveredAlways : BaseAssertion() {
+class EntireScreenCoveredAlways : BaseAssertionBuilder() {
     /** {@inheritDoc} */
     override fun doEvaluate(
-        tag: Tag,
+        transition: Transition,
         wmSubject: WindowManagerTraceSubject,
         layerSubject: LayersTraceSubject
     ) {
@@ -41,5 +41,9 @@ class EntireScreenCoveredAlways : BaseAssertion() {
                 entry.visibleRegion().coversAtLeast(display.layerStackSpace)
             }
         }.forAllEntries()
+    }
+
+    override fun equals(assertion: Any?): Boolean {
+        return assertion is EntireScreenCoveredAlways
     }
 }

@@ -16,10 +16,11 @@
 
 package com.android.server.wm.flicker.service.assertors.common
 
+import com.android.server.wm.flicker.service.assertors.ComponentBuilder
 import com.android.server.wm.flicker.service.assertors.Components
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
-import com.android.server.wm.traces.common.tags.Tag
+import com.android.server.wm.traces.common.transition.Transition
 
 /**
  * Asserts that:
@@ -27,16 +28,17 @@ import com.android.server.wm.traces.common.tags.Tag
  *     [getWindowState] becomes invisible during the trace and (in the same entry)
  *     [Components.LAUNCHER] becomes visible
  */
-class LauncherReplacesAppLayer : AppComponentBaseTest() {
+class LauncherReplacesAppLayer(component: ComponentBuilder) :
+    BaseAssertionBuilderWithComponent(component) {
     /** {@inheritDoc} */
     override fun doEvaluate(
-        tag: Tag,
+        transition: Transition,
         wmSubject: WindowManagerTraceSubject,
         layerSubject: LayersTraceSubject
     ) {
-        layerSubject.isVisible(getComponentName(tag, wmSubject))
+        layerSubject.isVisible(component(transition))
             .then()
-            .isVisible(Components.LAUNCHER)
+            .isVisible(Components.LAUNCHER(transition))
             .forAllEntries()
     }
 }

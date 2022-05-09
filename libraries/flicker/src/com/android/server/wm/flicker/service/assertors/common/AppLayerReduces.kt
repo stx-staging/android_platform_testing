@@ -16,21 +16,22 @@
 
 package com.android.server.wm.flicker.service.assertors.common
 
+import com.android.server.wm.flicker.service.assertors.ComponentBuilder
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
-import com.android.server.wm.traces.common.tags.Tag
+import com.android.server.wm.traces.common.transition.Transition
 
 /**
  * Checks that the visible region of [getWindowState] always reduces during the animation
  */
-class AppLayerReduces : AppComponentBaseTest() {
+class AppLayerReduces(component: ComponentBuilder) : BaseAssertionBuilderWithComponent(component) {
     /** {@inheritDoc} */
     override fun doEvaluate(
-        tag: Tag,
+        transition: Transition,
         wmSubject: WindowManagerTraceSubject,
         layerSubject: LayersTraceSubject
     ) {
-        val layerName = getComponentName(tag, wmSubject).toLayerName()
+        val layerName = component(transition).toLayerName()
         val layerList = layerSubject.layers { it.name.contains(layerName) && it.isVisible }
         layerList.zipWithNext { previous, current ->
             current.visibleRegion.coversAtMost(previous.visibleRegion.region)

@@ -16,22 +16,25 @@
 
 package com.android.server.wm.flicker.service.assertors.common
 
+import com.android.server.wm.flicker.service.assertors.BaseAssertionBuilder
 import com.android.server.wm.flicker.service.assertors.ComponentBuilder
-import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
-import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
-import com.android.server.wm.traces.common.transition.Transition
 
 /**
- * Checks if the [componentMatcher] layer is invisible at the end of the transition
+ * Base class for tests that require a [component] named window name
  */
-class LayerIsInvisibleAtEnd(component: ComponentBuilder) :
-    BaseAssertionBuilderWithComponent(component) {
-    /** {@inheritDoc} */
-    override fun doEvaluate(
-        transition: Transition,
-        wmSubject: WindowManagerTraceSubject,
-        layerSubject: LayersTraceSubject
-    ) {
-        layerSubject.last().isInvisible(component(transition))
+abstract class BaseAssertionBuilderWithComponent(val component: ComponentBuilder) :
+    BaseAssertionBuilder() {
+    override fun equals(assertion: Any?): Boolean {
+        if (assertion !is BaseAssertionBuilderWithComponent) {
+            return false
+        }
+
+        // Check both assertions are instances of the same class.
+        if (this::class != component::class) {
+            return false
+        }
+
+        // TODO: Make sure equality is properly defined on the component
+        return assertion.component == component
     }
 }

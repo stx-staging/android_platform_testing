@@ -16,23 +16,25 @@
 
 package com.android.server.wm.flicker.service.assertors.common
 
+import com.android.server.wm.flicker.service.assertors.ComponentBuilder
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
-import com.android.server.wm.traces.common.tags.Tag
+import com.android.server.wm.traces.common.transition.Transition
 
 /**
- * Checks that [componentMatcher] starts not on top and moves to top during the transition
+ * Checks that [component] starts not on top and moves to top during the transition
  */
-open class WindowMovesToTop(windowName: String) : ComponentBaseTest(windowName) {
+open class WindowMovesToTop(component: ComponentBuilder) :
+    BaseAssertionBuilderWithComponent(component) {
     /** {@inheritDoc} */
     override fun doEvaluate(
-        tag: Tag,
+        transition: Transition,
         wmSubject: WindowManagerTraceSubject,
         layerSubject: LayersTraceSubject
     ) {
-        wmSubject.isAppWindowNotOnTop(componentMatcher)
+        wmSubject.isAppWindowNotOnTop(component(transition))
             .then()
-            .isAppWindowOnTop(componentMatcher)
+            .isAppWindowOnTop(component(transition))
             .forAllEntries()
     }
 }

@@ -16,20 +16,22 @@
 
 package com.android.server.wm.flicker.service.assertors.common
 
+import com.android.server.wm.flicker.service.assertors.ComponentBuilder
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
-import com.android.server.wm.traces.common.tags.Tag
+import com.android.server.wm.traces.common.transition.Transition
 
 /**
- * Checks if the [componentMatcher] window is visible at the end of the transition
+ * Checks if the [component] window is visible at the end of the transition
  */
-class NonAppWindowIsVisibleAtEnd(windowName: String) : ComponentBaseTest(windowName) {
+class NonAppWindowIsVisibleAtEnd(component: ComponentBuilder) :
+    BaseAssertionBuilderWithComponent(component) {
     /** {@inheritDoc} */
     override fun doEvaluate(
-        tag: Tag,
+        transition: Transition,
         wmSubject: WindowManagerTraceSubject,
         layerSubject: LayersTraceSubject
     ) {
-        wmSubject.last().isNonAppWindowVisible(componentMatcher)
+        wmSubject.last().isNonAppWindowVisible(component(transition))
     }
 }

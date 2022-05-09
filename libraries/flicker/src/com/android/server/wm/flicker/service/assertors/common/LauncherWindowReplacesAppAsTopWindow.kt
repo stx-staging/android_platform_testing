@@ -16,24 +16,26 @@
 
 package com.android.server.wm.flicker.service.assertors.common
 
+import com.android.server.wm.flicker.service.assertors.ComponentBuilder
 import com.android.server.wm.flicker.service.assertors.Components
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
-import com.android.server.wm.traces.common.tags.Tag
+import com.android.server.wm.traces.common.transition.Transition
 
 /**
  * Checks that [getWindowState] is the top visible app window at the start of the transition and
  * that it is replaced by [Components.LAUNCHER] during the transition
  */
-class LauncherWindowReplacesAppAsTopWindow : AppComponentBaseTest() {
+class LauncherWindowReplacesAppAsTopWindow(component: ComponentBuilder) :
+    BaseAssertionBuilderWithComponent(component) {
     override fun doEvaluate(
-        tag: Tag,
+        transition: Transition,
         wmSubject: WindowManagerTraceSubject,
         layerSubject: LayersTraceSubject
     ) {
-        wmSubject.isAppWindowOnTop(getComponentName(tag, wmSubject))
+        wmSubject.isAppWindowOnTop(component(transition))
             .then()
-            .isAppWindowOnTop(Components.LAUNCHER)
+            .isAppWindowOnTop(Components.LAUNCHER(transition))
             .forAllEntries()
     }
 }

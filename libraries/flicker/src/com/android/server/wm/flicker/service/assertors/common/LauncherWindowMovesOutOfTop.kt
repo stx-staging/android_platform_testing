@@ -21,4 +21,4 @@ import com.android.server.wm.flicker.service.assertors.Components
 /**
  * Checks that [Components.LAUNCHER] starts on top and moves out of top during the transition
  */
-class LauncherWindowMovesOutOfTop : WindowMovesOutOfTop(Components.LAUNCHER.toWindowName())
+class LauncherWindowMovesOutOfTop : WindowMovesOutOfTop(Components.LAUNCHER)
