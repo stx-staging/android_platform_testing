@@ -23,7 +23,7 @@ import com.android.server.wm.flicker.FlickerRunResult
 import com.android.server.wm.flicker.getDefaultFlickerOutputDir
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 import com.android.server.wm.traces.common.layers.LayersTrace
-import com.android.server.wm.traces.parser.layers.LayersTraceParser
+import com.android.server.wm.traces.parser.transition.TransitionsTraceParser
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -32,36 +32,29 @@ import java.nio.file.Path
  *
  * Use [LayersTraceSubject.assertThat] to make assertions on the trace
  */
-open class LayersTraceMonitor @JvmOverloads constructor(
+open class TransitionsTraceMonitor @JvmOverloads constructor(
     outputDir: Path = getDefaultFlickerOutputDir(),
-    sourceFile: Path = TRACE_DIR.resolve("layers_trace$WINSCOPE_EXT"),
-    private val traceFlags: Int = TRACE_FLAGS
+    sourceFile: Path = TRACE_DIR.resolve("transition_trace$WINSCOPE_EXT")
 ) : TransitionMonitor(outputDir, sourceFile) {
 
     private val windowManager = WindowManagerGlobal.getWindowManagerService()
 
     override fun startTracing() {
-        windowManager.setLayerTracingFlags(traceFlags)
-        windowManager.isLayerTracing = true
+        windowManager.startTransitionTrace()
     }
 
     override fun stopTracing() {
-        windowManager.isLayerTracing = false
+        windowManager.stopTransitionTrace()
     }
 
     override val isEnabled: Boolean
-        get() = windowManager.isLayerTracing
+        get() = windowManager.isTransitionTraceEnabled
 
     override fun setResult(builder: FlickerRunResult.Builder) {
-        builder.setLayersTrace(outputFile) {
-            Log.v(FLICKER_TAG, "Parsing Layers trace")
+        builder.setTransitionsTrace(outputFile) {
+            Log.v(FLICKER_TAG, "Parsing Transition trace")
             val traceData = Files.readAllBytes(outputFile)
-            val layersTrace = LayersTraceParser.parseFromTrace(traceData)
-            LayersTraceSubject.assertThat(layersTrace)
+            TransitionsTraceParser.parseFromTrace(traceData)
         }
-    }
-
-    companion object {
-        const val TRACE_FLAGS = 0x47 // TRACE_CRITICAL|TRACE_INPUT|TRACE_COMPOSITION|TRACE_SYNC
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The Android Open Source Project
+ * Copyright (C) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,11 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.service.assertors
+package com.android.server.wm.traces.common.transition
 
-import com.android.server.wm.flicker.service.config.AssertionInvocationGroup
-import com.android.server.wm.flicker.service.config.FlickerServiceConfig.Companion.AssertionGroup
+class TransitionChange(val windowName: String, val windowId: String, val transitMode: Int) {
 
-/**
- * Stores data for FASS assertions.
- */
-data class AssertionData(
-    val assertionGroup: AssertionGroup,
-    val assertionBuilder: BaseAssertionBuilder,
-    val category: AssertionInvocationGroup
-)
+    override fun toString(): String {
+        return "TransitionChange(window=$windowName, transitMode=$transitMode)"
+    }
+}

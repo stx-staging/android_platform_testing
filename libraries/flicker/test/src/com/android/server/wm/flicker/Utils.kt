@@ -21,10 +21,8 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.android.server.wm.flicker.FlickerRunResult.Companion.RunStatus.ASSERTION_SUCCESS
 import com.android.server.wm.flicker.traces.FlickerSubjectException
 import com.android.server.wm.traces.common.layers.LayersTrace
-import com.android.server.wm.traces.common.tags.TagTrace
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 import com.android.server.wm.traces.parser.layers.LayersTraceParser
-import com.android.server.wm.traces.parser.tags.TagTraceParserUtil
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerTraceParser
 import com.google.common.io.ByteStreams
 import com.google.common.truth.ExpectFailure
@@ -60,14 +58,6 @@ internal fun readLayerTraceFromFile(
             ignoreLayersStackMatchNoDisplay = false,
             ignoreLayersInVirtualDisplay = false
         ) { ignoreOrphanLayers }
-    } catch (e: Exception) {
-        throw RuntimeException(e)
-    }
-}
-
-internal fun readTagTraceFromFile(relativePath: String): TagTrace {
-    return try {
-        TagTraceParserUtil.parseFromTrace(readTestFile(relativePath))
     } catch (e: Exception) {
         throw RuntimeException(e)
     }
@@ -133,7 +123,7 @@ fun assertArchiveContainsAllTraces(
     val archiveFileName = "${runStatus.prefix}_${testName}_$iteration.zip"
     val archivePath = getDefaultFlickerOutputDir().resolve(archiveFileName)
     Truth.assertWithMessage("Expected trace archive `$archivePath` to exist")
-            .that(Files.exists(archivePath)).isTrue()
+        .that(Files.exists(archivePath)).isTrue()
 
     val archiveStream = ZipInputStream(FileInputStream(archivePath.toFile()))
 
@@ -142,5 +132,5 @@ fun assertArchiveContainsAllTraces(
 
     Truth.assertThat(actualFiles).hasSize(expectedFiles.size)
     Truth.assertWithMessage("Trace archive doesn't contain all expected traces")
-            .that(actualFiles.containsAll(expectedFiles)).isTrue()
+        .that(actualFiles.containsAll(expectedFiles)).isTrue()
 }

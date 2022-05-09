@@ -22,6 +22,7 @@ import android.util.Log
 import androidx.test.uiautomator.UiDevice
 import com.android.server.wm.flicker.assertions.AssertionData
 import com.android.server.wm.flicker.monitor.ITransitionMonitor
+import com.android.server.wm.flicker.service.FlickerServiceResultsCollector
 import com.android.server.wm.traces.common.layers.LayersTrace
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerStateHelper
@@ -92,10 +93,23 @@ class Flicker(
     /**
      * Helper object for WM Synchronization
      */
-    val wmHelper: WindowManagerStateHelper
+    val wmHelper: WindowManagerStateHelper,
+    /**
+     * Whether or not to run Flicker as a Service on the collected transition traces
+     */
+    @JvmField val faasEnabled: Boolean = false
 ) {
+    internal val faasTracesCollector = LegacyFlickerTraceCollector()
+    internal val faas = FlickerServiceResultsCollector(
+        outputDir,
+        tracesCollector = faasTracesCollector
+    )
+
     var result: FlickerResult? = null
-        private set
+        private set(value) {
+            require(value != null) { "Can't set null result" }
+            field = value
+        }
 
     /**
      * Executes the test transition.

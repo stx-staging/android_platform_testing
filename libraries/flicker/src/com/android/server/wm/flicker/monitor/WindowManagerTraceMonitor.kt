@@ -16,7 +16,6 @@
 
 package com.android.server.wm.flicker.monitor
 
-import android.os.RemoteException
 import android.util.Log
 import android.view.WindowManagerGlobal
 import com.android.server.wm.flicker.FLICKER_TAG
@@ -39,19 +38,11 @@ open class WindowManagerTraceMonitor @JvmOverloads constructor(
 ) : TransitionMonitor(outputDir, sourceFile) {
     private val windowManager = WindowManagerGlobal.getWindowManagerService()
     override fun startTracing() {
-        try {
-            windowManager.startWindowTrace()
-        } catch (e: RemoteException) {
-            throw RuntimeException("Could not start trace", e)
-        }
+        windowManager.startWindowTrace()
     }
 
     override fun stopTracing() {
-        try {
-            windowManager.stopWindowTrace()
-        } catch (e: RemoteException) {
-            throw RuntimeException("Could not stop trace", e)
-        }
+        windowManager.stopWindowTrace()
     }
 
     override val isEnabled: Boolean

@@ -19,20 +19,19 @@ package com.android.server.wm.flicker.service
 import android.util.Log
 import com.android.server.wm.flicker.FLICKER_TAG
 import com.android.server.wm.flicker.monitor.TraceMonitor.Companion.WINSCOPE_EXT
-import com.android.server.wm.flicker.service.assertors.AssertionData
+import com.android.server.wm.flicker.service.assertors.AssertionResult
+import com.android.server.wm.flicker.service.config.FlickerServiceConfig
 import com.android.server.wm.traces.common.errors.ErrorTrace
 import com.android.server.wm.traces.common.layers.LayersTrace
-import com.android.server.wm.traces.common.service.TaggingEngine
+import com.android.server.wm.traces.common.transition.TransitionsTrace
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
-import com.android.server.wm.traces.parser.errors.writeToFile
-import com.android.server.wm.traces.parser.tags.writeToFile
 import java.nio.file.Path
 
 /**
  * Contains the logic for Flicker as a Service.
  */
 class FlickerService @JvmOverloads constructor(
-    private val assertions: List<AssertionData> = AssertionData.readConfiguration()
+    private val config: FlickerServiceConfig = FlickerServiceConfig()
 ) {
     /**
      * The entry point for WM Flicker Service.
@@ -47,18 +46,15 @@ class FlickerService @JvmOverloads constructor(
     fun process(
         wmTrace: WindowManagerTrace,
         layersTrace: LayersTrace,
-        outputDir: Path
-    ): Pair<ErrorTrace, Map<String, Int>> {
-        val taggingEngine = TaggingEngine(wmTrace, layersTrace) { Log.v("$FLICKER_TAG-PROC", it) }
-        val tagTrace = taggingEngine.run()
-        val tagTraceFile = getFassFilePath(outputDir, "tag_trace")
-        tagTrace.writeToFile(tagTraceFile)
-
-        val assertionEngine = AssertionEngine(assertions) { Log.v("$FLICKER_TAG-ASSERT", it) }
-        val (errorTrace, assertions) = assertionEngine.analyze(wmTrace, layersTrace, tagTrace)
-        val errorTraceFile = getFassFilePath(outputDir, "error_trace")
-        errorTrace.writeToFile(errorTraceFile)
-        return errorTrace to assertions
+        transitionTrace: TransitionsTrace
+    ): List<AssertionResult> {
+        try {
+            val assertionEngine = AssertionEngine(config) { Log.v("$FLICKER_TAG-ASSERT", it) }
+            return assertionEngine.analyze(wmTrace, layersTrace, transitionTrace)
+        } catch (exception: Throwable) {
+            Log.e("$FLICKER_TAG-ASSERT", "FAILED PROCESSING", exception)
+            throw exception
+        }
     }
 
     companion object {
@@ -70,6 +66,6 @@ class FlickerService @JvmOverloads constructor(
          * @return the path to the trace file
          */
         internal fun getFassFilePath(outputDir: Path, file: String): Path =
-                outputDir.resolve("$file$WINSCOPE_EXT")
+            outputDir.resolve("$file$WINSCOPE_EXT")
     }
 }
