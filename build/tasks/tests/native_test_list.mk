@@ -259,6 +259,7 @@ native_tests := \
 
 ifeq ($(BOARD_IS_AUTOMOTIVE), true)
 native_tests += libwatchdog_test
+native_tests += EvsEnumeratorTest
 endif
 
 ifneq ($(strip $(BOARD_PERFSETUP_SCRIPT)),)
