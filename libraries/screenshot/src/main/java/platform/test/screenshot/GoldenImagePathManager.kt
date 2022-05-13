@@ -63,14 +63,14 @@ open class GoldenImagePathManager(
     val pathConfig: PathConfig = getDefaultPathConfig()
 ) {
 
-    private val deviceLocalPath = locationConfig.deviceLocalPath
-    private val repoRemotePath = locationConfig.repoRemotePath
-    private val imageExtension = "png"
+    public val deviceLocalPath = locationConfig.deviceLocalPath
+    public val repoRemotePath = locationConfig.repoRemotePath
+    public val imageExtension = "png"
 
     /*
      * Uses [pathConfig] and [testName] to construct the full path to the golden image.
      */
-    public fun goldenIdentifierResolver(
+    public open fun goldenIdentifierResolver(
         testName: String,
         relativePathOnly: Boolean = true,
         localPath: Boolean = true
