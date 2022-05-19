@@ -443,7 +443,11 @@ public abstract class AbstractStandardAppHelper implements IAppHelper {
     private boolean packageNeedsNotificationPermission(PackageManager pm, String pkg) {
         PackageInfo pInfo;
         try {
-            pInfo = pm.getPackageInfo(pkg, PackageManager.PackageInfoFlags.of(0));
+            pInfo =
+                    pm.getPackageInfoAsUser(
+                            pkg,
+                            PackageManager.PackageInfoFlags.of(PackageManager.GET_PERMISSIONS),
+                            ActivityManager.getCurrentUser());
         } catch (NameNotFoundException e) {
             Log.w(LOG_TAG, "package name not found");
             return false;
@@ -485,10 +489,13 @@ public abstract class AbstractStandardAppHelper implements IAppHelper {
         if (packageNeedsNotificationPermission(pm, getPackage())) {
             UserHandle user = UserHandle.of(ActivityManager.getCurrentUser());
             mChangedPermState = true;
-            mAutomation.grantRuntimePermission(getPackage(),
-                    NOTIF_PERM);
-            mPreviousFlagValues = pm.getPermissionFlags(NOTIF_PERM, getPackage(),
-                    user);
+            Log.d(
+                    LOG_TAG,
+                    String.format(
+                            "Granting missing notification permission for user: %d",
+                            user.getIdentifier()));
+            mAutomation.grantRuntimePermission(getPackage(), NOTIF_PERM, user);
+            mPreviousFlagValues = pm.getPermissionFlags(NOTIF_PERM, getPackage(), user);
             pm.updatePermissionFlags(NOTIF_PERM,
                     getPackage(),
                     FLAG_PERMISSION_USER_SET
