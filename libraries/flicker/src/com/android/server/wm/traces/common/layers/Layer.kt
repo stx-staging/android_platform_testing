@@ -111,15 +111,44 @@ data class Layer(
     val isActiveBufferEmpty: Boolean get() = activeBuffer.isEmpty
 
     /**
-     * Checks if the layer is hidden, that is, if its flags contain 0x1 (FLAG_HIDDEN)
+     * Layer state flags as defined in LayerState.h
+     */
+    enum class Flag(val value: Int) {
+        HIDDEN(0x01),
+        OPAQUE(0x02),
+        SKIP_SCREENSHOT(0x40),
+        SECURE(0x80),
+        ENABLE_BACKPRESSURE(0x100),
+        DISPLAY_DECORATION(0x200),
+        IGNORE_DESTINATION_FRAME(0x400)
+    }
+
+    /**
+     * Checks if the layer is hidden, that is, if its flags contain Flag.HIDDEN
      *
      * @return
      */
     val isHiddenByPolicy: Boolean
         get() {
-            return (flags and /* FLAG_HIDDEN */0x1) != 0x0 ||
+            return (flags and Flag.HIDDEN.value) != 0x0 ||
                 // offscreen layer root has a unique layer id
                 id == 0x7FFFFFFD
+        }
+
+    /**
+     * Converts flags to human readable tokens.
+     *
+     * @return
+     */
+    val verboseFlags: String
+        get() {
+            val tokens = Flag.values().filter { (it.value and flags) != 0 }.map { it.name }
+
+            return if (tokens.isEmpty()) {
+                ""
+            } else {
+                "${tokens.joinToString("|")} (0x${flags.toString(16)})"
+            }
         }
 
     /**
