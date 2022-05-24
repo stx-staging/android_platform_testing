@@ -32,11 +32,22 @@ class TransitionAsserter(
     /** {@inheritDoc} */
     fun analyze(
         transition: Transition,
-        wmTrace: WindowManagerTrace,
-        layersTrace: LayersTrace
+        _wmTrace: WindowManagerTrace?,
+        _layersTrace: LayersTrace?
     ): List<AssertionResult> {
-        require(wmTrace.entries.isNotEmpty())
-        require(layersTrace.entries.isNotEmpty())
+        var wmTrace = _wmTrace
+        if (wmTrace != null && wmTrace.entries.isEmpty()) {
+            // Empty trace, nothing to assert on the wmTrace
+            logger("Passed an empty wmTrace")
+            wmTrace = null
+        }
+
+        var layersTrace = _layersTrace
+        if (layersTrace != null && layersTrace.entries.isEmpty()) {
+            layersTrace = null
+        }
+
+        require(wmTrace != null || layersTrace != null)
 
         logger.invoke("Running assertions...")
         return runAssertionsOnSubjects(transition, wmTrace, layersTrace, assertions)
@@ -44,8 +55,8 @@ class TransitionAsserter(
 
     private fun runAssertionsOnSubjects(
         transition: Transition,
-        wmTrace: WindowManagerTrace,
-        layersTrace: LayersTrace,
+        wmTrace: WindowManagerTrace?,
+        layersTrace: LayersTrace?,
         assertions: List<AssertionData>
     ): List<AssertionResult> {
         val results: MutableList<AssertionResult> = mutableListOf()
@@ -53,8 +64,16 @@ class TransitionAsserter(
         assertions.forEach {
             val assertion = it.assertionBuilder
             logger.invoke("Running assertion $assertion for ${it.assertionGroup}")
-            val wmSubject = WindowManagerTraceSubject.assertThat(wmTrace)
-            val layersSubject = LayersTraceSubject.assertThat(layersTrace)
+            val wmSubject = if (wmTrace != null) {
+                WindowManagerTraceSubject.assertThat(wmTrace)
+            } else {
+                null
+            }
+            val layersSubject = if (layersTrace != null) {
+                LayersTraceSubject.assertThat(layersTrace)
+            } else {
+                null
+            }
             val result = assertion.evaluate(transition, wmSubject, layersSubject, it.assertionGroup)
             results.add(result)
         }

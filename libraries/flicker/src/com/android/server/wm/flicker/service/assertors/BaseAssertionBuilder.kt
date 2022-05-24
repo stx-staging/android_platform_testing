@@ -17,7 +17,7 @@
 package com.android.server.wm.flicker.service.assertors
 
 import com.android.server.wm.flicker.service.config.AssertionInvocationGroup
-import com.android.server.wm.flicker.service.config.AssertionInvocationGroup.POSTSUBMIT
+import com.android.server.wm.flicker.service.config.AssertionInvocationGroup.NON_BLOCKING
 import com.android.server.wm.flicker.service.config.FlickerServiceConfig.Companion.AssertionGroup
 import com.android.server.wm.flicker.traces.FlickerSubjectException
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
@@ -28,16 +28,32 @@ import com.android.server.wm.traces.common.transition.Transition
  * Base class for a FASS assertion
  */
 abstract class BaseAssertionBuilder {
-    internal var invocationGroup: AssertionInvocationGroup = POSTSUBMIT
+    internal var invocationGroup: AssertionInvocationGroup = NON_BLOCKING
 
     // Assertion name
     val name: String = this::class.java.simpleName
 
-    protected abstract fun doEvaluate(
-        t: Transition,
-        wmSubject: WindowManagerTraceSubject,
+    /**
+     * Evaluates assertions that require only WM traces.
+     * NOTE: Will not run if WM trace is not available.
+     */
+    protected open fun doEvaluate(
+        transition: Transition,
+        wmSubject: WindowManagerTraceSubject
+    ) {
+        // Does nothing, unless overridden
+    }
+
+    /**
+     * Evaluates assertions that require only SF traces.
+     * NOTE: Will not run if layers trace is not available.
+     */
+    protected open fun doEvaluate(
+        transition: Transition,
         layerSubject: LayersTraceSubject
-    )
+    ) {
+        // Does nothing, unless overridden
+    }
 
     /**
      * Evaluate the assertion on a transition [Tag] in a [WindowManagerTraceSubject] and
@@ -49,13 +65,18 @@ abstract class BaseAssertionBuilder {
      */
     fun evaluate(
         transition: Transition,
-        wmSubject: WindowManagerTraceSubject,
-        layerSubject: LayersTraceSubject,
+        wmSubject: WindowManagerTraceSubject?,
+        layerSubject: LayersTraceSubject?,
         assertionGroup: AssertionGroup
     ): AssertionResult {
         var assertionError: FlickerSubjectException? = null
         try {
-            doEvaluate(transition, wmSubject, layerSubject)
+            if (wmSubject !== null) {
+                doEvaluate(transition, wmSubject)
+            }
+            if (layerSubject !== null) {
+                doEvaluate(transition, layerSubject)
+            }
         } catch (e: FlickerSubjectException) {
             assertionError = e
         }

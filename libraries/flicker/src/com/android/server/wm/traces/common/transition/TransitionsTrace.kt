@@ -17,7 +17,7 @@
 package com.android.server.wm.traces.common.transition
 
 import com.android.server.wm.traces.common.ITrace
-import java.lang.StringBuilder
+import kotlin.text.StringBuilder
 
 data class TransitionsTrace(
     override val entries: Array<Transition>

@@ -115,7 +115,7 @@ class TransitionsTraceParser {
             val windowName = proto.windowIdentifier.title
             val windowId = proto.windowIdentifier.hashCode.toString(16)
 
-            return TransitionChange(windowName, windowId, proto.transitMode)
+            return TransitionChange(windowName, proto.transitMode)
         }
     }
 }

@@ -18,22 +18,23 @@ package com.android.server.wm.flicker.service.assertors
 
 import android.content.ComponentName
 import android.view.WindowManager.TRANSIT_OPEN
-import com.android.server.wm.traces.common.FlickerComponentName
+import com.android.server.wm.traces.common.ComponentMatcher
+import com.android.server.wm.traces.common.IComponentMatcher
 import com.android.server.wm.traces.common.transition.Transition
 
-typealias ComponentBuilder = (t: Transition) -> FlickerComponentName
+typealias ComponentBuilder = (t: Transition) -> IComponentMatcher
 
 object Components {
 
-    val NAV_BAR = ComponentBuilder(FlickerComponentName.NAV_BAR)
-    val STATUS_BAR = ComponentBuilder(FlickerComponentName.STATUS_BAR)
-    val LAUNCHER = ComponentBuilder(FlickerComponentName.LAUNCHER)
+    val NAV_BAR = ComponentBuilder(ComponentMatcher.NAV_BAR)
+    val STATUS_BAR = ComponentBuilder(ComponentMatcher.STATUS_BAR)
+    val LAUNCHER = ComponentBuilder(ComponentMatcher.LAUNCHER)
 
     val OPENING_APP = { t: Transition -> openingAppFrom(t) }
     val CLOSING_APP = { t: Transition -> closingAppFrom(t) }
 
     // TODO: Extract out common code between two functions below
-    private fun openingAppFrom(transition: Transition): FlickerComponentName {
+    private fun openingAppFrom(transition: Transition): IComponentMatcher {
         val openingWindows = transition.changes.filter { it.transitMode == TRANSIT_OPEN }
 
         val windowNames = openingWindows.map { it.windowName }.distinct()
@@ -49,12 +50,12 @@ object Components {
 
         // TODO: (b/231974873) use windowId instead of window name to match instead
         val openWindowName = openingWindows.first().windowName
-        val component = android.content.ComponentName.unflattenFromString(openWindowName)
+        val component = ComponentName.unflattenFromString(openWindowName)
 
-        return FlickerComponentName(component.getPackageName(), component.getClassName())
+        return ComponentMatcher(component!!.packageName, component.className)
     }
 
-    private fun closingAppFrom(transition: Transition): FlickerComponentName {
+    private fun closingAppFrom(transition: Transition): IComponentMatcher {
         val closingWindows = transition.changes.filter { it.transitMode == 2 /* TRANSIT CLOSE */ }
 
         val windowNames = closingWindows.map { it.windowName }.distinct()
@@ -73,10 +74,10 @@ object Components {
         val closeWindowPackage = closeWindowName?.split('/')?.get(0) ?: ""
         val closeWindowClass = closeWindowName?.split('/')?.get(0) ?: ""
 
-        return FlickerComponentName(closeWindowPackage, closeWindowClass)
+        return ComponentMatcher(closeWindowPackage, closeWindowClass)
     }
 
-    private fun ComponentBuilder(component: FlickerComponentName): ComponentBuilder {
+    private fun ComponentBuilder(component: IComponentMatcher): ComponentBuilder {
         return { _: Transition -> component }
     }
 }
