@@ -17,6 +17,6 @@
 package com.android.server.wm.flicker.service.config
 
 enum class AssertionInvocationGroup {
-    PRESUBMIT,
-    POSTSUBMIT
+    BLOCKING,
+    NON_BLOCKING
 }

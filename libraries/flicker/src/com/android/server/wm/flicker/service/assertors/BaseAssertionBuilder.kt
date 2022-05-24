@@ -62,7 +62,7 @@ abstract class BaseAssertionBuilder {
         return AssertionResult(name, assertionGroup, invocationGroup, assertionError)
     }
 
-    infix fun runIn(invocationGroup: AssertionInvocationGroup): BaseAssertionBuilder {
+    infix fun runAs(invocationGroup: AssertionInvocationGroup): BaseAssertionBuilder {
         this.invocationGroup = invocationGroup
         return this
     }

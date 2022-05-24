@@ -35,8 +35,8 @@ import com.android.server.wm.flicker.service.assertors.common.StatusBarLayerPosi
 import com.android.server.wm.flicker.service.assertors.common.StatusBarLayerPositionAtStart
 import com.android.server.wm.flicker.service.assertors.common.VisibleLayersShownMoreThanOneConsecutiveEntry
 import com.android.server.wm.flicker.service.assertors.common.VisibleWindowsShownMoreThanOneConsecutiveEntry
-import com.android.server.wm.flicker.service.config.AssertionInvocationGroup.POSTSUBMIT
-import com.android.server.wm.flicker.service.config.AssertionInvocationGroup.PRESUBMIT
+import com.android.server.wm.flicker.service.config.AssertionInvocationGroup.NON_BLOCKING
+import com.android.server.wm.flicker.service.config.AssertionInvocationGroup.BLOCKING
 import com.android.server.wm.traces.common.transition.Transition
 import com.android.server.wm.traces.common.transition.Transition.Companion.Type
 
@@ -87,34 +87,34 @@ class FlickerServiceConfig {
         }
 
         val COMMON_ASSERTIONS = listOf(
-            LayerIsVisibleAtStart(Components.NAV_BAR) runIn PRESUBMIT,
-            LayerIsVisibleAtEnd(Components.NAV_BAR) runIn PRESUBMIT,
-            NonAppWindowIsVisibleAlways(Components.NAV_BAR) runIn PRESUBMIT,
-            NonAppWindowIsVisibleAlways(Components.STATUS_BAR) runIn PRESUBMIT,
-            LayerIsVisibleAlways(Components.STATUS_BAR) runIn PRESUBMIT,
-            EntireScreenCoveredAtStart() runIn PRESUBMIT,
-            EntireScreenCoveredAtEnd() runIn PRESUBMIT,
-            EntireScreenCoveredAlways() runIn PRESUBMIT,
-            VisibleWindowsShownMoreThanOneConsecutiveEntry() runIn PRESUBMIT,
-            VisibleLayersShownMoreThanOneConsecutiveEntry() runIn PRESUBMIT,
-            StatusBarLayerPositionAtStart() runIn POSTSUBMIT,
-            StatusBarLayerPositionAtEnd() runIn POSTSUBMIT
+            LayerIsVisibleAtStart(Components.NAV_BAR) runAs BLOCKING,
+            LayerIsVisibleAtEnd(Components.NAV_BAR) runAs BLOCKING,
+            NonAppWindowIsVisibleAlways(Components.NAV_BAR) runAs BLOCKING,
+            NonAppWindowIsVisibleAlways(Components.STATUS_BAR) runAs BLOCKING,
+            LayerIsVisibleAlways(Components.STATUS_BAR) runAs BLOCKING,
+            EntireScreenCoveredAtStart() runAs BLOCKING,
+            EntireScreenCoveredAtEnd() runAs BLOCKING,
+            EntireScreenCoveredAlways() runAs BLOCKING,
+            VisibleWindowsShownMoreThanOneConsecutiveEntry() runAs BLOCKING,
+            VisibleLayersShownMoreThanOneConsecutiveEntry() runAs BLOCKING,
+            StatusBarLayerPositionAtStart() runAs NON_BLOCKING,
+            StatusBarLayerPositionAtEnd() runAs NON_BLOCKING
         )
 
         val APP_LAUNCH_ASSERTIONS = COMMON_ASSERTIONS + listOf(
-            AppLayerIsVisibleAtStart(Components.LAUNCHER) runIn PRESUBMIT,
-            AppLayerIsInvisibleAtStart(Components.OPENING_APP) runIn PRESUBMIT,
+            AppLayerIsVisibleAtStart(Components.LAUNCHER) runAs BLOCKING,
+            AppLayerIsInvisibleAtStart(Components.OPENING_APP) runAs BLOCKING,
 
-            AppLayerIsInvisibleAtEnd(Components.LAUNCHER) runIn PRESUBMIT,
-            AppLayerIsVisibleAtEnd(Components.OPENING_APP) runIn PRESUBMIT
+            AppLayerIsInvisibleAtEnd(Components.LAUNCHER) runAs BLOCKING,
+            AppLayerIsVisibleAtEnd(Components.OPENING_APP) runAs BLOCKING
         )
 
         val APP_CLOSE_ASSERTIONS = COMMON_ASSERTIONS + listOf(
-            AppLayerIsVisibleAtStart(Components.CLOSING_APP) runIn PRESUBMIT,
-            AppLayerIsInvisibleAtStart(Components.LAUNCHER) runIn PRESUBMIT,
+            AppLayerIsVisibleAtStart(Components.CLOSING_APP) runAs BLOCKING,
+            AppLayerIsInvisibleAtStart(Components.LAUNCHER) runAs BLOCKING,
 
-            AppLayerIsInvisibleAtEnd(Components.CLOSING_APP) runIn PRESUBMIT,
-            AppLayerIsVisibleAtEnd(Components.LAUNCHER) runIn PRESUBMIT
+            AppLayerIsInvisibleAtEnd(Components.CLOSING_APP) runAs BLOCKING,
+            AppLayerIsVisibleAtEnd(Components.LAUNCHER) runAs BLOCKING
         )
     }
 }
