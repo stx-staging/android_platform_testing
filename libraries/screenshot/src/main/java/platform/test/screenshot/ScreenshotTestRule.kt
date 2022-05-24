@@ -198,7 +198,7 @@ open class ScreenshotTestRule(
             .addMetadata(
                 ScreenshotResultProto.Metadata.newBuilder()
                     .setKey("repoRootPath")
-                    .setValue(goldenImagePathManager.repoRemotePath))
+                    .setValue(goldenImagePathManager.deviceLocalPath))
 
         if (comparisonStatistics != null) {
             resultProto.comparisonStatistics = comparisonStatistics
@@ -254,7 +254,7 @@ open class ScreenshotTestRule(
             OutputFileType.RESULT_PROTO -> "${testIdentifier}_$resultProtoFileSuffix"
             OutputFileType.RESULT_BIN_PROTO -> "${testIdentifier}_$resultBinaryProtoFileSuffix"
         }
-        return File(goldenImagePathManager.locationConfig.deviceLocalPath, fileName)
+        return File(goldenImagePathManager.deviceLocalPath, fileName)
     }
 
     private fun Bitmap.writeToDevice(fileType: OutputFileType): File {
@@ -267,9 +267,9 @@ open class ScreenshotTestRule(
         fileType: OutputFileType,
         writeAction: (FileOutputStream) -> Unit
     ): File {
-        val fileGolden = File(goldenImagePathManager.locationConfig.deviceLocalPath)
+        val fileGolden = File(goldenImagePathManager.deviceLocalPath)
         if (!fileGolden.exists() && !fileGolden.mkdir()) {
-            throw IOException("Could not create folder.")
+            throw IOException("Could not create folder $fileGolden.")
         }
 
         var file = getPathOnDeviceFor(fileType)
