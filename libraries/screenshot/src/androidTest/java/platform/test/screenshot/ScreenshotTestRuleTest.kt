@@ -37,11 +37,7 @@ import platform.test.screenshot.proto.ScreenshotResultProto
 import platform.test.screenshot.utils.loadBitmap
 
 class CustomGoldenImagePathManager(appcontext: Context) : GoldenImagePathManager(appcontext) {
-    public override fun goldenIdentifierResolver(
-        testName: String,
-        relativePathOnly: Boolean,
-        localPath: Boolean
-    ): String = "$testName.png"
+    public override fun goldenIdentifierResolver(testName: String): String = "$testName.png"
 }
 
 @RunWith(AndroidJUnit4::class)
@@ -165,7 +161,7 @@ class ScreenshotTestRuleTest {
     @After
     fun after() {
         // Clear all files we generated so we don't have dependencies between tests
-        File(rule.goldenImagePathManager.locationConfig.deviceLocalPath).deleteRecursively()
+        File(rule.goldenImagePathManager.deviceLocalPath).deleteRecursively()
     }
 
     private fun expectErrorMessage(expectedErrorMessage: String, block: () -> Unit) {
