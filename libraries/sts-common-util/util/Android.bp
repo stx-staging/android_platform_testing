@@ -21,6 +21,7 @@ java_library_static {
     name: "sts-common-util-devicesidelib",
     visibility: [
         "//platform_testing/libraries/sts-common-util/device-side",
+        "//platform_testing/libraries/sts-common-util/util/tests",
     ],
     sdk_version: "current",
     srcs: ["src/**/*.java"],
@@ -35,6 +36,7 @@ java_library_host {
     name: "sts-common-util-hostsidelib",
     visibility: [
         "//platform_testing/libraries/sts-common-util/host-side",
+        "//platform_testing/libraries/sts-common-util/util/tests",
     ],
     srcs: ["src/**/*.java"],
     static_libs: [
