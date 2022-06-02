@@ -17,6 +17,47 @@ package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
+android_test {
+    name: "platform-screenshot-diff-test",
+    platform_apis: true,
+    optimize: {
+        enabled: false
+    },
+    srcs: [
+        "src/**/*.kt"
+    ],
+    static_libs: [
+        "androidx.test.core",
+        "androidx.test.ext.junit",
+        "androidx.test.runner",
+        "androidx.test.rules",
+        "launcher-helper-lib",
+        "metrics-helper-lib",
+        "platform-screenshot-diff-core",
+        "platform-test-annotations",
+        "truth-prebuilt",
+        "ub-uiautomator",
+    ],
+    asset_dirs: ["src/androidTest/assets"],
+    test_suites: ["general-tests"],
+}
+
+java_library {
+    name: "platform-screenshot-diff-core",
+    platform_apis: true,
+    optimize: {
+        enabled: false
+    },
+    srcs: [
+        "src/main/java/platform/test/screenshot/**/*.kt",
+    ],
+    static_libs: [
+        "androidx.annotation_annotation",
+	"androidx.test.ext.junit",
+        "platform-screenshot-diff-proto",
+    ],
+}
+
 java_library {
     name: "platform-screenshot-diff-proto",
     srcs: [
