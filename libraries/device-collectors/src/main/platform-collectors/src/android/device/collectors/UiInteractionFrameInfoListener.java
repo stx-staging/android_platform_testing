@@ -44,12 +44,10 @@ public class UiInteractionFrameInfoListener extends BaseCollectionListener<Strin
     private static final String TAG = UiInteractionFrameInfoListener.class.getSimpleName();
     private static final long POLLING_INTERVAL_MS = 100;
     private static final long POLLING_MAX_TIMES = 100;
-    private static final long DELAY_TOGGLE_PANEL_MS = 100;
     private static final String CMD_ENABLE_NOTIFY =
             String.format("setprop %s %d", PROP_NOTIFY_CUJ_EVENT, 1);
     private static final String CMD_DISABLE_NOTIFY =
             String.format("setprop %s %d", PROP_NOTIFY_CUJ_EVENT, 0);
-    private static final String CMD_TOGGLE_PANEL = "su shell service call statusbar 3";
 
     private final MetricsLoggedReceiver mReceiver = new MetricsLoggedReceiver();
     private final Object mLock = new Object();
@@ -105,7 +103,6 @@ public class UiInteractionFrameInfoListener extends BaseCollectionListener<Strin
                 mCurrentTestTimestamp.end(System.nanoTime());
                 if (mExpectedCujSet.size() > 0) {
                     for (int i = 0; i < POLLING_MAX_TIMES && !mMetricsReady; i++) {
-                        flushSurfaceFlingerCallback();
                         mLock.wait(POLLING_INTERVAL_MS);
                     }
                     if (mMetricsReady) {
@@ -129,15 +126,6 @@ public class UiInteractionFrameInfoListener extends BaseCollectionListener<Strin
             mHelper.stopCollecting();
         }
         return true;
-    }
-
-    private void flushSurfaceFlingerCallback() throws InterruptedException {
-        try {
-            getInstrumentation().getUiAutomation().executeShellCommand(CMD_TOGGLE_PANEL);
-            Thread.sleep(DELAY_TOGGLE_PANEL_MS);
-        } finally {
-            getInstrumentation().getUiAutomation().executeShellCommand(CMD_TOGGLE_PANEL);
-        }
     }
 
     private void reduceMetrics(DataRecord data, String key, String value) {
