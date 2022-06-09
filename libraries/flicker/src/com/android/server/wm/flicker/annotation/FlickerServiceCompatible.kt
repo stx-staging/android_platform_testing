@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The Android Open Source Project
+ * Copyright (C) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,12 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.service.assertors
-
-import com.android.server.wm.flicker.service.config.AssertionInvocationGroup
-import com.android.server.wm.flicker.service.config.FlickerServiceConfig.Companion.Scenario
+package com.android.server.wm.flicker.annotation
 
 /**
- * Stores data for FASS assertions.
+ * Annotate your Flicker test class with this annotation to enable Flicker as a Service on the
+ * transition defined in the Flicker test class. It requires shell transitions to be enabled.
  */
-data class AssertionData(
-    val scenario: Scenario,
-    val assertionBuilder: BaseAssertionBuilder,
-    val category: AssertionInvocationGroup
-)
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class FlickerServiceCompatible

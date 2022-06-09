@@ -32,52 +32,88 @@ class TransitionAsserter(
     /** {@inheritDoc} */
     fun analyze(
         transition: Transition,
-        _wmTrace: WindowManagerTrace?,
-        _layersTrace: LayersTrace?
+        wmTrace: WindowManagerTrace,
+        layersTrace: LayersTrace
     ): List<AssertionResult> {
-        var wmTrace = _wmTrace
-        if (wmTrace != null && wmTrace.entries.isEmpty()) {
-            // Empty trace, nothing to assert on the wmTrace
-            logger("Passed an empty wmTrace")
-            wmTrace = null
-        }
-
-        var layersTrace = _layersTrace
-        if (layersTrace != null && layersTrace.entries.isEmpty()) {
-            layersTrace = null
-        }
-
-        require(wmTrace != null || layersTrace != null)
+        val (wmTraceForTransition, layersTraceForTransition) =
+            splitTraces(transition, wmTrace, layersTrace)
+        require(wmTraceForTransition != null || layersTraceForTransition != null)
 
         logger.invoke("Running assertions...")
-        return runAssertionsOnSubjects(transition, wmTrace, layersTrace, assertions)
+        return runAssertionsOnSubjects(
+            transition, wmTraceForTransition, layersTraceForTransition,
+            wmTrace, layersTrace, assertions
+        )
     }
 
     private fun runAssertionsOnSubjects(
         transition: Transition,
-        wmTrace: WindowManagerTrace?,
-        layersTrace: LayersTrace?,
+        wmTraceToAssert: WindowManagerTrace?,
+        layersTraceToAssert: LayersTrace?,
+        entireWmTrace: WindowManagerTrace,
+        entireLayersTrace: LayersTrace,
         assertions: List<AssertionData>
     ): List<AssertionResult> {
         val results: MutableList<AssertionResult> = mutableListOf()
 
         assertions.forEach {
             val assertion = it.assertionBuilder
-            logger.invoke("Running assertion $assertion for ${it.assertionGroup}")
-            val wmSubject = if (wmTrace != null) {
-                WindowManagerTraceSubject.assertThat(wmTrace)
+            logger.invoke("Running assertion $assertion for ${it.scenario}")
+            val faasFacts = FaasData(transition, entireWmTrace, entireLayersTrace).toFacts()
+            val wmSubject = if (wmTraceToAssert != null) {
+                WindowManagerTraceSubject.assertThat(wmTraceToAssert, facts = faasFacts)
             } else {
                 null
             }
-            val layersSubject = if (layersTrace != null) {
-                LayersTraceSubject.assertThat(layersTrace)
+            val layersSubject = if (layersTraceToAssert != null) {
+                LayersTraceSubject.assertThat(layersTraceToAssert, facts = faasFacts)
             } else {
                 null
             }
-            val result = assertion.evaluate(transition, wmSubject, layersSubject, it.assertionGroup)
+            val result = assertion.evaluate(transition, wmSubject, layersSubject, it.scenario)
             results.add(result)
         }
 
         return results
     }
+
+    /**
+     * Splits a [WindowManagerTrace] and a [LayersTrace] by a [Transition].
+     *
+     * @param tag a list with all [TransitionTag]s
+     * @param wmTrace Window Manager trace
+     * @param layersTrace Surface Flinger trace
+     * @return a list with [WindowManagerTrace] blocks
+     */
+    private fun splitTraces(
+        transition: Transition,
+        wmTrace: WindowManagerTrace,
+        layersTrace: LayersTrace
+    ): FilteredTraces {
+        var filteredWmTrace: WindowManagerTrace? = wmTrace.transitionSlice(transition)
+        var filteredLayersTrace: LayersTrace? = layersTrace.transitionSlice(transition)
+
+        if (filteredWmTrace?.entries?.isEmpty() == true) {
+            // Empty trace, nothing to assert on the wmTrace
+            logger("Got an empty wmTrace for transition $transition")
+            filteredWmTrace = null
+        }
+
+        if (filteredLayersTrace?.entries?.isEmpty() == true) {
+            // Empty trace, nothing to assert on the layers trace
+            logger("Got an empty surface trace for transition $transition")
+            filteredLayersTrace = null
+        }
+
+        return FilteredTraces(filteredWmTrace, filteredLayersTrace)
+    }
+
+    data class FilteredTraces(
+        val wmTrace: WindowManagerTrace?,
+        val layersTrace: LayersTrace?
+    )
+}
+
+private fun WindowManagerTrace.transitionSlice(transition: Transition): WindowManagerTrace {
+    return slice(transition.start, transition.end)
 }

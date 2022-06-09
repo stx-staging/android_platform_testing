@@ -25,6 +25,7 @@ import com.android.server.wm.traces.common.IComponentMatcher
 import com.android.server.wm.traces.common.layers.Layer
 import com.android.server.wm.traces.common.layers.LayersTrace
 import com.android.server.wm.traces.common.region.RegionTrace
+import com.google.common.truth.Fact
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.FailureStrategy
 import com.google.common.truth.StandardSubjectBuilder
@@ -57,11 +58,17 @@ import com.google.common.truth.Subject.Factory
 class LayersTraceSubject private constructor(
     fm: FailureMetadata,
     val trace: LayersTrace,
-    override val parent: LayersTraceSubject?
+    override val parent: LayersTraceSubject?,
+    val facts: Collection<Fact>
 ) : FlickerTraceSubject<LayerTraceEntrySubject>(fm, trace),
     ILayerSubject<LayersTraceSubject, RegionTraceSubject> {
-    override val selfFacts
-        get() = super.selfFacts.toMutableList()
+
+    override val selfFacts by lazy {
+        val allFacts = super.selfFacts.toMutableList()
+        allFacts.addAll(facts)
+        allFacts
+    }
+
     override val subjects by lazy {
         trace.entries.map { LayerTraceEntrySubject.assertThat(it, trace, this) }
     }
@@ -308,8 +315,11 @@ class LayersTraceSubject private constructor(
         /**
          * Boilerplate Subject.Factory for LayersTraceSubject
          */
-        private fun getFactory(parent: LayersTraceSubject?): Factory<Subject, LayersTrace> =
-            Factory { fm, subject -> LayersTraceSubject(fm, subject, parent) }
+        private fun getFactory(
+            parent: LayersTraceSubject?,
+            facts: Collection<Fact> = emptyList()
+        ): Factory<Subject, LayersTrace> =
+            Factory { fm, subject -> LayersTraceSubject(fm, subject, parent, facts) }
 
         /**
          * Creates a [LayersTraceSubject] to representing a SurfaceFlinger trace,
@@ -321,11 +331,12 @@ class LayersTraceSubject private constructor(
         @JvmOverloads
         fun assertThat(
             trace: LayersTrace,
-            parent: LayersTraceSubject? = null
+            parent: LayersTraceSubject? = null,
+            facts: Collection<Fact> = emptyList()
         ): LayersTraceSubject {
             val strategy = FlickerFailureStrategy()
             val subject = StandardSubjectBuilder.forCustomFailureStrategy(strategy)
-                .about(getFactory(parent))
+                .about(getFactory(parent, facts))
                 .that(trace) as LayersTraceSubject
             strategy.init(subject)
             return subject
@@ -335,8 +346,11 @@ class LayersTraceSubject private constructor(
          * Static method for getting the subject factory (for use with assertAbout())
          */
         @JvmStatic
-        fun entries(parent: LayersTraceSubject?): Factory<Subject, LayersTrace> {
-            return getFactory(parent)
+        fun entries(
+            parent: LayersTraceSubject?,
+            facts: Collection<Fact> = emptyList()
+        ): Factory<Subject, LayersTrace> {
+            return getFactory(parent, facts)
         }
     }
 }

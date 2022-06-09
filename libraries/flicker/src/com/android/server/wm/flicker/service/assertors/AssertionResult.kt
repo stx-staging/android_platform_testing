@@ -17,7 +17,7 @@
 package com.android.server.wm.flicker.service.assertors
 
 import com.android.server.wm.flicker.service.config.AssertionInvocationGroup
-import com.android.server.wm.flicker.service.config.FlickerServiceConfig.Companion.AssertionGroup
+import com.android.server.wm.flicker.service.config.FlickerServiceConfig.Companion.Scenario
 import com.android.server.wm.flicker.traces.FlickerSubjectException
 import com.android.server.wm.flicker.traces.layers.LayerSubject
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
@@ -34,7 +34,7 @@ typealias AssertionEvaluator =
  */
 data class AssertionResult(
     val assertionName: String,
-    val assertionGroup: AssertionGroup,
+    val scenario: Scenario,
     val invocationGroup: AssertionInvocationGroup,
     val assertionError: FlickerSubjectException?
 ) {

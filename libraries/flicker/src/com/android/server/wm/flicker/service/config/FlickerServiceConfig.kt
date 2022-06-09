@@ -16,7 +16,6 @@
 
 package com.android.server.wm.flicker.service.config
 
-import android.view.WindowManager.TRANSIT_OPEN
 import com.android.server.wm.flicker.service.assertors.AssertionData
 import com.android.server.wm.flicker.service.assertors.BaseAssertionBuilder
 import com.android.server.wm.flicker.service.assertors.Components
@@ -44,7 +43,7 @@ class FlickerServiceConfig {
 
     fun assertionsForTransition(transition: Transition): List<AssertionData> {
         val assertions: MutableList<AssertionData> = mutableListOf()
-        for (assertionGroup in AssertionGroup.values()) {
+        for (assertionGroup in Scenario.values()) {
             assertionGroup.description
             if (assertionGroup.executionCondition.shouldExecute(transition)) {
                 for (assertion in assertionGroup.assertions) {
@@ -59,7 +58,7 @@ class FlickerServiceConfig {
     }
 
     companion object {
-        enum class AssertionGroup(
+        enum class Scenario(
             val description: String,
             val executionCondition: AssertionExecutionCondition,
             val assertions: List<BaseAssertionBuilder>
@@ -82,7 +81,7 @@ class FlickerServiceConfig {
             NEVER({ false }),
             APP_LAUNCH({ t ->
                 t.type == Type.OPEN &&
-                    t.changes.any { it.transitMode == TRANSIT_OPEN }
+                    t.changes.any { it.transitMode == Type.OPEN }
             }),
         }
 

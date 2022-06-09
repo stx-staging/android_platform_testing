@@ -18,7 +18,7 @@ package com.android.server.wm.flicker.service.assertors
 
 import com.android.server.wm.flicker.service.config.AssertionInvocationGroup
 import com.android.server.wm.flicker.service.config.AssertionInvocationGroup.NON_BLOCKING
-import com.android.server.wm.flicker.service.config.FlickerServiceConfig.Companion.AssertionGroup
+import com.android.server.wm.flicker.service.config.FlickerServiceConfig.Companion.Scenario
 import com.android.server.wm.flicker.traces.FlickerSubjectException
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
@@ -31,7 +31,7 @@ abstract class BaseAssertionBuilder {
     internal var invocationGroup: AssertionInvocationGroup = NON_BLOCKING
 
     // Assertion name
-    val name: String = this::class.java.simpleName
+    open val name: String = this::class.java.simpleName
 
     /**
      * Evaluates assertions that require only WM traces.
@@ -67,7 +67,7 @@ abstract class BaseAssertionBuilder {
         transition: Transition,
         wmSubject: WindowManagerTraceSubject?,
         layerSubject: LayersTraceSubject?,
-        assertionGroup: AssertionGroup
+        scenario: Scenario
     ): AssertionResult {
         var assertionError: FlickerSubjectException? = null
         try {
@@ -80,7 +80,7 @@ abstract class BaseAssertionBuilder {
         } catch (e: FlickerSubjectException) {
             assertionError = e
         }
-        return AssertionResult(name, assertionGroup, invocationGroup, assertionError)
+        return AssertionResult(name, scenario, invocationGroup, assertionError)
     }
 
     infix fun runAs(invocationGroup: AssertionInvocationGroup): BaseAssertionBuilder {

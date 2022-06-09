@@ -28,6 +28,7 @@ import com.android.server.wm.flicker.assertions.FlickerSubject
 import com.android.server.wm.flicker.dsl.AssertionTag
 import com.android.server.wm.flicker.dsl.FlickerBuilder
 import com.android.server.wm.flicker.helpers.SampleAppHelper
+import com.android.server.wm.flicker.helpers.isShellTransitionsEnabled
 import com.android.server.wm.flicker.rules.ChangeDisplayOrientationRule
 import com.android.server.wm.flicker.rules.LaunchAppRule
 import com.android.server.wm.flicker.rules.RemoveAllTasksButHomeRule
@@ -50,7 +51,7 @@ data class FlickerTestParameter(
 ) {
     private var internalFlicker: Flicker? = null
 
-    private val flicker: Flicker get() = internalFlicker ?: error("Flicker not initialized")
+    internal val flicker: Flicker get() = internalFlicker ?: error("Flicker not initialized")
     private val name: String get() = nameOverride ?: defaultName(this)
 
     internal val isInitialized: Boolean get() = internalFlicker != null
@@ -109,6 +110,13 @@ data class FlickerTestParameter(
         config[IS_TABLET] = isTablet
     }
 
+    val isFaasEnabled get() = config.getOrDefault(FAAS_ENABLED, false) as Boolean &&
+        isShellTransitionsEnabled
+
+    fun enableFaas() {
+        config[FAAS_ENABLED] = true
+    }
+
     /**
      * Clean the internal flicker reference (cache)
      */
@@ -123,7 +131,7 @@ data class FlickerTestParameter(
         internalFlicker = builder
             .withTestName { "${testName}_$name" }
             .repeat { config.getOrDefault(REPETITIONS, 1) as Int }
-            .withFlickerAsAService { config.getOrDefault(FAAS_ENABLED, false) as Boolean }
+            .withFlickerAsAService { isFaasEnabled }
             .build(TransitionRunnerWithRules(getTestSetupRules(builder.instrumentation)))
     }
 

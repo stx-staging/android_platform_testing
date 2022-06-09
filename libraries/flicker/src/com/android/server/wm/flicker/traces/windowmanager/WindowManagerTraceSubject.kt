@@ -26,8 +26,8 @@ import com.android.server.wm.traces.common.IComponentMatcher
 import com.android.server.wm.traces.common.region.RegionTrace
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 import com.android.server.wm.traces.common.windowmanager.windows.WindowState
+import com.google.common.truth.Fact
 import com.google.common.truth.FailureMetadata
-import com.google.common.truth.FailureStrategy
 import com.google.common.truth.StandardSubjectBuilder
 import com.google.common.truth.Subject
 import com.google.common.truth.Subject.Factory
@@ -58,11 +58,16 @@ import com.google.common.truth.Subject.Factory
 class WindowManagerTraceSubject private constructor(
     fm: FailureMetadata,
     val trace: WindowManagerTrace,
-    override val parent: WindowManagerTraceSubject?
+    override val parent: WindowManagerTraceSubject?,
+    private val facts: Collection<Fact>
 ) : FlickerTraceSubject<WindowManagerStateSubject>(fm, trace),
     IWindowManagerSubject<WindowManagerTraceSubject, RegionTraceSubject> {
-    override val selfFacts
-        get() = super.selfFacts.toMutableList()
+
+    override val selfFacts by lazy {
+        val allFacts = super.selfFacts.toMutableList()
+        allFacts.addAll(facts)
+        allFacts
+    }
 
     override val subjects by lazy {
         trace.entries.map { WindowManagerStateSubject.assertThat(it, this, this) }
@@ -627,9 +632,10 @@ class WindowManagerTraceSubject private constructor(
          * Boilerplate Subject.Factory for WmTraceSubject
          */
         private fun getFactory(
-            parent: WindowManagerTraceSubject?
+            parent: WindowManagerTraceSubject?,
+            facts: Collection<Fact> = emptyList()
         ): Factory<Subject, WindowManagerTrace> =
-            Factory { fm, subject -> WindowManagerTraceSubject(fm, subject, parent) }
+            Factory { fm, subject -> WindowManagerTraceSubject(fm, subject, parent, facts) }
 
         /**
          * Creates a [WindowManagerTraceSubject] representing a WindowManager trace,
@@ -641,11 +647,12 @@ class WindowManagerTraceSubject private constructor(
         @JvmOverloads
         fun assertThat(
             trace: WindowManagerTrace,
-            parent: WindowManagerTraceSubject? = null
+            parent: WindowManagerTraceSubject? = null,
+            facts: Collection<Fact> = emptyList()
         ): WindowManagerTraceSubject {
             val strategy = FlickerFailureStrategy()
             val subject = StandardSubjectBuilder.forCustomFailureStrategy(strategy)
-                .about(getFactory(parent))
+                .about(getFactory(parent, facts))
                 .that(trace) as WindowManagerTraceSubject
             strategy.init(subject)
             return subject
@@ -656,7 +663,8 @@ class WindowManagerTraceSubject private constructor(
          */
         @JvmStatic
         fun entries(
-            parent: WindowManagerTraceSubject?
-        ): Factory<Subject, WindowManagerTrace> = getFactory(parent)
+            parent: WindowManagerTraceSubject?,
+            facts: Collection<Fact>
+        ): Factory<Subject, WindowManagerTrace> = getFactory(parent, facts)
     }
 }
