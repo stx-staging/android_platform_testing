@@ -29,7 +29,7 @@ class AppLayerReduces(component: ComponentBuilder) : BaseAssertionBuilderWithCom
         transition: Transition,
         layerSubject: LayersTraceSubject
     ) {
-        val layerName = component(transition).toLayerName()
+        val layerName = component.build(transition).toLayerName()
         val layerList = layerSubject.layers { it.name.contains(layerName) && it.isVisible }
         layerList.zipWithNext { previous, current ->
             current.visibleRegion.coversAtMost(previous.visibleRegion.region)

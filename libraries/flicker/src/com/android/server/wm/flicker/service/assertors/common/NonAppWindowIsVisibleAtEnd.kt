@@ -30,6 +30,6 @@ class NonAppWindowIsVisibleAtEnd(component: ComponentBuilder) :
         transition: Transition,
         wmSubject: WindowManagerTraceSubject
     ) {
-        wmSubject.last().isNonAppWindowVisible(component(transition))
+        wmSubject.last().isNonAppWindowVisible(component.build(transition))
     }
 }

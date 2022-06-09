@@ -30,6 +30,6 @@ class LayerIsInvisibleAlways(component: ComponentBuilder) :
         transition: Transition,
         layerSubject: LayersTraceSubject
     ) {
-        layerSubject.isVisible(component(transition)).forAllEntries()
+        layerSubject.isVisible(component.build(transition)).forAllEntries()
     }
 }

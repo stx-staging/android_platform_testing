@@ -17,25 +17,29 @@
 package com.android.server.wm.flicker.service.assertors
 
 import android.content.ComponentName
-import android.view.WindowManager.TRANSIT_OPEN
 import com.android.server.wm.traces.common.ComponentMatcher
 import com.android.server.wm.traces.common.IComponentMatcher
 import com.android.server.wm.traces.common.transition.Transition
+import com.android.server.wm.traces.common.transition.Transition.Companion.Type.CLOSE
+import com.android.server.wm.traces.common.transition.Transition.Companion.Type.OPEN
 
-typealias ComponentBuilder = (t: Transition) -> IComponentMatcher
+data class ComponentBuilder(
+    val name: String,
+    val build: (t: Transition) -> IComponentMatcher
+)
 
 object Components {
 
-    val NAV_BAR = ComponentBuilder(ComponentMatcher.NAV_BAR)
-    val STATUS_BAR = ComponentBuilder(ComponentMatcher.STATUS_BAR)
-    val LAUNCHER = ComponentBuilder(ComponentMatcher.LAUNCHER)
+    val NAV_BAR = ComponentBuilder("Navbar") { ComponentMatcher.NAV_BAR }
+    val STATUS_BAR = ComponentBuilder("StatusBar") { ComponentMatcher.STATUS_BAR }
+    val LAUNCHER = ComponentBuilder("Launcher") { ComponentMatcher.LAUNCHER }
 
-    val OPENING_APP = { t: Transition -> openingAppFrom(t) }
-    val CLOSING_APP = { t: Transition -> closingAppFrom(t) }
+    val OPENING_APP = ComponentBuilder("OPENING_APP") { t: Transition -> openingAppFrom(t) }
+    val CLOSING_APP = ComponentBuilder("CLOSING_APP") { t: Transition -> closingAppFrom(t) }
 
     // TODO: Extract out common code between two functions below
     private fun openingAppFrom(transition: Transition): IComponentMatcher {
-        val openingWindows = transition.changes.filter { it.transitMode == TRANSIT_OPEN }
+        val openingWindows = transition.changes.filter { it.transitMode == OPEN }
 
         val windowNames = openingWindows.map { it.windowName }.distinct()
         if (windowNames.size > 1) {
@@ -56,7 +60,7 @@ object Components {
     }
 
     private fun closingAppFrom(transition: Transition): IComponentMatcher {
-        val closingWindows = transition.changes.filter { it.transitMode == 2 /* TRANSIT CLOSE */ }
+        val closingWindows = transition.changes.filter { it.transitMode == CLOSE }
 
         val windowNames = closingWindows.map { it.windowName }.distinct()
         if (windowNames.size > 1) {

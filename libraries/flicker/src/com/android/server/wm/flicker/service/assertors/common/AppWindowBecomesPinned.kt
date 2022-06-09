@@ -30,9 +30,9 @@ class AppWindowBecomesPinned(component: ComponentBuilder) :
         transition: Transition,
         wmSubject: WindowManagerTraceSubject
     ) {
-        wmSubject.invoke("appWindowIsNotPinned") { it.isNotPinned(component(transition)) }
+        wmSubject.invoke("appWindowIsNotPinned") { it.isNotPinned(component.build(transition)) }
             .then()
-            .invoke("appWindowIsPinned") { it.isPinned(component(transition)) }
+            .invoke("appWindowIsPinned") { it.isPinned(component.build(transition)) }
             .forAllEntries()
     }
 }

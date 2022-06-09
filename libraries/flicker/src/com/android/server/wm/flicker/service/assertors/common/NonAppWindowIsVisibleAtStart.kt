@@ -30,6 +30,6 @@ class NonAppWindowIsVisibleAtStart(component: ComponentBuilder) :
         transition: Transition,
         wmSubject: WindowManagerTraceSubject
     ) {
-        wmSubject.first().isNonAppWindowVisible(component(transition))
+        wmSubject.first().isNonAppWindowVisible(component.build(transition))
     }
 }

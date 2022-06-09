@@ -30,9 +30,9 @@ open class WindowMovesOutOfTop(component: ComponentBuilder) :
         transition: Transition,
         wmSubject: WindowManagerTraceSubject
     ) {
-        wmSubject.isAppWindowOnTop(component(transition))
+        wmSubject.isAppWindowOnTop(component.build(transition))
             .then()
-            .isAppWindowNotOnTop(component(transition))
+            .isAppWindowNotOnTop(component.build(transition))
             .forAllEntries()
     }
 }

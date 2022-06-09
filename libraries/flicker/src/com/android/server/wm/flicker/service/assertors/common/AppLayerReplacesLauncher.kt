@@ -17,8 +17,8 @@
 package com.android.server.wm.flicker.service.assertors.common
 
 import com.android.server.wm.flicker.service.assertors.ComponentBuilder
-import com.android.server.wm.flicker.service.assertors.Components
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
+import com.android.server.wm.traces.common.ComponentMatcher
 import com.android.server.wm.traces.common.transition.Transition
 
 /**
@@ -35,9 +35,9 @@ class AppLayerReplacesLauncher(component: ComponentBuilder) :
         transition: Transition,
         layerSubject: LayersTraceSubject
     ) {
-        layerSubject.isVisible(Components.LAUNCHER(transition))
+        layerSubject.isVisible(ComponentMatcher.LAUNCHER)
             .then()
-            .isVisible(component(transition))
+            .isVisible(component.build(transition))
             .forAllEntries()
     }
 }

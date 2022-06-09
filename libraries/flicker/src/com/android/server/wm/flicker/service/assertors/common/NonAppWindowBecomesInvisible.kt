@@ -31,9 +31,9 @@ open class NonAppWindowBecomesInvisible(component: ComponentBuilder) :
         transition: Transition,
         wmSubject: WindowManagerTraceSubject
     ) {
-        wmSubject.isNonAppWindowVisible(component(transition))
+        wmSubject.isNonAppWindowVisible(component.build(transition))
             .then()
-            .isNonAppWindowInvisible(component(transition))
+            .isNonAppWindowInvisible(component.build(transition))
             .forAllEntries()
     }
 }

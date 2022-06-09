@@ -30,6 +30,6 @@ class LayerIsInvisibleAtStart(component: ComponentBuilder) :
         transition: Transition,
         layerSubject: LayersTraceSubject
     ) {
-        layerSubject.first().isInvisible(component(transition))
+        layerSubject.first().isInvisible(component.build(transition))
     }
 }

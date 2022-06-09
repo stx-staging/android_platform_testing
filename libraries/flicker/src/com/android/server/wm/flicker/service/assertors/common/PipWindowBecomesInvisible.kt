@@ -34,9 +34,11 @@ class PipWindowBecomesInvisible(component: ComponentBuilder) :
     ) {
         val appComponent = component
         wmSubject.invoke("hasPipWindow") {
-            it.isPinned(appComponent(transition)).isAppWindowVisible(appComponent(transition))
+            it.isPinned(appComponent.build(transition))
+                .isAppWindowVisible(appComponent.build(transition))
         }.then().invoke("!hasPipWindow") {
-            it.isNotPinned(appComponent(transition)).isAppWindowInvisible(appComponent(transition))
+            it.isNotPinned(appComponent.build(transition))
+                .isAppWindowInvisible(appComponent.build(transition))
         }.forAllEntries()
     }
 }

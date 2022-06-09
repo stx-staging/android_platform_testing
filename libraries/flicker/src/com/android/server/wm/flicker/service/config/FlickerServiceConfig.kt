@@ -35,8 +35,8 @@ import com.android.server.wm.flicker.service.assertors.common.StatusBarLayerPosi
 import com.android.server.wm.flicker.service.assertors.common.StatusBarLayerPositionAtStart
 import com.android.server.wm.flicker.service.assertors.common.VisibleLayersShownMoreThanOneConsecutiveEntry
 import com.android.server.wm.flicker.service.assertors.common.VisibleWindowsShownMoreThanOneConsecutiveEntry
-import com.android.server.wm.flicker.service.config.AssertionInvocationGroup.NON_BLOCKING
 import com.android.server.wm.flicker.service.config.AssertionInvocationGroup.BLOCKING
+import com.android.server.wm.flicker.service.config.AssertionInvocationGroup.NON_BLOCKING
 import com.android.server.wm.traces.common.transition.Transition
 import com.android.server.wm.traces.common.transition.Transition.Companion.Type
 

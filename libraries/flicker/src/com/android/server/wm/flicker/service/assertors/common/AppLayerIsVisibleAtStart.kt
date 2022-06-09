@@ -30,6 +30,6 @@ class AppLayerIsVisibleAtStart(component: ComponentBuilder) :
         transition: Transition,
         layerSubject: LayersTraceSubject
     ) {
-        layerSubject.first().isVisible(component(transition))
+        layerSubject.first().isVisible(component.build(transition))
     }
 }

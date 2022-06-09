@@ -31,9 +31,9 @@ class LayerBecomesVisible(component: ComponentBuilder) :
         transition: Transition,
         layerSubject: LayersTraceSubject
     ) {
-        layerSubject.isInvisible(component(transition))
+        layerSubject.isInvisible(component.build(transition))
             .then()
-            .isVisible(component(transition))
+            .isVisible(component.build(transition))
             .forAllEntries()
     }
 }

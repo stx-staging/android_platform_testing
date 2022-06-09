@@ -30,6 +30,6 @@ class AppWindowIsVisibleAlways(component: ComponentBuilder) :
         transition: Transition,
         wmSubject: WindowManagerTraceSubject
     ) {
-        wmSubject.isAppWindowVisible(component(transition)).forAllEntries()
+        wmSubject.isAppWindowVisible(component.build(transition)).forAllEntries()
     }
 }

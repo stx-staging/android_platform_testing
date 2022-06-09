@@ -30,6 +30,6 @@ class NonAppWindowIsVisibleAlways(component: ComponentBuilder) :
         transition: Transition,
         wmSubject: WindowManagerTraceSubject
     ) {
-        wmSubject.isNonAppWindowVisible(component(transition)).forAllEntries()
+        wmSubject.isNonAppWindowVisible(component.build(transition)).forAllEntries()
     }
 }

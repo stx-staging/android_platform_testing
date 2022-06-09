@@ -30,6 +30,6 @@ class AppLayerIsVisibleAtEnd(component: ComponentBuilder) :
         transition: Transition,
         layerSubject: LayersTraceSubject
     ) {
-        layerSubject.last().isVisible(component(transition))
+        layerSubject.last().isVisible(component.build(transition))
     }
 }

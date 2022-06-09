@@ -18,7 +18,6 @@ package com.android.server.wm.flicker.service.assertors.common
 
 import com.android.server.wm.flicker.service.assertors.ComponentBuilder
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
-import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
 import com.android.server.wm.traces.common.ComponentMatcher
 import com.android.server.wm.traces.common.transition.Transition
 
@@ -26,18 +25,18 @@ import com.android.server.wm.traces.common.transition.Transition
  * Checks that the [ComponentMatcher.ROTATION] layer appears during the transition,
  * doesn't flicker, and disappears before the transition is complete.
  */
-class RotationLayerAppearsAndVanishes(component: ComponentBuilder)
-    : BaseAssertionBuilderWithComponent(component) {
+class RotationLayerAppearsAndVanishes(component: ComponentBuilder) :
+    BaseAssertionBuilderWithComponent(component) {
     /** {@inheritDoc} */
     override fun doEvaluate(
         transition: Transition,
         layerSubject: LayersTraceSubject
     ) {
-        layerSubject.isVisible(component(transition))
+        layerSubject.isVisible(component.build(transition))
             .then()
             .isVisible(ComponentMatcher.ROTATION)
             .then()
-            .isVisible(component(transition))
+            .isVisible(component.build(transition))
             .isInvisible(ComponentMatcher.ROTATION)
             .forAllEntries()
     }

@@ -19,6 +19,7 @@ package com.android.server.wm.flicker.service.assertors.common
 import com.android.server.wm.flicker.service.assertors.ComponentBuilder
 import com.android.server.wm.flicker.service.assertors.Components
 import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
+import com.android.server.wm.traces.common.ComponentMatcher
 import com.android.server.wm.traces.common.transition.Transition
 
 /**
@@ -32,9 +33,9 @@ class AppWindowReplacesLauncherAsTopWindow(component: ComponentBuilder) :
         transition: Transition,
         wmSubject: WindowManagerTraceSubject
     ) {
-        wmSubject.isAppWindowOnTop(Components.LAUNCHER(transition))
+        wmSubject.isAppWindowOnTop(ComponentMatcher.LAUNCHER)
             .then()
-            .isAppWindowOnTop(component(transition))
+            .isAppWindowOnTop(component.build(transition))
             .forAllEntries()
     }
 }

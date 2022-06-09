@@ -24,6 +24,9 @@ import com.android.server.wm.flicker.service.assertors.ComponentBuilder
  */
 abstract class BaseAssertionBuilderWithComponent(val component: ComponentBuilder) :
     BaseAssertionBuilder() {
+
+    override val name: String = "${this::class.java.simpleName}(${component.name})"
+
     override fun equals(assertion: Any?): Boolean {
         if (assertion !is BaseAssertionBuilderWithComponent) {
             return false

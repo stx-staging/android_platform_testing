@@ -30,6 +30,6 @@ class LayerIsInvisibleAtEnd(component: ComponentBuilder) :
         transition: Transition,
         layerSubject: LayersTraceSubject
     ) {
-        layerSubject.last().isInvisible(component(transition))
+        layerSubject.last().isInvisible(component.build(transition))
     }
 }
