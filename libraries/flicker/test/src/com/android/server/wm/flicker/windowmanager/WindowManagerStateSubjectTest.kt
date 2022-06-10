@@ -68,7 +68,7 @@ class WindowManagerStateSubjectTest {
             assertThat(trace).first().visibleRegion(IMAGINARY_COMPONENT)
         }
         assertThatErrorContainsDebugInfo(error)
-        Truth.assertThat(error).hasMessageThat().contains(IMAGINARY_COMPONENT.className)
+        Truth.assertThat(error).hasMessageThat().contains(IMAGINARY_COMPONENT.classNames.first())
         Truth.assertThat(error).hasMessageThat().contains(FlickerSubject.ASSERTION_TAG)
     }
 
@@ -279,7 +279,7 @@ class WindowManagerStateSubjectTest {
                 .containsNonAppWindow(IMAGINARY_COMPONENT)
         }
         assertFailure(failure).hasMessageThat()
-            .contains(IMAGINARY_COMPONENT.packageName)
+            .contains(IMAGINARY_COMPONENT.packageNames.first())
     }
 
     @Test
@@ -291,7 +291,7 @@ class WindowManagerStateSubjectTest {
                 .isNonAppWindowVisible(FlickerComponentName.IME)
         }
         assertFailure(failure).factValue("Is Invisible")
-            .contains(FlickerComponentName.IME.packageName)
+            .contains(FlickerComponentName.IME.packageNames.first())
     }
 
     @Test
@@ -313,7 +313,7 @@ class WindowManagerStateSubjectTest {
         }
         assertFailure(failure)
             .factValue("Found")
-            .contains(LAUNCHER_COMPONENT.packageName)
+            .contains(LAUNCHER_COMPONENT.packageNames.first())
     }
 
     @Test
@@ -342,11 +342,11 @@ class WindowManagerStateSubjectTest {
             policy = null,
             focusedApp = "",
             focusedDisplayId = 0,
-            focusedWindow = "",
+            _focusedWindow = "",
             inputMethodWindowAppToken = "",
             isHomeRecentsComponent = false,
             isDisplayFrozen = false,
-            pendingActivities = emptyArray(),
+            _pendingActivities = emptyArray(),
             root = emptyRootContainer,
             keyguardControllerState = KeyguardControllerState(
                 isAodShowing = false,

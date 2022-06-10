@@ -50,15 +50,13 @@ open class WindowManagerStateHelper @JvmOverloads constructor(
     /**
      * Predicate to supply a new UI information
      */
-    private val deviceDumpSupplier:
-        () -> DeviceStateDump<WindowManagerState, BaseLayerTraceEntry> =
-            {
-            val currState = getCurrentStateDump(instrumentation.uiAutomation)
-            DeviceStateDump(
-                currState.wmState ?: error("Unable to parse WM trace"),
-                currState.layerState ?: error("Unable to parse Layers trace")
-            )
-        },
+    private val deviceDumpSupplier: () -> DUMP = {
+        val currState = getCurrentStateDump(instrumentation.uiAutomation)
+        DeviceStateDump(
+            currState.wmState ?: error("Unable to parse WM trace"),
+            currState.layerState ?: error("Unable to parse Layers trace")
+        )
+    },
     /**
      * Number of attempts to satisfy a wait condition
      */
@@ -68,12 +66,12 @@ open class WindowManagerStateHelper @JvmOverloads constructor(
      */
     private val retryIntervalMs: Long = WaitCondition.DEFAULT_RETRY_INTERVAL_MS
 ) {
-    private var internalState: DeviceStateDump<WindowManagerState, BaseLayerTraceEntry>? = null
+    private var internalState: DUMP? = null
 
     /**
      * Queries the supplier for a new device state
      */
-    val currentState: DeviceStateDump<WindowManagerState, BaseLayerTraceEntry>
+    val currentState: DUMP
         get() {
             if (internalState == null) {
                 internalState = deviceDumpSupplier.invoke()
@@ -111,20 +109,16 @@ open class WindowManagerStateHelper @JvmOverloads constructor(
         private val conditionBuilder = createConditionBuilder()
         private var lastMessage = ""
 
-        private fun createConditionBuilder():
-            WaitCondition.Builder<DeviceStateDump<WindowManagerState, BaseLayerTraceEntry>> =
-            WaitCondition.Builder(deviceDumpSupplier, numRetries)
-                .onSuccess { updateCurrState(it) }
-                .onFailure { updateCurrState(it) }
-                .onLog { msg, isError ->
+        private fun createConditionBuilder(): WaitCondition.Builder<DUMP> =
+            WaitCondition.Builder(deviceDumpSupplier, numRetries).onSuccess { updateCurrState(it) }
+                .onFailure { updateCurrState(it) }.onLog { msg, isError ->
                     lastMessage = msg
                     if (isError) {
                         Log.e(LOG_TAG, msg)
                     } else {
                         Log.d(LOG_TAG, msg)
                     }
-                }
-                .onRetry { SystemClock.sleep(retryIntervalMs) }
+                }.onRetry { SystemClock.sleep(retryIntervalMs) }
 
         fun add(condition: Condition<DUMP>): StateSyncBuilder = apply {
             conditionBuilder.withCondition(condition)
@@ -177,9 +171,9 @@ open class WindowManagerStateHelper @JvmOverloads constructor(
             add(WindowManagerConditionsFactory.isAppTransitionIdle(Display.DEFAULT_DISPLAY))
                 .add(WindowManagerConditionsFactory.hasRotation(rotation, displayId))
 
-        fun withActivityState(activity: FlickerComponentName, activityState: String) = add(
-            Condition("state of ${activity.toActivityName()} to be $activityState") {
-                it.wmState.hasActivityState(activity.toActivityName(), activityState)
+        fun withActivityState(activity: FlickerComponentName, activityState: String) =
+            add(Condition("state of ${activity.toActivityName()} to be $activityState") {
+                it.wmState.hasActivityState(activity, activityState)
             })
 
         /**
@@ -196,7 +190,9 @@ open class WindowManagerStateHelper @JvmOverloads constructor(
 
         @JvmOverloads
         fun withAppTransitionIdle(displayId: Int = Display.DEFAULT_DISPLAY) =
-            add(WindowManagerConditionsFactory.isAppTransitionIdle(displayId))
+            withSplashScreenGone()
+                .withSnapshotGone()
+                .add(WindowManagerConditionsFactory.isAppTransitionIdle(displayId))
                 .add(WindowManagerConditionsFactory.hasLayersAnimating().negate())
 
         fun withWindowSurfaceDisappeared(component: FlickerComponentName) =
@@ -257,10 +253,9 @@ open class WindowManagerStateHelper @JvmOverloads constructor(
             add(WindowManagerConditionsFactory.isLayerVisible(SPLASH_SCREEN).negate())
                 .add(WindowManagerConditionsFactory.isAppTransitionIdle(Display.DEFAULT_DISPLAY))
 
-        fun withoutTopVisibleAppWindows() =
-            add("noAppWindowsOnTop") {
-                it.wmState.topVisibleAppWindow.isEmpty()
-            }
+        fun withoutTopVisibleAppWindows() = add("noAppWindowsOnTop") {
+            it.wmState.topVisibleAppWindow == null
+        }
 
         /**
          * Wait for the activities to appear in proper stacks and for valid state in AM and WM.
@@ -306,14 +301,17 @@ open class WindowManagerStateHelper @JvmOverloads constructor(
             var tasksInCorrectStacks = true
             for (activityState in waitForActivitiesVisible) {
                 val matchingWindowStates = state.wmState.getMatchingVisibleWindowState(
-                    activityState.windowName ?: "")
+                    activityState.activityName ?: error("Activity name missing in $activityState")
+                )
                 val activityWindowVisible = matchingWindowStates.isNotEmpty()
 
                 if (!activityWindowVisible) {
                     Log.i(LOG_TAG, "Activity window not visible: ${activityState.windowName}")
                     allActivityWindowsVisible = false
-                } else if (activityState.activityName != null &&
-                    !state.wmState.isActivityVisible(activityState.activityName.toActivityName())) {
+                } else if (activityState.activityName != null && !state.wmState.isActivityVisible(
+                        activityState.activityName
+                    )
+                ) {
                     Log.i(LOG_TAG, "Activity not visible: ${activityState.activityName}")
                     allActivityWindowsVisible = false
                 } else {

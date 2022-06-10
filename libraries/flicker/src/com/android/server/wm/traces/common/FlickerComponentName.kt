@@ -16,103 +16,97 @@
 
 package com.android.server.wm.traces.common
 
-import kotlin.text.Regex.Companion.escape
+import com.android.server.wm.traces.common.layers.Layer
+import com.android.server.wm.traces.common.windowmanager.windows.Activity
+import com.android.server.wm.traces.common.windowmanager.windows.WindowState
 
-/**
- * Create a new component identifier.
- *
- * This is a version of Android's ComponentName class for flicker. This is necessary because
- * flicker codebase it also compiled into KotlinJS for use into Winscope
- *
- * @param packageName The name of the package that the component exists in.  Can
- * not be null.
- * @param className The name of the class inside of <var>pkg</var> that
- * implements the component.  Can not be null.
- */
-data class FlickerComponentName(
-    val packageName: String,
-    val className: String
+class FlickerComponentName(
+    _components: Array<FlickerComponent>
 ) {
-    /**
-     * Obtains the activity name from the component name.
-     *
-     * See [ComponentName.toWindowName] for additional information
-     */
-    fun toActivityName(): String {
-        return when {
-            packageName.isNotEmpty() && className.isNotEmpty() -> {
-                val sb = StringBuilder(packageName.length + className.length)
-                appendShortString(sb, packageName, className)
-                return sb.toString()
+    private val components = _components.toMutableList()
+
+    val packageNames: Array<String> get() = components.map { it.packageName }.toTypedArray()
+    val classNames: Array<String> get() = components.map { it.className }.toTypedArray()
+
+    init {
+        require(_components.isNotEmpty()) { "No component specified" }
+    }
+
+    constructor(packageName: String, className: String) :
+        this(arrayOf(FlickerComponent(packageName, className)))
+
+    fun or(other: FlickerComponentName): FlickerComponentName {
+        val newComponents = components.toMutableList()
+            .also { it.addAll(other.components) }
+        return FlickerComponentName(newComponents.toTypedArray())
+    }
+
+    private fun <T> matchesAnyOf(
+        values: Array<T>,
+        valueProducer: (T) -> String,
+        regexProducer: (FlickerComponent) -> Regex,
+    ): Boolean = components
+        .map { regexProducer.invoke(it) }
+        .any { component ->
+            val targets = values.map { valueProducer.invoke(it) }
+            targets.any { value ->
+                component.matches(value)
             }
-            packageName.isNotEmpty() -> packageName
-            className.isNotEmpty() -> className
-            else -> error("Component name should have an activity of class name")
         }
-    }
-
-    /**
-     * Obtains the window name from the component name.
-     *
-     * [ComponentName] builds the string representation as PKG/CLASS, however this doesn't
-     * work for system components such as IME, NavBar and StatusBar, Toast.
-     *
-     * If the component doesn't have a package name, assume it's a system component and return only
-     * the class name
-     */
-    fun toWindowName(): String {
-        return when {
-            packageName.isNotEmpty() && className.isNotEmpty() -> "$packageName/$className"
-            packageName.isNotEmpty() -> packageName
-            className.isNotEmpty() -> className
-            else -> error("Component name should have an activity of class name")
-        }
-    }
-
-    fun toShortWindowName(): String {
-        return when {
-            packageName.isNotEmpty() && className.isNotEmpty() ->
-                "$packageName/${className.removePrefix(packageName)}"
-            packageName.isNotEmpty() -> packageName
-            className.isNotEmpty() -> className
-            else -> error("Component name should have an activity of class name")
-        }
-    }
-
-    /**
-     * Obtains the layer name from the component name.
-     *
-     * See [toWindowName] for additional information
-     */
-    fun toLayerName(): String {
-        var result = this.toWindowName()
-        if (result.contains("/") && !result.contains("#")) {
-            result = "$result#"
-        }
-
-        return result
-    }
 
     fun toActivityRecordFilter(): Regex {
-        return Regex("ActivityRecord\\{.*${escape(this.toShortWindowName())}")
+        require(components.size == 1) { "SHould have a single component, instead was $this" }
+        return components.first().toActivityRecordFilter()
     }
 
-    private fun appendShortString(sb: StringBuilder, packageName: String, className: String) {
-        sb.append(packageName).append('/')
-        appendShortClassName(sb, packageName, className)
+    fun windowMatchesAnyOf(values: WindowState): Boolean =
+        windowMatchesAnyOf(arrayOf(values))
+
+    fun windowMatchesAnyOf(values: Collection<WindowState>): Boolean =
+        windowMatchesAnyOf(values.toTypedArray())
+
+    fun windowMatchesAnyOf(values: Array<WindowState>): Boolean =
+        matchesAnyOf(values,
+            { it.title },
+            { it.toWindowNameRegex() }
+        )
+
+    fun activityMatchesAnyOf(values: Activity): Boolean =
+        activityMatchesAnyOf(arrayOf(values))
+
+    fun activityMatchesAnyOf(values: Collection<Activity>): Boolean =
+        activityMatchesAnyOf(values.toTypedArray())
+
+    fun activityMatchesAnyOf(values: Array<Activity>): Boolean =
+        matchesAnyOf(values,
+            { it.name },
+            { it.toActivityNameRegex() })
+
+    fun layerMatchesAnyOf(values: Layer): Boolean =
+        layerMatchesAnyOf(arrayOf(values))
+
+    fun layerMatchesAnyOf(values: Collection<Layer>): Boolean =
+        layerMatchesAnyOf(values.toTypedArray())
+
+    fun layerMatchesAnyOf(values: Array<Layer>): Boolean =
+        matchesAnyOf(values,
+            { it.name },
+            { it.toLayerNameRegex() }
+        )
+
+    fun toActivityName(): String = components.joinToString("or") { it.toActivityName() }
+    fun toWindowName(): String = components.joinToString("or") { it.toWindowName() }
+    fun toLayerName(): String = components.joinToString("or") { it.toLayerName() }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is FlickerComponentName) return false
+        return components == other.components
     }
 
-    private fun appendShortClassName(sb: StringBuilder, packageName: String, className: String) {
-        if (className.startsWith(packageName)) {
-            val packageNameLength = packageName.length
-            val classNameLength = className.length
-            if (classNameLength > packageNameLength && className[packageNameLength] == '.') {
-                sb.append(className, packageNameLength, classNameLength)
-                return
-            }
-        }
-        sb.append(className)
-    }
+    override fun hashCode(): Int = components.hashCode()
+
+    override fun toString(): String = components.joinToString("or")
 
     companion object {
         val NAV_BAR = FlickerComponentName("", "NavigationBar0")

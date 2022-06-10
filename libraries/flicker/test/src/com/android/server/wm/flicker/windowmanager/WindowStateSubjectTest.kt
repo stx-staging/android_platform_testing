@@ -31,24 +31,18 @@ class WindowStateSubjectTest {
     @Test
     fun exceptionContainsDebugInfoImaginary() {
         val error = assertThrows(AssertionError::class.java) {
-            WindowManagerTraceSubject.assertThat(trace)
-                    .first()
-                    .windowState(IMAGINARY_COMPONENT.className)
-                    .exists()
+            WindowManagerTraceSubject.assertThat(trace).first()
+                .windowState(IMAGINARY_COMPONENT.classNames.first()).exists()
         }
         assertThatErrorContainsDebugInfo(error)
-        Truth.assertThat(error).hasMessageThat().contains(IMAGINARY_COMPONENT.className)
+        Truth.assertThat(error).hasMessageThat().contains(IMAGINARY_COMPONENT.classNames.first())
         Truth.assertThat(error).hasMessageThat().contains("Window title")
     }
 
     @Test
     fun exceptionContainsDebugInfoConcrete() {
         val error = assertThrows(AssertionError::class.java) {
-            WindowManagerTraceSubject.assertThat(trace)
-                    .first()
-                    .subjects
-                    .first()
-                    .doesNotExist()
+            WindowManagerTraceSubject.assertThat(trace).first().subjects.first().doesNotExist()
         }
         assertThatErrorContainsDebugInfo(error)
     }

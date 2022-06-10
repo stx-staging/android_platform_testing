@@ -40,9 +40,9 @@ abstract class BaseLayerTraceEntry : ITraceEntry {
     val physicalDisplay: Display? get() = displays.firstOrNull { !it.isVirtual }
     val physicalDisplayBounds: Rect? get() = physicalDisplay?.layerStackSpace
 
-    fun getLayerWithBuffer(name: String): Layer? {
+    fun getLayerWithBuffer(component: FlickerComponentName): Layer? {
         return flattenedLayers.firstOrNull {
-            it.name.contains(name) && it.activeBuffer.isNotEmpty
+            component.layerMatchesAnyOf(it) && it.activeBuffer.isNotEmpty
         }
     }
 
@@ -57,15 +57,15 @@ abstract class BaseLayerTraceEntry : ITraceEntry {
     fun isAnimating(windowName: String = ""): Boolean {
         val layers = visibleLayers.filter { it.name.contains(windowName) }
         val layersAnimating = layers.any { layer -> !layer.transform.isSimpleRotation }
-        val pipAnimating = isVisible(FlickerComponentName.PIP_CONTENT_OVERLAY.toWindowName())
+        val pipAnimating = isVisible(FlickerComponentName.PIP_CONTENT_OVERLAY)
         return layersAnimating || pipAnimating
     }
 
     /**
      * Check if at least one window which matches provided window name is visible.
      */
-    fun isVisible(windowName: String): Boolean =
-        visibleLayers.any { it.name.contains(windowName) }
+    fun isVisible(component: FlickerComponentName): Boolean =
+        component.layerMatchesAnyOf(visibleLayers)
 
     fun asTrace(): LayersTrace = LayersTrace(arrayOf(this))
 

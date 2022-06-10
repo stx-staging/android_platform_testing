@@ -36,6 +36,7 @@ import androidx.test.uiautomator.Until
 import com.android.compatibility.common.util.SystemUtil
 import com.android.server.wm.flicker.helpers.WindowUtils.displayBounds
 import com.android.server.wm.flicker.helpers.WindowUtils.estimateNavigationBarPosition
+import com.android.server.wm.traces.common.FlickerComponentName
 import com.android.server.wm.traces.common.WindowManagerConditionsFactory
 import com.android.server.wm.traces.parser.toAndroidRect
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerStateHelper
@@ -44,7 +45,7 @@ import org.junit.Assert.assertNotNull
 
 const val FIND_TIMEOUT: Long = 10000
 const val FAST_WAIT_TIMEOUT: Long = 0
-const val DOCKED_STACK_DIVIDER = "DockedStackDivider"
+val DOCKED_STACK_DIVIDER = FlickerComponentName("", "DockedStackDivider")
 const val IME_PACKAGE = "com.google.android.inputmethod.latin"
 @VisibleForTesting
 const val SYSTEMUI_PACKAGE = "com.android.systemui"
@@ -95,8 +96,6 @@ fun UiDevice.reopenAppFromOverview(
     this.click(x, y)
 
     wmHelper.StateSyncBuilder()
-        .withSplashScreenGone()
-        .withSnapshotGone()
         .withAppTransitionIdle()
         .waitFor()
 }

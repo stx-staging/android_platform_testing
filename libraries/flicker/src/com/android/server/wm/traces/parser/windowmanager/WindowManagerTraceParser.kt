@@ -169,7 +169,7 @@ object WindowManagerTraceParser {
             policy = newWindowManagerPolicy(proto.policy),
             focusedApp = proto.focusedApp,
             focusedDisplayId = proto.focusedDisplayId,
-            focusedWindow = proto.focusedWindow?.title ?: "",
+            _focusedWindow = proto.focusedWindow?.title ?: "",
             inputMethodWindowAppToken = if (proto.inputMethodWindow != null) {
                 Integer.toHexString(proto.inputMethodWindow.hashCode)
             } else {
@@ -177,7 +177,7 @@ object WindowManagerTraceParser {
             },
             isHomeRecentsComponent = proto.rootWindowContainer.isHomeRecentsComponent,
             isDisplayFrozen = proto.displayFrozen,
-            pendingActivities = proto.rootWindowContainer.pendingActivities
+            _pendingActivities = proto.rootWindowContainer.pendingActivities
                 .map { it.title }.toTypedArray(),
             root = newRootWindowContainer(proto.rootWindowContainer),
             keyguardControllerState = newKeyguardControllerState(

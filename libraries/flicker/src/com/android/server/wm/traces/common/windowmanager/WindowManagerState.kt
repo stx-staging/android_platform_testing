@@ -16,6 +16,7 @@
 
 package com.android.server.wm.traces.common.windowmanager
 
+import com.android.server.wm.traces.common.FlickerComponentName
 import com.android.server.wm.traces.common.ITraceEntry
 import com.android.server.wm.traces.common.prettyTimestamp
 import com.android.server.wm.traces.common.windowmanager.windows.Activity
@@ -42,11 +43,11 @@ open class WindowManagerState(
     val policy: WindowManagerPolicy?,
     val focusedApp: String,
     val focusedDisplayId: Int,
-    val focusedWindow: String,
+    private val _focusedWindow: String,
     val inputMethodWindowAppToken: String,
     val isHomeRecentsComponent: Boolean,
     val isDisplayFrozen: Boolean,
-    val pendingActivities: Array<String>,
+    private val _pendingActivities: Array<String>,
     val root: RootWindowContainer,
     val keyguardControllerState: KeyguardControllerState,
     _timestamp: String = "0"
@@ -95,21 +96,25 @@ open class WindowManagerState(
         get() = windowStates
             .filter { it.isVisible }
             .filter { window ->
-                val activities = getActivitiesForWindow(window.title)
+                val activities = getActivitiesForWindow(window)
                 val activity = activities.firstOrNull { it.children.contains(window) }
                 activity?.isVisible ?: true
             }
             .toTypedArray()
     val visibleAppWindows: Array<WindowState>
         get() = visibleWindows.filter { it.isAppWindow }.toTypedArray()
-    val topVisibleAppWindow: String
-        get() = visibleAppWindows
-            .map { it.title }
-            .firstOrNull() ?: ""
+    val topVisibleAppWindow: WindowState?
+        get() = visibleAppWindows.firstOrNull()
     val pinnedWindows: Array<WindowState>
         get() = visibleWindows
             .filter { it.windowingMode == WINDOWING_MODE_PINNED }
             .toTypedArray()
+    val pendingActivities: Array<Activity> get() =
+        _pendingActivities
+            .mapNotNull { getActivity(it) }
+            .toTypedArray()
+    val focusedWindow: WindowState? get() =
+        visibleWindows.firstOrNull { it.name == _focusedWindow }
 
     /**
      * Checks if the device state supports rotation, i.e., if the rotation sensor is
@@ -119,16 +124,21 @@ open class WindowManagerState(
         get() = policy?.isFixedOrientation != true && policy?.isOrientationNoSensor != true
     val focusedDisplay: DisplayContent? get() = getDisplay(focusedDisplayId)
     val focusedStackId: Int get() = focusedDisplay?.focusedRootTaskId ?: -1
-    val focusedActivity: String get() {
+    val focusedActivity: Activity? get() {
         val focusedDisplay = focusedDisplay
-        return if (focusedDisplay != null && focusedDisplay.resumedActivity.isNotEmpty()) {
-            focusedDisplay.resumedActivity
-        } else {
-            getActivitiesForWindow(focusedWindow, focusedDisplayId).firstOrNull()?.name ?: ""
+        val focusedWindow = focusedWindow
+        return when {
+            focusedDisplay != null && focusedDisplay.resumedActivity.isNotEmpty() ->
+                getActivity(focusedDisplay.resumedActivity)
+            focusedWindow != null ->
+                getActivitiesForWindow(focusedWindow, focusedDisplayId).firstOrNull()
+            else -> null
         }
     }
-    val resumedActivities: Array<String>
-        get() = rootTasks.flatMap { it.resumedActivities.toList() }.toTypedArray()
+    val resumedActivities: Array<Activity>
+        get() = rootTasks.flatMap { it.resumedActivities.toList() }
+            .mapNotNull { getActivity(it) }
+            .toTypedArray()
     val resumedActivitiesCount: Int get() = resumedActivities.size
     val stackCount: Int get() = rootTasks.size
     val homeTask: Task? get() = getStackByActivityType(ACTIVITY_TYPE_HOME)?.topTask
@@ -136,14 +146,14 @@ open class WindowManagerState(
     val homeActivity: Activity? get() = homeTask?.activities?.lastOrNull()
     val isHomeActivityVisible: Boolean get() {
         val activity = homeActivity
-        return activity != null && isActivityVisible(activity.name)
+        return activity != null && activity.isVisible
     }
     val recentsActivity: Activity? get() = recentsTask?.activities?.lastOrNull()
     val isRecentsActivityVisible: Boolean get() {
         val activity = recentsActivity
-        return activity != null && isActivityVisible(activity.name)
+        return activity != null && activity.isVisible
     }
-    val frontWindow: String? get() = windowStates.map { it.title }.firstOrNull()
+    val frontWindow: WindowState? get() = windowStates.firstOrNull()
     val inputMethodWindowState: WindowState?
         get() = getWindowStateForAppToken(inputMethodWindowAppToken)
 
@@ -185,41 +195,66 @@ open class WindowManagerState(
                 it.windowingMode == windowingMode
         }
 
+    private fun getActivitiesForWindow(
+        windowState: WindowState,
+        displayId: Int = DEFAULT_DISPLAY
+    ): List<Activity> {
+        return displays
+            .firstOrNull { it.id == displayId }
+            ?.rootTasks
+            ?.mapNotNull { stack ->
+                stack.getActivity { activity ->
+                    activity.hasWindow(windowState)
+                }
+            } ?: emptyList()
+    }
+
     /**
      * Get the all activities on display with id [displayId], containing a window whose title
-     * contains [partialWindowTitle]
+     * contains [component]
      *
-     * @param partialWindowTitle window title to search
+     * @param component Component name to search
      * @param displayId display where to search the activity
      */
     fun getActivitiesForWindow(
-        partialWindowTitle: String,
+        component: FlickerComponentName,
         displayId: Int = DEFAULT_DISPLAY
     ): List<Activity> {
-        return displays.firstOrNull { it.id == displayId }?.rootTasks?.mapNotNull { stack ->
+        return displays
+            .firstOrNull { it.id == displayId }
+            ?.rootTasks
+            ?.mapNotNull { stack ->
             stack.getActivity { activity ->
-                activity.hasWindow(partialWindowTitle)
+                activity.hasWindow(component)
             }
         } ?: emptyList()
     }
 
-    fun containsActivity(activityName: String): Boolean =
-        rootTasks.any { it.containsActivity(activityName) }
+    fun containsActivity(component: FlickerComponentName): Boolean =
+        rootTasks.any { it.containsActivity(component) }
 
-    fun isActivityVisible(activityName: String): Boolean {
-        val activity = rootTasks.mapNotNull { it.getActivity(activityName) }.firstOrNull()
-        return activity?.isVisible ?: false
-    }
+    fun getActivity(component: FlickerComponentName): Activity? =
+        rootTasks.firstNotNullOfOrNull { it.getActivity(component) }
 
-    fun hasActivityState(activityName: String, activityState: String): Boolean =
-        rootTasks.any { it.getActivity(activityName)?.state == activityState }
+    private fun getActivity(activityName: String): Activity? =
+        rootTasks.firstNotNullOfOrNull { task ->
+            task.getActivity { activity ->
+                activity.title.contains(activityName)
+            }
+        }
 
-    fun pendingActivityContain(activityName: String): Boolean {
-        return pendingActivities.contains(activityName)
-    }
+    fun isActivityVisible(component: FlickerComponentName): Boolean =
+        getActivity(component)?.isVisible ?: false
 
-    fun getMatchingVisibleWindowState(windowName: String): Array<WindowState> {
-        return windowStates.filter { it.isSurfaceShown && it.title.contains(windowName) }
+    fun hasActivityState(component: FlickerComponentName, activityState: String): Boolean =
+        rootTasks.any { it.getActivity(component)?.state == activityState }
+
+    fun pendingActivityContain(component: FlickerComponentName): Boolean =
+        component.activityMatchesAnyOf(pendingActivities)
+
+    fun getMatchingVisibleWindowState(component: FlickerComponentName): Array<WindowState> {
+        return windowStates
+            .filter { it.isSurfaceShown && component.windowMatchesAnyOf(it) }
                 .toTypedArray()
     }
 
@@ -240,20 +275,20 @@ open class WindowManagerState(
     /**
      * Check if there exists a window record with matching windowName.
      */
-    fun containsWindow(windowName: String): Boolean =
-        windowStates.any { it.title.contains(windowName) }
+    fun containsWindow(component: FlickerComponentName): Boolean =
+        component.windowMatchesAnyOf(windowStates)
 
     /**
      * Check if at least one window which matches the specified name has shown it's surface.
      */
-    fun isWindowSurfaceShown(windowName: String): Boolean =
-            getMatchingVisibleWindowState(windowName).isNotEmpty()
+    fun isWindowSurfaceShown(component: FlickerComponentName): Boolean =
+        getMatchingVisibleWindowState(component).isNotEmpty()
 
     /**
      * Check if at least one window which matches provided window name is visible.
      */
-    fun isWindowVisible(windowName: String): Boolean =
-        visibleWindows.any { it.title == windowName }
+    fun isWindowVisible(component: FlickerComponentName): Boolean =
+        component.windowMatchesAnyOf(visibleWindows)
 
     /**
      * Checks if the state has any window in PIP mode
@@ -261,11 +296,10 @@ open class WindowManagerState(
     fun hasPipWindow(): Boolean = pinnedWindows.isNotEmpty()
 
     /**
-     * Checks that an activity [windowName] is in PIP mode
+     * Checks that an activity [component] is in PIP mode
      */
-    fun isInPipMode(windowName: String): Boolean {
-        return pinnedWindows.any { it.title.contains(windowName) }
-    }
+    fun isInPipMode(component: FlickerComponentName): Boolean =
+        component.windowMatchesAnyOf(pinnedWindows)
 
     fun getZOrder(w: WindowState): Int = windowStates.size - windowStates.indexOf(w)
 
@@ -285,7 +319,7 @@ open class WindowManagerState(
             if (focusedStackId == -1) {
                 append("No focused stack found...")
             }
-            if (focusedActivity.isEmpty()) {
+            if (focusedActivity == null) {
                 append("No focused activity found...")
             }
             if (resumedActivities.isEmpty()) {
@@ -294,7 +328,7 @@ open class WindowManagerState(
             if (windowStates.isEmpty()) {
                 append("No Windows found...")
             }
-            if (focusedWindow.isEmpty()) {
+            if (focusedWindow == null) {
                 append("No Focused Window...")
             }
             if (focusedApp.isEmpty()) {
@@ -310,8 +344,8 @@ open class WindowManagerState(
     fun isIncomplete(): Boolean {
         return rootTasks.isEmpty() || focusedStackId == -1 || windowStates.isEmpty() ||
             // overview screen has no focused window
-            ((focusedApp.isEmpty() || focusedWindow.isEmpty()) && homeActivity == null) ||
-            (focusedActivity.isEmpty() || resumedActivities.isEmpty()) &&
+            ((focusedApp.isEmpty() || focusedWindow == null) && homeActivity == null) ||
+            (focusedActivity == null || resumedActivities.isEmpty()) &&
             !keyguardControllerState.isKeyguardShowing
     }
 
@@ -357,5 +391,22 @@ open class WindowManagerState(
     }
     override fun equals(other: Any?): Boolean {
         return other is WindowManagerState && other.timestamp == this.timestamp
+    }
+
+    override fun hashCode(): Int {
+        var result = where.hashCode()
+        result = 31 * result + (policy?.hashCode() ?: 0)
+        result = 31 * result + focusedApp.hashCode()
+        result = 31 * result + focusedDisplayId
+        result = 31 * result + focusedWindow.hashCode()
+        result = 31 * result + inputMethodWindowAppToken.hashCode()
+        result = 31 * result + isHomeRecentsComponent.hashCode()
+        result = 31 * result + isDisplayFrozen.hashCode()
+        result = 31 * result + pendingActivities.contentHashCode()
+        result = 31 * result + root.hashCode()
+        result = 31 * result + keyguardControllerState.hashCode()
+        result = 31 * result + timestamp.hashCode()
+        result = 31 * result + isVisible.hashCode()
+        return result
     }
 }

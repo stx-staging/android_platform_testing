@@ -146,6 +146,12 @@ class WindowManagerStateHelperTest {
                 val wmState = iterator.next()
                 val layerList = mutableListOf(FlickerComponentName.STATUS_BAR,
                     FlickerComponentName.NAV_BAR)
+                if (wmState.isWindowVisible(FlickerComponentName.SPLASH_SCREEN)) {
+                    layerList.add(FlickerComponentName.SPLASH_SCREEN)
+                }
+                if (wmState.isWindowVisible(FlickerComponentName.SNAPSHOT)) {
+                    layerList.add(FlickerComponentName.SNAPSHOT)
+                }
                 layerList.addAll(
                     wmState.visibleWindows
                         .filter { it.name.contains("/") }
@@ -154,10 +160,10 @@ class WindowManagerStateHelperTest {
                 if (wmState.inputMethodWindowState?.isSurfaceShown == true) {
                     layerList.add(FlickerComponentName.IME)
                 }
-                val ILayerTraceEntry = LayerTraceEntryBuilder(timestamp = 0,
+                val layerTraceEntry = LayerTraceEntryBuilder(timestamp = 0,
                     displays = emptyArray(),
                     layers = createImaginaryVisibleLayers(layerList)).build()
-                DeviceStateDump(wmState, ILayerTraceEntry)
+                DeviceStateDump(wmState, layerTraceEntry)
             } else {
                 error("Reached the end of the trace")
             }
@@ -300,7 +306,7 @@ class WindowManagerStateHelperTest {
     @Test
     fun canWaitAppStateIdle() {
         val trace = readWmTraceFromFile("wm_trace_open_and_close_chrome.pb")
-        val initialTimestamp = 69443911868523
+        val initialTimestamp = 69443918698679
         val supplier = trace.asSupplier(startingTimestamp = initialTimestamp)
         val initialEntry = trace.getEntry(initialTimestamp)
         val helper = TestWindowManagerStateHelper(initialEntry, supplier,

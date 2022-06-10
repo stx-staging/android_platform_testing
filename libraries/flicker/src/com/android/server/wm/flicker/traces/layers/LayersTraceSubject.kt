@@ -239,11 +239,19 @@ class LayersTraceSubject private constructor(
         assertion: Assertion<LayerTraceEntrySubject>
     ): LayersTraceSubject = apply { addAssertion(name, isOptional, assertion) }
 
-    fun hasFrameSequence(name: String, frameNumbers: Iterable<Long>): LayersTraceSubject = apply {
+    fun hasFrameSequence(
+        name: String,
+        frameNumbers: Iterable<Long>
+    ): LayersTraceSubject = hasFrameSequence(FlickerComponentName("", name), frameNumbers)
+
+    fun hasFrameSequence(
+        component: FlickerComponentName,
+        frameNumbers: Iterable<Long>
+    ): LayersTraceSubject = apply {
         val firstFrame = frameNumbers.first()
         val entries = trace.entries.asSequence()
             // map entry to buffer layers with name
-            .map { it.getLayerWithBuffer(name) }
+            .map { it.getLayerWithBuffer(component) }
             // removing all entries without the layer
             .filterNotNull()
             // removing all entries with the same frame number
@@ -258,7 +266,7 @@ class LayersTraceSubject private constructor(
         }.all { it }
         val allFramesFound = frameNumbers.count() == numFound
         if (!allFramesFound || !frameNumbersMatch) {
-            val message = "Could not find Layer:" + name +
+            val message = "Could not find Layer:" + component.toLayerName() +
                 " with frame sequence:" + frameNumbers.joinToString(",") +
                 " Found:\n" + entries.joinToString("\n")
             fail(message)
