@@ -135,7 +135,7 @@ class LayersTraceTest {
     @Test
     fun canFilter() {
         val trace = readLayerTraceFromFile("layers_trace_openchrome.pb")
-        val splitlayersTrace = trace.filter(71607477186189, 71607812120180)
+        val splitlayersTrace = trace.slice(71607477186189, 71607812120180)
 
         Truth.assertThat(splitlayersTrace).isNotEmpty()
 
@@ -146,7 +146,7 @@ class LayersTraceTest {
     @Test
     fun canFilter_wrongTimestamps() {
         val trace = readLayerTraceFromFile("layers_trace_openchrome.pb")
-        val splitLayersTrace = trace.filter(9213763541297, 9215895891561)
+        val splitLayersTrace = trace.slice(9213763541297, 9215895891561)
 
         Truth.assertThat(splitLayersTrace).isEmpty()
     }

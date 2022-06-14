@@ -23,11 +23,14 @@ class Transition(
     val type: Type,
     val start: Long,
     val end: Long,
-    val changes: List<TransitionChange>
+    val startTransactionId: Long,
+    val finishTransactionId: Long,
+    val changes: List<TransitionChange>,
+    val aborted: Boolean
 ) : ITraceEntry {
     override val timestamp = start
 
-    val isIncomplete: Boolean get() = start == -1L || end == -1L
+    val isIncomplete: Boolean get() = start == -1L || end == -1L || aborted
 
     override fun toString(): String =
         "Transition($type, start=$start, end=$end, changes=[${changes.joinToString()}])"
@@ -61,6 +64,8 @@ class Transition(
             var end: Long = -1
             var changes: List<TransitionChange> = emptyList()
             var aborted = false
+            var startTransactionId = -1L
+            var finishTransactionId = -1L
 
             // Assumes each state is reported once
             fun addState(state: TransitionState) {
@@ -68,6 +73,8 @@ class Transition(
                     this.start = state.timestamp
                     this.changes = state.changes
                     this.type = state.type
+                    this.startTransactionId = state.startTransactionId
+                    this.finishTransactionId = state.finishTransactionId
                 }
                 if (state.state == State.ABORT) {
                     this.end = state.timestamp
@@ -79,7 +86,9 @@ class Transition(
             }
 
             fun build(): Transition {
-                return Transition(type, start, end, changes)
+                return Transition(
+                    type, start, end, startTransactionId, finishTransactionId, changes, aborted
+                )
             }
         }
     }

@@ -16,7 +16,9 @@
 
 package com.android.server.wm.traces.common.layers
 
+import android.util.Log
 import com.android.server.wm.traces.common.ITrace
+import com.android.server.wm.traces.common.transition.Transition
 
 /**
  * Contains a collection of parsed Layers trace entries and assertions to apply over a single entry.
@@ -30,7 +32,7 @@ import com.android.server.wm.traces.common.ITrace
 data class LayersTrace(
     override val entries: Array<BaseLayerTraceEntry>
 ) : ITrace<BaseLayerTraceEntry>, List<BaseLayerTraceEntry> by entries.toList() {
-    constructor(entry: BaseLayerTraceEntry): this(arrayOf(entry))
+    constructor(entry: BaseLayerTraceEntry) : this(arrayOf(entry))
 
     override fun toString(): String {
         return "LayersTrace(Start: ${entries.firstOrNull()}, " +
@@ -47,8 +49,7 @@ data class LayersTrace(
     }
 
     override fun hashCode(): Int {
-        var result = entries.contentHashCode()
-        return result
+        return entries.contentHashCode()
     }
 
     /**
@@ -58,12 +59,45 @@ data class LayersTrace(
      * @param to the end timestamp
      * @return the subtrace trace(from, to)
      */
-    fun filter(from: Long, to: Long): LayersTrace {
+    fun slice(from: Long, to: Long): LayersTrace {
         return LayersTrace(
             this.entries
                 .dropWhile { it.timestamp < from }
                 .dropLastWhile { it.timestamp > to }
                 .toTypedArray()
         )
+    }
+
+    fun transitionSlice(transition: Transition): LayersTrace? {
+        var startIndex = -1
+        for (i in 0 until entries.size) {
+            val appliedTransactionIds = entries[i].appliedTransactionIds
+            if (appliedTransactionIds.contains(transition.startTransactionId)) {
+                startIndex = i
+            }
+        }
+        if (startIndex == -1) {
+            Log.w("Flicker", "Skipping... Didn't find start layers entry for $transition.")
+            return null
+        }
+
+        var endIndex = -1
+        for (i in startIndex until entries.size) {
+            val appliedTransactionIds = entries[i].appliedTransactionIds
+            if (appliedTransactionIds.contains(transition.finishTransactionId)) {
+                endIndex = i
+            }
+        }
+
+        if (endIndex == -1) {
+            Log.w("Flicker", "Skipping... Didn't find start layers entry for $transition.")
+            return null
+        }
+
+        if (startIndex == endIndex) {
+            Log.w("Flicker", "Start and end of $transition happen in same entry.")
+        }
+
+        return LayersTrace(this.entries.slice(startIndex..endIndex).toTypedArray())
     }
 }

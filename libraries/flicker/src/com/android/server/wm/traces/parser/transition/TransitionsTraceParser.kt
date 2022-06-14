@@ -77,7 +77,8 @@ class TransitionsTraceParser {
                     val state = TransitionState(
                         transitionProto.id,
                         Type.fromInt(transitionProto.transitionType), transitionProto.timestamp,
-                        State.fromInt(transitionProto.state), transitionProto.flags, changes
+                        State.fromInt(transitionProto.state), transitionProto.flags, changes,
+                        transitionProto.startTransactionId, transitionProto.finishTransactionId
                     )
                     transitionStates.add(state)
                 }
@@ -115,7 +116,7 @@ class TransitionsTraceParser {
             val windowName = proto.windowIdentifier.title
             val windowId = proto.windowIdentifier.hashCode.toString(16)
 
-            return TransitionChange(windowName, proto.transitMode)
+            return TransitionChange(windowName, Type.fromInt(proto.transitMode))
         }
     }
 }

@@ -22,7 +22,9 @@ data class TransitionState(
     val timestamp: Long,
     val state: State,
     val flags: Int,
-    val changes: List<TransitionChange>
+    val changes: List<TransitionChange>,
+    val startTransactionId: Long,
+    val finishTransactionId: Long
 ) {
     companion object {
         enum class State(val value: Int) {

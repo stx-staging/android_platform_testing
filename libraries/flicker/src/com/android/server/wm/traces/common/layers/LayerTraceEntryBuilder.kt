@@ -21,6 +21,7 @@ package com.android.server.wm.traces.common.layers
  */
 class LayerTraceEntryBuilder(
     timestamp: Any,
+    private val appliedTransactionIds: LongArray,
     layers: Array<Layer>,
     private val displays: Array<Display>,
     private val hwcBlob: String = "",
@@ -61,8 +62,11 @@ class LayerTraceEntryBuilder(
                 return@forEach
             }
             throw RuntimeException(
-                ("Failed to parse layers trace. Found orphan layer with id = ${orphan.id}" +
-                    " with parentId = ${orphan.parentId}"))
+                (
+                    "Failed to parse layers trace. Found orphan layer with id = ${orphan.id}" +
+                        " with parentId = ${orphan.parentId}"
+                    )
+            )
         }
     }
 
@@ -190,7 +194,9 @@ class LayerTraceEntryBuilder(
         // Fail if we find orphan layers.
         notifyOrphansLayers()
 
-        return LayerTraceEntry(timestamp, hwcBlob, where, filteredDisplays.toTypedArray(),
-                filteredRoots.toTypedArray())
+        return LayerTraceEntry(
+            timestamp, appliedTransactionIds, hwcBlob, where,
+            filteredDisplays.toTypedArray(), filteredRoots.toTypedArray()
+        )
     }
 }

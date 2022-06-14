@@ -28,6 +28,7 @@ import com.android.server.wm.traces.common.RectF
  **/
 open class LayerTraceEntry constructor(
     override val timestamp: Long,
+    override val appliedTransactionIds: LongArray,
     override val hwcBlob: String,
     override val where: String,
     override val displays: Array<Display>,
@@ -42,7 +43,8 @@ open class LayerTraceEntry constructor(
         // some of the flickerlib traces are old and don't have the display data on the trace
         val mainDisplaySize = displays.firstOrNull { !it.isVirtual }?.layerStackSpace ?: Rect.EMPTY
         val roots = rootLayers.fillOcclusionState(
-            opaqueLayers, transparentLayers, mainDisplaySize.toRectF()).toMutableList()
+            opaqueLayers, transparentLayers, mainDisplaySize.toRectF()
+        ).toMutableList()
         while (roots.isNotEmpty()) {
             val layer = roots.removeAt(0)
             layers.add(layer)
@@ -53,17 +55,17 @@ open class LayerTraceEntry constructor(
 
     private fun Array<Layer>.topDownTraversal(): List<Layer> {
         return this
-                .sortedBy { it.z }
-                .flatMap { it.topDownTraversal() }
+            .sortedBy { it.z }
+            .flatMap { it.topDownTraversal() }
     }
 
     private fun Layer.topDownTraversal(): List<Layer> {
         val traverseList = mutableListOf(this)
 
         this.children.sortedBy { it.z }
-                .forEach { childLayer ->
-                    traverseList.addAll(childLayer.topDownTraversal())
-                }
+            .forEach { childLayer ->
+                traverseList.addAll(childLayer.topDownTraversal())
+            }
 
         return traverseList
     }

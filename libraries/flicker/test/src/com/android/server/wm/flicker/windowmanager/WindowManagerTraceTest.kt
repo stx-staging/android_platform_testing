@@ -18,16 +18,16 @@ package com.android.server.wm.flicker.windowmanager
 
 import com.android.server.wm.flicker.readTestFile
 import com.android.server.wm.flicker.readWmTraceFromFile
-import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 import com.android.server.wm.traces.common.windowmanager.WindowManagerState
+import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 import com.android.server.wm.traces.common.windowmanager.windows.WindowContainer
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerTraceParser
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import java.lang.reflect.Modifier
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
-import java.lang.reflect.Modifier
 
 /**
  * Contains [WindowManagerTrace] tests. To run this test: `atest
@@ -46,7 +46,7 @@ class WindowManagerTraceTest {
         assertThat(firstEntry.windowStates.size).isEqualTo(10)
         assertThat(firstEntry.visibleWindows.size).isEqualTo(5)
         assertThat(trace.entries[trace.entries.size - 1].timestamp)
-                .isEqualTo(9216093628925L)
+            .isEqualTo(9216093628925L)
     }
 
     @Test
@@ -59,7 +59,8 @@ class WindowManagerTraceTest {
     fun canParseFromDump() {
         val trace = try {
             WindowManagerTraceParser.parseFromDump(
-                readTestFile("wm_trace_dump.pb"))
+                readTestFile("wm_trace_dump.pb")
+            )
         } catch (e: Exception) {
             throw RuntimeException(e)
         }
@@ -76,8 +77,10 @@ class WindowManagerTraceTest {
             .map { kotlin.runCatching { Pair(it.name, it.get(obj)) } }
             .filter { it.isFailure }
 
-        assertWithMessage("The following properties could not be read: " +
-            propertyValues.joinToString("\n"))
+        assertWithMessage(
+            "The following properties could not be read: " +
+                propertyValues.joinToString("\n")
+        )
             .that(propertyValues)
             .isEmpty()
 
@@ -90,8 +93,10 @@ class WindowManagerTraceTest {
             .map { kotlin.runCatching { Pair(it.name, it.invoke(obj)) } }
             .filter { it.isFailure }
 
-        assertWithMessage("The following methods could not be invoked: " +
-            getterValues.joinToString("\n"))
+        assertWithMessage(
+            "The following methods could not be invoked: " +
+                getterValues.joinToString("\n")
+        )
             .that(getterValues)
             .isEmpty()
 
@@ -142,7 +147,7 @@ class WindowManagerTraceTest {
 
     @Test
     fun canFilter() {
-        val splitWmTrace = trace.filter(9215895891561, 9216093628925)
+        val splitWmTrace = trace.slice(9215895891561, 9216093628925)
 
         assertThat(splitWmTrace).isNotEmpty()
 
@@ -152,7 +157,7 @@ class WindowManagerTraceTest {
 
     @Test
     fun canFilter_wrongTimestamps() {
-        val splitWmTrace = trace.filter(71607477186189, 71607812120180)
+        val splitWmTrace = trace.slice(71607477186189, 71607812120180)
 
         assertThat(splitWmTrace).isEmpty()
     }

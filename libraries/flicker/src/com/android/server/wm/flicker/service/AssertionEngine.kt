@@ -20,7 +20,6 @@ import com.android.server.wm.flicker.service.assertors.AssertionResult
 import com.android.server.wm.flicker.service.assertors.TransitionAsserter
 import com.android.server.wm.flicker.service.config.FlickerServiceConfig
 import com.android.server.wm.traces.common.layers.LayersTrace
-import com.android.server.wm.traces.common.transition.Transition
 import com.android.server.wm.traces.common.transition.TransitionsTrace
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 
@@ -46,36 +45,14 @@ class AssertionEngine(
                 continue
             }
 
-            val (transitionWmTrace, transitionLayersTrace) =
-                splitTraces(transition, wmTrace, layersTrace)
-
             val assertionsToCheck = config.assertionsForTransition(transition)
             logger.invoke("${assertionsToCheck.size} assertions to check for $transition")
 
             val result = TransitionAsserter(assertionsToCheck, logger)
-                .analyze(transition, transitionWmTrace, transitionLayersTrace)
+                .analyze(transition, wmTrace, layersTrace)
             assertionResults.addAll(result)
         }
 
         return assertionResults
-    }
-
-    /**
-     * Splits a [WindowManagerTrace] and a [LayersTrace] by a [Transition].
-     *
-     * @param tag a list with all [TransitionTag]s
-     * @param wmTrace Window Manager trace
-     * @param layersTrace Surface Flinger trace
-     * @return a list with [WindowManagerTrace] blocks
-     */
-    fun splitTraces(
-        transition: Transition,
-        wmTrace: WindowManagerTrace,
-        layersTrace: LayersTrace
-    ): Pair<WindowManagerTrace, LayersTrace> {
-        // TODO (b/230462538): Use better synchronization mechanisms between traces
-        val filteredWmTrace = wmTrace.filter(transition.start, transition.end)
-        val filteredLayersTrace = layersTrace.filter(transition.start, transition.end)
-        return Pair(filteredWmTrace, filteredLayersTrace)
     }
 }

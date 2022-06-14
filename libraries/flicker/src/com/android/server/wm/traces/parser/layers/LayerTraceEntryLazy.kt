@@ -32,6 +32,7 @@ import com.android.server.wm.traces.common.region.Region
 
 class LayerTraceEntryLazy(
     override val timestamp: Long,
+    override val appliedTransactionIds: LongArray,
     override val hwcBlob: String = "",
     override val where: String = "",
     private val ignoreLayersStackMatchNoDisplay: Boolean = true,
@@ -44,7 +45,9 @@ class LayerTraceEntryLazy(
     private val parsedEntry by lazy {
         val layers = layerProtos.map { newLayer(it) }.toTypedArray()
         val displays = displayProtos.map { newDisplay(it) }.toTypedArray()
-        val builder = LayerTraceEntryBuilder(timestamp, layers, displays, hwcBlob, where)
+        val builder = LayerTraceEntryBuilder(
+            timestamp, appliedTransactionIds, layers, displays, hwcBlob, where
+        )
             .setOrphanLayerCallback(orphanLayerCallback)
             .ignoreLayersStackMatchNoDisplay(ignoreLayersStackMatchNoDisplay)
             .ignoreVirtualDisplay(ignoreLayersInVirtualDisplay)

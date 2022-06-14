@@ -80,8 +80,4 @@ object Components {
 
         return ComponentMatcher(closeWindowPackage, closeWindowClass)
     }
-
-    private fun ComponentBuilder(component: IComponentMatcher): ComponentBuilder {
-        return { _: Transition -> component }
-    }
 }

@@ -16,7 +16,9 @@
 
 package com.android.server.wm.traces.common.transition
 
-class TransitionChange(val windowName: String, val transitMode: Int) {
+import com.android.server.wm.traces.common.transition.Transition.Companion.Type
+
+class TransitionChange(val windowName: String, val transitMode: Type) {
 
     override fun toString(): String {
         return "TransitionChange(windowName=$windowName, transitMode=$transitMode)"

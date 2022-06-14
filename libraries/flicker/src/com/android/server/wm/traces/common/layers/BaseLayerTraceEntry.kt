@@ -29,6 +29,7 @@ abstract class BaseLayerTraceEntry : ITraceEntry {
     abstract val hwcBlob: String
     abstract val where: String
     abstract val displays: Array<Display>
+    abstract val appliedTransactionIds: LongArray
     val stableId: String get() = this::class.simpleName ?: error("Unable to determine class")
     val name: String get() = prettyTimestamp(timestamp)
 
