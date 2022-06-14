@@ -20,6 +20,7 @@ import android.util.Log
 import com.android.server.wm.flicker.service.ITracesCollector
 import com.android.server.wm.flicker.service.ITracesCollector.Companion.Traces
 import com.android.server.wm.traces.common.layers.LayersTrace
+import com.android.server.wm.traces.common.transactions.TransactionsTrace
 import com.android.server.wm.traces.common.transition.TransitionsTrace
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 
@@ -42,6 +43,12 @@ class LegacyFlickerTraceCollector : ITracesCollector {
             field = value
         }
 
+    internal var transactionsTrace: TransactionsTrace? = null
+        internal set(value) {
+            require(field == null) { "transactionsTrace already set" }
+            field = value
+        }
+
     override fun start() {
         // Nothing to do
     }
@@ -55,11 +62,13 @@ class LegacyFlickerTraceCollector : ITracesCollector {
         val wmTrace = wmTrace
         val layersTrace = layersTrace
         val transitionsTrace = transitionsTrace
+        val transactionsTrace = transactionsTrace
 
         require(wmTrace != null) { "wmTrace not set" }
         require(layersTrace != null) { "layersTrace not set" }
         require(transitionsTrace != null) { "transitionsTrace not set" }
+        require(transactionsTrace != null) { "transactionsTrace not set" }
 
-        return Traces(wmTrace, layersTrace, transitionsTrace)
+        return Traces(wmTrace, layersTrace, transitionsTrace, transactionsTrace)
     }
 }

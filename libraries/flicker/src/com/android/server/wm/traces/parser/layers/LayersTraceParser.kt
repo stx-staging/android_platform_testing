@@ -88,9 +88,9 @@ class LayersTraceParser {
                 val entryParseTime = measureTimeMillis {
                     val entry = LayerTraceEntryLazy(
                         traceProto.elapsedRealtimeNanos,
-                        traceProto.appliedTransactionIds,
                         traceProto.hwcBlob,
                         traceProto.where,
+                        traceProto.vsyncId,
                         ignoreLayersStackMatchNoDisplay,
                         ignoreLayersInVirtualDisplay,
                         traceProto.displays,
@@ -123,11 +123,11 @@ class LayersTraceParser {
         fun parseFromLegacyDump(proto: Layers.LayersProto): LayersTrace {
             val entry = LayerTraceEntryLazy(
                 timestamp = 0,
-                appliedTransactionIds = LongArray(0),
                 displayProtos = emptyArray(),
                 layerProtos = proto.layers,
                 ignoreLayersStackMatchNoDisplay = false,
-                ignoreLayersInVirtualDisplay = false
+                ignoreLayersInVirtualDisplay = false,
+                vSyncId = -1L,
             )
             return LayersTrace(entry)
         }

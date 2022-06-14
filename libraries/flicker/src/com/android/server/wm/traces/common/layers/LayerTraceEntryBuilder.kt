@@ -21,9 +21,9 @@ package com.android.server.wm.traces.common.layers
  */
 class LayerTraceEntryBuilder(
     timestamp: Any,
-    private val appliedTransactionIds: LongArray,
     layers: Array<Layer>,
     private val displays: Array<Display>,
+    private val vSyncId: Long,
     private val hwcBlob: String = "",
     private val where: String = ""
 ) {
@@ -195,8 +195,8 @@ class LayerTraceEntryBuilder(
         notifyOrphansLayers()
 
         return LayerTraceEntry(
-            timestamp, appliedTransactionIds, hwcBlob, where,
-            filteredDisplays.toTypedArray(), filteredRoots.toTypedArray()
+            timestamp, hwcBlob, where, filteredDisplays.toTypedArray(), vSyncId,
+            filteredRoots.toTypedArray()
         )
     }
 }

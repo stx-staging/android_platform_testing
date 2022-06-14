@@ -28,10 +28,10 @@ import com.android.server.wm.traces.common.RectF
  **/
 open class LayerTraceEntry constructor(
     override val timestamp: Long,
-    override val appliedTransactionIds: LongArray,
     override val hwcBlob: String,
     override val where: String,
     override val displays: Array<Display>,
+    override val vSyncId: Long,
     _rootLayers: Array<Layer>
 ) : BaseLayerTraceEntry() {
     override val flattenedLayers: Array<Layer> = fillFlattenedLayers(_rootLayers)

@@ -169,9 +169,9 @@ class WindowManagerStateHelperTest {
                 }
                 val layerTraceEntry = LayerTraceEntryBuilder(
                     timestamp = 0,
-                    lastAppliedTransactionId = -1,
                     displays = emptyArray(),
-                    layers = createImaginaryVisibleLayers(layerList)
+                    layers = createImaginaryVisibleLayers(layerList),
+                    vSyncId = -1
                 ).build()
                 DeviceStateDump(wmState, layerTraceEntry)
             } else {

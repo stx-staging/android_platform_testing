@@ -29,6 +29,7 @@ import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
 import com.android.server.wm.traces.common.layers.BaseLayerTraceEntry
 import com.android.server.wm.traces.common.layers.LayersTrace
+import com.android.server.wm.traces.common.transactions.TransactionsTrace
 import com.android.server.wm.traces.common.transition.TransitionsTrace
 import com.android.server.wm.traces.common.windowmanager.WindowManagerState
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
@@ -70,7 +71,11 @@ class FlickerRunResult private constructor(
      * A trace of all transitions that ran during the run that can be used by FaaS to determine
      * which assertion to run and on which parts of the run.
      */
-    val transitionsTrace: TransitionsTrace?
+    val transitionsTrace: TransitionsTrace?,
+    /**
+     * A trace of all the transactions that were applied during the run.
+     */
+    val transactionsTrace: TransactionsTrace?,
 ) {
     /**
      * The object responsible for managing the trace file associated with this result.
@@ -154,6 +159,7 @@ class FlickerRunResult private constructor(
         private var wmTraceData: AsyncParser<WindowManagerTraceSubject>? = null
         private var layersTraceData: AsyncParser<LayersTraceSubject>? = null
         private var transitionsTraceData: AsyncParser<TransitionsTrace>? = null
+        private var transactionsTraceData: AsyncParser<TransactionsTrace>? = null
         var screenRecording: Path? = null
 
         /**
@@ -191,6 +197,16 @@ class FlickerRunResult private constructor(
             transitionsTraceData = AsyncParser(traceFile, parser)
         }
 
+        /**
+         * Parses a [TransactionsTrace]
+         *
+         * @param traceFile of the trace file to parse
+         * @param parser lambda to parse the trace file into a [TransactionsTrace]
+         */
+        fun setTransactionsTrace(traceFile: Path, parser: (Path) -> TransactionsTrace?) {
+            transactionsTraceData = AsyncParser(traceFile, parser)
+        }
+
         private fun buildResult(
             assertionTag: String,
             wmSubject: FlickerSubject?,
@@ -198,7 +214,8 @@ class FlickerRunResult private constructor(
             status: RunStatus,
             traceFile: Path? = null,
             eventLogSubject: EventLogSubject? = null,
-            transitionsTrace: TransitionsTrace? = null
+            transitionsTrace: TransitionsTrace? = null,
+            transactionsTrace: TransactionsTrace? = null
         ): FlickerRunResult {
             val result = FlickerRunResult(
                 traceFile,
@@ -206,7 +223,8 @@ class FlickerRunResult private constructor(
                 wmSubject,
                 layersSubject,
                 eventLogSubject,
-                transitionsTrace
+                transitionsTrace,
+                transactionsTrace
             )
             result.status = status
             return result
@@ -264,11 +282,12 @@ class FlickerRunResult private constructor(
             val wmSubject = wmTraceData?.promise?.await()
             val layersSubject = layersTraceData?.promise?.await()
             val transitionsTrace = transitionsTraceData?.promise?.await()
+            val transactionsTrace = transactionsTraceData?.promise?.await()
 
             val traceFile = compress(testName, iteration)
             val traceResult = buildResult(
                 AssertionTag.ALL, wmSubject, layersSubject, transitionsTrace = transitionsTrace,
-                traceFile = traceFile, status = status
+                transactionsTrace = transactionsTrace, traceFile = traceFile, status = status
             )
             val initialStateResult = buildResult(
                 AssertionTag.START, wmSubject?.first(), layersSubject?.first(), status = status

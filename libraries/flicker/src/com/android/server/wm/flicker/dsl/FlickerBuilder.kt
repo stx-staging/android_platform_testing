@@ -28,6 +28,7 @@ import com.android.server.wm.flicker.monitor.EventLogMonitor
 import com.android.server.wm.flicker.monitor.ITransitionMonitor
 import com.android.server.wm.flicker.monitor.LayersTraceMonitor
 import com.android.server.wm.flicker.monitor.ScreenRecorder
+import com.android.server.wm.flicker.monitor.TransactionsTraceMonitor
 import com.android.server.wm.flicker.monitor.TransitionsTraceMonitor
 import com.android.server.wm.flicker.monitor.WindowManagerTraceMonitor
 import com.android.server.wm.traces.common.layers.BaseLayerTraceEntry
@@ -205,6 +206,29 @@ class FlickerBuilder private constructor(
     }
 
     /**
+     * Disable [TransactionsTraceMonitor].
+     */
+    fun withoutTransactionsTracing(): FlickerBuilder = apply {
+        withTransactionsTracing { null }
+    }
+
+    /**
+     * Configure a [TransactionsTraceMonitor] to obtain [TransactionsTrace].
+     *
+     * By default shell transition tracing is disabled.
+     */
+    fun withTransactionsTracing(
+        traceMonitor: (Path) -> TransactionsTraceMonitor?
+    ): FlickerBuilder = apply {
+        traceMonitors.removeIf { it is TransactionsTraceMonitor }
+        val newMonitor = traceMonitor(outputDir)
+
+        if (newMonitor != null) {
+            traceMonitors.add(newMonitor)
+        }
+    }
+
+    /**
      * Configure a [ScreenRecorder].
      *
      * By default the tracing is always active. To disable tracing return null
@@ -263,6 +287,7 @@ class FlickerBuilder private constructor(
     fun build(runner: TransitionRunner = TransitionRunner()): Flicker {
         if (faasEnabled) {
             traceMonitors.add(TransitionsTraceMonitor(outputDir))
+            traceMonitors.add(TransactionsTraceMonitor(outputDir))
         }
 
         return Flicker(

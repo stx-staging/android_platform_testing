@@ -17,6 +17,7 @@
 package com.android.server.wm.flicker.service
 
 import com.android.server.wm.traces.common.layers.LayersTrace
+import com.android.server.wm.traces.common.transactions.TransactionsTrace
 import com.android.server.wm.traces.common.transition.TransitionsTrace
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 
@@ -29,7 +30,8 @@ interface ITracesCollector {
         data class Traces(
             val wmTrace: WindowManagerTrace,
             val layersTrace: LayersTrace,
-            val transitionsTrace: TransitionsTrace
+            val transitionsTrace: TransitionsTrace,
+            val transactionsTrace: TransactionsTrace
         )
     }
 }

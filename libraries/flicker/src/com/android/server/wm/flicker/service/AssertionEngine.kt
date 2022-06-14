@@ -20,6 +20,7 @@ import com.android.server.wm.flicker.service.assertors.AssertionResult
 import com.android.server.wm.flicker.service.assertors.TransitionAsserter
 import com.android.server.wm.flicker.service.config.FlickerServiceConfig
 import com.android.server.wm.traces.common.layers.LayersTrace
+import com.android.server.wm.traces.common.transactions.TransactionsTrace
 import com.android.server.wm.traces.common.transition.TransitionsTrace
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 
@@ -33,7 +34,8 @@ class AssertionEngine(
     fun analyze(
         wmTrace: WindowManagerTrace,
         layersTrace: LayersTrace,
-        transitionsTrace: TransitionsTrace
+        transitionsTrace: TransitionsTrace,
+        transactionsTrace: TransactionsTrace
     ): List<AssertionResult> {
         logger.invoke("AssertionEngine#analyze")
 
@@ -49,7 +51,7 @@ class AssertionEngine(
             logger.invoke("${assertionsToCheck.size} assertions to check for $transition")
 
             val result = TransitionAsserter(assertionsToCheck, logger)
-                .analyze(transition, wmTrace, layersTrace)
+                .analyze(transition, wmTrace, layersTrace, transactionsTrace)
             assertionResults.addAll(result)
         }
 

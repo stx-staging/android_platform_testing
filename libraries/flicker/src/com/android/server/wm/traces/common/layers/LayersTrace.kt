@@ -18,6 +18,7 @@ package com.android.server.wm.traces.common.layers
 
 import android.util.Log
 import com.android.server.wm.traces.common.ITrace
+import com.android.server.wm.traces.common.transactions.TransactionsTrace
 import com.android.server.wm.traces.common.transition.Transition
 
 /**
@@ -68,10 +69,14 @@ data class LayersTrace(
         )
     }
 
-    fun transitionSlice(transition: Transition): LayersTrace? {
+    fun transitionSlice(
+        transition: Transition,
+        transactionsTrace: TransactionsTrace
+    ): LayersTrace? {
         var startIndex = -1
         for (i in 0 until entries.size) {
-            val appliedTransactionIds = entries[i].appliedTransactionIds
+            val appliedTransactionIds = transactionsTrace
+                .transactionsAppliedIn(entries[i].vSyncId).map { it.id }
             if (appliedTransactionIds.contains(transition.startTransactionId)) {
                 startIndex = i
             }
@@ -83,7 +88,8 @@ data class LayersTrace(
 
         var endIndex = -1
         for (i in startIndex until entries.size) {
-            val appliedTransactionIds = entries[i].appliedTransactionIds
+            val appliedTransactionIds = transactionsTrace
+                .transactionsAppliedIn(entries[i].vSyncId).map { it.id }
             if (appliedTransactionIds.contains(transition.finishTransactionId)) {
                 endIndex = i
             }

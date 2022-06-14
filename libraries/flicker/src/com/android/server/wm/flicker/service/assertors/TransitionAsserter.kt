@@ -19,6 +19,7 @@ package com.android.server.wm.flicker.service.assertors
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
 import com.android.server.wm.traces.common.layers.LayersTrace
+import com.android.server.wm.traces.common.transactions.TransactionsTrace
 import com.android.server.wm.traces.common.transition.Transition
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 
@@ -33,10 +34,11 @@ class TransitionAsserter(
     fun analyze(
         transition: Transition,
         wmTrace: WindowManagerTrace,
-        layersTrace: LayersTrace
+        layersTrace: LayersTrace,
+        transactionsTrace: TransactionsTrace
     ): List<AssertionResult> {
         val (wmTraceForTransition, layersTraceForTransition) =
-            splitTraces(transition, wmTrace, layersTrace)
+            splitTraces(transition, wmTrace, layersTrace, transactionsTrace)
         require(wmTraceForTransition != null || layersTraceForTransition != null)
 
         logger.invoke("Running assertions...")
@@ -88,10 +90,14 @@ class TransitionAsserter(
     private fun splitTraces(
         transition: Transition,
         wmTrace: WindowManagerTrace,
-        layersTrace: LayersTrace
+        layersTrace: LayersTrace,
+        transactionsTrace: TransactionsTrace
     ): FilteredTraces {
         var filteredWmTrace: WindowManagerTrace? = wmTrace.transitionSlice(transition)
-        var filteredLayersTrace: LayersTrace? = layersTrace.transitionSlice(transition)
+        var filteredLayersTrace: LayersTrace? = layersTrace.transitionSlice(
+                transition,
+                transactionsTrace
+        )
 
         if (filteredWmTrace?.entries?.isEmpty() == true) {
             // Empty trace, nothing to assert on the wmTrace

@@ -43,6 +43,8 @@ class FlickerServiceResultsCollector(
     private val _executionErrors = mutableListOf<Throwable>()
     val executionErrors: List<Throwable> get() = _executionErrors
 
+    internal val assertionResults = mutableListOf<AssertionResult>()
+
     init {
         setInstrumentation(instrumentation)
     }
@@ -103,8 +105,11 @@ class FlickerServiceResultsCollector(
         val flickerService = FlickerService()
         val results = flickerService.process(
             collectedTraces.wmTrace,
-            collectedTraces.layersTrace, collectedTraces.transitionsTrace
+            collectedTraces.layersTrace,
+            collectedTraces.transitionsTrace,
+            collectedTraces.transactionsTrace
         )
+        assertionResults.addAll(results)
         val aggregatedResults = processFlickerResults(results)
         collectMetrics(dataRecord, aggregatedResults)
     }

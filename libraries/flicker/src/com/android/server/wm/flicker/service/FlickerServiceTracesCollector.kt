@@ -22,9 +22,11 @@ import com.android.server.wm.flicker.monitor.TransitionsTraceMonitor
 import com.android.server.wm.flicker.monitor.WindowManagerTraceMonitor
 import com.android.server.wm.flicker.service.ITracesCollector.Companion.Traces
 import com.android.server.wm.traces.common.layers.LayersTrace
+import com.android.server.wm.traces.common.transactions.TransactionsTrace
 import com.android.server.wm.traces.common.transition.TransitionsTrace
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 import com.android.server.wm.traces.parser.layers.LayersTraceParser
+import com.android.server.wm.traces.parser.transaction.TransactionsTraceParser
 import com.android.server.wm.traces.parser.transition.TransitionsTraceParser
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerTraceParser
 import java.nio.file.Files
@@ -41,6 +43,7 @@ class FlickerServiceTracesCollector(val outputDir: Path) : ITracesCollector {
     private var wmTrace: WindowManagerTrace? = null
     private var layersTrace: LayersTrace? = null
     private var transitionsTrace: TransitionsTrace? = null
+    private var transactionsTrace: TransactionsTrace? = null
 
     override fun start() {
         reset()
@@ -65,6 +68,9 @@ class FlickerServiceTracesCollector(val outputDir: Path) : ITracesCollector {
         transitionsTrace = getTransitionsTraceFromFile(
             FlickerService.getFassFilePath(outputDir, "transition_trace")
         )
+        transactionsTrace = getTransactionsTraceFromFile(
+            FlickerService.getFassFilePath(outputDir, "transactions_trace")
+        )
     }
 
     override fun getCollectedTraces(): Traces {
@@ -72,7 +78,9 @@ class FlickerServiceTracesCollector(val outputDir: Path) : ITracesCollector {
         val layersTrace = layersTrace ?: error("Make sure tracing was stopped before calling this")
         val transitionsTrace = transitionsTrace
             ?: error("Make sure tracing was stopped before calling this")
-        return Traces(wmTrace, layersTrace, transitionsTrace)
+        val transactionsTrace = transactionsTrace
+            ?: error("Make sure tracing was stopped before calling this")
+        return Traces(wmTrace, layersTrace, transitionsTrace, transactionsTrace)
     }
 
     private fun reset() {
@@ -127,6 +135,17 @@ class FlickerServiceTracesCollector(val outputDir: Path) : ITracesCollector {
     private fun getTransitionsTraceFromFile(traceFilePath: Path): TransitionsTrace {
         val transitionsTraceByteArray: ByteArray = Files.readAllBytes(traceFilePath)
         return TransitionsTraceParser.parseFromTrace(transitionsTraceByteArray)
+    }
+
+    /**
+     * Parse the transactions trace file.
+     *
+     * @param traceFilePath
+     * @return parsed transitions trace.
+     */
+    private fun getTransactionsTraceFromFile(traceFilePath: Path): TransactionsTrace {
+        val transactionsTraceByteArray: ByteArray = Files.readAllBytes(traceFilePath)
+        return TransactionsTraceParser.parseFromTrace(transactionsTraceByteArray)
     }
 
     companion object {
