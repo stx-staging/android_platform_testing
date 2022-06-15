@@ -46,13 +46,17 @@ class FlickerMetricsCollectorRuleTest {
     @Before
     fun setup() {
         device.wakeUpAndGoToHomeScreen()
-        wmHelper.waitForHomeActivityVisible()
+        wmHelper.StateSyncBuilder()
+            .withHomeActivityVisible()
+            .waitForAndVerify()
     }
 
     @Test
     fun runAssertion() {
         device.pressHome()
-        wmHelper.waitForHomeActivityVisible()
+        wmHelper.StateSyncBuilder()
+            .withHomeActivityVisible()
+            .waitForAndVerify()
         flickerRule.checkPresubmitAssertions()
     }
 
@@ -89,12 +93,16 @@ class FlickerMetricsCollectorRuleTest {
 
     private fun openTestApp() {
         testApp.launchViaIntent(wmHelper)
-        wmHelper.waitForFullScreenApp(testApp.component)
+        wmHelper.StateSyncBuilder()
+            .withFullScreenApp(testApp.component)
+            .waitForAndVerify()
     }
 
     private fun goHome() {
         device.pressHome()
-        wmHelper.waitForHomeActivityVisible()
+        wmHelper.StateSyncBuilder()
+            .withHomeActivityVisible()
+            .waitForAndVerify()
     }
 
     private fun openAndCloseTestApp() {

@@ -29,11 +29,11 @@ import com.android.server.wm.traces.common.FlickerComponentName
 import com.android.server.wm.traces.common.Matrix33
 import com.android.server.wm.traces.common.Rect
 import com.android.server.wm.traces.common.RectF
-import com.android.server.wm.traces.common.region.Region
-import com.android.server.wm.traces.common.layers.Layer
 import com.android.server.wm.traces.common.layers.BaseLayerTraceEntry
+import com.android.server.wm.traces.common.layers.Layer
 import com.android.server.wm.traces.common.layers.LayerTraceEntryBuilder
 import com.android.server.wm.traces.common.layers.Transform
+import com.android.server.wm.traces.common.region.Region
 import com.android.server.wm.traces.common.windowmanager.WindowManagerState
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerStateHelper
@@ -131,6 +131,12 @@ class WindowManagerStateHelperTest {
         return layers.toTypedArray()
     }
 
+    /**
+     * Creates a device state dump provider based on the WM trace
+     *
+     * Alongside the SF trac,e this function creates an imaginary SF trace with visible Status
+     * and NavBar, as well as all visible non-system windows (those with name containing /)
+     */
     private fun WindowManagerTrace.asSupplier(
         startingTimestamp: Long = 0
     ): () -> DeviceStateDump<WindowManagerState, BaseLayerTraceEntry> {
@@ -140,7 +146,11 @@ class WindowManagerStateHelperTest {
                 val wmState = iterator.next()
                 val layerList = mutableListOf(FlickerComponentName.STATUS_BAR,
                     FlickerComponentName.NAV_BAR)
-
+                layerList.addAll(
+                    wmState.visibleWindows
+                        .filter { it.name.contains("/") }
+                        .map { FlickerComponentName.unflattenFromString(it.name) }
+                )
                 if (wmState.inputMethodWindowState?.isSurfaceShown == true) {
                     layerList.add(FlickerComponentName.IME)
                 }
@@ -166,7 +176,7 @@ class WindowManagerStateHelperTest {
                 .isNonAppWindowVisible(FlickerComponentName.IME)
             error("IME state should not be available")
         } catch (e: AssertionError) {
-            helper.waitImeShown()
+            helper.StateSyncBuilder().withImeShown().waitFor()
             WindowManagerStateSubject
                 .assertThat(helper.wmState)
                 .isNonAppWindowVisible(FlickerComponentName.IME)
@@ -185,7 +195,7 @@ class WindowManagerStateHelperTest {
                 .isNonAppWindowVisible(FlickerComponentName.IME)
             error("IME state should not be available")
         } catch (e: AssertionError) {
-            helper.waitImeShown()
+            helper.StateSyncBuilder().withImeShown().waitFor()
             WindowManagerStateSubject
                 .assertThat(helper.wmState)
                 .isNonAppWindowVisible(FlickerComponentName.IME)
@@ -204,7 +214,9 @@ class WindowManagerStateHelperTest {
                 .containsAppWindow(simpleAppComponentName)
             error("Chrome window should not exist in the start of the trace")
         } catch (e: AssertionError) {
-            helper.waitForVisibleWindow(simpleAppComponentName)
+            helper.StateSyncBuilder()
+                .withWindowSurfaceAppeared(simpleAppComponentName)
+                .waitFor()
             WindowManagerStateSubject
                 .assertThat(helper.wmState)
                 .isAppWindowVisible(simpleAppComponentName)
@@ -227,7 +239,9 @@ class WindowManagerStateHelperTest {
         }
 
         try {
-            helper.waitForVisibleWindow(simpleAppComponentName)
+            helper.StateSyncBuilder()
+                .withWindowSurfaceAppeared(simpleAppComponentName)
+                .waitFor()
         } catch (e: IllegalArgumentException) {
             WindowManagerStateSubject
                 .assertThat(helper.wmState)
@@ -244,11 +258,15 @@ class WindowManagerStateHelperTest {
         WindowManagerStateSubject
             .assertThat(helper.wmState)
             .isHomeActivityVisible()
-        helper.waitForVisibleWindow(chromeComponent)
+        helper.StateSyncBuilder()
+            .withWindowSurfaceAppeared(chromeComponent)
+            .waitFor()
         WindowManagerStateSubject
             .assertThat(helper.wmState)
             .isHomeActivityInvisible()
-        helper.waitForHomeActivityVisible()
+        helper.StateSyncBuilder()
+            .withHomeActivityVisible()
+            .waitFor()
         WindowManagerStateSubject
             .assertThat(helper.wmState)
             .isHomeActivityVisible()
@@ -264,11 +282,15 @@ class WindowManagerStateHelperTest {
             .assertThat(helper.wmState)
             .isHomeActivityVisible()
             .notContains(chromeComponent)
-        helper.waitForVisibleWindow(chromeComponent)
+        helper.StateSyncBuilder()
+            .withWindowSurfaceAppeared(chromeComponent)
+            .waitFor()
         WindowManagerStateSubject
             .assertThat(helper.wmState)
             .isAppWindowVisible(chromeComponent)
-        helper.waitForActivityRemoved(chromeComponent)
+        helper.StateSyncBuilder()
+            .withActivityRemoved(chromeComponent)
+            .waitFor()
         WindowManagerStateSubject
             .assertThat(helper.wmState)
             .notContains(chromeComponent)
@@ -290,7 +312,7 @@ class WindowManagerStateHelperTest {
             error("Initial state in the trace should not be valid")
         } catch (e: AssertionError) {
             Truth.assertWithMessage("App transition never became idle")
-                .that(helper.waitForAppTransitionIdle())
+                .that(helper.StateSyncBuilder().withAppTransitionIdle().waitFor())
                 .isTrue()
             WindowManagerStateSubject
                 .assertThat(helper.wmState)
@@ -307,11 +329,15 @@ class WindowManagerStateHelperTest {
         WindowManagerStateSubject
             .assertThat(helper.wmState)
             .hasRotation(Surface.ROTATION_0)
-        helper.waitForRotation(Surface.ROTATION_270)
+        helper.StateSyncBuilder()
+            .withRotation(Surface.ROTATION_270)
+            .waitFor()
         WindowManagerStateSubject
             .assertThat(helper.wmState)
             .hasRotation(Surface.ROTATION_270)
-        helper.waitForRotation(Surface.ROTATION_0)
+        helper.StateSyncBuilder()
+            .withRotation(Surface.ROTATION_0)
+            .waitFor()
         WindowManagerStateSubject
             .assertThat(helper.wmState)
             .hasRotation(Surface.ROTATION_0)
@@ -337,7 +363,9 @@ class WindowManagerStateHelperTest {
         WindowManagerStateSubject
             .assertThat(helper.wmState)
             .isRecentsActivityInvisible()
-        helper.waitForRecentsActivityVisible()
+        helper.StateSyncBuilder()
+            .withRecentsActivityVisible()
+            .waitFor()
         WindowManagerStateSubject
             .assertThat(helper.wmState)
             .isRecentsActivityVisible()

@@ -127,6 +127,8 @@ data class FlickerComponentName(
         val WALLPAPER_BBQ_WRAPPER =
                 FlickerComponentName("", "Wallpaper BBQ wrapper")
         val PIP_CONTENT_OVERLAY = FlickerComponentName("", "PipContentOverlay")
+        val LAUNCHER = FlickerComponentName("com.google.android.apps.nexuslauncher",
+            "com.google.android.apps.nexuslauncher.NexusLauncherActivity")
 
         fun unflattenFromString(str: String): FlickerComponentName {
             val sep = str.indexOf('/')

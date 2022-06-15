@@ -24,7 +24,6 @@ import android.os.RemoteException
 import android.os.SystemClock
 import android.util.Log
 import android.util.Rational
-import android.view.Display
 import android.view.Surface
 import android.view.View
 import android.view.ViewConfiguration
@@ -37,7 +36,6 @@ import androidx.test.uiautomator.Until
 import com.android.compatibility.common.util.SystemUtil
 import com.android.server.wm.flicker.helpers.WindowUtils.displayBounds
 import com.android.server.wm.flicker.helpers.WindowUtils.estimateNavigationBarPosition
-import com.android.server.wm.traces.common.FlickerComponentName
 import com.android.server.wm.traces.common.WindowManagerConditionsFactory
 import com.android.server.wm.traces.parser.toAndroidRect
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerStateHelper
@@ -96,11 +94,11 @@ fun UiDevice.reopenAppFromOverview(
     val y = this.displayHeight / 2
     this.click(x, y)
 
-    wmHelper.waitFor(
-        WindowManagerConditionsFactory.isAppTransitionIdle(Display.DEFAULT_DISPLAY),
-        WindowManagerConditionsFactory.isLayerVisible(FlickerComponentName.SNAPSHOT).negate(),
-        WindowManagerConditionsFactory.isLayerVisible(FlickerComponentName.SPLASH_SCREEN).negate()
-    )
+    wmHelper.StateSyncBuilder()
+        .withSplashScreenGone()
+        .withSnapshotGone()
+        .withAppTransitionIdle()
+        .waitFor()
 }
 
 /**
@@ -159,11 +157,10 @@ fun UiDevice.openQuickstep(
         recents = this.wait(Until.findObject(recentsSysUISelector), FIND_TIMEOUT)
     }
     assertNotNull("Recent items didn't appear", recents)
-    wmHelper.waitFor(
-        WindowManagerConditionsFactory.isNavBarVisible(),
-        WindowManagerConditionsFactory.isStatusBarVisible(),
-        WindowManagerConditionsFactory.isAppTransitionIdle(Display.DEFAULT_DISPLAY)
-    )
+    wmHelper.StateSyncBuilder()
+        .withNavBarStatusBarVisible()
+        .withAppTransitionIdle()
+        .waitForAndVerify()
 }
 
 private fun getLauncherOverviewSelector(device: UiDevice): BySelector {
@@ -253,9 +250,10 @@ fun UiDevice.launchSplitScreen(
 
     // Wait for animation to complete.
     this.wait(Until.findObject(splitScreenDividerSelector), FIND_TIMEOUT)
-    wmHelper.waitFor(
-        WindowManagerConditionsFactory.isLayerVisible(DOCKED_STACK_DIVIDER),
-        WindowManagerConditionsFactory.isAppTransitionIdle(Display.DEFAULT_DISPLAY))
+    wmHelper.StateSyncBuilder()
+        .add(WindowManagerConditionsFactory.isLayerVisible(DOCKED_STACK_DIVIDER))
+        .withAppTransitionIdle()
+        .waitForAndVerify()
 
     if (!this.isInSplitScreen()) {
         Assert.fail("Unable to find Split screen divider")
@@ -283,10 +281,11 @@ fun UiDevice.isInSplitScreen(): Boolean {
     return this.wait(Until.findObject(splitScreenDividerSelector), FIND_TIMEOUT) != null
 }
 
-fun waitSplitScreenGone(wmHelper: WindowManagerStateHelper): Boolean {
-    return wmHelper.waitFor(
-        WindowManagerConditionsFactory.isLayerVisible(DOCKED_STACK_DIVIDER),
-        WindowManagerConditionsFactory.isAppTransitionIdle(Display.DEFAULT_DISPLAY))
+fun waitSplitScreenGone(wmHelper: WindowManagerStateHelper) {
+    return wmHelper.StateSyncBuilder()
+        .add(WindowManagerConditionsFactory.isLayerVisible(DOCKED_STACK_DIVIDER).negate())
+        .withAppTransitionIdle()
+        .waitForAndVerify()
 }
 
 private val splitScreenDividerSelector: BySelector
@@ -330,9 +329,7 @@ fun UiDevice.exitSplitScreenFromBottom(wmHelper: WindowManagerStateHelper) {
         Point(this.displayWidth / 2, this.displayHeight)
     }
     divider.drag(dstPoint, 400)
-    if (!waitSplitScreenGone(wmHelper)) {
-        Assert.fail("Split screen divider never disappeared")
-    }
+    waitSplitScreenGone(wmHelper)
 }
 
 /**

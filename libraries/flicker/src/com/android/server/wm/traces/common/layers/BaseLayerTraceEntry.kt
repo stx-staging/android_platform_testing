@@ -18,6 +18,7 @@ package com.android.server.wm.traces.common.layers
 
 import com.android.server.wm.traces.common.FlickerComponentName
 import com.android.server.wm.traces.common.ITraceEntry
+import com.android.server.wm.traces.common.Rect
 import com.android.server.wm.traces.common.prettyTimestamp
 
 abstract class BaseLayerTraceEntry : ITraceEntry {
@@ -35,6 +36,9 @@ abstract class BaseLayerTraceEntry : ITraceEntry {
     val isVisible: Boolean = true
     val children: Array<Layer>
         get() = flattenedLayers.filter { it.isRootLayer }.toTypedArray()
+
+    val physicalDisplay: Display? get() = displays.firstOrNull { !it.isVirtual }
+    val physicalDisplayBounds: Rect? get() = physicalDisplay?.layerStackSpace
 
     fun getLayerWithBuffer(name: String): Layer? {
         return flattenedLayers.firstOrNull {
