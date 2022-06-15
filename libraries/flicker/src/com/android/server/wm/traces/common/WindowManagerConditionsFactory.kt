@@ -16,8 +16,8 @@
 
 package com.android.server.wm.traces.common
 
-import com.android.server.wm.traces.common.layers.Layer
 import com.android.server.wm.traces.common.layers.BaseLayerTraceEntry
+import com.android.server.wm.traces.common.layers.Layer
 import com.android.server.wm.traces.common.layers.Transform
 import com.android.server.wm.traces.common.layers.Transform.Companion.isFlagSet
 import com.android.server.wm.traces.common.service.PlatformConsts
@@ -94,8 +94,11 @@ object WindowManagerConditionsFactory {
         }
 
     fun isHomeActivityVisible(): Condition<DUMP> =
-        Condition("isHomeActivityVisible") {
-            it.wmState.homeActivity?.isVisible == true
+        Condition("isHomeActivityVisible") { it.wmState.isHomeActivityVisible }
+
+    fun isRecentsActivityVisible(): Condition<DUMP> =
+        Condition("isRecentsActivityVisible") {
+            it.wmState.isHomeActivityVisible || it.wmState.isRecentsActivityVisible
         }
 
     fun isAppTransitionIdle(

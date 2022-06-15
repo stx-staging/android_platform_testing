@@ -134,8 +134,15 @@ open class WindowManagerState(
     val homeTask: Task? get() = getStackByActivityType(ACTIVITY_TYPE_HOME)?.topTask
     val recentsTask: Task? get() = getStackByActivityType(ACTIVITY_TYPE_RECENTS)?.topTask
     val homeActivity: Activity? get() = homeTask?.activities?.lastOrNull()
+    val isHomeActivityVisible: Boolean get() {
+        val activity = homeActivity
+        return activity != null && isActivityVisible(activity.name)
+    }
     val recentsActivity: Activity? get() = recentsTask?.activities?.lastOrNull()
-    val isRecentsActivityVisible: Boolean get() = recentsActivity?.isVisible ?: false
+    val isRecentsActivityVisible: Boolean get() {
+        val activity = recentsActivity
+        return activity != null && isActivityVisible(activity.name)
+    }
     val frontWindow: String? get() = windowStates.map { it.title }.firstOrNull()
     val inputMethodWindowState: WindowState?
         get() = getWindowStateForAppToken(inputMethodWindowAppToken)

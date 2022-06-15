@@ -24,21 +24,21 @@ import android.os.SystemClock
 import android.util.Log
 import android.view.Display
 import androidx.test.platform.app.InstrumentationRegistry
-import com.android.server.wm.traces.common.windowmanager.windows.ConfigurationContainer
-import com.android.server.wm.traces.common.windowmanager.windows.WindowContainer
-import com.android.server.wm.traces.common.windowmanager.windows.WindowState
+import com.android.server.wm.flicker.LAUNCHER_COMPONENT
 import com.android.server.wm.traces.common.Condition
 import com.android.server.wm.traces.common.ConditionList
 import com.android.server.wm.traces.common.DeviceStateDump
 import com.android.server.wm.traces.common.FlickerComponentName
 import com.android.server.wm.traces.common.FlickerComponentName.Companion.IME
 import com.android.server.wm.traces.common.FlickerComponentName.Companion.SNAPSHOT
-import com.android.server.wm.traces.parser.LOG_TAG
 import com.android.server.wm.traces.common.WaitCondition
-import com.android.server.wm.traces.common.layers.BaseLayerTraceEntry
 import com.android.server.wm.traces.common.WindowManagerConditionsFactory
+import com.android.server.wm.traces.common.layers.BaseLayerTraceEntry
 import com.android.server.wm.traces.common.region.Region
 import com.android.server.wm.traces.common.windowmanager.WindowManagerState
+import com.android.server.wm.traces.common.windowmanager.windows.ConfigurationContainer
+import com.android.server.wm.traces.common.windowmanager.windows.WindowState
+import com.android.server.wm.traces.parser.LOG_TAG
 import com.android.server.wm.traces.parser.getCurrentStateDump
 
 open class WindowManagerStateHelper @JvmOverloads constructor(
@@ -113,8 +113,7 @@ open class WindowManagerStateHelper @JvmOverloads constructor(
         "Expected home activity to be visible"
     }
 
-    fun waitForRecentsActivityVisible() = require(
-        waitFor("isRecentsActivityVisible") { it.wmState.isRecentsActivityVisible }) {
+    fun waitForRecentsActivityVisible() = require(waitFor(isRecentsActivityVisible)) {
         "Expected recents activity to be visible"
     }
 
@@ -251,9 +250,18 @@ open class WindowManagerStateHelper @JvmOverloads constructor(
         @JvmStatic
         val isHomeActivityVisible = ConditionList(
             WindowManagerConditionsFactory.isHomeActivityVisible(),
+            WindowManagerConditionsFactory.isLayerVisible(LAUNCHER_COMPONENT),
             WindowManagerConditionsFactory.isAppTransitionIdle(Display.DEFAULT_DISPLAY),
+            WindowManagerConditionsFactory.hasLayersAnimating().negate(),
             WindowManagerConditionsFactory.isNavBarVisible(),
             WindowManagerConditionsFactory.isStatusBarVisible())
+
+        @JvmStatic
+        val isRecentsActivityVisible = ConditionList(
+            WindowManagerConditionsFactory.isRecentsActivityVisible(),
+            WindowManagerConditionsFactory.isLayerVisible(LAUNCHER_COMPONENT),
+            WindowManagerConditionsFactory.isAppTransitionIdle(Display.DEFAULT_DISPLAY),
+            WindowManagerConditionsFactory.hasLayersAnimating().negate())
 
         @JvmStatic
         val imeGoneCondition = ConditionList(
