@@ -103,11 +103,14 @@ open class WindowManagerStateHelper @JvmOverloads constructor(
     private fun waitForValidState(vararg waitForActivityState: WaitForValidActivityState) =
         waitFor(waitForValidStateCondition(*waitForActivityState))
 
-    fun waitForFullScreenApp(component: FlickerComponentName) =
-        require(
-        waitFor(isAppFullScreen(component), snapshotGoneCondition)) {
-        "Expected ${component.toWindowName()} to be in full screen"
-    }
+    fun waitForFullScreenApp(component: FlickerComponentName) = require(
+        waitFor(isAppFullScreen(component),
+            snapshotGoneCondition,
+            WindowManagerConditionsFactory.isLayerVisible(component),
+            WindowManagerConditionsFactory.hasLayersAnimating().negate(),
+            WindowManagerConditionsFactory.isAppTransitionIdle(Display.DEFAULT_DISPLAY)
+        )
+    ) { "Expected ${component.toWindowName()} to be in full screen" }
 
     fun waitForHomeActivityVisible() = require(waitFor(isHomeActivityVisible)) {
         "Expected home activity to be visible"
