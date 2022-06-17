@@ -173,19 +173,9 @@ open class WindowManagerStateHelper @JvmOverloads constructor(
          * Wait for specific rotation for the default display. Values are Surface#Rotation
          */
         @JvmOverloads
-        fun withRotation(rotation: Int, displayId: Int = Display.DEFAULT_DISPLAY) = apply {
+        fun withRotation(rotation: Int, displayId: Int = Display.DEFAULT_DISPLAY) =
             add(WindowManagerConditionsFactory.isAppTransitionIdle(Display.DEFAULT_DISPLAY))
-            add(
-                Condition("waitForRotation[$rotation]") {
-                    if (!it.wmState.canRotate) {
-                        Log.v(LOG_TAG, "Rotation is not allowed in the state")
-                        true
-                    } else {
-                        WindowManagerConditionsFactory.hasRotation(rotation, displayId)
-                            .isSatisfied(it)
-                    }
-                })
-        }
+                .add(WindowManagerConditionsFactory.hasRotation(rotation, displayId))
 
         fun withActivityState(activity: FlickerComponentName, activityState: String) = add(
             Condition("state of ${activity.toActivityName()} to be $activityState") {

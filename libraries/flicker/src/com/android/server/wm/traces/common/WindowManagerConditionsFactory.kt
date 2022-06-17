@@ -101,12 +101,20 @@ object WindowManagerConditionsFactory {
             it.wmState.isHomeActivityVisible || it.wmState.isRecentsActivityVisible
         }
 
+    /**
+     * Condition to check if WM app transition is idle
+     *
+     * Because in shell transitions, active recents animation is running transition (never idle)
+     * this method always assumed recents are idle
+     */
     fun isAppTransitionIdle(
         displayId: Int
     ): Condition<DUMP> =
         Condition("isAppTransitionIdle[$displayId]") {
-            it.wmState.getDisplay(displayId)
-                ?.appTransitionState == WindowManagerState.APP_STATE_IDLE
+            it.wmState.isHomeActivityVisible ||
+                it.wmState.isRecentsActivityVisible ||
+                it.wmState.getDisplay(displayId)
+                    ?.appTransitionState == WindowManagerState.APP_STATE_IDLE
         }
 
     fun containsActivity(
