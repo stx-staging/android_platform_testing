@@ -106,10 +106,7 @@ class Flicker(
     )
 
     var result: FlickerResult? = null
-        private set(value) {
-            require(value != null) { "Can't set null result" }
-            field = value
-        }
+        private set
 
     /**
      * Executes the test transition.
@@ -119,33 +116,6 @@ class Flicker(
     fun execute(): Flicker = apply {
         val result = runner.execute(this)
         this.result = result
-        checkHasSuccessfullyExecutedATransitionRun()
-    }
-
-    /**
-     * Asserts if at least a run of the transition of this flicker test has been executed
-     * successfully, indicating that there is something the run the assertions on.
-     */
-    private fun checkHasSuccessfullyExecutedATransitionRun() {
-        val result = result
-        if (result == null) {
-            execute()
-        } else {
-            if (result.successfulRuns.isEmpty()) {
-                // Only throw the execution exception here if there are no successful transition
-                // runs, otherwise we want to execute the assertions on the successful runs and only
-                // throw the exception after we have collected the transition assertion data, in
-                // which case the execution exception will be thrown in the
-                // result.checkForExecutionErrors() call in this.clear().
-                val executionError = if (result.executionErrors.size == 1) {
-                    result.executionErrors[0]
-                } else {
-                    result.combinedExecutionError
-                }
-
-                throw executionError
-            }
-        }
     }
 
     /**
@@ -155,9 +125,25 @@ class Flicker(
      * @throws AssertionError If the assertions fail or the transition crashed
      */
     fun checkAssertion(assertion: AssertionData) {
-        checkHasSuccessfullyExecutedATransitionRun()
+        if (result == null) {
+            execute()
+        }
+
         val result = result
+
         requireNotNull(result)
+        if (result.successfulRuns.isEmpty()) {
+            // No successful transition runs so can't check assertions against anything
+            // Any execution errors that lead to having no successful runs will be reported
+            // appropriately by the FlickerBlockJUnit4ClassRunner.
+            if (result.executionErrors.isEmpty()) {
+                // If there are no execution errors we want to throw an error here since we won't
+                // fail later in the FlickerBlockJUnit4ClassRunner.
+                throw Exception(
+                        "No transition runs were successful executed! Can't check assertion.")
+            }
+            return
+        }
 
         val failures = result.checkAssertion(assertion)
         if (failures.isNotEmpty()) {
@@ -166,14 +152,14 @@ class Flicker(
     }
 
     /**
-     * Saves the traces files assertions were run on, clears the cached runner results, and assert
-     * any error that occurred when executing the transitions.
+     * Saves the traces files assertions were run on, clears the cached runner results.
      */
     fun clear() {
         Log.v(FLICKER_TAG, "Cleaning up spec $testName")
         runner.cleanUp()
-        result?.checkForExecutionErrors()
         result = null
+        faasTracesCollector.stop()
+        faasTracesCollector.clear()
     }
 
     /**

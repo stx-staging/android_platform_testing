@@ -21,6 +21,7 @@ import android.device.collectors.BaseMetricListener
 import android.device.collectors.DataRecord
 import android.util.Log
 import androidx.test.platform.app.InstrumentationRegistry
+import com.android.server.wm.flicker.TransitionRunner.Companion.ExecutionError
 import com.android.server.wm.flicker.service.assertors.AssertionResult
 import com.android.server.wm.flicker.service.config.AssertionInvocationGroup
 import java.nio.file.Path
@@ -40,8 +41,8 @@ class FlickerServiceResultsCollector(
     private var criticalUserJourneyName: String = UNDEFINED_CUJ
     private var collectMetricsPerTest = true
 
-    private val _executionErrors = mutableListOf<Throwable>()
-    val executionErrors: List<Throwable> get() = _executionErrors
+    private val _executionErrors = mutableListOf<ExecutionError>()
+    val executionErrors: List<ExecutionError> get() = _executionErrors
 
     internal val assertionResults = mutableListOf<AssertionResult>()
 
@@ -53,7 +54,7 @@ class FlickerServiceResultsCollector(
         try {
             function()
         } catch (e: Throwable) {
-            _executionErrors.add(e)
+            _executionErrors.add(ExecutionError(e))
         }
     }
 

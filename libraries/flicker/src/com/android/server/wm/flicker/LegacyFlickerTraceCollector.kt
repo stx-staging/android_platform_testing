@@ -25,36 +25,42 @@ import com.android.server.wm.traces.common.transition.TransitionsTrace
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 
 class LegacyFlickerTraceCollector : ITracesCollector {
+    private var stopped: Boolean = true
+
     internal var wmTrace: WindowManagerTrace? = null
         internal set(value) {
-            require(field == null) { "wmTrace already set" }
+            require(stopped || field == null) { "wmTrace already set" }
             field = value
         }
 
     internal var layersTrace: LayersTrace? = null
         internal set(value) {
-            require(field == null) { "layersTrace already set" }
+            require(stopped || field == null) { "layersTrace already set" }
             field = value
         }
 
     internal var transitionsTrace: TransitionsTrace? = null
         internal set(value) {
-            require(field == null) { "transitionsTrace already set" }
+            require(stopped || field == null) { "transitionsTrace already set" }
             field = value
         }
 
     internal var transactionsTrace: TransactionsTrace? = null
         internal set(value) {
-            require(field == null) { "transactionsTrace already set" }
+            require(stopped || field == null) { "transactionsTrace already set" }
             field = value
         }
 
     override fun start() {
-        // Nothing to do
+        stopped = false
+        require(wmTrace == null) { "wmTrace should not already be set" }
+        require(layersTrace == null) { "layersTrace should not already be set" }
+        require(transitionsTrace == null) { "transitionsTrace should not already be set" }
+        require(transactionsTrace == null) { "transactionsTrace should not already be set" }
     }
 
     override fun stop() {
-        // Nothing to do
+        stopped = true
     }
 
     override fun getCollectedTraces(): Traces {
@@ -69,6 +75,15 @@ class LegacyFlickerTraceCollector : ITracesCollector {
         require(transitionsTrace != null) { "transitionsTrace not set" }
         require(transactionsTrace != null) { "transactionsTrace not set" }
 
+        clear()
+
         return Traces(wmTrace, layersTrace, transitionsTrace, transactionsTrace)
+    }
+
+    internal fun clear() {
+        wmTrace = null
+        layersTrace = null
+        transitionsTrace = null
+        transactionsTrace = null
     }
 }

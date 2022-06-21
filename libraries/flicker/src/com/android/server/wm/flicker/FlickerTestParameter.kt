@@ -57,6 +57,9 @@ data class FlickerTestParameter(
     internal val isInitialized: Boolean get() = internalFlicker != null
     internal val result: FlickerResult? get() = internalFlicker?.result
 
+    @VisibleForTesting
+    val currentIteration: Int get() = flicker.runner.iteration
+
     /**
      * If the initial screen rotation is 90 (landscape) or 180 (seascape) degrees
      */

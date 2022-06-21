@@ -50,7 +50,8 @@ open class TransitionRunner {
     /**
      * Iteration identifier during test run
      */
-    private var iteration = 0
+    internal var iteration = 0
+        private set
     private val tags = mutableSetOf<String>()
     private var tagsResults = mutableListOf<FlickerRunResult>()
 
