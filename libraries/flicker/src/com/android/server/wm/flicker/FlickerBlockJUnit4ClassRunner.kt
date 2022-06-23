@@ -27,12 +27,26 @@ import com.android.server.wm.flicker.service.FlickerTestCase
 import com.android.server.wm.flicker.service.assertors.AssertionResult
 import com.android.server.wm.flicker.service.config.AssertionInvocationGroup
 import java.lang.reflect.Modifier
+import java.util.Collections
+import java.util.concurrent.locks.Lock
+import java.util.concurrent.locks.ReentrantLock
+import org.junit.FixMethodOrder
 import org.junit.Test
+import org.junit.internal.AssumptionViolatedException
+import org.junit.internal.runners.model.EachTestNotifier
 import org.junit.internal.runners.statements.RunAfters
+import org.junit.runner.Description
+import org.junit.runner.manipulation.Filter
+import org.junit.runner.manipulation.InvalidOrderingException
+import org.junit.runner.manipulation.NoTestsRemainException
+import org.junit.runner.manipulation.Orderer
+import org.junit.runner.manipulation.Sorter
 import org.junit.runner.notification.RunNotifier
+import org.junit.runner.notification.StoppedByUserException
 import org.junit.runners.Parameterized
 import org.junit.runners.model.FrameworkField
 import org.junit.runners.model.FrameworkMethod
+import org.junit.runners.model.RunnerScheduler
 import org.junit.runners.model.Statement
 import org.junit.runners.model.TestClass
 import org.junit.runners.parameterized.BlockJUnit4ClassRunnerWithParameters
@@ -65,9 +79,89 @@ class FlickerBlockJUnit4ClassRunner @JvmOverloads constructor(
     // null parses to false (so defaults to running all FaaS tests)
     private val isBlockingTest = arguments.getString("faas:blocking").toBoolean()
 
+    override fun run(notifier: RunNotifier) {
+        val testNotifier = EachTestNotifier(notifier, description)
+        testNotifier.fireTestSuiteStarted()
+        try {
+            val statement = classBlock(notifier)
+            statement.evaluate()
+        } catch (e: AssumptionViolatedException) {
+            testNotifier.addFailedAssumption(e)
+        } catch (e: StoppedByUserException) {
+            throw e
+        } catch (e: Throwable) {
+            testNotifier.addFailure(e)
+        } finally {
+            testNotifier.fireTestSuiteFinished()
+        }
+    }
+
+    /**
+     * Implementation of Filterable and Sortable
+     * Based on JUnit's ParentRunner implementation but with a minor modification to ensure injected
+     * FaaS tests are not filtered out.
+     */
+    @Throws(NoTestsRemainException::class)
+    override fun filter(filter: Filter) {
+        childrenLock.lock()
+        try {
+            val children: MutableList<FrameworkMethod> = getFilteredChildren().toMutableList()
+            val iter: MutableIterator<FrameworkMethod> = children.iterator()
+            while (iter.hasNext()) {
+                val each: FrameworkMethod = iter.next()
+                if (isInjectedFaasTest(each)) {
+                    // Don't filter out injected FaaS tests
+                    continue
+                }
+                if (shouldRun(filter, each)) {
+                    try {
+                        filter.apply(each)
+                    } catch (e: NoTestsRemainException) {
+                        iter.remove()
+                    }
+                } else {
+                    iter.remove()
+                }
+            }
+            filteredChildren = Collections.unmodifiableList(children)
+            if (filteredChildren!!.isEmpty()) {
+                throw NoTestsRemainException()
+            }
+        } finally {
+            childrenLock.unlock()
+        }
+    }
+
+    private fun isInjectedFaasTest(method: FrameworkMethod): Boolean {
+        return method is FlickerFrameworkMethod
+    }
+
+    /**
+     * Implementation of ParentRunner based on BlockJUnit4ClassRunner.
+     * Modified to report Flicker execution errors in the test results.
+     */
+    override fun runChild(method: FrameworkMethod?, notifier: RunNotifier) {
+        val description = describeChild(method)
+        if (isIgnored(method)) {
+            notifier.fireTestIgnored(description)
+        } else {
+            val statement: Statement = object : Statement() {
+                @Throws(Throwable::class)
+                override fun evaluate() {
+                    methodBlock(method).evaluate()
+                    // Report all the execution errors collected during the Flicker setup and
+                    // transition execution
+                    flickerTestParameter!!.result!!.checkForExecutionErrors()
+                }
+            }
+            runLeaf(statement, description, notifier)
+        }
+    }
+
     /**
      * {@inheritDoc}
      */
+    @Deprecated("Deprecated in Java")
     override fun validateInstanceMethods(errors: MutableList<Throwable>) {
         validateFlickerObject(errors)
         super.validateInstanceMethods(errors)
@@ -78,16 +172,12 @@ class FlickerBlockJUnit4ClassRunner @JvmOverloads constructor(
      * Is ran after validateInstanceMethods, so flickerBuilderProviderMethod should be set.
      */
     override fun computeTestMethods(): List<FrameworkMethod> {
-        return computeTests()
-    }
-
-    private fun computeTests(): MutableList<FrameworkMethod> {
         val tests = mutableListOf<FrameworkMethod>()
         tests.addAll(super.computeTestMethods())
 
         // Don't compute when called from validateInstanceMethods since this will fail
         // as the parameters will not be set. And AndroidLogOnlyBuilder is a non-executing runner
-        // used to run tests in dry-run mode so we don't want to execute in flicker transition in
+        // used to run tests in dry-run mode, so we don't want to execute in flicker transition in
         // that case either.
         val stackTrace = Thread.currentThread().stackTrace
         if (stackTrace.none { it.methodName == "validateInstanceMethods" } &&
@@ -293,14 +383,6 @@ class FlickerBlockJUnit4ClassRunner @JvmOverloads constructor(
         return testClass.getAnnotatedFields(Parameterized.Parameter::class.java)
     }
 
-    private fun getInjectionType(): String {
-        return if (fieldsAreAnnotated()) {
-            "FIELD"
-        } else {
-            "CONSTRUCTOR"
-        }
-    }
-
     private fun fieldsAreAnnotated(): Boolean {
         return !getAnnotatedFieldsByParameter().isEmpty()
     }
@@ -318,4 +400,148 @@ class FlickerBlockJUnit4ClassRunner @JvmOverloads constructor(
         }
         return aggregatedResults
     }
+
+/**********************************************************************************************
+ * START
+ * of code copied from ParentRunner to have local access to filteredChildren to ensure
+ * FaaS injected tests are not filtered out.
+ */
+
+    // Guarded by childrenLock
+    @Volatile
+    private var filteredChildren: List<FrameworkMethod>? = null
+    private val childrenLock: Lock = ReentrantLock()
+
+    @Volatile
+    private var scheduler: RunnerScheduler = object : RunnerScheduler {
+        override fun schedule(childStatement: Runnable) {
+            childStatement.run()
+        }
+
+        override fun finished() {
+            // do nothing
+        }
+    }
+
+    /**
+     * Sets a scheduler that determines the order and parallelization
+     * of children.  Highly experimental feature that may change.
+     */
+    override fun setScheduler(scheduler: RunnerScheduler) {
+        this.scheduler = scheduler
+    }
+
+    private fun shouldRun(filter: Filter, each: FrameworkMethod): Boolean {
+        return filter.shouldRun(describeChild(each))
+    }
+
+    override fun sort(sorter: Sorter) {
+        if (shouldNotReorder()) {
+            return
+        }
+        childrenLock.lock()
+        filteredChildren = try {
+            for (each in getFilteredChildren()) {
+                sorter.apply(each)
+            }
+            val sortedChildren: List<FrameworkMethod> =
+                    ArrayList<FrameworkMethod>(getFilteredChildren())
+            Collections.sort(sortedChildren, comparator(sorter))
+            Collections.unmodifiableList(sortedChildren)
+        } finally {
+            childrenLock.unlock()
+        }
+    }
+
+    /**
+     * Implementation of [Orderable.order].
+     *
+     * @since 4.13
+     */
+    @Throws(InvalidOrderingException::class)
+    override fun order(orderer: Orderer) {
+        if (shouldNotReorder()) {
+            return
+        }
+        childrenLock.lock()
+        try {
+            var children: List<FrameworkMethod> = getFilteredChildren()
+            // In theory, we could have duplicate Descriptions. De-dup them before ordering,
+            // and add them back at the end.
+            val childMap: MutableMap<Description, MutableList<FrameworkMethod>?> = LinkedHashMap(
+                    children.size)
+            for (child in children) {
+                val description = describeChild(child)
+                var childrenWithDescription: MutableList<FrameworkMethod>? = childMap[description]
+                if (childrenWithDescription == null) {
+                    childrenWithDescription = ArrayList<FrameworkMethod>(1)
+                    childMap[description] = childrenWithDescription
+                }
+                childrenWithDescription.add(child)
+                orderer.apply(child)
+            }
+            val inOrder = orderer.order(childMap.keys)
+            children = ArrayList<FrameworkMethod>(children.size)
+            for (description in inOrder) {
+                children.addAll(childMap[description]!!)
+            }
+            filteredChildren = Collections.unmodifiableList(children)
+        } finally {
+            childrenLock.unlock()
+        }
+    }
+
+    private fun shouldNotReorder(): Boolean {
+        // If the test specifies a specific order, do not reorder.
+        return description.getAnnotation(FixMethodOrder::class.java) != null
+    }
+
+    private fun getFilteredChildren(): List<FrameworkMethod> {
+        if (filteredChildren == null) {
+            childrenLock.lock()
+            try {
+                if (filteredChildren == null) {
+                    filteredChildren = Collections.unmodifiableList(
+                            ArrayList<FrameworkMethod>(children))
+                }
+            } finally {
+                childrenLock.unlock()
+            }
+        }
+        return filteredChildren!!
+    }
+
+    /**
+     * Returns a [Statement]: Call [.runChild]
+     * on each object returned by [.getChildren] (subject to any imposed
+     * filter and sort)
+     */
+    override fun childrenInvoker(notifier: RunNotifier): Statement {
+        return object : Statement() {
+            override fun evaluate() {
+                runChildren(notifier)
+            }
+        }
+    }
+
+    private fun runChildren(notifier: RunNotifier) {
+        val currentScheduler = scheduler
+        try {
+            for (each in getFilteredChildren()) {
+                currentScheduler.schedule { this.runChild(each, notifier) }
+            }
+        } finally {
+            currentScheduler.finished()
+        }
+    }
+
+    private fun comparator(sorter: Sorter): Comparator<in FrameworkMethod> {
+        return Comparator { o1, o2 -> sorter.compare(describeChild(o1), describeChild(o2)) }
+    }
+
+/**
+ * END
+ * of code copied from ParentRunner to have local access to filteredChildren to ensure
+ * FaaS injected tests are not filtered out.
+ *********************************************************************************************/
 }
