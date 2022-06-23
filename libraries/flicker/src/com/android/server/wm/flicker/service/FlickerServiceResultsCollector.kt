@@ -136,40 +136,7 @@ class FlickerServiceResultsCollector(
 
         while (it.hasNext()) {
             val (key, result) = it.next()
-            val resultString = "${result.passes}/${result.passes + result.failures}"
-            var color = ANSI_RESET
-            if (result.failures > 0) {
-                color = ANSI_RED
-            }
-            if (result.failures == 0 && result.passes > 0) {
-                color = ANSI_GREEN
-            }
-
-            val errorString = StringBuilder()
-            if (result.errors.isNotEmpty()) {
-                errorString.append("\n\t$ANSI_RED_BOLD$key$ANSI_RESET\n")
-                for ((index, error) in result.errors.withIndex()) {
-                    errorString.append(
-                        "$ANSI_RED\t  ${index + 1}) ${error.lines()[0]}" +
-                            "${error.substring(error.indexOf('\n') + 1)
-                                .prependIndent("\t    ")}$ANSI_RESET\n"
-                    )
-                }
-            }
-
-            var blockingStatus = ""
-            if (result.failures > 0) {
-                blockingStatus = if (result.invocationGroup == AssertionInvocationGroup.BLOCKING) {
-                    "$ANSI_RED_BOLD(BLOCKING)$ANSI_RESET"
-                } else {
-                    "$ANSI_WHITE$ANSI_LOW_INTENSITY(non blocking)$ANSI_RESET"
-                }
-            }
-
-            data.addStringMetric(
-                key,
-                "$color$resultString$ANSI_RESET $blockingStatus$errorString"
-            )
+            data.addStringMetric("${key}_FAILURES", "${result.failures}")
         }
     }
 
