@@ -70,7 +70,7 @@ class FlickerServiceConfig {
                 "AppLaunch", AssertionExecutionCondition.APP_LAUNCH, APP_LAUNCH_ASSERTIONS
             ),
             APP_CLOSE(
-                "AppClose", AssertionExecutionCondition.NEVER, APP_CLOSE_ASSERTIONS
+                "AppClose", AssertionExecutionCondition.APP_CLOSE, APP_CLOSE_ASSERTIONS
             )
         }
 
@@ -83,6 +83,10 @@ class FlickerServiceConfig {
                 t.type == Type.OPEN &&
                     t.changes.any { it.transitMode == Type.OPEN }
             }),
+            APP_CLOSE({ t ->
+                t.type == Type.CLOSE &&
+                    t.changes.any { it.transitMode == Type.CLOSE }
+            })
         }
 
         val COMMON_ASSERTIONS = listOf(
