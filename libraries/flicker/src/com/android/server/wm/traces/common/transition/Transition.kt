@@ -17,14 +17,16 @@
 package com.android.server.wm.traces.common.transition
 
 import com.android.server.wm.traces.common.ITraceEntry
+import com.android.server.wm.traces.common.transactions.Transaction
+import com.android.server.wm.traces.common.transactions.TransactionsTrace
 import com.android.server.wm.traces.common.transition.TransitionState.Companion.State
 
 class Transition(
     val type: Type,
     val start: Long,
     val end: Long,
-    val startTransactionId: Long,
-    val finishTransactionId: Long,
+    val startTransaction: Transaction,
+    val finishTransaction: Transaction,
     val changes: List<TransitionChange>,
     val aborted: Boolean
 ) : ITraceEntry {
@@ -66,6 +68,8 @@ class Transition(
             var aborted = false
             var startTransactionId = -1L
             var finishTransactionId = -1L
+            var startTransaction: Transaction? = null
+            var finishTransaction: Transaction? = null
 
             // Assumes each state is reported once
             fun addState(state: TransitionState) {
@@ -85,9 +89,26 @@ class Transition(
                 }
             }
 
+            fun linkTransactions(transactionsTrace: TransactionsTrace) {
+                startTransaction = transactionsTrace.allTransactions.firstOrNull {
+                    transaction -> transaction.id == startTransactionId
+                }
+                finishTransaction = transactionsTrace.allTransactions.firstOrNull {
+                    transaction -> transaction.id == finishTransactionId
+                }
+            }
+
             fun build(): Transition {
+                val startTransaction = startTransaction
+                requireNotNull(startTransaction) {
+                    "Can't build transition without matched start transaction"
+                }
+                val finishTransaction = finishTransaction
+                requireNotNull(finishTransaction) {
+                    "Can't build transition without matched finish transaction"
+                }
                 return Transition(
-                    type, start, end, startTransactionId, finishTransactionId, changes, aborted
+                    type, start, end, startTransaction, finishTransaction, changes, aborted
                 )
             }
         }

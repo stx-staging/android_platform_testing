@@ -43,7 +43,6 @@ class FlickerServiceTracesCollector(val outputDir: Path) : ITracesCollector {
     private var wmTrace: WindowManagerTrace? = null
     private var layersTrace: LayersTrace? = null
     private var transitionsTrace: TransitionsTrace? = null
-    private var transactionsTrace: TransactionsTrace? = null
 
     override fun start() {
         reset()
@@ -66,7 +65,8 @@ class FlickerServiceTracesCollector(val outputDir: Path) : ITracesCollector {
             FlickerService.getFassFilePath(outputDir, "layers_trace")
         )
         transitionsTrace = getTransitionsTraceFromFile(
-            FlickerService.getFassFilePath(outputDir, "transition_trace")
+            FlickerService.getFassFilePath(outputDir, "transition_trace"),
+            FlickerService.getFassFilePath(outputDir, "transactions_trace")
         )
         transactionsTrace = getTransactionsTraceFromFile(
             FlickerService.getFassFilePath(outputDir, "transactions_trace")
@@ -132,9 +132,13 @@ class FlickerServiceTracesCollector(val outputDir: Path) : ITracesCollector {
      * @param traceFilePath
      * @return parsed transitions trace.
      */
-    private fun getTransitionsTraceFromFile(traceFilePath: Path): TransitionsTrace {
+    private fun getTransitionsTraceFromFile(
+        traceFilePath: Path,
+        transactionsTracePath: Path
+    ): TransitionsTrace {
+        val transactionsTrace = getTransactionsTraceFromFile(transactionsTracePath)
         val transitionsTraceByteArray: ByteArray = Files.readAllBytes(traceFilePath)
-        return TransitionsTraceParser.parseFromTrace(transitionsTraceByteArray)
+        return TransitionsTraceParser.parseFromTrace(transitionsTraceByteArray, transactionsTrace)
     }
 
     /**
@@ -146,9 +150,5 @@ class FlickerServiceTracesCollector(val outputDir: Path) : ITracesCollector {
     private fun getTransactionsTraceFromFile(traceFilePath: Path): TransactionsTrace {
         val transactionsTraceByteArray: ByteArray = Files.readAllBytes(traceFilePath)
         return TransactionsTraceParser.parseFromTrace(transactionsTraceByteArray)
-    }
-
-    companion object {
-        val TEST_TAG = "fass"
     }
 }

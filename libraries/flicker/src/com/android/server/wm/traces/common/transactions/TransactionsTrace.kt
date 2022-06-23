@@ -21,7 +21,5 @@ import com.android.server.wm.traces.common.ITrace
 class TransactionsTrace(
     override val entries: Array<TransactionsTraceEntry>
 ) : ITrace<TransactionsTraceEntry>, List<TransactionsTraceEntry> by entries.toList() {
-    fun transactionsAppliedIn(vSyncId: Long): Array<Transaction> {
-        return entries.first { it.vSyncId == vSyncId }.transactions
-    }
+    val allTransactions: List<Transaction> = entries.toList().flatMap { it.transactions.toList() }
 }

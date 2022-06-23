@@ -16,10 +16,11 @@
 
 package com.android.server.wm.flicker.service.assertors
 
+import android.util.Log
+import com.android.server.wm.flicker.FLICKER_TAG
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
 import com.android.server.wm.traces.common.layers.LayersTrace
-import com.android.server.wm.traces.common.transactions.TransactionsTrace
 import com.android.server.wm.traces.common.transition.Transition
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 
@@ -34,12 +35,22 @@ class TransitionAsserter(
     fun analyze(
         transition: Transition,
         wmTrace: WindowManagerTrace,
-        layersTrace: LayersTrace,
-        transactionsTrace: TransactionsTrace
+        layersTrace: LayersTrace
     ): List<AssertionResult> {
         val (wmTraceForTransition, layersTraceForTransition) =
-            splitTraces(transition, wmTrace, layersTrace, transactionsTrace)
-        require(wmTraceForTransition != null || layersTraceForTransition != null)
+            splitTraces(transition, wmTrace, layersTrace)
+
+        if (wmTraceForTransition == null) {
+            Log.w(FLICKER_TAG, "wmTraceForTransition was null for $transition")
+        }
+
+        if (layersTraceForTransition == null) {
+            Log.w(FLICKER_TAG, "layersTraceForTransition was null for $transition")
+        }
+
+        require(wmTraceForTransition != null || layersTraceForTransition != null) {
+            "At least one of wm or layers trace must not be null for $transition"
+        }
 
         logger.invoke("Running assertions...")
         return runAssertionsOnSubjects(
@@ -90,14 +101,10 @@ class TransitionAsserter(
     private fun splitTraces(
         transition: Transition,
         wmTrace: WindowManagerTrace,
-        layersTrace: LayersTrace,
-        transactionsTrace: TransactionsTrace
+        layersTrace: LayersTrace
     ): FilteredTraces {
         var filteredWmTrace: WindowManagerTrace? = wmTrace.transitionSlice(transition)
-        var filteredLayersTrace: LayersTrace? = layersTrace.transitionSlice(
-                transition,
-                transactionsTrace
-        )
+        var filteredLayersTrace: LayersTrace? = layersTrace.transitionSlice(transition)
 
         if (filteredWmTrace?.entries?.isEmpty() == true) {
             // Empty trace, nothing to assert on the wmTrace
@@ -120,6 +127,60 @@ class TransitionAsserter(
     )
 }
 
+/**
+ * Return a new trace contains only the entries that were applied during the transition's execution.
+ */
 private fun WindowManagerTrace.transitionSlice(transition: Transition): WindowManagerTrace {
     return slice(transition.start, transition.end)
+}
+
+/**
+ * Return a new trace contains only the entries that were applied during the transition's execution.
+ */
+private fun LayersTrace.transitionSlice(
+    transition: Transition
+): LayersTrace? {
+    var startIndex = -1
+    var prevVsyncId = -1L
+    for (i in entries.indices) {
+        val currentVsyncId = entries[i].vSyncId
+
+        if (transition.startTransaction.vSyncId in (prevVsyncId + 1)..currentVsyncId) {
+            startIndex = i
+        }
+
+        prevVsyncId = currentVsyncId
+    }
+
+    if (startIndex == -1) {
+        Log.w(FLICKER_TAG, "Skipping... Didn't find start layers entry for $transition.")
+        return null
+    }
+
+    var endIndex = -1
+    prevVsyncId = if (startIndex < 1) {
+        -1L
+    } else {
+        entries[startIndex - 1].vSyncId
+    }
+    for (i in startIndex until entries.size) {
+        val currentVsyncId = entries[i].vSyncId
+
+        if (transition.finishTransaction.vSyncId in (prevVsyncId + 1)..currentVsyncId) {
+            endIndex = i
+        }
+
+        prevVsyncId = currentVsyncId
+    }
+
+    if (endIndex == -1) {
+        Log.w(FLICKER_TAG, "Skipping... Didn't find start layers entry for $transition.")
+        return null
+    }
+
+    if (startIndex == endIndex) {
+        Log.w(FLICKER_TAG, "Start and end of $transition happen in same entry.")
+    }
+
+    return LayersTrace(this.entries.slice(startIndex..endIndex).toTypedArray())
 }

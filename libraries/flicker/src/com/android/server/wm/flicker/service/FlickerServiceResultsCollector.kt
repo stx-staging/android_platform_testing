@@ -107,8 +107,7 @@ class FlickerServiceResultsCollector(
         val results = flickerService.process(
             collectedTraces.wmTrace,
             collectedTraces.layersTrace,
-            collectedTraces.transitionsTrace,
-            collectedTraces.transactionsTrace
+            collectedTraces.transitionsTrace
         )
         assertionResults.addAll(results)
         val aggregatedResults = processFlickerResults(results)

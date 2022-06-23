@@ -19,6 +19,7 @@ package com.android.server.wm.traces.parser.transition
 import android.util.Log
 import com.android.server.wm.shell.nano.ChangeInfo
 import com.android.server.wm.shell.nano.TransitionTraceProto
+import com.android.server.wm.traces.common.transactions.TransactionsTrace
 import com.android.server.wm.traces.common.transition.Transition
 import com.android.server.wm.traces.common.transition.Transition.Companion.Type
 import com.android.server.wm.traces.common.transition.TransitionChange
@@ -41,7 +42,7 @@ class TransitionsTraceParser {
          * @param data binary proto data
          */
         @JvmStatic
-        fun parseFromTrace(data: ByteArray): TransitionsTrace {
+        fun parseFromTrace(data: ByteArray, transactions: TransactionsTrace): TransitionsTrace {
             var fileProto: TransitionTraceProto?
             try {
                 measureTimeMillis {
@@ -53,7 +54,7 @@ class TransitionsTraceParser {
                 throw RuntimeException(e)
             }
             return fileProto?.let {
-                parseFromTrace(it)
+                parseFromTrace(it, transactions)
             } ?: error("Unable to read trace file")
         }
 
@@ -63,7 +64,10 @@ class TransitionsTraceParser {
          * @param proto Parsed proto data
          */
         @JvmStatic
-        fun parseFromTrace(proto: TransitionTraceProto): TransitionsTrace {
+        fun parseFromTrace(
+            proto: TransitionTraceProto,
+            transactions: TransactionsTrace
+        ): TransitionsTrace {
             val transitionStates = mutableListOf<TransitionState>()
             var traceParseTime = 0L
             for (transitionProto in proto.transition) {
@@ -85,7 +89,7 @@ class TransitionsTraceParser {
                 traceParseTime += entryParseTime
             }
 
-            val transitions = transitionStatesToTransitions(transitionStates)
+            val transitions = transitionStatesToTransitions(transitionStates, transactions)
 
             Log.v(
                 LOG_TAG,
@@ -96,7 +100,8 @@ class TransitionsTraceParser {
         }
 
         private fun transitionStatesToTransitions(
-            transitionStates: List<TransitionState>
+            transitionStates: List<TransitionState>,
+            transactions: TransactionsTrace
         ): List<Transition> {
             val transitionBuilders: MutableMap<Int, Transition.Companion.Builder> = mutableMapOf()
 
@@ -108,6 +113,7 @@ class TransitionsTraceParser {
                 builder.addState(state)
             }
 
+            transitionBuilders.values.forEach { it.linkTransactions(transactions) }
             val transitions = transitionBuilders.values.map { it.build() }
             return transitions.sortedBy { it.start }
         }

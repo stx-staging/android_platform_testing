@@ -72,10 +72,6 @@ class FlickerRunResult private constructor(
      * which assertion to run and on which parts of the run.
      */
     val transitionsTrace: TransitionsTrace?,
-    /**
-     * A trace of all the transactions that were applied during the run.
-     */
-    val transactionsTrace: TransactionsTrace?,
 ) {
     /**
      * The object responsible for managing the trace file associated with this result.

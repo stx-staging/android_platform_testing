@@ -202,12 +202,10 @@ open class TransitionRunner {
                 val wmTrace = (runResults.traceResult.wmSubject as WindowManagerTraceSubject).trace
                 val layersTrace = (runResults.traceResult.layersSubject as LayersTraceSubject).trace
                 val transitionsTrace = runResults.traceResult.transitionsTrace
-                val transactionsTrace = runResults.traceResult.transactionsTrace
 
                 flicker.faasTracesCollector.wmTrace = wmTrace
                 flicker.faasTracesCollector.layersTrace = layersTrace
                 flicker.faasTracesCollector.transitionsTrace = transitionsTrace
-                flicker.faasTracesCollector.transactionsTrace = transactionsTrace
             }
         } catch (e: Throwable) {
             // We have failed to add the results to the runs, so we can effectively consider these

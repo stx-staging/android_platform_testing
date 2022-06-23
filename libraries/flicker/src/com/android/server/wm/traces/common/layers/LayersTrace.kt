@@ -16,10 +16,7 @@
 
 package com.android.server.wm.traces.common.layers
 
-import android.util.Log
 import com.android.server.wm.traces.common.ITrace
-import com.android.server.wm.traces.common.transactions.TransactionsTrace
-import com.android.server.wm.traces.common.transition.Transition
 
 /**
  * Contains a collection of parsed Layers trace entries and assertions to apply over a single entry.
@@ -67,43 +64,5 @@ data class LayersTrace(
                 .dropLastWhile { it.timestamp > to }
                 .toTypedArray()
         )
-    }
-
-    fun transitionSlice(
-        transition: Transition,
-        transactionsTrace: TransactionsTrace
-    ): LayersTrace? {
-        var startIndex = -1
-        for (i in 0 until entries.size) {
-            val appliedTransactionIds = transactionsTrace
-                .transactionsAppliedIn(entries[i].vSyncId).map { it.id }
-            if (appliedTransactionIds.contains(transition.startTransactionId)) {
-                startIndex = i
-            }
-        }
-        if (startIndex == -1) {
-            Log.w("Flicker", "Skipping... Didn't find start layers entry for $transition.")
-            return null
-        }
-
-        var endIndex = -1
-        for (i in startIndex until entries.size) {
-            val appliedTransactionIds = transactionsTrace
-                .transactionsAppliedIn(entries[i].vSyncId).map { it.id }
-            if (appliedTransactionIds.contains(transition.finishTransactionId)) {
-                endIndex = i
-            }
-        }
-
-        if (endIndex == -1) {
-            Log.w("Flicker", "Skipping... Didn't find start layers entry for $transition.")
-            return null
-        }
-
-        if (startIndex == endIndex) {
-            Log.w("Flicker", "Start and end of $transition happen in same entry.")
-        }
-
-        return LayersTrace(this.entries.slice(startIndex..endIndex).toTypedArray())
     }
 }
