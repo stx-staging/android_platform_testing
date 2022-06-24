@@ -39,6 +39,9 @@ import android.platform.helpers.exceptions.AccountException;
 import android.platform.helpers.exceptions.TestHelperException;
 import android.platform.helpers.exceptions.UnknownUiException;
 import android.platform.helpers.watchers.AppIsNotRespondingWatcher;
+import android.platform.spectatio.configs.UiElement;
+import android.platform.spectatio.utils.SpectatioConfigUtil;
+import android.platform.spectatio.utils.SpectatioUiUtil;
 import android.support.test.launcherhelper.ILauncherStrategy;
 import android.support.test.launcherhelper.LauncherStrategyFactory;
 import android.support.test.uiautomator.By;
@@ -87,6 +90,10 @@ public abstract class AbstractStandardAppHelper implements IAppHelper {
     private int mPreviousFlagValues = 0;
     private boolean mChangedPermState = false;
 
+    // Spectatio Utils
+    private SpectatioConfigUtil mSpectatioConfigUtil;
+    private SpectatioUiUtil mSpectatioUiUtil;
+
     public AbstractStandardAppHelper(Instrumentation instr) {
         mInstrumentation = instr;
         mDevice = UiDevice.getInstance(instr);
@@ -109,11 +116,78 @@ public abstract class AbstractStandardAppHelper implements IAppHelper {
                                 .getString(
                                         LAUNCH_TIMEOUT_OPTION,
                                         String.valueOf(TimeUnit.SECONDS.toMillis(30))));
+
+        initializeSpectatioUtils();
+    }
+
+    // Start Spectatio Util Helper Methods
+
+    private void initializeSpectatioUtils() {
+        mSpectatioUiUtil = SpectatioUiUtil.getInstance(mDevice);
+        mSpectatioConfigUtil = SpectatioConfigUtil.getInstance();
+    }
+
+    protected SpectatioUiUtil getSpectatioUiUtil() {
+        return mSpectatioUiUtil;
     }
 
     /**
-     * {@inheritDoc}
+     * Get action from Config.
+     *
+     * <p>e.g. JSON Config { "ACTIONS": { "ACTION_NAME1": "ACTION_VALUE1", "ACTION_NAME2":
+     * "ACTION_VALUE2", ... } }
+     *
+     * @param actionName is the Key for the action to read from config
      */
+    protected String getActionFromConfig(String actionName) {
+        return mSpectatioConfigUtil.getActionFromConfig(actionName);
+    }
+
+    /**
+     * Get command from Config.
+     *
+     * <p>e.g. JSON Config { "COMMANDS": { "CMD_NAME1": "CMD_VALUE1", "CMD_NAME2": "CMD_VALUE2", ...
+     * } }
+     *
+     * @param commandName is the Key for the Command to read from config
+     */
+    protected String getCommandFromConfig(String commandName) {
+        return mSpectatioConfigUtil.getCommandFromConfig(commandName);
+    }
+
+    /**
+     * Get package from Config.
+     *
+     * <p>e.g. JSON Config { "PACKAGES": { "PKG_NAME1": "PKG_VALUE1", "PKG_NAME2": "PKG_VALUE2", ...
+     * } }
+     *
+     * @param packageName is the Key for the package to read from config
+     */
+    protected String getPackageFromConfig(String packageName) {
+        return mSpectatioConfigUtil.getPackageFromConfig(packageName);
+    }
+
+    /**
+     * Get Ui Element Selector from Config.
+     *
+     * <p>e.g. JSON Config { "UI_ELEMENTS": { "UI_ELEMENT_NAME1": { "TYPE": "RESOURCE_TYPE1",
+     * "VALUE": "RESOURCE_VALUE1", "PACKAGE": "RESOURCE_PACKAGE1" }, "UI_ELEMENT_NAME2": { "TYPE":
+     * "RESOURCE_TYPE2", "VALUE": "RESOURCE_VALUE2", "PACKAGE": "RESOURCE_PACKAGE2" }, ... } }
+     *
+     * <p>RESOURCE_TYPE: TEXT, DESCRIPTION, RESOURCE_ID, TEXT_CONTAINS, CLASS; RESOURCE_VALUE: Value
+     * of the Resource; RESOURCE_PACKAGE: Package is required only to type RESOURCE_ID
+     *
+     * <p>Resource Values are referred in code using {@link UiElement} class
+     *
+     * @param uiElementName is the Key for the Ui Element to read from config
+     */
+    protected BySelector getUiElementFromConfig(String uiElementName) {
+        return mSpectatioConfigUtil.getUiElementFromConfig(uiElementName);
+    }
+
+    // End Spectatio Util Helper Methods
+
+    /** {@inheritDoc} */
     @Override
     public void open() {
         // Grant notification permission if necessary - otherwise the app may display a permission
