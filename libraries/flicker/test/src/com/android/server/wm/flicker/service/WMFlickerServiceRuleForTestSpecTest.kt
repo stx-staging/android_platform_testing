@@ -56,13 +56,19 @@ class WMFlickerServiceRuleForTestSpecTest(private val testSpec: FlickerTestParam
         return FlickerBuilder(instrumentation).apply {
             transitions {
                 device.wakeUpAndGoToHomeScreen()
-                wmHelper.waitForAppTransitionIdle()
+                wmHelper.StateSyncBuilder()
+                    .withAppTransitionIdle()
+                    .waitForAndVerify()
 
                 testApp.launchViaIntent(wmHelper)
-                wmHelper.waitForFullScreenApp(testApp.component)
+                wmHelper.StateSyncBuilder()
+                    .withFullScreenApp(testApp.component)
+                    .waitForAndVerify()
 
                 device.pressHome()
-                wmHelper.waitForHomeActivityVisible()
+                wmHelper.StateSyncBuilder()
+                    .withHomeActivityVisible()
+                    .waitForAndVerify()
             }
         }
     }

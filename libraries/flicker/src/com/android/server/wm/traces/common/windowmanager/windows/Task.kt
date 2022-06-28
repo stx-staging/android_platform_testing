@@ -16,6 +16,7 @@
 
 package com.android.server.wm.traces.common.windowmanager.windows
 
+import com.android.server.wm.traces.common.FlickerComponentName
 import com.android.server.wm.traces.common.Rect
 
 /**
@@ -95,11 +96,10 @@ open class Task(
                 .firstOrNull { predicate(it) }
     }
 
-    fun getActivity(activityName: String): Activity? {
-        return getActivity { activity -> activity.title.contains(activityName) }
-    }
+    fun getActivity(component: FlickerComponentName): Activity? =
+        getActivity { activity -> component.activityMatchesAnyOf(activity) }
 
-    fun containsActivity(activityName: String) = getActivity(activityName) != null
+    fun containsActivity(component: FlickerComponentName) = getActivity(component) != null
 
     override fun toString(): String {
         return "${this::class.simpleName}: {$token $title} id=$taskId bounds=$bounds"

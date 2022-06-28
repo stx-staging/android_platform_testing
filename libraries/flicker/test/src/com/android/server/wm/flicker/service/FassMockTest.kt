@@ -45,7 +45,9 @@ class FassMockTest {
         val wmHelper = WindowManagerStateHelper(instrumentation)
         device.wakeUp()
         device.pressHome()
-        wmHelper.waitForHomeActivityVisible()
+        wmHelper.StateSyncBuilder()
+            .withHomeActivityVisible()
+            .waitForAndVerify()
         dummyAppHelper.launchViaIntent(wmHelper)
     }
 }

@@ -34,13 +34,10 @@ class SampleAppHelper(
     instrumentation: Instrumentation,
     private val pkgManager: PackageManager = instrumentation.context.packageManager
 ) : StandardAppHelper(
-    instrumentation,
-    "SampleApp",
-    getBrowserComponent(pkgManager)
+    instrumentation, "SampleApp", getBrowserComponent(pkgManager)
 ) {
-    override fun getOpenAppIntent(): Intent =
-        pkgManager.getLaunchIntentForPackage(component.packageName)
-            ?: error("Unable to find intent for browser")
+    override fun getOpenAppIntent(): Intent = pkgManager.getLaunchIntentForPackage(packageName)
+        ?: error("Unable to find intent for browser")
 
     companion object {
         private fun getBrowserIntent(): Intent {
@@ -52,7 +49,7 @@ class SampleAppHelper(
         private fun getBrowserComponent(pkgManager: PackageManager): FlickerComponentName {
             val intent = getBrowserIntent()
             val resolveInfo = pkgManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY)
-                    ?: error("Unable to resolve browser activity")
+                ?: error("Unable to resolve browser activity")
             return FlickerComponentName(resolveInfo.activityInfo.packageName, className = "")
         }
     }

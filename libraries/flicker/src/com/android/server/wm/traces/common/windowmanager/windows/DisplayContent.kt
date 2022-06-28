@@ -16,6 +16,7 @@
 
 package com.android.server.wm.traces.common.windowmanager.windows
 
+import com.android.server.wm.traces.common.FlickerComponentName
 import com.android.server.wm.traces.common.Rect
 
 /**
@@ -70,8 +71,8 @@ open class DisplayContent(
             return tasks.toTypedArray()
         }
 
-    fun containsActivity(activityName: String): Boolean =
-        rootTasks.any { it.containsActivity(activityName) }
+    fun containsActivity(component: FlickerComponentName): Boolean =
+        rootTasks.any { it.containsActivity(component) }
 
     fun getTaskDisplayArea(activityName: String): DisplayArea? {
         val taskDisplayAreas = this.collectDescendants<DisplayArea> { it.isTaskDisplayArea }

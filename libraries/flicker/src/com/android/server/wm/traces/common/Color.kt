@@ -28,6 +28,8 @@ class Color(r: Float, g: Float, b: Float, val a: Float) : Color3(r, g, b) {
     override val isNotEmpty: Boolean
         get() = !isEmpty
 
+    val isOpaque: Boolean = a == 1.0f
+
     override fun prettyPrint(): String {
         val parentPrint = super.prettyPrint()
         return "$parentPrint a:$a"

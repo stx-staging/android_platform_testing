@@ -49,7 +49,7 @@ class LayerTraceEntrySubjectTest {
                 .visibleRegion(IMAGINARY_COMPONENT)
         }
         assertThatErrorContainsDebugInfo(error)
-        Truth.assertThat(error).hasMessageThat().contains(IMAGINARY_COMPONENT.className)
+        Truth.assertThat(error).hasMessageThat().contains(IMAGINARY_COMPONENT.classNames.first())
         Truth.assertThat(error).hasMessageThat().contains(FlickerSubject.ASSERTION_TAG)
     }
 
