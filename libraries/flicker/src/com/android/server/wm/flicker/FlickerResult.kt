@@ -17,6 +17,7 @@
 package com.android.server.wm.flicker
 
 import com.android.server.wm.flicker.FlickerRunResult.Companion.RunStatus
+import com.android.server.wm.flicker.TransitionRunner.Companion.ExecutionError
 import com.android.server.wm.flicker.assertions.AssertionData
 import com.android.server.wm.flicker.assertions.FlickerAssertionError
 import com.google.common.truth.Truth
@@ -36,7 +37,7 @@ data class FlickerResult(
     /**
      * Execution errors which happened during the execution of the Flicker test
      */
-    @JvmField val executionErrors: List<Throwable> = listOf()
+    @JvmField val executionErrors: List<ExecutionError> = listOf()
 ) {
     init {
         for (result in runResults) {
@@ -94,6 +95,14 @@ data class FlickerResult(
 
     companion object {
         class CombinedExecutionError(val errors: List<Throwable>?) : Throwable() {
+            init {
+                if (errors != null && errors.size == 1) {
+                    super.setStackTrace(errors[0].stackTrace)
+                } else {
+                    super.setStackTrace(emptyArray())
+                }
+            }
+
             override val message: String? get() {
                 if (errors == null || errors.isEmpty()) {
                     return null
@@ -101,9 +110,17 @@ data class FlickerResult(
                 if (errors.size == 1) {
                     return errors[0].toString()
                 }
-                return "Combined Errors Of\n\t- " +
-                        errors.joinToString("\n\t\tAND\n\t- ") { it.toString() } +
-                        "\n[NOTE: any details below are only for the first error]"
+
+                return buildString {
+                    append("Combined errors of:")
+                    for (error in errors) {
+                        append("\n\t-")
+                        append(error.toString())
+                        append("\n")
+                        append(error.stackTraceToString().prependIndent("\t\t"))
+                        append("\nAND")
+                    }
+                }
             }
 
             override val cause: Throwable?
