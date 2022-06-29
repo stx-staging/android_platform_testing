@@ -16,7 +16,7 @@
 
 package com.android.server.wm.traces.common.windowmanager.windows
 
-import com.android.server.wm.traces.common.FlickerComponentName
+import com.android.server.wm.traces.common.IComponentMatcher
 import com.android.server.wm.traces.common.Rect
 
 /**
@@ -75,21 +75,15 @@ open class Task(
         return result.toTypedArray()
     }
 
+    /**
+     * @return The first [Task] matching [predicate], or null otherwise
+     */
     fun getTask(predicate: (Task) -> Boolean) =
         tasks.firstOrNull { predicate(it) } ?: if (predicate(this)) this else null
 
-    fun getTask(taskId: Int) = getTask { t -> t.taskId == taskId }
-
-    fun getActivityWithTask(predicate: (Task, Activity) -> Boolean): Activity? {
-        return activities.firstOrNull { predicate(this, it) }
-            ?: tasks.flatMap { task -> task.activities.filter { predicate(task, it) } }
-                .firstOrNull()
-    }
-
-    fun forAllTasks(consumer: (Task) -> Any) {
-        tasks.forEach { consumer(it) }
-    }
-
+    /**
+     * @return the first [Activity] matching [predicate], or null otherwise
+     */
     fun getActivity(predicate: (Activity) -> Boolean): Activity? {
         var activity: Activity? = activities.firstOrNull { predicate(it) }
         if (activity != null) {
@@ -110,10 +104,21 @@ open class Task(
         return null
     }
 
-    fun getActivity(component: FlickerComponentName): Activity? =
-        getActivity { activity -> component.activityMatchesAnyOf(activity) }
+    /**
+     * @return the first [Activity] matching [componentMatcher], or null otherwise
+     *
+     * @param componentMatcher Components to search
+     */
+    fun getActivity(componentMatcher: IComponentMatcher): Activity? =
+        getActivity { activity -> componentMatcher.activityMatchesAnyOf(activity) }
 
-    fun containsActivity(component: FlickerComponentName) = getActivity(component) != null
+    /**
+     * @return if any activity matches [componentMatcher]
+     *
+     * @param componentMatcher Components to search
+     */
+    fun containsActivity(componentMatcher: IComponentMatcher) =
+        getActivity(componentMatcher) != null
 
     override fun toString(): String {
         return "${this::class.simpleName}: {$token $title} id=$taskId bounds=$bounds"

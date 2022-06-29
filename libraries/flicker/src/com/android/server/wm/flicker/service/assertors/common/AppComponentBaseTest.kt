@@ -19,23 +19,26 @@ package com.android.server.wm.flicker.service.assertors.common
 import com.android.server.wm.flicker.service.assertors.BaseAssertion
 import com.android.server.wm.flicker.traces.FlickerSubjectException
 import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
-import com.android.server.wm.traces.common.FlickerComponentName
+import com.android.server.wm.flicker.traces.windowmanager.WindowStateSubject
+import com.android.server.wm.traces.common.ComponentMatcher
+import com.android.server.wm.traces.common.IComponentMatcher
 import com.android.server.wm.traces.common.tags.Tag
 
 abstract class AppComponentBaseTest : BaseAssertion() {
     protected fun getComponentName(
         tag: Tag,
         wmSubject: WindowManagerTraceSubject
-    ): FlickerComponentName {
-        try {
-            val windowName = getWindowState(tag, wmSubject).name
-            return FlickerComponentName.unflattenFromString(windowName)
-        } catch (e: Throwable) {
-            throw FlickerSubjectException(wmSubject, e)
-        }
+    ): IComponentMatcher = try {
+        val windowName = getWindowState(tag, wmSubject).name
+        ComponentMatcher.unflattenFromString(windowName)
+    } catch (e: Throwable) {
+        throw FlickerSubjectException(wmSubject, e)
     }
 
-    private fun getWindowState(tag: Tag, wmSubject: WindowManagerTraceSubject) =
+    private fun getWindowState(
+        tag: Tag,
+        wmSubject: WindowManagerTraceSubject
+    ): WindowStateSubject =
         wmSubject.subjects.last().windowState {
             it.layerId == tag.layerId || it.token == tag.windowToken
         }

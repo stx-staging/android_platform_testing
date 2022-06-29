@@ -16,7 +16,7 @@
 
 package com.android.server.wm.traces.common.windowmanager
 
-import com.android.server.wm.traces.common.FlickerComponentName
+import com.android.server.wm.traces.common.IComponentMatcher
 import com.android.server.wm.traces.common.ITraceEntry
 import com.android.server.wm.traces.common.prettyTimestamp
 import com.android.server.wm.traces.common.windowmanager.windows.Activity
@@ -63,19 +63,27 @@ open class WindowManagerState(
     val children: Array<WindowContainer>
         get() = root.children.reversedArray()
 
-    // Displays in z-order with the top most at the front of the list, starting with primary.
+    /**
+     * Displays in z-order with the top most at the front of the list, starting with primary.
+     */
     val displays: Array<DisplayContent>
         get() = windowContainers.filterIsInstance<DisplayContent>().toTypedArray()
 
-    // Root tasks in z-order with the top most at the front of the list, starting with primary display.
+    /**
+     * Root tasks in z-order with the top most at the front of the list, starting with primary display.
+     */
     val rootTasks: Array<Task>
         get() = displays.flatMap { it.rootTasks.toList() }.toTypedArray()
 
-    // TaskFragments  in z-order with the top most at the front of the list.
+    /**
+     * TaskFragments in z-order with the top most at the front of the list.
+      */
     val taskFragments: Array<TaskFragment>
         get() = windowContainers.filterIsInstance<TaskFragment>().toTypedArray()
 
-    // Windows in z-order with the top most at the front of the list.
+    /**
+     *Windows in z-order with the top most at the front of the list.
+      */
     val windowStates: Array<WindowState>
         get() = windowContainers.filterIsInstance<WindowState>().toTypedArray()
 
@@ -210,14 +218,14 @@ open class WindowManagerState(
     }
 
     /**
-     * Get the all activities on display with id [displayId], containing a window whose title
-     * contains [component]
+     * Get the all activities on display with id [displayId], containing a matching
+     * [componentMatcher]
      *
-     * @param component Component name to search
+     * @param componentMatcher Components to search
      * @param displayId display where to search the activity
      */
     fun getActivitiesForWindow(
-        component: FlickerComponentName,
+        componentMatcher: IComponentMatcher,
         displayId: Int = DEFAULT_DISPLAY
     ): List<Activity> {
         return displays
@@ -225,16 +233,26 @@ open class WindowManagerState(
             ?.rootTasks
             ?.mapNotNull { stack ->
             stack.getActivity { activity ->
-                activity.hasWindow(component)
+                activity.hasWindow(componentMatcher)
             }
         } ?: emptyList()
     }
 
-    fun containsActivity(component: FlickerComponentName): Boolean =
-        rootTasks.any { it.containsActivity(component) }
+    /**
+     * @return if any activity matches [componentMatcher]
+     *
+     * @param componentMatcher Components to search
+     */
+    fun containsActivity(componentMatcher: IComponentMatcher): Boolean =
+        rootTasks.any { it.containsActivity(componentMatcher) }
 
-    fun getActivity(component: FlickerComponentName): Activity? =
-        rootTasks.firstNotNullOfOrNull { it.getActivity(component) }
+    /**
+     * @return the first [Activity] matching [componentMatcher], or null otherwise
+     *
+     * @param componentMatcher Components to search
+     */
+    fun getActivity(componentMatcher: IComponentMatcher): Activity? =
+        rootTasks.firstNotNullOfOrNull { it.getActivity(componentMatcher) }
 
     private fun getActivity(activityName: String): Activity? =
         rootTasks.firstNotNullOfOrNull { task ->
@@ -243,21 +261,45 @@ open class WindowManagerState(
             }
         }
 
-    fun isActivityVisible(component: FlickerComponentName): Boolean =
-        getActivity(component)?.isVisible ?: false
+    /**
+     * @return if any activity matching [componentMatcher] is visible
+     *
+     * @param componentMatcher Components to search
+     */
+    fun isActivityVisible(componentMatcher: IComponentMatcher): Boolean =
+        getActivity(componentMatcher)?.isVisible ?: false
 
-    fun hasActivityState(component: FlickerComponentName, activityState: String): Boolean =
-        rootTasks.any { it.getActivity(component)?.state == activityState }
+    /**
+     * @return if any activity matching [componentMatcher] has state of [activityState]
+     *
+     * @param componentMatcher Components to search
+     * @param activityState expected activity state
+     */
+    fun hasActivityState(componentMatcher: IComponentMatcher, activityState: String): Boolean =
+        rootTasks.any { it.getActivity(componentMatcher)?.state == activityState }
 
-    fun pendingActivityContain(component: FlickerComponentName): Boolean =
-        component.activityMatchesAnyOf(pendingActivities)
+    /**
+     * @return if any pending activities match [componentMatcher]
+     *
+     * @param componentMatcher Components to search
+     */
+    fun pendingActivityContain(componentMatcher: IComponentMatcher): Boolean =
+        componentMatcher.activityMatchesAnyOf(pendingActivities)
 
-    fun getMatchingVisibleWindowState(component: FlickerComponentName): Array<WindowState> {
+    /**
+     * @return the visible [WindowState]s matching [componentMatcher]
+     *
+     * @param componentMatcher Components to search
+     */
+    fun getMatchingVisibleWindowState(componentMatcher: IComponentMatcher): Array<WindowState> {
         return windowStates
-            .filter { it.isSurfaceShown && component.windowMatchesAnyOf(it) }
+            .filter { it.isSurfaceShown && componentMatcher.windowMatchesAnyOf(it) }
                 .toTypedArray()
     }
 
+    /**
+     * @return the [WindowState] for the nav bar in the display with id [displayId]
+     */
     fun getNavBarWindow(displayId: Int): WindowState? {
         val navWindow = windowStates.filter { it.isValidNavBarType && it.displayId == displayId }
 
@@ -269,26 +311,24 @@ open class WindowManagerState(
         return navWindow.firstOrNull()
     }
 
-    fun getWindowStateForAppToken(appToken: String): WindowState? =
+    private fun getWindowStateForAppToken(appToken: String): WindowState? =
         windowStates.firstOrNull { it.token == appToken }
 
     /**
-     * Check if there exists a window record with matching windowName.
+     * Checks if there exists a [WindowState] matching [componentMatcher]
+     *
+     * @param componentMatcher Components to search
      */
-    fun containsWindow(component: FlickerComponentName): Boolean =
-        component.windowMatchesAnyOf(windowStates)
+    fun containsWindow(componentMatcher: IComponentMatcher): Boolean =
+        componentMatcher.windowMatchesAnyOf(windowStates)
 
     /**
-     * Check if at least one window which matches the specified name has shown it's surface.
+     * Check if at least one [WindowState] matching [componentMatcher] is visible
+     *
+     * @param componentMatcher Components to search
      */
-    fun isWindowSurfaceShown(component: FlickerComponentName): Boolean =
-        getMatchingVisibleWindowState(component).isNotEmpty()
-
-    /**
-     * Check if at least one window which matches provided window name is visible.
-     */
-    fun isWindowVisible(component: FlickerComponentName): Boolean =
-        component.windowMatchesAnyOf(visibleWindows)
+    fun isWindowSurfaceShown(componentMatcher: IComponentMatcher): Boolean =
+        getMatchingVisibleWindowState(componentMatcher).isNotEmpty()
 
     /**
      * Checks if the state has any window in PIP mode
@@ -296,10 +336,12 @@ open class WindowManagerState(
     fun hasPipWindow(): Boolean = pinnedWindows.isNotEmpty()
 
     /**
-     * Checks that an activity [component] is in PIP mode
+     * Checks that a [WindowState] matching [componentMatcher] is in PIP mode
+     *
+     * @param componentMatcher Components to search
      */
-    fun isInPipMode(component: FlickerComponentName): Boolean =
-        component.windowMatchesAnyOf(pinnedWindows)
+    fun isInPipMode(componentMatcher: IComponentMatcher): Boolean =
+        componentMatcher.windowMatchesAnyOf(pinnedWindows)
 
     fun getZOrder(w: WindowState): Int = windowStates.size - windowStates.indexOf(w)
 

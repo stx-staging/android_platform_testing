@@ -21,7 +21,7 @@ import android.util.Log
 import androidx.test.platform.app.InstrumentationRegistry
 import com.android.server.wm.flicker.FLICKER_TAG
 import com.android.server.wm.flicker.helpers.StandardAppHelper
-import com.android.server.wm.traces.common.FlickerComponentName
+import com.android.server.wm.traces.common.IComponentMatcher
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerStateHelper
 import org.junit.rules.TestWatcher
 import org.junit.runner.Description
@@ -40,11 +40,15 @@ class LaunchAppRule @JvmOverloads constructor(
 ) : TestWatcher() {
     @JvmOverloads
     constructor(
-        component: FlickerComponentName,
+        componentMatcher: IComponentMatcher,
         appName: String = "",
         instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation(),
         wmHelper: WindowManagerStateHelper = WindowManagerStateHelper()
-    ): this(StandardAppHelper(instrumentation, appName, component), instrumentation, wmHelper)
+    ) : this(
+        StandardAppHelper(instrumentation, appName, componentMatcher),
+        instrumentation,
+        wmHelper
+    )
 
     override fun starting(description: Description?) {
         Log.v(FLICKER_TAG, "Launching app $appHelper")

@@ -16,8 +16,8 @@
 
 package com.android.server.wm.traces.common.service.processors
 
+import com.android.server.wm.traces.common.ComponentMatcher
 import com.android.server.wm.traces.common.DeviceStateDump
-import com.android.server.wm.traces.common.FlickerComponentName
 import com.android.server.wm.traces.common.RectF
 import com.android.server.wm.traces.common.WindowManagerConditionsFactory
 import com.android.server.wm.traces.common.layers.BaseLayerTraceEntry
@@ -106,9 +106,9 @@ class RotationProcessor(logger: (String) -> Unit) : TransitionProcessor(logger) 
      */
     inner class WaitRotationFinished(tags: MutableMap<Long, MutableList<Tag>>) : BaseState(tags) {
         private val rotationLayerExists = WindowManagerConditionsFactory
-            .isLayerVisible(FlickerComponentName.ROTATION)
+            .isLayerVisible(ComponentMatcher.ROTATION)
         private val backSurfaceLayerExists = WindowManagerConditionsFactory
-            .isLayerVisible(FlickerComponentName.BACK_SURFACE)
+            .isLayerVisible(ComponentMatcher.BACK_SURFACE)
         private val areLayersAnimating = WindowManagerConditionsFactory.hasLayersAnimating()
         private val wmStateIdle = WindowManagerConditionsFactory
             .isAppTransitionIdle(/* default display */ 0)

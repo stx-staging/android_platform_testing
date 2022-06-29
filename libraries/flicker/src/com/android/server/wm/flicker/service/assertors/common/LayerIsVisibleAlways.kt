@@ -21,7 +21,7 @@ import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubj
 import com.android.server.wm.traces.common.tags.Tag
 
 /**
- * Checks if the [component] layer is visible during the entire transition
+ * Checks if the [componentMatcher] layer is visible during the entire transition
  */
 class LayerIsVisibleAlways(windowName: String) : ComponentBaseTest(windowName) {
     /** {@inheritDoc} */
@@ -30,6 +30,6 @@ class LayerIsVisibleAlways(windowName: String) : ComponentBaseTest(windowName) {
         wmSubject: WindowManagerTraceSubject,
         layerSubject: LayersTraceSubject
     ) {
-        layerSubject.isVisible(component).forAllEntries()
+        layerSubject.isVisible(componentMatcher).forAllEntries()
     }
 }

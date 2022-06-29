@@ -21,7 +21,7 @@ import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubj
 import com.android.server.wm.traces.common.tags.Tag
 
 /**
- * Checks that [component] starts not on top and moves to top during the transition
+ * Checks that [componentMatcher] starts not on top and moves to top during the transition
  */
 open class WindowMovesToTop(windowName: String) : ComponentBaseTest(windowName) {
     /** {@inheritDoc} */
@@ -30,9 +30,9 @@ open class WindowMovesToTop(windowName: String) : ComponentBaseTest(windowName) 
         wmSubject: WindowManagerTraceSubject,
         layerSubject: LayersTraceSubject
     ) {
-        wmSubject.isAppWindowNotOnTop(component)
+        wmSubject.isAppWindowNotOnTop(componentMatcher)
             .then()
-            .isAppWindowOnTop(component)
+            .isAppWindowOnTop(componentMatcher)
             .forAllEntries()
     }
 }

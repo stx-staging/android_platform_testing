@@ -94,7 +94,7 @@ class FlickerMetricsCollectorRuleTest {
     private fun openTestApp() {
         testApp.launchViaIntent(wmHelper)
         wmHelper.StateSyncBuilder()
-            .withFullScreenApp(testApp.component)
+            .withFullScreenApp(testApp.componentMatcher)
             .waitForAndVerify()
     }
 

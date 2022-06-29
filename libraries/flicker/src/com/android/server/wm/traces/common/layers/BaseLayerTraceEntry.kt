@@ -16,11 +16,15 @@
 
 package com.android.server.wm.traces.common.layers
 
-import com.android.server.wm.traces.common.FlickerComponentName
+import com.android.server.wm.traces.common.ComponentMatcher
+import com.android.server.wm.traces.common.IComponentMatcher
 import com.android.server.wm.traces.common.ITraceEntry
 import com.android.server.wm.traces.common.Rect
 import com.android.server.wm.traces.common.prettyTimestamp
 
+/**
+ * Base class for SF trace entries
+ */
 abstract class BaseLayerTraceEntry : ITraceEntry {
     abstract val hwcBlob: String
     abstract val where: String
@@ -40,33 +44,50 @@ abstract class BaseLayerTraceEntry : ITraceEntry {
     val physicalDisplay: Display? get() = displays.firstOrNull { !it.isVirtual }
     val physicalDisplayBounds: Rect? get() = physicalDisplay?.layerStackSpace
 
-    fun getLayerWithBuffer(component: FlickerComponentName): Layer? {
+    /**
+     * @return A [Layer] matching [componentMatcher] with a non-empty active buffer, or null if
+     * no layer matches [componentMatcher] or if the matching layer's buffer is empty
+     *
+     * @param componentMatcher Components to search
+     */
+    fun getLayerWithBuffer(componentMatcher: IComponentMatcher): Layer? {
         return flattenedLayers.firstOrNull {
-            component.layerMatchesAnyOf(it) && it.activeBuffer.isNotEmpty
+            componentMatcher.layerMatchesAnyOf(it) && it.activeBuffer.isNotEmpty
         }
     }
 
+    /**
+     * @return The [Layer] with [layerId], or null if the layer is not found
+     */
     fun getLayerById(layerId: Int): Layer? = this.flattenedLayers.firstOrNull { it.id == layerId }
 
     /**
-     * Checks if any layer in the screen is animating.
+     * Checks if any layer matching [componentMatcher] in the screen is animating.
      *
      * The screen is animating when a layer is not simple rotation, of when the pip overlay
      * layer is visible
+     *
+     * @param componentMatcher Components to search
      */
-    fun isAnimating(windowName: String = ""): Boolean {
-        val layers = visibleLayers.filter { it.name.contains(windowName) }
+    fun isAnimating(componentMatcher: IComponentMatcher? = null): Boolean {
+        val layers = visibleLayers
+            .filter { componentMatcher == null || componentMatcher.layerMatchesAnyOf(it) }
         val layersAnimating = layers.any { layer -> !layer.transform.isSimpleRotation }
-        val pipAnimating = isVisible(FlickerComponentName.PIP_CONTENT_OVERLAY)
+        val pipAnimating = isVisible(ComponentMatcher.PIP_CONTENT_OVERLAY)
         return layersAnimating || pipAnimating
     }
 
     /**
-     * Check if at least one window which matches provided window name is visible.
+     * Check if at least one window matching [componentMatcher] is visible.
+     *
+     * @param componentMatcher Components to search
      */
-    fun isVisible(component: FlickerComponentName): Boolean =
-        component.layerMatchesAnyOf(visibleLayers)
+    fun isVisible(componentMatcher: IComponentMatcher): Boolean =
+        componentMatcher.layerMatchesAnyOf(visibleLayers)
 
+    /**
+     * @return A [LayersTrace] object containing this state as its only entry
+     */
     fun asTrace(): LayersTrace = LayersTrace(arrayOf(this))
 
     override fun toString(): String {

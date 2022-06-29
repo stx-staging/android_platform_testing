@@ -36,7 +36,7 @@ import androidx.test.uiautomator.Until
 import com.android.compatibility.common.util.SystemUtil
 import com.android.server.wm.flicker.helpers.WindowUtils.displayBounds
 import com.android.server.wm.flicker.helpers.WindowUtils.estimateNavigationBarPosition
-import com.android.server.wm.traces.common.FlickerComponentName
+import com.android.server.wm.traces.common.ComponentMatcher
 import com.android.server.wm.traces.common.WindowManagerConditionsFactory
 import com.android.server.wm.traces.parser.toAndroidRect
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerStateHelper
@@ -45,7 +45,7 @@ import org.junit.Assert.assertNotNull
 
 const val FIND_TIMEOUT: Long = 10000
 const val FAST_WAIT_TIMEOUT: Long = 0
-val DOCKED_STACK_DIVIDER = FlickerComponentName("", "DockedStackDivider")
+val DOCKED_STACK_DIVIDER = ComponentMatcher("", "DockedStackDivider")
 const val IME_PACKAGE = "com.google.android.inputmethod.latin"
 @VisibleForTesting
 const val SYSTEMUI_PACKAGE = "com.android.systemui"
@@ -215,17 +215,15 @@ fun UiDevice.openQuickStepAndClearRecentAppsFromOverview(
     }
     for (i in 0..9) {
         this.swipe(
-                this.getDisplayWidth() / 2,
-                this.getDisplayHeight() / 2,
-                this.getDisplayWidth(),
-                this.getDisplayHeight() / 2,
-                5)
+            this.displayWidth / 2,
+            this.displayHeight / 2,
+            this.displayWidth,
+            this.displayHeight / 2,
+            5
+        )
         // If "Clear all"  button appears, use it
-        val clearAllSelector = By.res(this.getLauncherPackageName(), "clear_all")
-        val clearAllButton = this.wait(Until.findObject(clearAllSelector), FAST_WAIT_TIMEOUT)
-        if (clearAllButton != null) {
-            clearAllButton.click()
-        }
+        val clearAllSelector = By.res(this.launcherPackageName, "clear_all")
+        wait(Until.findObject(clearAllSelector), FAST_WAIT_TIMEOUT)?.click()
     }
     this.pressHome()
 }

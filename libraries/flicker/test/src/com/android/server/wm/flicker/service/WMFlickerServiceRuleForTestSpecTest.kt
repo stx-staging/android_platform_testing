@@ -62,7 +62,7 @@ class WMFlickerServiceRuleForTestSpecTest(private val testSpec: FlickerTestParam
 
                 testApp.launchViaIntent(wmHelper)
                 wmHelper.StateSyncBuilder()
-                    .withFullScreenApp(testApp.component)
+                    .withFullScreenApp(testApp.componentMatcher)
                     .waitForAndVerify()
 
                 device.pressHome()

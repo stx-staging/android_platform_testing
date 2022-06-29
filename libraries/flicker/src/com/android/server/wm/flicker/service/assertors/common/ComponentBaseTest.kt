@@ -17,11 +17,11 @@
 package com.android.server.wm.flicker.service.assertors.common
 
 import com.android.server.wm.flicker.service.assertors.BaseAssertion
-import com.android.server.wm.traces.common.FlickerComponentName
+import com.android.server.wm.traces.common.ComponentMatcher
 
 /**
- * Base class for tests that require a [component] named window name
+ * Base class for tests that require a [componentMatcher] based on a window name
  */
 abstract class ComponentBaseTest(windowName: String) : BaseAssertion() {
-    protected val component = FlickerComponentName.unflattenFromString(windowName)
+    protected val componentMatcher = ComponentMatcher.unflattenFromString(windowName)
 }

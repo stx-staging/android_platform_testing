@@ -22,8 +22,9 @@ import android.app.UiAutomation
 import android.content.ComponentName
 import android.os.ParcelFileDescriptor
 import android.util.Log
+import com.android.server.wm.traces.common.ComponentMatcher
 import com.android.server.wm.traces.common.DeviceStateDump
-import com.android.server.wm.traces.common.FlickerComponentName
+import com.android.server.wm.traces.common.IComponentMatcher
 import com.android.server.wm.traces.common.Rect
 import com.android.server.wm.traces.common.layers.BaseLayerTraceEntry
 import com.android.server.wm.traces.common.windowmanager.WindowManagerState
@@ -87,7 +88,7 @@ fun getCurrentStateDump(
 }
 
 /**
- * Converts an Android [ComponentName] into a flicker [FlickerComponentName]
+ * Converts an Android [ComponentName] into a flicker [ComponentMatcher]
  */
-fun ComponentName.toFlickerComponent(): FlickerComponentName =
-    FlickerComponentName(this.packageName, this.className)
+fun ComponentName.toFlickerComponent(): IComponentMatcher =
+    ComponentMatcher(this.packageName, this.className)
