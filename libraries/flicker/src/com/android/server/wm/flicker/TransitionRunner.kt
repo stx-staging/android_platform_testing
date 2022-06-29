@@ -222,7 +222,9 @@ open class TransitionRunner {
     private fun runTransitionSetup(flicker: Flicker) {
         try {
             flicker.runSetup.forEach { it.invoke(flicker) }
-            flicker.wmHelper.waitFor(UI_STABLE_CONDITIONS)
+            flicker.wmHelper.StateSyncBuilder()
+                .add(UI_STABLE_CONDITIONS)
+                .waitFor()
         } catch (e: Throwable) {
             throw TransitionSetupFailure(e)
         }
@@ -241,7 +243,9 @@ open class TransitionRunner {
     @Throws(TransitionTeardownFailure::class)
     private fun runTransitionTeardown(flicker: Flicker) {
         try {
-            flicker.wmHelper.waitFor(UI_STABLE_CONDITIONS)
+            flicker.wmHelper.StateSyncBuilder()
+                .add(UI_STABLE_CONDITIONS)
+                .waitFor()
             flicker.traceMonitors.forEach { it.tryStop() }
             flicker.runTeardown.forEach { it.invoke(flicker) }
         } catch (e: Throwable) {

@@ -46,7 +46,9 @@ class RotationMockTest {
         val wmHelper = WindowManagerStateHelper(instrumentation)
 
         device.wakeUpAndGoToHomeScreen()
-        wmHelper.waitForHomeActivityVisible()
+        wmHelper.StateSyncBuilder()
+            .withHomeActivityVisible()
+            .waitForAndVerify()
         dummyAppHelper.launchViaIntent(wmHelper)
         device.setOrientationLeft()
         instrumentation.uiAutomation.syncInputTransactions()

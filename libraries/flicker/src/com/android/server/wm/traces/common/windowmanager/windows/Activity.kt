@@ -16,6 +16,8 @@
 
 package com.android.server.wm.traces.common.windowmanager.windows
 
+import com.android.server.wm.traces.common.FlickerComponentName
+
 /**
  * Represents an activity in the window manager hierarchy
  *
@@ -33,13 +35,18 @@ open class Activity(
     windowContainer: WindowContainer
 ) : WindowContainer(windowContainer, name, visible) {
     /**
-     * Checks if the activity contains a window with title containing [partialWindowTitle]
+     * Checks if the activity contains a window with title containing [component]
      *
-     * @param partialWindowTitle window title to search
+     * @param component window title to search
      */
-    fun hasWindow(partialWindowTitle: String): Boolean {
-        return collectDescendants<WindowState> { it.title.contains(partialWindowTitle) }
+    fun hasWindow(component: FlickerComponentName): Boolean {
+        return collectDescendants<WindowState> { component.windowMatchesAnyOf(it) }
                 .isNotEmpty()
+    }
+
+    internal fun hasWindow(windowState: WindowState): Boolean {
+        return collectDescendants<WindowState> { windowState == it }
+            .isNotEmpty()
     }
 
     override fun toString(): String {

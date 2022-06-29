@@ -16,14 +16,10 @@
 
 package com.android.server.wm.flicker.service
 
-import android.view.Display
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import com.android.server.wm.flicker.helpers.SampleAppHelper
 import com.android.server.wm.flicker.monitor.withTracing
-import com.android.server.wm.traces.common.WindowManagerConditionsFactory.hasLayersAnimating
-import com.android.server.wm.traces.common.WindowManagerConditionsFactory.isAppTransitionIdle
-import com.android.server.wm.traces.common.WindowManagerConditionsFactory.isWMStateComplete
 import com.android.server.wm.traces.common.service.TaggingEngine
 import com.android.server.wm.traces.common.tags.Transition
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerStateHelper
@@ -44,7 +40,9 @@ class TraceIsTaggableTest {
     @Before
     fun setup() {
         device.pressHome()
-        wmHelper.waitForHomeActivityVisible()
+        wmHelper.StateSyncBuilder()
+            .withHomeActivityVisible()
+            .waitForAndVerify()
     }
 
     @Test
@@ -53,13 +51,6 @@ class TraceIsTaggableTest {
         // Generates trace of opening the messaging application from home screen
         val trace = withTracing {
             SampleAppHelper(instrumentation).launchViaIntent(wmHelper)
-
-            // Wait until transition is fully completed
-            wmHelper.waitFor(
-                hasLayersAnimating().negate(),
-                isAppTransitionIdle(Display.DEFAULT_DISPLAY),
-                isWMStateComplete()
-            )
         }
 
         val engine = TaggingEngine(
