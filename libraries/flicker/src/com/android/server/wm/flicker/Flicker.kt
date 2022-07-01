@@ -106,7 +106,6 @@ class Flicker(
     )
 
     var result: FlickerResult? = null
-        private set
 
     /**
      * Executes the test transition.
@@ -114,8 +113,7 @@ class Flicker(
      * @throws IllegalStateException If cannot execute the transition
      */
     fun execute(): Flicker = apply {
-        val result = runner.execute(this)
-        this.result = result
+        this.result = runner.execute(this, useCacheIfAvailable = true)
     }
 
     /**
@@ -139,8 +137,7 @@ class Flicker(
             if (result.executionErrors.isEmpty()) {
                 // If there are no execution errors we want to throw an error here since we won't
                 // fail later in the FlickerBlockJUnit4ClassRunner.
-                throw Exception(
-                        "No transition runs were successful executed! Can't check assertion.")
+                throw Exception("No transition runs were executed! Can't check assertion.")
             }
             return
         }
@@ -157,9 +154,10 @@ class Flicker(
     fun clear() {
         Log.v(FLICKER_TAG, "Cleaning up spec $testName")
         runner.cleanUp()
-        result = null
+        result?.clearFromMemory()
         faasTracesCollector.stop()
         faasTracesCollector.clear()
+        Log.v(FLICKER_TAG, "Cleaned up spec $testName")
     }
 
     /**

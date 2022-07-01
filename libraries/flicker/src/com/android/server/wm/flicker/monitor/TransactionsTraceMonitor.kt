@@ -16,15 +16,11 @@
 
 package com.android.server.wm.flicker.monitor
 
-import android.util.Log
 import android.view.WindowManagerGlobal
-import com.android.server.wm.flicker.FLICKER_TAG
 import com.android.server.wm.flicker.FlickerRunResult
 import com.android.server.wm.flicker.getDefaultFlickerOutputDir
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 import com.android.server.wm.traces.common.layers.LayersTrace
-import com.android.server.wm.traces.parser.transaction.TransactionsTraceParser
-import java.nio.file.Files
 import java.nio.file.Path
 
 /**
@@ -50,11 +46,7 @@ open class TransactionsTraceMonitor @JvmOverloads constructor(
     override val isEnabled: Boolean
         get() = true
 
-    override fun setResult(builder: FlickerRunResult.Builder) {
-        builder.setTransactionsTrace(outputFile) {
-            Log.v(FLICKER_TAG, "Parsing Transactions trace")
-            val traceData = Files.readAllBytes(outputFile)
-            TransactionsTraceParser.parseFromTrace(traceData)
-        }
+    override fun setResult(result: FlickerRunResult) {
+        result.setTransactionsTrace(outputFile.toFile())
     }
 }

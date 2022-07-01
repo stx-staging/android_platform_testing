@@ -68,9 +68,6 @@ class FlickerServiceTracesCollector(val outputDir: Path) : ITracesCollector {
             FlickerService.getFassFilePath(outputDir, "transition_trace"),
             FlickerService.getFassFilePath(outputDir, "transactions_trace")
         )
-        transactionsTrace = getTransactionsTraceFromFile(
-            FlickerService.getFassFilePath(outputDir, "transactions_trace")
-        )
     }
 
     override fun getCollectedTraces(): Traces {
@@ -78,9 +75,7 @@ class FlickerServiceTracesCollector(val outputDir: Path) : ITracesCollector {
         val layersTrace = layersTrace ?: error("Make sure tracing was stopped before calling this")
         val transitionsTrace = transitionsTrace
             ?: error("Make sure tracing was stopped before calling this")
-        val transactionsTrace = transactionsTrace
-            ?: error("Make sure tracing was stopped before calling this")
-        return Traces(wmTrace, layersTrace, transitionsTrace, transactionsTrace)
+        return Traces(wmTrace, layersTrace, transitionsTrace)
     }
 
     private fun reset() {

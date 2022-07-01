@@ -18,12 +18,14 @@ package com.android.server.wm.flicker.service
 
 import com.android.server.wm.flicker.service.assertors.AssertionResult
 import junit.framework.Assert
-import org.junit.Test
 
 class FlickerTestCase(val results: List<AssertionResult>) {
 
-    @Test
-    fun runTest(param: Any) {
+    // Used by the FlickerBlockJUnit4ClassRunner to identify the test method within this class
+    annotation class InjectedTest
+
+    @InjectedTest
+    fun injectedTest(param: Any) {
         if (containsFailures) {
             Assert.fail(assertionMessage)
         }

@@ -17,62 +17,38 @@
 package com.android.server.wm.flicker
 
 import androidx.annotation.VisibleForTesting
-import com.android.compatibility.common.util.ZipUtil
 import com.android.server.wm.flicker.assertions.AssertionData
 import com.android.server.wm.flicker.assertions.FlickerAssertionError
 import com.android.server.wm.flicker.assertions.FlickerAssertionErrorBuilder
 import com.android.server.wm.flicker.assertions.FlickerSubject
 import com.android.server.wm.flicker.dsl.AssertionTag
+import com.android.server.wm.flicker.helpers.clearableLazy
 import com.android.server.wm.flicker.traces.eventlog.EventLogSubject
 import com.android.server.wm.flicker.traces.eventlog.FocusEvent
+import com.android.server.wm.flicker.traces.layers.LayerTraceEntrySubject
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
+import com.android.server.wm.flicker.traces.windowmanager.WindowManagerStateSubject
 import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
-import com.android.server.wm.traces.common.layers.BaseLayerTraceEntry
 import com.android.server.wm.traces.common.layers.LayersTrace
 import com.android.server.wm.traces.common.transactions.TransactionsTrace
 import com.android.server.wm.traces.common.transition.TransitionsTrace
-import com.android.server.wm.traces.common.windowmanager.WindowManagerState
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
+import com.android.server.wm.traces.parser.DeviceDumpParser
+import com.android.server.wm.traces.parser.layers.LayersTraceParser
+import com.android.server.wm.traces.parser.transaction.TransactionsTraceParser
+import com.android.server.wm.traces.parser.transition.TransitionsTraceParser
+import com.android.server.wm.traces.parser.windowmanager.WindowManagerTraceParser
 import java.io.File
-import java.nio.file.Path
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.async
-import kotlinx.coroutines.runBlocking
+
+val CHAR_POOL: List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
 
 /**
  * Defines the result of a flicker run
  */
-class FlickerRunResult private constructor(
-    /**
-     * The trace files associated with the result (incl. screen recording)
-     */
-    _traceFile: Path?,
-    /**
-     * Determines which assertions to run (e.g., start, end, all, or a custom tag)
-     */
-    @JvmField var assertionTag: String,
-    /**
-     * Truth subject that corresponds to a [WindowManagerTrace] or [WindowManagerState]
-     */
-    internal val wmSubject: FlickerSubject?,
-    /**
-     * Truth subject that corresponds to a [LayersTrace] or [BaseLayerTraceEntry]
-     */
-    internal val layersSubject: FlickerSubject?,
-    /**
-     * Truth subject that corresponds to a list of [FocusEvent]
-     */
-    @VisibleForTesting
-    val eventLogSubject: EventLogSubject?,
-    /**
-     * A trace of all transitions that ran during the run that can be used by FaaS to determine
-     * which assertion to run and on which parts of the run.
-     */
-    val transitionsTrace: TransitionsTrace?,
-) {
+class FlickerRunResult(testName: String, iteration: Int) {
     /**
      * The object responsible for managing the trace file associated with this result.
      *
@@ -80,46 +56,66 @@ class FlickerRunResult private constructor(
      * derived or extracted from another RunResult then that other RunResult should be the trace
      * file manager.
      */
-    internal var mTraceFile: TraceFile? =
-        if (_traceFile != null) TraceFile(_traceFile) else null
+    private val artifacts: RunResultArtifacts = RunResultArtifacts(getDefaultFlickerOutputDir()
+            .resolve("${testName}_$iteration.zip"))
+    /**
+     * Truth subject that corresponds to a [WindowManagerTrace]
+     */
+    internal var wmTraceSubject: WindowManagerTraceSubject?
+        by clearableLazy { buildWmTraceSubject() }
+        private set
+    /**
+     * Truth subject that corresponds to a [LayersTrace]
+     */
+    internal var layersTraceSubject: LayersTraceSubject?
+        by clearableLazy { buildLayersTraceSubject() }
+        private set
+    /**
+     * Truth subject that corresponds to a list of [FocusEvent]
+     */
+    @VisibleForTesting
+    var eventLogSubject: EventLogSubject? by clearableLazy { buildEventLog() }
+        private set
+    /**
+     * A trace of all transitions that ran during the run that can be used by FaaS to determine
+     * which assertion to run and on which parts of the run.
+     */
+    var transitionsTrace: TransitionsTrace? by clearableLazy { buildTransitionsTrace() }
+        private set
+    /**
+     * A collection of tagged states collected during the run. Stored as a mapping from tag to state
+     * entry subjects representing the dump.
+     */
+    var taggedStates: Map<String, List<StateDump>>? by clearableLazy { buildTaggedStates() }
+        private set
 
-    internal val traceName = mTraceFile?.traceFile?.fileName ?: "UNNAMED_TRACE"
+    internal val traceName = this.artifacts.path.fileName ?: "UNNAMED_TRACE"
 
-    var status: RunStatus = RunStatus.UNDEFINED
-        internal set(value) {
-            if (field != value) {
-                require(value != RunStatus.UNDEFINED) {
-                    "Can't set status to UNDEFINED after being defined"
-                }
-                require(!field.isFailure) {
-                    "Status of run already set to a failed status $field " +
-                        "and can't be changed to $value."
-                }
-                field = value
-            }
-
-            mTraceFile?.status = status
+    val status: RunStatus
+        get() {
+            return this.artifacts.status
         }
-
-    fun setRunFailed() {
-        status = RunStatus.RUN_FAILED
-    }
 
     val isSuccessfulRun: Boolean get() = !isFailedRun
     val isFailedRun: Boolean get() {
         require(status != RunStatus.UNDEFINED) {
-            "RunStatus cannot be UNDEFINED for $traceName ($assertionTag)"
+            "RunStatus cannot be UNDEFINED for $traceName"
         }
         // Other types of failures can only happen if the run has succeeded
         return status == RunStatus.RUN_FAILED
     }
 
-    fun getSubjects(): List<FlickerSubject> {
+    fun getSubjects(tag: String): List<FlickerSubject> {
         val result = mutableListOf<FlickerSubject>()
 
-        wmSubject?.run { result.add(this) }
-        layersSubject?.run { result.add(this) }
-        eventLogSubject?.run { result.add(this) }
+        if (tag == AssertionTag.ALL) {
+            wmTraceSubject?.run { result.add(this) }
+            layersTraceSubject?.run { result.add(this) }
+            eventLogSubject?.run { result.add(this) }
+        } else {
+            taggedStates!![tag]?.forEach { it.wmState?.run { result.add(this) } }
+            taggedStates!![tag]?.forEach { it.layersState?.run { result.add(this) } }
+        }
 
         return result
     }
@@ -130,215 +126,173 @@ class FlickerRunResult private constructor(
             assertion.checkAssertion(this)
             null
         } catch (error: Throwable) {
-            status = RunStatus.ASSERTION_FAILED
+            this.artifacts.status = RunStatus.ASSERTION_FAILED
             FlickerAssertionErrorBuilder()
                 .fromError(error)
                 .atTag(assertion.tag)
-                .withTrace(this.mTraceFile)
+                .withTrace(this.artifacts)
                 .build()
         }
     }
 
-    /**
-     * Parse a [trace] file into a anything asynchronously
-     *
-     * The parsed result is available in [promise]
-     */
-    class AsyncParser<SubjectType>(
-        val trace: Path,
-        parser: ((Path) -> SubjectType?)?
-    ) {
-        val promise: Deferred<SubjectType?>? = parser?.run { SCOPE.async { parser(trace) } }
+    private val taggedStateBuilders: MutableMap<String, MutableList<StateDumpFileNames>> =
+        mutableMapOf()
+    private var wmTraceFileName: String? = null
+    private var layersTraceFileName: String? = null
+    private var transactionsTraceFileName: String? = null
+    private var transitionsTraceFileName: String? = null
+
+    data class StateDumpFileNames(
+        val wmDumpFileName: String,
+        val layersDumpFileName: String,
+    )
+
+    @VisibleForTesting
+    var eventLog: List<FocusEvent>? = null
+
+    fun setStatus(status: RunStatus) {
+        this.artifacts.status = status
     }
 
-    class Builder {
-        private var wmTraceData: AsyncParser<WindowManagerTraceSubject>? = null
-        private var layersTraceData: AsyncParser<LayersTraceSubject>? = null
-        private var transitionsTraceData: AsyncParser<TransitionsTrace>? = null
-        private var transactionsTraceData: AsyncParser<TransactionsTrace>? = null
-        var screenRecording: Path? = null
+    fun setWmTrace(traceFile: File) {
+        wmTraceFileName = traceFile.name
+        this.artifacts.addFile(traceFile)
+    }
 
-        /**
-         * List of focus events, if collected
-         */
-        var eventLog: List<FocusEvent>? = null
+    fun setLayersTrace(traceFile: File) {
+        layersTraceFileName = traceFile.name
+        this.artifacts.addFile(traceFile)
+    }
 
-        /**
-         * Parses a [WindowManagerTraceSubject]
-         *
-         * @param traceFile of the trace file to parse
-         * @param parser lambda to parse the trace into a [WindowManagerTraceSubject]
-         */
-        fun setWmTrace(traceFile: Path, parser: (Path) -> WindowManagerTraceSubject?) {
-            wmTraceData = AsyncParser(traceFile, parser)
+    fun setScreenRecording(screenRecording: File) {
+        this.artifacts.addFile(screenRecording)
+    }
+
+    fun setTransactionsTrace(traceFile: File) {
+        transactionsTraceFileName = traceFile.name
+        this.artifacts.addFile(traceFile)
+    }
+
+    fun setTransitionsTrace(traceFile: File) {
+        transitionsTraceFileName = traceFile.name
+        this.artifacts.addFile(traceFile)
+    }
+
+    fun addTaggedState(
+        tag: String,
+        wmDumpFile: File,
+        layersDumpFile: File
+    ) {
+        if (taggedStateBuilders[tag] == null) {
+            taggedStateBuilders[tag] = mutableListOf()
         }
+        // Append random string to support multiple dumps with the same tag
+        val randomString = (1..10)
+                .map { i -> kotlin.random.Random.nextInt(0, CHAR_POOL.size) }
+                .map(CHAR_POOL::get)
+                .joinToString("")
+        val wmDumpArchiveName = wmDumpFile.name + randomString
+        val layersDumpArchiveName = layersDumpFile.name + randomString
+        taggedStateBuilders[tag]!!
+                .add(StateDumpFileNames(wmDumpArchiveName, layersDumpArchiveName))
+        this.artifacts.addFile(wmDumpFile, wmDumpArchiveName)
+        this.artifacts.addFile(layersDumpFile, layersDumpArchiveName)
+    }
 
-        /**
-         * Parses a [LayersTraceSubject]
-         *
-         * @param traceFile of the trace file to parse
-         * @param parser lambda to parse the trace into a [LayersTraceSubject]
-         */
-        fun setLayersTrace(traceFile: Path, parser: (Path) -> LayersTraceSubject?) {
-            layersTraceData = AsyncParser(traceFile, parser)
-        }
+    fun setResultsFromMonitor(resultSetter: IResultSetter) {
+        resultSetter.setResult(this)
+    }
 
-        /**
-         * Parses a [TransitionsTrace]
-         *
-         * @param traceFile of the trace file to parse
-         * @param parser lambda to parse the trace file into a [TransitionsTrace]
-         */
-        fun setTransitionsTrace(traceFile: Path, parser: (Path) -> TransitionsTrace?) {
-            transitionsTraceData = AsyncParser(traceFile, parser)
-        }
+    internal fun buildWmTrace(): WindowManagerTrace? {
+        val wmTraceFileName = this.wmTraceFileName ?: return null
+        val traceData = this.artifacts.getFileBytes(wmTraceFileName)
+        return WindowManagerTraceParser.parseFromTrace(traceData)
+    }
 
-        /**
-         * Parses a [TransactionsTrace]
-         *
-         * @param traceFile of the trace file to parse
-         * @param parser lambda to parse the trace file into a [TransactionsTrace]
-         */
-        fun setTransactionsTrace(traceFile: Path, parser: (Path) -> TransactionsTrace?) {
-            transactionsTraceData = AsyncParser(traceFile, parser)
-        }
+    internal fun buildLayersTrace(): LayersTrace? {
+        val wmTraceFileName = this.layersTraceFileName ?: return null
+        val traceData = this.artifacts.getFileBytes(wmTraceFileName)
+        return LayersTraceParser.parseFromTrace(traceData)
+    }
 
-        private fun buildResult(
-            assertionTag: String,
-            wmSubject: FlickerSubject?,
-            layersSubject: FlickerSubject?,
-            status: RunStatus,
-            traceFile: Path? = null,
-            eventLogSubject: EventLogSubject? = null,
-            transitionsTrace: TransitionsTrace? = null,
-            transactionsTrace: TransactionsTrace? = null
-        ): FlickerRunResult {
-            val result = FlickerRunResult(
-                traceFile,
-                assertionTag,
-                wmSubject,
-                layersSubject,
-                eventLogSubject,
-                transitionsTrace,
-                transactionsTrace
-            )
-            result.status = status
-            return result
-        }
+    private fun buildTransactionsTrace(): TransactionsTrace? {
+        val transactionsTrace = this.transactionsTraceFileName ?: return null
+        val traceData = this.artifacts.getFileBytes(transactionsTrace)
+        return TransactionsTraceParser.parseFromTrace(traceData)
+    }
 
-        /**
-         * Builds a new [FlickerRunResult] for a trace
-         *
-         * @param assertionTag Tag to associate with the result
-         * @param wmTrace WindowManager trace
-         * @param layersTrace Layers trace
-         */
-        fun buildStateResult(
-            assertionTag: String,
-            wmTrace: WindowManagerTrace?,
-            layersTrace: LayersTrace?,
-            wmTraceFile: Path?,
-            layersTraceFile: Path?,
-            testName: String,
-            iteration: Int,
-            status: RunStatus
-        ): FlickerRunResult {
-            val wmSubject = wmTrace?.let { WindowManagerTraceSubject.assertThat(it).first() }
-            val layersSubject = layersTrace?.let { LayersTraceSubject.assertThat(it).first() }
+    internal fun buildTransitionsTrace(): TransitionsTrace? {
+        val transactionsTrace = buildTransactionsTrace()
+        val transitionsTrace = this.transitionsTraceFileName ?: return null
+        val traceData = this.artifacts.getFileBytes(transitionsTrace)
+        return TransitionsTraceParser.parseFromTrace(traceData, transactionsTrace!!)
+    }
 
-            val traceFiles = mutableListOf<File>()
-            wmTraceFile?.let { traceFiles.add(it.toFile()) }
-            layersTraceFile?.let { traceFiles.add(it.toFile()) }
-            val traceFile = compress(traceFiles, "${assertionTag}_${testName}_$iteration.zip")
+    private fun buildTaggedStates(): Map<String, List<StateDump>> {
+        val taggedStates = mutableMapOf<String, List<StateDump>>()
+        for ((tag, states) in taggedStateBuilders.entries) {
+            val taggedStatesList = mutableListOf<StateDump>()
+            taggedStates[tag] = taggedStatesList
+            for (state in states) {
+                val wmDumpData = this.artifacts.getFileBytes(state.wmDumpFileName)
+                val layersDumpData = this.artifacts.getFileBytes(state.layersDumpFileName)
+                val deviceState = DeviceDumpParser.fromDump(wmDumpData, layersDumpData)
 
-            return buildResult(
-                assertionTag, wmSubject, layersSubject, status,
-                traceFile = traceFile
-            )
-        }
-
-        @VisibleForTesting
-        fun buildEventLogResult(status: RunStatus): FlickerRunResult {
-            val events = eventLog ?: emptyList()
-            return buildResult(
-                AssertionTag.ALL,
-                wmSubject = null,
-                layersSubject = null,
-                eventLogSubject = EventLogSubject.assertThat(events),
-                status = status
-            )
-        }
-
-        @VisibleForTesting
-        fun buildTraceResults(
-            testName: String,
-            iteration: Int,
-            status: RunStatus
-        ): RunResults = runBlocking {
-            val wmSubject = wmTraceData?.promise?.await()
-            val layersSubject = layersTraceData?.promise?.await()
-            val transitionsTrace = transitionsTraceData?.promise?.await()
-            val transactionsTrace = transactionsTraceData?.promise?.await()
-
-            val traceFile = compress(testName, iteration)
-            val traceResult = buildResult(
-                AssertionTag.ALL, wmSubject, layersSubject, transitionsTrace = transitionsTrace,
-                transactionsTrace = transactionsTrace, traceFile = traceFile, status = status
-            )
-            val initialStateResult = buildResult(
-                AssertionTag.START, wmSubject?.first(), layersSubject?.first(), status = status
-            )
-            initialStateResult.mTraceFile = traceResult.mTraceFile
-
-            val finalStateResult = buildResult(
-                AssertionTag.END, wmSubject?.last(), layersSubject?.last(), status = status
-            )
-            finalStateResult.mTraceFile = traceResult.mTraceFile
-
-            RunResults(initialStateResult, finalStateResult, traceResult)
-        }
-
-        private fun compress(testName: String, iteration: Int): Path? {
-            val traceFiles = mutableListOf<File>()
-            wmTraceData?.trace?.let { traceFiles.add(it.toFile()) }
-            layersTraceData?.trace?.let { traceFiles.add(it.toFile()) }
-            screenRecording?.let { traceFiles.add(it.toFile()) }
-
-            return compress(traceFiles, "${testName}_$iteration.zip")
-        }
-
-        private fun compress(traceFiles: List<File>, archiveName: String): Path? {
-            val files = traceFiles.filter { it.exists() }
-            if (files.isEmpty()) {
-                return null
+                val wmStateSubject = deviceState.wmState
+                        ?.asTrace()?.let { WindowManagerTraceSubject.assertThat(it).first() }
+                val layersStateSubject = deviceState.layerState
+                        ?.asTrace()?.let { LayersTraceSubject.assertThat(it).first() }
+                taggedStatesList.add(StateDump(wmStateSubject, layersStateSubject))
             }
-
-            val firstFile = files.first()
-            val compressedFile = firstFile.resolveSibling(archiveName)
-            ZipUtil.createZip(traceFiles, compressedFile)
-            traceFiles.forEach {
-                it.delete()
-            }
-
-            return compressedFile.toPath()
         }
 
-        fun buildAll(testName: String, iteration: Int, status: RunStatus): RunResults {
-            val results = buildTraceResults(testName, iteration, status)
-            if (eventLog != null) {
-                results.eventLogResult = buildEventLogResult(status = status)
-            }
+        require(taggedStates[AssertionTag.START] == null) { "START tag is reserved" }
+        taggedStates[AssertionTag.START] = listOf(buildStartState())
+        require(taggedStates[AssertionTag.END] == null) { "END tag is reserved" }
+        taggedStates[AssertionTag.END] = listOf(buildEndState())
 
-            return results
-        }
+        return taggedStates
+    }
 
-        fun setResultFrom(resultSetter: IResultSetter) {
-            resultSetter.setResult(this)
-        }
+    private fun buildStartState(): StateDump {
+        return StateDump(buildWmTraceSubject()?.first(), buildLayersTraceSubject()?.first())
+    }
+
+    private fun buildEndState(): StateDump {
+        return StateDump(buildWmTraceSubject()?.last(), buildLayersTraceSubject()?.last())
+    }
+
+    private fun buildEventLog(): EventLogSubject? {
+        val eventLog = eventLog ?: return null
+        return EventLogSubject.assertThat(eventLog)
+    }
+
+    private fun buildWmTraceSubject(): WindowManagerTraceSubject? {
+        val wmTrace = buildWmTrace()
+        return if (wmTrace != null)
+            WindowManagerTraceSubject.assertThat(wmTrace) else null
+    }
+
+    private fun buildLayersTraceSubject(): LayersTraceSubject? {
+        val layersTrace = buildLayersTrace()
+        return if (layersTrace != null)
+            LayersTraceSubject.assertThat(layersTrace) else null
+    }
+
+    internal fun lock() {
+        this.artifacts.lock()
+    }
+
+    fun clearFromMemory() {
+        wmTraceSubject = null
+        layersTraceSubject = null
+        eventLogSubject = null
+        transitionsTrace = null
+        taggedStates = null
     }
 
     interface IResultSetter {
-        fun setResult(builder: Builder)
+        fun setResult(result: FlickerRunResult)
     }
 
     companion object {
@@ -384,4 +338,9 @@ class FlickerRunResult private constructor(
             }
         }
     }
+
+    data class StateDump(
+        val wmState: WindowManagerStateSubject?,
+        val layersState: LayerTraceEntrySubject?
+    )
 }

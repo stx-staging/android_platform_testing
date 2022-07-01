@@ -22,6 +22,7 @@ import com.android.compatibility.common.util.SystemUtil
 import com.android.server.wm.flicker.FlickerRunResult.Companion.RunStatus
 import com.android.server.wm.flicker.dsl.FlickerBuilder
 import com.google.common.truth.Truth
+import java.lang.RuntimeException
 import org.junit.After
 import org.junit.Before
 import org.junit.FixMethodOrder
@@ -29,7 +30,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.MethodSorters
 import org.mockito.junit.MockitoJUnitRunner
-import java.lang.RuntimeException
+
+private const val TEST_NAME = "TransitionRunnerTest"
 
 /**
  * Contains [TransitionRunner] tests.
@@ -59,7 +61,10 @@ class TransitionRunnerTest {
     fun canRunTransition() {
         val runner = TransitionRunner()
         var executed = false
+        val iterations = 1
         val flicker = FlickerBuilder(instrumentation)
+            .withTestName { TEST_NAME }
+            .repeat { iterations }
             .apply {
                 transitions {
                     executed = true
@@ -70,13 +75,14 @@ class TransitionRunnerTest {
         runner.cleanUp()
         Truth.assertThat(executed).isTrue()
         Truth.assertThat(result.executionErrors).isEmpty()
-        Truth.assertThat(result.successfulRuns).hasSize(4)
+        Truth.assertThat(result.successfulRuns).hasSize(iterations)
     }
 
     @Test
     fun storesTransitionExecutionErrors() {
         val runner = TransitionRunner()
         val flicker = FlickerBuilder(instrumentation)
+            .withTestName { TEST_NAME }
             .apply {
                 transitions {
                     throw RuntimeException("Failed to execute transition")
@@ -94,6 +100,7 @@ class TransitionRunnerTest {
 
         val runner = TransitionRunner()
         val flicker = FlickerBuilder(instrumentation)
+                .withTestName { TEST_NAME }
                 .apply {
                     transitions {
                         transitionRunCounter++
@@ -108,7 +115,7 @@ class TransitionRunnerTest {
         Truth.assertThat(result.executionErrors).isNotEmpty()
         // One for each monitor for each repetition expect the last one
         // for which the transition failed to execute
-        val expectedResultCount = flicker.traceMonitors.size * (repetitions - 1)
+        val expectedResultCount = repetitions - 1
         Truth.assertThat(result.successfulRuns.size).isEqualTo(expectedResultCount)
     }
 
@@ -116,6 +123,7 @@ class TransitionRunnerTest {
     fun storesSuccessExecutionStatusInRunResult() {
         val runner = TransitionRunner()
         val flicker = FlickerBuilder(instrumentation)
+                .withTestName { TEST_NAME }
                 .apply {
                     transitions {}
                 }.repeat { 3 }.build(runner)
@@ -129,6 +137,7 @@ class TransitionRunnerTest {
     fun storesFailedExecutionStatusInRunResult() {
         val runner = TransitionRunner()
         val flicker = FlickerBuilder(instrumentation)
+                .withTestName { TEST_NAME }
                 .apply {
                     transitions {
                         throw RuntimeException("Failed to execute transition")
@@ -144,6 +153,7 @@ class TransitionRunnerTest {
     fun savesTraceOnTransitionExecutionErrors() {
         val runner = TransitionRunner()
         val flicker = FlickerBuilder(instrumentation)
+                .withTestName { TEST_NAME }
                 .apply {
                     transitions {
                         throw Throwable()
@@ -152,13 +162,14 @@ class TransitionRunnerTest {
                 .build(runner)
         runner.execute(flicker)
 
-        assertArchiveContainsAllTraces(runStatus = RunStatus.RUN_FAILED)
+        assertArchiveContainsAllTraces(runStatus = RunStatus.RUN_FAILED, testName = TEST_NAME)
     }
 
     @Test
     fun savesTraceOnRunCleanupErrors() {
         val runner = TransitionRunner()
         val flicker = FlickerBuilder(instrumentation)
+                .withTestName { TEST_NAME }
                 .apply {
                     transitions {}
                     teardown {
@@ -170,13 +181,14 @@ class TransitionRunnerTest {
                 .build(runner)
         runner.execute(flicker)
 
-        assertArchiveContainsAllTraces(runStatus = RunStatus.RUN_FAILED)
+        assertArchiveContainsAllTraces(runStatus = RunStatus.RUN_FAILED, testName = TEST_NAME)
     }
 
     @Test
     fun savesTraceOnTestCleanupErrors() {
         val runner = TransitionRunner()
         val flicker = FlickerBuilder(instrumentation)
+                .withTestName { TEST_NAME }
                 .apply {
                     transitions {}
                     teardown {
@@ -188,6 +200,6 @@ class TransitionRunnerTest {
                 .build(runner)
         runner.execute(flicker)
 
-        assertArchiveContainsAllTraces(runStatus = RunStatus.RUN_FAILED)
+        assertArchiveContainsAllTraces(runStatus = RunStatus.RUN_FAILED, testName = TEST_NAME)
     }
 }

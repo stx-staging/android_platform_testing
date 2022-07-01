@@ -31,7 +31,6 @@ import java.util.Collections
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 import org.junit.FixMethodOrder
-import org.junit.Test
 import org.junit.internal.AssumptionViolatedException
 import org.junit.internal.runners.model.EachTestNotifier
 import org.junit.internal.runners.statements.RunAfters
@@ -140,7 +139,7 @@ class FlickerBlockJUnit4ClassRunner @JvmOverloads constructor(
      * Implementation of ParentRunner based on BlockJUnit4ClassRunner.
      * Modified to report Flicker execution errors in the test results.
      */
-    override fun runChild(method: FrameworkMethod?, notifier: RunNotifier) {
+    override fun runChild(method: FrameworkMethod, notifier: RunNotifier) {
         val description = describeChild(method)
         if (isIgnored(method)) {
             notifier.fireTestIgnored(description)
@@ -237,12 +236,15 @@ class FlickerBlockJUnit4ClassRunner @JvmOverloads constructor(
 
             val injectedTestCase = FlickerTestCase(results)
             val mockedTestMethod = TestClass(injectedTestCase.javaClass)
-                .getAnnotatedMethods(Test::class.java).first()
+                .getAnnotatedMethods(FlickerTestCase.InjectedTest::class.java).first()
             val mockedFrameworkMethod = FlickerFrameworkMethod(
                 mockedTestMethod.method, injectedTestCase, testName
             )
             flickerTestMethods.add(mockedFrameworkMethod)
         }
+
+        // Flush flicker data to storage to save memory and avoid OOM exceptions
+        flicker.clear()
 
         return flickerTestMethods
     }
@@ -468,7 +470,7 @@ class FlickerBlockJUnit4ClassRunner @JvmOverloads constructor(
             var children: List<FrameworkMethod> = getFilteredChildren()
             // In theory, we could have duplicate Descriptions. De-dup them before ordering,
             // and add them back at the end.
-            val childMap: MutableMap<Description, MutableList<FrameworkMethod>?> = LinkedHashMap(
+            val childMap: MutableMap<Description, MutableList<FrameworkMethod>> = LinkedHashMap(
                     children.size)
             for (child in children) {
                 val description = describeChild(child)

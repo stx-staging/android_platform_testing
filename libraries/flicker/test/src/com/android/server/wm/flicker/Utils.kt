@@ -117,7 +117,7 @@ fun assertThatErrorContainsDebugInfo(error: Throwable, withBlameEntry: Boolean =
 
 fun assertArchiveContainsAllTraces(
     runStatus: FlickerRunResult.Companion.RunStatus = ASSERTION_SUCCESS,
-    testName: String = "",
+    testName: String,
     iteration: Int = 0
 ) {
     val archiveFileName = "${runStatus.prefix}_${testName}_$iteration.zip"

@@ -290,6 +290,10 @@ class FlickerBuilder private constructor(
             traceMonitors.add(TransactionsTraceMonitor(outputDir))
         }
 
+        require(testName.isNotEmpty()) {
+            "Test name must be provided by calling .withTestName {} on builder"
+        }
+
         return Flicker(
             instrumentation,
             device,
