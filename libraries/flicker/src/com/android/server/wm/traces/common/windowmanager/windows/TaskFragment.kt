@@ -37,6 +37,26 @@ open class TaskFragment(
     val activities: Array<Activity>
         get() = this.children.reversed().filterIsInstance<Activity>().toTypedArray()
 
+    fun getActivity(predicate: (Activity) -> Boolean): Activity? {
+        var activity: Activity? = activities.firstOrNull { predicate(it) }
+        if (activity != null) {
+            return activity
+        }
+        for (task in tasks) {
+            activity = task.getActivity(predicate)
+            if (activity != null) {
+                return activity
+            }
+        }
+        for (taskFragment in taskFragments) {
+            activity = taskFragment.getActivity(predicate)
+            if (activity != null) {
+                return activity
+            }
+        }
+        return null
+    }
+
     override fun toString(): String {
         return "${this::class.simpleName}: {$token $title} bounds=$bounds"
     }
