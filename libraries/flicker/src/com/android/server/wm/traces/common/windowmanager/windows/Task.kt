@@ -91,9 +91,23 @@ open class Task(
     }
 
     fun getActivity(predicate: (Activity) -> Boolean): Activity? {
-        return activities.firstOrNull { predicate(it) }
-            ?: tasks.flatMap { it.activities.toList() }
-                .firstOrNull { predicate(it) }
+        var activity: Activity? = activities.firstOrNull { predicate(it) }
+        if (activity != null) {
+            return activity
+        }
+        for (task in tasks) {
+            activity = task.getActivity(predicate)
+            if (activity != null) {
+                return activity
+            }
+        }
+        for (taskFragment in taskFragments) {
+            activity = taskFragment.getActivity(predicate)
+            if (activity != null) {
+                return activity
+            }
+        }
+        return null
     }
 
     fun getActivity(component: FlickerComponentName): Activity? =
