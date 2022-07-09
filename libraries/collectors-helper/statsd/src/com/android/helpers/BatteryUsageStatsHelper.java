@@ -58,18 +58,18 @@ public class BatteryUsageStatsHelper implements ICollectorHelper<Long> {
         PackageManager packageManager =
                 InstrumentationRegistry.getInstrumentation().getContext().getPackageManager();
 
-        List<BatteryUsageStatsAtomsProto> atoms =
+        List<BatteryUsageStatsAtomsProto> filteredBusAtoms =
                 Arrays.stream(bucket.atom)
                         .filter(a -> a.hasBatteryUsageStatsSinceReset())
                         .map(a -> a.getBatteryUsageStatsSinceReset().batteryUsageStats)
                         .collect(Collectors.toList());
-        if (atoms.size() != 1) {
+        if (filteredBusAtoms.size() != 1) {
             throw new IllegalStateException(
                     String.format(
                             "Expected exactly 1 BatteryUsageStats atom, but has %d.",
-                            atoms.size()));
+                            filteredBusAtoms.size()));
         }
-        BatteryUsageStatsAtomsProto atom = atoms.get(0);
+        BatteryUsageStatsAtomsProto atom = filteredBusAtoms.get(0);
 
         Map<String, Long> results = new HashMap<>();
 
@@ -213,17 +213,19 @@ public class BatteryUsageStatsHelper implements ICollectorHelper<Long> {
         }
 
         StatsLog.GaugeMetricData gaugeMetricData = gaugeMetricList.get(0);
-        if (gaugeMetricData.bucketInfo.length != 2) {
+        if (gaugeMetricData.bucketInfo.length < 2) {
             throw new IllegalStateException(
                     String.format(
-                            "Expected exactly 2 buckets in data, but has %d.",
+                            "Expected at least 2 buckets in data, but has %d.",
                             gaugeMetricData.bucketInfo.length));
         }
         Map<String, Long> beforeData = batteryUsageStatsFromBucket(gaugeMetricData.bucketInfo[0]);
-        Map<String, Long> afterData = batteryUsageStatsFromBucket(gaugeMetricData.bucketInfo[1]);
+        Map<String, Long> afterData =
+                batteryUsageStatsFromBucket(
+                        gaugeMetricData.bucketInfo[gaugeMetricData.bucketInfo.length - 1]);
 
-        printEntries(0, beforeData);
-        printEntries(1, afterData);
+        printEntries("First bucket", beforeData);
+        printEntries("Last bucket", afterData);
 
         Map<String, Long> results = new HashMap<>();
         for (String sharedKey : beforeData.keySet()) {
@@ -241,12 +243,11 @@ public class BatteryUsageStatsHelper implements ICollectorHelper<Long> {
         return mStatsdHelper.removeStatsConfig();
     }
 
-    private void printEntries(int bucket, Map<String, Long> data) {
+    private void printEntries(String prefix, Map<String, Long> data) {
         for (Map.Entry<String, Long> datum : data.entrySet()) {
             Log.e(
                     LOG_TAG,
-                    String.format(
-                            "Bucket: %d\t|\t%s = %s", bucket, datum.getKey(), datum.getValue()));
+                    String.format("%s\t|\t%s = %s", prefix, datum.getKey(), datum.getValue()));
         }
     }
 }
