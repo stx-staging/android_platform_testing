@@ -121,7 +121,7 @@ fun assertThatErrorContainsDebugInfo(error: Throwable, withBlameEntry: Boolean =
     Truth.assertThat(error).hasMessageThat().contains("Trace end")
 
     if (withBlameEntry) {
-        Truth.assertThat(error).hasMessageThat().contains("Entry")
+        Truth.assertThat(error).hasMessageThat().contains("State")
     }
 }
 

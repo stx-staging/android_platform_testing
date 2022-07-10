@@ -91,14 +91,14 @@ class LayerSubject private constructor(
      * Asserts that current subject doesn't exist in the layer hierarchy
      */
     fun doesNotExist(): LayerSubject = apply {
-        check("doesNotExist").that(layer).isNull()
+        check("Layer exists ${layer?.name}").that(layer == null).isTrue()
     }
 
     /**
      * Asserts that current subject exists in the layer hierarchy
      */
     fun exists(): LayerSubject = apply {
-        check("$layerName does not exists").that(layer).isNotNull()
+        check("Layer exists $layerName").that(layer == null).isFalse()
     }
 
     @Deprecated("Prefer hasBufferSize(bounds)")
@@ -116,7 +116,7 @@ class LayerSubject private constructor(
     fun hasBufferSize(size: Size): LayerSubject = apply {
         layer ?: return exists()
         val bufferSize = Size(layer.activeBuffer.width, layer.activeBuffer.height)
-        check("Incorrect buffer size").that(bufferSize).isEqualTo(size)
+        check("Buffer size").that(bufferSize).isEqualTo(size)
     }
 
     /**
@@ -128,7 +128,7 @@ class LayerSubject private constructor(
     fun hasLayerSize(size: Point): LayerSubject = apply {
         layer ?: return exists()
         val layerSize = Point(layer.screenBounds.width.toInt(), layer.screenBounds.height.toInt())
-        check("Incorrect number of layers").that(layerSize).isEqualTo(size)
+        check("Number of layers").that(layerSize).isEqualTo(size)
     }
 
     /**
@@ -138,7 +138,7 @@ class LayerSubject private constructor(
     fun hasScalingMode(expectedScalingMode: Int): LayerSubject = apply {
         layer ?: return exists()
         val actualScalingMode = layer.effectiveScalingMode
-        check("Incorrect scaling mode").that(actualScalingMode).isEqualTo(expectedScalingMode)
+        check("Scaling mode").that(actualScalingMode).isEqualTo(expectedScalingMode)
     }
 
     /**
@@ -150,7 +150,7 @@ class LayerSubject private constructor(
         // see Transform::getOrientation
         val bufferTransformType = layer.bufferTransform.type ?: 0
         val actualOrientation = (bufferTransformType shr 8) and 0xFF
-        check("hasBufferTransformOrientation()")
+        check("BufferTransformOrientation")
                 .that(actualOrientation).isEqualTo(expectedOrientation)
     }
 

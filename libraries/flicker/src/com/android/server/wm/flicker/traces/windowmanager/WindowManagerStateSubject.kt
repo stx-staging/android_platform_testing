@@ -21,6 +21,7 @@ import com.android.server.wm.flicker.assertions.Assertion
 import com.android.server.wm.flicker.assertions.FlickerSubject
 import com.android.server.wm.flicker.traces.FlickerFailureStrategy
 import com.android.server.wm.flicker.traces.region.RegionSubject
+import com.android.server.wm.traces.common.ComponentMatcher
 import com.android.server.wm.traces.common.IComponentMatcher
 import com.android.server.wm.traces.common.region.Region
 import com.android.server.wm.traces.common.windowmanager.WindowManagerState
@@ -62,7 +63,7 @@ class WindowManagerStateSubject private constructor(
 ) : FlickerSubject(fm, wmState),
     IWindowManagerSubject<WindowManagerStateSubject, RegionSubject> {
     override val timestamp: Long get() = wmState.timestamp
-    override val selfFacts = listOf(Fact.fact("Entry", wmState))
+    override val selfFacts = listOf(Fact.fact("WM State", wmState))
 
     val subjects by lazy {
         wmState.windowStates.map { WindowStateSubject.assertThat(it, this, timestamp) }
@@ -94,12 +95,12 @@ class WindowManagerStateSubject private constructor(
 
     /** {@inheritDoc} */
     override fun isEmpty(): WindowManagerStateSubject = apply {
-        check("State is empty").that(subjects).isEmpty()
+        check("WM State").that(subjects).isEmpty()
     }
 
     /** {@inheritDoc} */
     override fun isNotEmpty(): WindowManagerStateSubject = apply {
-        check("State is not empty").that(subjects).isNotEmpty()
+        check("WM State").that(subjects).isNotEmpty()
     }
 
     /** {@inheritDoc} */
@@ -141,28 +142,35 @@ class WindowManagerStateSubject private constructor(
 
     /** {@inheritDoc} */
     override fun isAboveWindow(
-        aboveWindowComponent: IComponentMatcher,
-        belowWindowComponent: IComponentMatcher
+        aboveWindowComponentMatcher: IComponentMatcher,
+        belowWindowComponentMatcher: IComponentMatcher
     ): WindowManagerStateSubject = apply {
-        val aboveWindowTitle = aboveWindowComponent.toWindowName()
-        val belowWindowTitle = belowWindowComponent.toWindowName()
-        require(aboveWindowTitle != belowWindowTitle)
+        val aboveWindowTitle = aboveWindowComponentMatcher.toWindowName()
+        val belowWindowTitle = belowWindowComponentMatcher.toWindowName()
+        if (aboveWindowTitle == belowWindowTitle) {
+            fail(
+                Fact.fact(
+                    ASSERTION_TAG, "Above and below windows should be different. " +
+                        "Instead they were $aboveWindowComponentMatcher"
+                )
+            )
+        }
 
-        contains(aboveWindowComponent)
-        contains(belowWindowComponent)
+        contains(aboveWindowComponentMatcher)
+        contains(belowWindowComponentMatcher)
 
         // windows are ordered by z-order, from top to bottom
         val aboveZ = wmState.windowStates
-            .indexOfFirst { aboveWindowComponent.windowMatchesAnyOf(it) }
+            .indexOfFirst { aboveWindowComponentMatcher.windowMatchesAnyOf(it) }
         val belowZ = wmState.windowStates
-            .indexOfFirst { belowWindowComponent.windowMatchesAnyOf(it) }
+            .indexOfFirst { belowWindowComponentMatcher.windowMatchesAnyOf(it) }
         if (aboveZ >= belowZ) {
             val aboveWindow = subjects.first {
                 it.windowState != null &&
-                    aboveWindowComponent.windowMatchesAnyOf(it.windowState)
+                    aboveWindowComponentMatcher.windowMatchesAnyOf(it.windowState)
             }
-            val aboveWindowTitleStr = aboveWindowComponent.toWindowName()
-            val belowWindowTitleStr = belowWindowComponent.toWindowName()
+            val aboveWindowTitleStr = aboveWindowComponentMatcher.toWindowName()
+            val belowWindowTitleStr = belowWindowComponentMatcher.toWindowName()
             aboveWindow.fail(
                 Fact.fact(ASSERTION_TAG, "isAboveWindow(" +
                     "above=$aboveWindowTitleStr, " +
@@ -263,8 +271,9 @@ class WindowManagerStateSubject private constructor(
     ): WindowManagerStateSubject = apply {
         // Check existence of activity
         val activity = wmState.getActivitiesForWindow(componentMatcher).firstOrNull()
-        check("Activity for window ${componentMatcher.toWindowName()} must exist.")
-            .that(activity).isNotNull()
+        check("Activity exists for window ${componentMatcher.toWindowName()} ")
+            .that(activity != null)
+            .isTrue()
         // Check existence of window.
         contains(componentMatcher)
     }
@@ -274,7 +283,7 @@ class WindowManagerStateSubject private constructor(
         rotation: Int,
         displayId: Int
     ): WindowManagerStateSubject = apply {
-        check("Rotation should be $rotation")
+        check("Rotation")
             .that(rotation)
             .isEqualTo(wmState.getRotation(displayId))
     }
@@ -292,7 +301,7 @@ class WindowManagerStateSubject private constructor(
     ): WindowManagerStateSubject = apply {
         // system components (e.g., NavBar, StatusBar, PipOverlay) don't have a package name
         // nor an activity, ignore them
-        check("Activity=${componentMatcher.toActivityName()} must NOT exist.")
+        check("Activity exists ${componentMatcher.toActivityName()}")
             .that(wmState.containsActivity(componentMatcher))
             .isFalse()
         notContains(componentMatcher)
@@ -302,7 +311,7 @@ class WindowManagerStateSubject private constructor(
     override fun notContains(
         componentMatcher: IComponentMatcher
     ): WindowManagerStateSubject = apply {
-        check("Window=${componentMatcher.toWindowName()} must NOT exits.")
+        check("Window exists ${componentMatcher.toWindowName()}")
             .that(wmState.containsWindow(componentMatcher))
             .isFalse()
     }
@@ -312,7 +321,7 @@ class WindowManagerStateSubject private constructor(
         if (wmState.isHomeRecentsComponent) {
             isHomeActivityVisible()
         } else {
-            check("Recents activity visibility")
+            check("Recents activity is visible")
                 .that(wmState.isRecentsActivityVisible)
                 .isTrue()
         }
@@ -323,7 +332,7 @@ class WindowManagerStateSubject private constructor(
         if (wmState.isHomeRecentsComponent) {
             isHomeActivityInvisible()
         } else {
-            check("Recents activity visibility")
+            check("Recents activity is visible")
                 .that(wmState.isRecentsActivityVisible)
                 .isFalse()
         }
@@ -332,29 +341,31 @@ class WindowManagerStateSubject private constructor(
     /** {@inheritDoc} */
     @VisibleForTesting
     override fun isValid(): WindowManagerStateSubject = apply {
-        check("Must have stacks").that(wmState.stackCount).isGreaterThan(0)
+        check("Stacks count").that(wmState.stackCount).isGreaterThan(0)
         // TODO: Update when keyguard will be shown on multiple displays
         if (!wmState.keyguardControllerState.isKeyguardShowing) {
-            check("There should be at least one resumed activity in the system.")
-                .that(wmState.resumedActivitiesCount).isGreaterThan(0)
+            check("Resumed activity count")
+                .that(wmState.resumedActivitiesCount)
+                .isGreaterThan(0)
         }
-        check("Must have focus activity.")
+        check("Focused activity")
             .that(wmState.focusedActivity)
             .isNotNull()
         wmState.rootTasks.forEach { aStack ->
             val stackId = aStack.rootTaskId
             aStack.tasks.forEach { aTask ->
-                check("Stack can only contain its own tasks")
-                    .that(stackId).isEqualTo(aTask.rootTaskId)
+                check("Root task Id for stack $aTask")
+                    .that(stackId)
+                    .isEqualTo(aTask.rootTaskId)
             }
         }
-        check("Must have front window.")
+        check("Front window")
             .that(wmState.frontWindow)
             .isNotNull()
-        check("Must have focused window.")
+        check("Focused window")
             .that(wmState.focusedWindow)
             .isNotNull()
-        check("Must have app.")
+        check("Focused app")
             .that(wmState.focusedApp)
             .isNotEmpty()
     }
@@ -375,7 +386,7 @@ class WindowManagerStateSubject private constructor(
         // Check existence of activity
         val activity = wmState.getActivitiesForWindow(componentMatcher).firstOrNull()
         // Check visibility of activity and window.
-        check("Activity=${activity?.name} must be visible.")
+        check("Activity is visible ${activity?.name}")
             .that(activity?.isVisible ?: false)
             .isTrue()
         checkWindowVisibility("isVisible", appWindows, componentMatcher, isVisible = true)
@@ -440,7 +451,7 @@ class WindowManagerStateSubject private constructor(
         componentMatcher: IComponentMatcher
     ) {
         val windowStates = subjectList.mapNotNull { it.windowState }
-        check("Window=${componentMatcher.toWindowName()} must exist.")
+        check("Window exists ${componentMatcher.toWindowName()}")
             .that(componentMatcher.windowMatchesAnyOf(windowStates))
             .isTrue()
     }
@@ -448,8 +459,8 @@ class WindowManagerStateSubject private constructor(
     /** {@inheritDoc} */
     override fun isHomeActivityVisible(): WindowManagerStateSubject = apply {
         val homeIsVisible = wmState.homeActivity?.isVisible ?: false
-        check("Home activity doesn't exist").that(wmState.homeActivity).isNotNull()
-        check("Home activity is not visible").that(homeIsVisible).isTrue()
+        check("Home activity exists").that(wmState.homeActivity != null).isTrue()
+        check("Home activity is visible").that(homeIsVisible).isTrue()
     }
 
     /** {@inheritDoc} */
@@ -461,7 +472,7 @@ class WindowManagerStateSubject private constructor(
     /** {@inheritDoc} */
     override fun isPinned(componentMatcher: IComponentMatcher): WindowManagerStateSubject = apply {
         contains(componentMatcher)
-        check("Window ${componentMatcher.toWindowName()} in PIP mode")
+        check("Window is pinned ${componentMatcher.toWindowName()}")
             .that(wmState.isInPipMode(componentMatcher))
             .isTrue()
     }
@@ -471,7 +482,7 @@ class WindowManagerStateSubject private constructor(
         componentMatcher: IComponentMatcher
     ): WindowManagerStateSubject = apply {
         contains(componentMatcher)
-        check("Window ${componentMatcher.toWindowName()} not in PIP mode")
+        check("Window is pinned ${componentMatcher.toWindowName()}")
             .that(wmState.isInPipMode(componentMatcher))
             .isFalse()
     }
@@ -481,12 +492,16 @@ class WindowManagerStateSubject private constructor(
         componentMatcher: IComponentMatcher
     ): WindowManagerStateSubject = apply {
         val activity = wmState.getActivitiesForWindow(componentMatcher).firstOrNull()
+        requireNotNull(activity) { "Activity for $componentMatcher not found" }
 
         // Check existence and visibility of SnapshotStartingWindow
-        val snapshotStartingWindow = activity?.children
-            ?.firstOrNull { it.name.startsWith("SnapshotStartingWindow for taskId=") }
-        check("SnapshotStartingWindow for Activity=${activity?.name} must be visible.")
-            .that(snapshotStartingWindow?.isVisible ?: false).isTrue()
+        val snapshotStartingWindow = activity.getWindows(ComponentMatcher.SNAPSHOT).firstOrNull()
+        check("SnapshotStartingWindow exists for activity ${activity.name}")
+            .that(snapshotStartingWindow != null)
+            .isTrue()
+        check("SnapshotStartingWindow is visible")
+            .that(snapshotStartingWindow?.isVisible ?: false)
+            .isTrue()
     }
 
     /** {@inheritDoc} */

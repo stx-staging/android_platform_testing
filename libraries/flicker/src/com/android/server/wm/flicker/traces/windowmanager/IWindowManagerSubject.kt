@@ -60,18 +60,19 @@ interface IWindowManagerSubject<WMSubjectType, RegionSubjectType> {
     fun containsBelowAppWindow(componentMatcher: IComponentMatcher): WMSubjectType
 
     /**
-     * Asserts the state contains [WindowState]s matching [aboveWindowComponent] and
-     * [belowWindowComponent], and that [aboveWindowComponent] is above [belowWindowComponent]
+     * Asserts the state contains [WindowState]s matching [aboveWindowComponentMatcher] and
+     * [belowWindowComponentMatcher], and that [aboveWindowComponentMatcher] is above
+     * [belowWindowComponentMatcher]
      *
      * This assertion can be used, for example, to assert that a PIP window is shown above
      * other apps.
      *
-     * @param aboveWindowComponent name of the window that should be above
-     * @param belowWindowComponent name of the window that should be below
+     * @param aboveWindowComponentMatcher name of the window that should be above
+     * @param belowWindowComponentMatcher name of the window that should be below
      */
     fun isAboveWindow(
-        aboveWindowComponent: IComponentMatcher,
-        belowWindowComponent: IComponentMatcher
+        aboveWindowComponentMatcher: IComponentMatcher,
+        belowWindowComponentMatcher: IComponentMatcher
     ): WMSubjectType
 
     /**
