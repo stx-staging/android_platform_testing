@@ -150,8 +150,7 @@ class WindowManagerTraceSubjectTest {
     @Test(expected = AssertionError::class)
     fun testCanDetectOverlappingWindows() {
         assertThat(imeTrace)
-            .noWindowsOverlap(ComponentMatcher.IME, ComponentMatcher.NAV_BAR,
-                    IME_ACTIVITY_COMPONENT)
+            .doNotOverlap(ComponentMatcher.IME, ComponentMatcher.NAV_BAR, IME_ACTIVITY_COMPONENT)
             .forAllEntries()
     }
 

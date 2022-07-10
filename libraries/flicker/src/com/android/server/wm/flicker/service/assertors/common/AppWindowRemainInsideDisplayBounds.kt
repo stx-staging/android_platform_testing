@@ -37,7 +37,7 @@ class AppWindowRemainInsideDisplayBounds : AppComponentBaseTest() {
                 entry.fail("No displays found")
             }
             val display = entry.wmState.displays.sortedBy { it.id }.first()
-            entry.frameRegion(getComponentName(tag, wmSubject))
+            entry.visibleRegion(getComponentName(tag, wmSubject))
                 .coversAtMost(display.displayRect)
         }.forAllEntries()
     }

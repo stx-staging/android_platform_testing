@@ -206,7 +206,7 @@ open class WindowManagerStateHelper @JvmOverloads constructor(
          */
         @JvmOverloads
         fun withRecentsActivityVisible(displayId: Int = Display.DEFAULT_DISPLAY) =
-            withAppTransitionIdle()
+            withAppTransitionIdle(displayId)
                 .add(WindowManagerConditionsFactory.isRecentsActivityVisible())
                 .add(WindowManagerConditionsFactory.isLayerVisible(LAUNCHER))
 
