@@ -16,10 +16,7 @@
 
 package com.android.server.wm.flicker.layers
 
-import com.android.server.wm.flicker.DOCKER_STACK_DIVIDER_COMPONENT
-import com.android.server.wm.flicker.IMAGINARY_COMPONENT
-import com.android.server.wm.flicker.LAUNCHER_COMPONENT
-import com.android.server.wm.flicker.SIMPLE_APP_COMPONENT
+import com.android.server.wm.flicker.TestComponents
 import com.android.server.wm.flicker.assertFailure
 import com.android.server.wm.flicker.assertThatErrorContainsDebugInfo
 import com.android.server.wm.flicker.assertThrows
@@ -46,10 +43,12 @@ class LayerTraceEntrySubjectTest {
         val error = assertThrows(AssertionError::class.java) {
             LayersTraceSubject.assertThat(layersTraceEntries)
                 .first()
-                .visibleRegion(IMAGINARY_COMPONENT)
+                .visibleRegion(TestComponents.IMAGINARY)
         }
         assertThatErrorContainsDebugInfo(error)
-        Truth.assertThat(error).hasMessageThat().contains(IMAGINARY_COMPONENT.classNames.first())
+        Truth.assertThat(error)
+            .hasMessageThat()
+            .contains(TestComponents.IMAGINARY.classNames.first())
         Truth.assertThat(error).hasMessageThat().contains(FlickerSubject.ASSERTION_TAG)
     }
 
@@ -58,8 +57,8 @@ class LayerTraceEntrySubjectTest {
         val layersTraceEntries = readLayerTraceFromFile("layers_trace_launch_split_screen.pb")
         LayerTraceEntrySubject.assertThat(layersTraceEntries.entries.first())
             .isVisible(ComponentMatcher.NAV_BAR)
-            .notContains(DOCKER_STACK_DIVIDER_COMPONENT)
-            .isVisible(LAUNCHER_COMPONENT)
+            .notContains(TestComponents.DOCKER_STACK_DIVIDER)
+            .isVisible(TestComponents.LAUNCHER)
     }
 
     @Test
@@ -67,7 +66,7 @@ class LayerTraceEntrySubjectTest {
         val layersTraceEntries = readLayerTraceFromFile("layers_trace_launch_split_screen.pb")
         LayerTraceEntrySubject.assertThat(layersTraceEntries.entries.last())
             .isVisible(ComponentMatcher.NAV_BAR)
-            .isVisible(DOCKER_STACK_DIVIDER_COMPONENT)
+            .isVisible(TestComponents.DOCKER_STACK_DIVIDER)
     }
 
     // b/75276931
@@ -96,12 +95,12 @@ class LayerTraceEntrySubjectTest {
         val expectedVisibleRegion = Region.from(0, 0, 1, 1)
         val error = assertThrows(AssertionError::class.java) {
             LayersTraceSubject.assertThat(trace).entry(937229257165)
-                .visibleRegion(IMAGINARY_COMPONENT)
+                .visibleRegion(TestComponents.IMAGINARY)
                 .coversExactly(expectedVisibleRegion)
         }
         assertFailure(error)
             .factValue("Could not find layers")
-                .contains(IMAGINARY_COMPONENT.toWindowName())
+                .contains(TestComponents.IMAGINARY.toWindowName())
     }
 
     @Test
@@ -110,7 +109,7 @@ class LayerTraceEntrySubjectTest {
         val expectedVisibleRegion = Region.from(0, 0, 1, 1)
         val error = assertThrows(AssertionError::class.java) {
             LayersTraceSubject.assertThat(trace).entry(937126074082)
-                .visibleRegion(DOCKER_STACK_DIVIDER_COMPONENT)
+                .visibleRegion(TestComponents.DOCKER_STACK_DIVIDER)
                 .coversExactly(expectedVisibleRegion)
         }
         assertFailure(error)
@@ -124,7 +123,7 @@ class LayerTraceEntrySubjectTest {
         val expectedVisibleRegion = Region.from(0, 0, 1, 1)
         val error = assertThrows(AssertionError::class.java) {
             LayersTraceSubject.assertThat(trace).entry(935346112030)
-                .visibleRegion(SIMPLE_APP_COMPONENT)
+                .visibleRegion(TestComponents.SIMPLE_APP)
                 .coversExactly(expectedVisibleRegion)
         }
         assertFailure(error)
@@ -160,7 +159,7 @@ class LayerTraceEntrySubjectTest {
         val trace = readLayerTraceFromFile("layers_trace_invalid_layer_visibility.pb")
         val error = assertThrows(AssertionError::class.java) {
             LayersTraceSubject.assertThat(trace).entry(252794268378458)
-                .isVisible(SIMPLE_APP_COMPONENT)
+                .isVisible(TestComponents.SIMPLE_APP)
         }
         assertFailure(error)
             .factValue("Is Invisible", 0)

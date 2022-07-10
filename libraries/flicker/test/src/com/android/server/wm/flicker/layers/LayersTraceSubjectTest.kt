@@ -17,9 +17,7 @@
 package com.android.server.wm.flicker.layers
 
 import androidx.test.filters.FlakyTest
-import com.android.server.wm.flicker.DOCKER_STACK_DIVIDER_COMPONENT
-import com.android.server.wm.flicker.LAUNCHER_COMPONENT
-import com.android.server.wm.flicker.SIMPLE_APP_COMPONENT
+import com.android.server.wm.flicker.TestComponents
 import com.android.server.wm.flicker.assertFailure
 import com.android.server.wm.flicker.assertThrows
 import com.android.server.wm.flicker.readLayerTraceFromFile
@@ -72,8 +70,8 @@ class LayersTraceSubjectTest {
         assertThat(layersTraceEntries)
             .first()
             .isVisible(ComponentMatcher.NAV_BAR)
-            .notContains(DOCKER_STACK_DIVIDER_COMPONENT)
-            .isVisible(LAUNCHER_COMPONENT)
+            .notContains(TestComponents.DOCKER_STACK_DIVIDER)
+            .isVisible(TestComponents.LAUNCHER)
     }
 
     @Test
@@ -82,7 +80,7 @@ class LayersTraceSubjectTest {
         assertThat(layersTraceEntries)
             .last()
             .isVisible(ComponentMatcher.NAV_BAR)
-            .isVisible(DOCKER_STACK_DIVIDER_COMPONENT)
+            .isVisible(TestComponents.DOCKER_STACK_DIVIDER)
     }
 
     @Test
@@ -91,12 +89,12 @@ class LayersTraceSubjectTest {
 
         assertThat(layersTraceEntries)
             .isVisible(ComponentMatcher.NAV_BAR)
-            .isInvisible(DOCKER_STACK_DIVIDER_COMPONENT)
+            .isInvisible(TestComponents.DOCKER_STACK_DIVIDER)
             .forRange(90480846872160L, 90480994138424L)
 
         assertThat(layersTraceEntries)
             .isVisible(ComponentMatcher.NAV_BAR)
-            .isVisible(DOCKER_STACK_DIVIDER_COMPONENT)
+            .isVisible(TestComponents.DOCKER_STACK_DIVIDER)
             .forRange(90491795074136L, 90493757372977L)
     }
 
@@ -105,13 +103,13 @@ class LayersTraceSubjectTest {
         val layersTraceEntries = readLayerTraceFromFile("layers_trace_launch_split_screen.pb")
         assertThat(layersTraceEntries)
             .isVisible(ComponentMatcher.NAV_BAR)
-            .notContains(DOCKER_STACK_DIVIDER_COMPONENT)
+            .notContains(TestComponents.DOCKER_STACK_DIVIDER)
             .then()
             .isVisible(ComponentMatcher.NAV_BAR)
-            .isInvisible(DOCKER_STACK_DIVIDER_COMPONENT)
+            .isInvisible(TestComponents.DOCKER_STACK_DIVIDER)
             .then()
             .isVisible(ComponentMatcher.NAV_BAR)
-            .isVisible(DOCKER_STACK_DIVIDER_COMPONENT)
+            .isVisible(TestComponents.DOCKER_STACK_DIVIDER)
             .forAllEntries()
     }
 
@@ -121,9 +119,9 @@ class LayersTraceSubjectTest {
         val layersTraceEntries = readLayerTraceFromFile("layers_trace_invalid_layer_visibility.pb")
         val error = assertThrows(AssertionError::class.java) {
             assertThat(layersTraceEntries)
-                .isVisible(SIMPLE_APP_COMPONENT)
+                .isVisible(TestComponents.SIMPLE_APP)
                 .then()
-                .isInvisible(SIMPLE_APP_COMPONENT)
+                .isInvisible(TestComponents.SIMPLE_APP)
                 .forAllEntries()
         }
 
@@ -222,7 +220,7 @@ class LayersTraceSubjectTest {
     fun canTestLayerOccludedByAppLayerIsNotVisible() {
         val trace = readLayerTraceFromFile("layers_trace_occluded.pb")
         val entry = assertThat(trace).entry(1700382131522L)
-        entry.isVisible(SIMPLE_APP_COMPONENT)
+        entry.isVisible(TestComponents.SIMPLE_APP)
     }
 
     @Test
@@ -278,7 +276,7 @@ class LayersTraceSubjectTest {
         val newLayer = ComponentMatcher("com.android.server.wm.flicker.testapp",
             "com.android.server.wm.flicker.testapp.SimpleActivity")
         assertThat(trace)
-            .isVisible(LAUNCHER_COMPONENT)
+            .isVisible(TestComponents.LAUNCHER)
             .then()
             .isSplashScreenVisibleFor(newLayer, isOptional = false)
             .then()
@@ -287,7 +285,7 @@ class LayersTraceSubjectTest {
 
         val failure = assertThrows(FlickerSubjectException::class.java) {
             assertThat(trace)
-                .isVisible(LAUNCHER_COMPONENT)
+                .isVisible(TestComponents.LAUNCHER)
                 .then()
                 .isVisible(newLayer)
                 .forAllEntries()
@@ -309,7 +307,7 @@ class LayersTraceSubjectTest {
 
         // No splashscreen for target activity record
         failure = assertThrows(FlickerSubjectException::class.java) {
-            assertThat(trace).first().isSplashScreenVisibleFor(LAUNCHER_COMPONENT)
+            assertThat(trace).first().isSplashScreenVisibleFor(TestComponents.LAUNCHER)
         }
         assertFailure(failure).hasMessageThat().contains("No splash screen visible")
     }
