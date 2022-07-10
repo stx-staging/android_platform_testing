@@ -58,42 +58,29 @@ class LayersTraceSubject private constructor(
     fm: FailureMetadata,
     val trace: LayersTrace,
     override val parent: LayersTraceSubject?
-) : FlickerTraceSubject<LayerTraceEntrySubject>(fm, trace) {
+) : FlickerTraceSubject<LayerTraceEntrySubject>(fm, trace),
+    ILayerSubject<LayersTraceSubject, RegionTraceSubject> {
     override val selfFacts
         get() = super.selfFacts.toMutableList()
     override val subjects by lazy {
         trace.entries.map { LayerTraceEntrySubject.assertThat(it, trace, this) }
     }
 
-    /**
-     * Executes a custom [assertion] on the current subject
-     */
-    operator fun invoke(assertion: Assertion<LayersTrace>): LayersTraceSubject = apply {
-        assertion(this.trace)
-    }
-
     /** {@inheritDoc} */
     override fun then(): LayersTraceSubject = apply { super.then() }
 
-    /**
-     * Checks that [trace] contains entries
-     */
-    fun isEmpty(): LayersTraceSubject = apply {
+    /** {@inheritDoc} */
+    override fun isEmpty(): LayersTraceSubject = apply {
         check("Trace is empty").that(trace).isEmpty()
     }
 
-    /**
-     * Checks that [trace] doesn't contain entries
-     */
-    fun isNotEmpty(): LayersTraceSubject = apply {
+    /** {@inheritDoc} */
+    override fun isNotEmpty(): LayersTraceSubject = apply {
         check("Trace is not empty").that(trace).isNotEmpty()
     }
 
-    /**
-     * @return [LayerSubject] that can be used to make assertions on a single layer matching
-     * [name] and [frameNumber].
-     */
-    fun layer(name: String, frameNumber: Long): LayerSubject {
+    /** {@inheritDoc} */
+    override fun layer(name: String, frameNumber: Long): LayerSubject {
         return subjects
             .map { it.layer(name, frameNumber) }
             .firstOrNull { it.isNotEmpty }
@@ -141,17 +128,16 @@ class LayersTraceSubject private constructor(
         }
     }
 
+    /** {@inheritDoc} */
+    override fun notContains(componentMatcher: IComponentMatcher): LayersTraceSubject =
+        notContains(componentMatcher, isOptional = false)
+
     /**
-     * Asserts that each entry in the trace doesn't contain a [Layer] matching
-     * containing [componentMatcher].
-     *
-     * @param componentMatcher Components to search
-     * @param isOptional If this assertion is optional or must pass
+     * See [notContains]
      */
-    @JvmOverloads
     fun notContains(
         componentMatcher: IComponentMatcher,
-        isOptional: Boolean = false
+        isOptional: Boolean
     ): LayersTraceSubject =
         apply {
             addAssertion("notContains(${componentMatcher.toLayerName()})", isOptional) {
@@ -159,17 +145,16 @@ class LayersTraceSubject private constructor(
             }
         }
 
+    /** {@inheritDoc} */
+    override fun contains(componentMatcher: IComponentMatcher): LayersTraceSubject =
+        contains(componentMatcher, isOptional = false)
+
     /**
-     * Asserts that each entry in the trace contains a [Layer] matching
-     * [componentMatcher].
-     *
-     * @param componentMatcher Components to search
-     * @param isOptional If this assertion is optional or must pass
+     * See [contains]
      */
-    @JvmOverloads
     fun contains(
         componentMatcher: IComponentMatcher,
-        isOptional: Boolean = false
+        isOptional: Boolean
     ): LayersTraceSubject =
         apply {
             addAssertion("contains(${componentMatcher.toLayerName()})", isOptional) {
@@ -177,16 +162,16 @@ class LayersTraceSubject private constructor(
             }
         }
 
+    /** {@inheritDoc} */
+    override fun isVisible(componentMatcher: IComponentMatcher): LayersTraceSubject =
+        isVisible(componentMatcher, isOptional = false)
+
     /**
-     * Asserts that each entry in the trace contains a [Layer] matching
-     * [componentMatcher] is visible.
-     *
-     * @param componentMatcher Components to search
+     * See [isVisible]
      */
-    @JvmOverloads
     fun isVisible(
         componentMatcher: IComponentMatcher,
-        isOptional: Boolean = false
+        isOptional: Boolean
     ): LayersTraceSubject =
         apply {
             addAssertion("isVisible(${componentMatcher.toLayerName()})", isOptional) {
@@ -194,16 +179,16 @@ class LayersTraceSubject private constructor(
             }
         }
 
+    /** {@inheritDoc} */
+    override fun isInvisible(componentMatcher: IComponentMatcher): LayersTraceSubject =
+        isInvisible(componentMatcher, isOptional = false)
+
     /**
-     * Asserts that each entry in the trace doesn't contain a [Layer] matching
-     * [componentMatcher] or that the layer is not visible .
-     *
-     * @param componentMatcher Name of the layer to search
+     * See [isInvisible]
      */
-    @JvmOverloads
     fun isInvisible(
         componentMatcher: IComponentMatcher,
-        isOptional: Boolean = false
+        isOptional: Boolean
     ): LayersTraceSubject =
         apply {
             addAssertion("isInvisible(${componentMatcher.toLayerName()})", isOptional) {
@@ -211,16 +196,18 @@ class LayersTraceSubject private constructor(
             }
         }
 
+    /** {@inheritDoc} */
+    override fun isSplashScreenVisibleFor(
+        componentMatcher: IComponentMatcher
+    ): LayersTraceSubject =
+        isSplashScreenVisibleFor(componentMatcher, isOptional = false)
+
     /**
-     * Asserts that each entry in the trace contains a visible splash screen [Layer] for a [layer]
-     * matching [componentMatcher].
-     *
-     * @param componentMatcher Name of the layer to search
+     * See [isSplashScreenVisibleFor]
      */
-    @JvmOverloads
     fun isSplashScreenVisibleFor(
         componentMatcher: IComponentMatcher,
-        isOptional: Boolean = false
+        isOptional: Boolean
     ): LayersTraceSubject =
         apply {
             addAssertion(
@@ -232,17 +219,21 @@ class LayersTraceSubject private constructor(
         }
 
     /**
-     * Obtains the trace of regions occupied by all layers matching [componentMatcher]
-     *
-     * @param componentMatcher Components to search for
-     * @param useCompositionEngineRegionOnly If true, uses only the region calculated from the
-     *   Composition Engine (CE) -- visibleRegion in the proto definition. Otherwise, calculates
-     *   the visible region when the information is not available from the CE
+     * See [visibleRegion]
      */
-    @JvmOverloads
-    fun visibleRegion(
-        componentMatcher: IComponentMatcher? = null,
-        useCompositionEngineRegionOnly: Boolean = true
+    fun visibleRegion(): RegionTraceSubject =
+        visibleRegion(componentMatcher = null, useCompositionEngineRegionOnly = false)
+
+    /**
+     * See [visibleRegion]
+     */
+    fun visibleRegion(componentMatcher: IComponentMatcher?): RegionTraceSubject =
+        visibleRegion(componentMatcher, useCompositionEngineRegionOnly = false)
+
+    /** {@inheritDoc} */
+    override fun visibleRegion(
+        componentMatcher: IComponentMatcher?,
+        useCompositionEngineRegionOnly: Boolean
     ): RegionTraceSubject {
         val regionTrace = RegionTrace(componentMatcher,
             subjects.map {
@@ -256,6 +247,7 @@ class LayersTraceSubject private constructor(
     /**
      * Executes a custom [assertion] on the current subject
      */
+    @JvmOverloads
     operator fun invoke(
         name: String,
         isOptional: Boolean = false,

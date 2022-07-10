@@ -60,7 +60,8 @@ class LayerTraceEntrySubject private constructor(
     val entry: BaseLayerTraceEntry,
     val trace: LayersTrace?,
     override val parent: FlickerSubject?
-) : FlickerSubject(fm, entry) {
+) : FlickerSubject(fm, entry),
+    ILayerSubject<LayerTraceEntrySubject, RegionSubject> {
     override val timestamp: Long get() = entry.timestamp
     override val selfFacts = listOf(Fact.fact("Entry", entry))
 
@@ -76,36 +77,36 @@ class LayerTraceEntrySubject private constructor(
             assertion(this.entry)
         }
 
-    /**
-     * Asserts that the current SurfaceFlinger state doesn't contain layers
-     */
-    fun isEmpty(): LayerTraceEntrySubject = apply {
+    /** {@inheritDoc} */
+    override fun isEmpty(): LayerTraceEntrySubject = apply {
         check("Entry should not be empty")
             .that(entry.flattenedLayers)
             .isEmpty()
     }
 
-    /**
-     * Asserts that the current SurfaceFlinger state contains layers
-     */
-    fun isNotEmpty(): LayerTraceEntrySubject = apply {
+    /** {@inheritDoc} */
+    override fun isNotEmpty(): LayerTraceEntrySubject = apply {
         check("Entry should not be empty")
             .that(entry.flattenedLayers)
             .isNotEmpty()
     }
 
     /**
-     * Obtains the region occupied by all layers matching [componentMatcher]
-     *
-     * @param componentMatcher Components to search
-     * @param useCompositionEngineRegionOnly If true, uses only the region calculated from the
-     *   Composition Engine (CE) -- visibleRegion in the proto definition. Otherwise, calculates
-     *   the visible region when the information is not available from the CE
+     * See [visibleRegion]
      */
-    @JvmOverloads
-    fun visibleRegion(
-        componentMatcher: IComponentMatcher? = null,
-        useCompositionEngineRegionOnly: Boolean = true
+    fun visibleRegion(): RegionSubject =
+        visibleRegion(componentMatcher = null, useCompositionEngineRegionOnly = true)
+
+    /**
+     * See [visibleRegion]
+     */
+    fun visibleRegion(componentMatcher: IComponentMatcher): RegionSubject =
+        visibleRegion(componentMatcher, useCompositionEngineRegionOnly = true)
+
+    /** {@inheritDoc} */
+    override fun visibleRegion(
+        componentMatcher: IComponentMatcher?,
+        useCompositionEngineRegionOnly: Boolean
     ): RegionSubject {
         val selectedLayers = if (componentMatcher == null) {
             // No filters so use all subjects
@@ -135,12 +136,8 @@ class LayerTraceEntrySubject private constructor(
         }
     }
 
-    /**
-     * Asserts the state contains a [Layer] matching [componentMatcher].
-     *
-     * @param componentMatcher Components to search
-     */
-    fun contains(componentMatcher: IComponentMatcher): LayerTraceEntrySubject = apply {
+    /** {@inheritDoc} */
+    override fun contains(componentMatcher: IComponentMatcher): LayerTraceEntrySubject = apply {
         val found = componentMatcher.layerMatchesAnyOf(entry.flattenedLayers)
         if (!found) {
             fail(
@@ -150,12 +147,8 @@ class LayerTraceEntrySubject private constructor(
         }
     }
 
-    /**
-     * Asserts the state doesn't contain a [Layer] matching [componentMatcher]
-     *
-     * @param componentMatcher Components to search
-     */
-    fun notContains(componentMatcher: IComponentMatcher): LayerTraceEntrySubject = apply {
+    /** {@inheritDoc} */
+    override fun notContains(componentMatcher: IComponentMatcher): LayerTraceEntrySubject = apply {
         val foundEntry = subjects
             .firstOrNull { it.layer != null && componentMatcher.layerMatchesAnyOf(it.layer) }
         foundEntry?.fail(
@@ -164,12 +157,8 @@ class LayerTraceEntrySubject private constructor(
         )
     }
 
-    /**
-     * Asserts that a [Layer] matching [componentMatcher] is visible.
-     *
-     * @param componentMatcher Components to search
-     */
-    fun isVisible(componentMatcher: IComponentMatcher): LayerTraceEntrySubject = apply {
+    /** {@inheritDoc} */
+    override fun isVisible(componentMatcher: IComponentMatcher): LayerTraceEntrySubject = apply {
         contains(componentMatcher)
         var target: FlickerSubject? = null
         var reason = listOf<Fact>()
@@ -201,12 +190,8 @@ class LayerTraceEntrySubject private constructor(
         }
     }
 
-    /**
-     * Asserts that a [Layer] matching [componentMatcher] doesn't exist or is invisible.
-     *
-     * @param componentMatcher Components to search
-     */
-    fun isInvisible(componentMatcher: IComponentMatcher): LayerTraceEntrySubject = apply {
+    /** {@inheritDoc} */
+    override fun isInvisible(componentMatcher: IComponentMatcher): LayerTraceEntrySubject = apply {
         try {
             isVisible(componentMatcher)
         } catch (e: FlickerSubjectException) {
@@ -227,13 +212,8 @@ class LayerTraceEntrySubject private constructor(
         )
     }
 
-    /**
-     * Asserts that the entry contains a visible splash screen [Layer] for a [layer] with
-     * matching [componentMatcher]
-     *
-     * @param componentMatcher Components to search
-     */
-    fun isSplashScreenVisibleFor(
+    /** {@inheritDoc} */
+    override fun isSplashScreenVisibleFor(
         componentMatcher: IComponentMatcher
     ): LayerTraceEntrySubject = apply {
         var target: FlickerSubject? = null
@@ -281,12 +261,7 @@ class LayerTraceEntrySubject private constructor(
     }
 
     /**
-     * Obtains a [LayerSubject] for the first occurrence of a [Layer] matching [componentMatcher].
-     * Always returns a subject, event when the layer doesn't exist. To verify if layer
-     * actually exists in the hierarchy use [LayerSubject.exists] or [LayerSubject.doesNotExist]
-     *
-     * @param componentMatcher Components to search
-     * @return LayerSubject that can be used to make assertions on a single layer matching
+     * See [layer]
      */
     fun layer(componentMatcher: IComponentMatcher): LayerSubject {
         return layer {
@@ -294,17 +269,8 @@ class LayerTraceEntrySubject private constructor(
         }
     }
 
-    /**
-     * Obtains a [LayerSubject] for the first occurrence of a [Layer] with [Layer.name]
-     * containing [name] in [frameNumber].
-     *
-     * Always returns a subject, event when the layer doesn't exist. To verify if layer
-     * actually exists in the hierarchy use [LayerSubject.exists] or [LayerSubject.doesNotExist]
-     *
-     * @return LayerSubject that can be used to make assertions on a single layer matching
-     * [name] and [frameNumber].
-     */
-    fun layer(name: String, frameNumber: Long): LayerSubject {
+    /** {@inheritDoc} */
+    override fun layer(name: String, frameNumber: Long): LayerSubject {
         return layer(name) {
             it.name.contains(name) && it.currFrame == frameNumber
         }
