@@ -32,6 +32,9 @@ data class WindowManagerTrace(
     override val entries: Array<WindowManagerState>
 ) : ITrace<WindowManagerState>,
     List<WindowManagerState> by entries.toList() {
+
+    val isTablet: Boolean get() = entries.any { it.isTablet }
+
     override fun toString(): String {
         return "WindowManagerTrace(Start: ${entries.firstOrNull()}, " +
             "End: ${entries.lastOrNull()})"

@@ -171,6 +171,7 @@ class ComponentMatcher(
 
     companion object {
         val NAV_BAR = ComponentMatcher("", "NavigationBar0")
+        val TASK_BAR = ComponentMatcher("", "Taskbar")
         val STATUS_BAR = ComponentMatcher("", "StatusBar")
         val ROTATION = ComponentMatcher("", "RotationLayer")
         val BACK_SURFACE = ComponentMatcher("", "BackColorSurface")

@@ -24,8 +24,8 @@ import com.android.server.wm.traces.common.ComponentMatcher
 import com.android.server.wm.traces.common.tags.Tag
 
 /**
- * Checks if the [ComponentMatcher.NAV_BAR] layer is placed at the correct position at the
- * end of the transition
+ * Checks if the [ComponentMatcher.NAV_BAR] or [ComponentMatcher.TASK_BAR] layer is placed at
+ * the correct position at the end of the transition
  */
 class NavBarLayerPositionAtEnd : BaseAssertion() {
     /** {@inheritDoc} */
@@ -37,7 +37,9 @@ class NavBarLayerPositionAtEnd : BaseAssertion() {
         val lastLayersSubject = layerSubject.last()
         val display = lastLayersSubject.entry.displays.minByOrNull { it.id }
             ?: throw RuntimeException("There is no display!")
-        lastLayersSubject.visibleRegion(ComponentMatcher.NAV_BAR)
-            .coversExactly(WindowUtils.getNavigationBarPosition(display))
+        lastLayersSubject.visibleRegion(
+            ComponentMatcher.NAV_BAR
+                .or(ComponentMatcher.TASK_BAR)
+        ).coversExactly(WindowUtils.getNavigationBarPosition(display))
     }
 }

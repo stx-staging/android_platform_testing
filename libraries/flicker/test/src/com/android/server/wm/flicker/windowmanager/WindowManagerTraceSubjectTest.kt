@@ -234,4 +234,20 @@ class WindowManagerTraceSubjectTest {
         }
         assertFailure(failure).hasMessageThat().contains("Is Invisible")
     }
+
+    @Test
+    fun canDetectAppVisibleTablet() {
+        val trace = readWmTraceFromFile("tablet/wm_trace_open_chrome.winscope")
+        assertThat(trace)
+            .isAppWindowVisible(TestComponents.CHROME)
+            .forAllEntries()
+    }
+
+    @Test
+    fun canDetectAppOpenRecentsTablet() {
+        val trace = readWmTraceFromFile("tablet/wm_trace_open_recents.winscope")
+        assertThat(trace)
+            .isRecentsActivityVisible()
+            .forAllEntries()
+    }
 }

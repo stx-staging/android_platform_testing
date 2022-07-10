@@ -390,4 +390,24 @@ class WindowManagerStateSubjectTest {
         // Verify there's exact 2 TaskFragments in window hierarchy.
         Truth.assertThat(entry.wmState.taskFragments.size).isEqualTo(2)
     }
+
+    @Test
+    fun canDetectIsHomeActivityVisibleTablet() {
+        val trace = readWmTraceFromDumpFile("tablet/wm_dump_home_screen.winscope")
+        // There's only one entry in dump file.
+        val entry = assertThat(trace).first()
+        // Verify that the device is in home screen
+        Truth.assertThat(entry.wmState.isHomeActivityVisible).isTrue()
+        // Verify that the subject is in home screen
+        entry.isHomeActivityVisible()
+    }
+
+    @Test
+    fun canDetectTaskBarIsVisible() {
+        val trace = readWmTraceFromDumpFile("tablet/wm_dump_home_screen.winscope")
+        // There's only one entry in dump file.
+        val entry = assertThat(trace).first()
+        // Verify that the taskbar is visible
+        entry.isNonAppWindowVisible(ComponentMatcher.TASK_BAR)
+    }
 }

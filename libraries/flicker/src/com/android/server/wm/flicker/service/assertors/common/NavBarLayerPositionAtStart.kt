@@ -24,8 +24,8 @@ import com.android.server.wm.traces.common.ComponentMatcher
 import com.android.server.wm.traces.common.tags.Tag
 
 /**
- * Checks if the [ComponentMatcher.NAV_BAR] layer is placed at the correct position at the
- * start of the transition
+ * Checks if the [ComponentMatcher.NAV_BAR] or [ComponentMatcher.TASK_BAR] layer is placed at
+ * the correct position at the start of the transition
  */
 class NavBarLayerPositionAtStart : BaseAssertion() {
     /** {@inheritDoc} */
@@ -37,7 +37,9 @@ class NavBarLayerPositionAtStart : BaseAssertion() {
         val firstLayersSubject = layerSubject.first()
         val display = firstLayersSubject.entry.displays.minByOrNull { it.id }
             ?: throw RuntimeException("There is no display!")
-        firstLayersSubject.visibleRegion(ComponentMatcher.NAV_BAR)
-            .coversExactly(WindowUtils.getNavigationBarPosition(display))
+        firstLayersSubject.visibleRegion(
+            ComponentMatcher.NAV_BAR
+                .or(ComponentMatcher.TASK_BAR)
+        ).coversExactly(WindowUtils.getNavigationBarPosition(display))
     }
 }
