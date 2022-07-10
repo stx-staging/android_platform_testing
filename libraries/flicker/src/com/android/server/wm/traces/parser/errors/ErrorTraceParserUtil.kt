@@ -35,12 +35,11 @@ class ErrorTraceParserUtil {
          *
          * @param data binary proto data
          */
-        @JvmOverloads
         @JvmStatic
         fun parseFromTrace(
             data: ByteArray
         ): ErrorTrace {
-            var fileProto: FlickerErrorTraceProto? = null
+            var fileProto: FlickerErrorTraceProto?
             try {
                 measureTimeMillis {
                     fileProto = FlickerErrorTraceProto.parseFrom(data)
@@ -61,7 +60,6 @@ class ErrorTraceParserUtil {
          *
          * @param proto Parsed proto data
          */
-        @JvmOverloads
         @JvmStatic
         fun parseFromTrace(
             proto: FlickerErrorTraceProto

@@ -34,30 +34,30 @@ class FlickerSubjectException(
             if (cause is AssertionError) "Flicker assertion error" else "Unknown error"
 
     internal val errorDescription = buildString {
-        appendln("Where? $prettyTimestamp")
+        appendLine("Where? $prettyTimestamp")
         val message = (cause.message ?: "").split(("\n"))
         append("What? ")
         if (message.size == 1) {
             // Single line error message
-            appendln(message.first())
+            appendLine(message.first())
         } else {
             // Multi line error message
-            appendln()
-            message.forEach { appendln("\t$it") }
+            appendLine()
+            message.forEach { appendLine("\t$it") }
         }
     }
 
     internal val subjectInformation = buildString {
-        appendln("Facts:")
-        subject.completeFacts.forEach { append("\t").appendln(it) }
+        appendLine("Facts:")
+        subject.completeFacts.forEach { append("\t").appendLine(it) }
     }
 
     override val message: String
         get() = buildString {
-            appendln(errorType)
-            appendln()
+            appendLine(errorType)
+            appendLine()
             append(errorDescription)
-            appendln()
+            appendLine()
             append(subjectInformation)
         }
 }
