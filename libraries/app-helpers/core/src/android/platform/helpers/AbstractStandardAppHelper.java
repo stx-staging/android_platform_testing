@@ -144,7 +144,9 @@ public abstract class AbstractStandardAppHelper implements IAppHelper {
                 Log.i(LOG_TAG, String.format("Sending command to launch: %s", pkg));
                 mInstrumentation
                         .getContext()
-                        .startActivity(getOpenAppIntent().addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                        .startActivityAsUser(
+                                getOpenAppIntent().addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                                UserHandle.CURRENT);
             } catch (ActivityNotFoundException e) {
                 removeDialogWatchers();
                 throw new TestHelperException(String.format("Failed to find package: %s", pkg), e);
