@@ -23,8 +23,6 @@ import androidx.test.InstrumentationRegistry;
 import androidx.test.uiautomator.UiDevice;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.regex.Matcher;
@@ -76,15 +74,15 @@ public class MemLeaksHelper implements ICollectorHelper<Long> {
     @Override
     public Map<String, Long> getMetrics() {
         // Get all the process PIDs first
-        List<Integer> pids = getPids();
+        Map<Integer, String> pids = getPids();
         Map<String, Long> results = new HashMap<>();
 
-        if (pids.isEmpty()) {
+        if (pids.size() == 0) {
             Log.e(TAG, "Failed to get all the valid process PIDs");
             return results;
         }
 
-        for (Integer pid : pids) {
+        for (Integer pid : pids.keySet()) {
             String dumpOutput;
             try {
                 dumpOutput = executeShellCommand(String.format(DUMPSYS_MEMIFNO_CMD, pid));
@@ -113,7 +111,7 @@ public class MemLeaksHelper implements ICollectorHelper<Long> {
                 continue;
             }
 
-            String processName = matcherName.group(1);
+            String processName = pids.get(pid);
             if (byteFound) {
                 results.put(PROC_MEM_BYTES + processName, Long.parseLong(matcherLeak.group(1)));
                 results.put(PROC_ALLOCATIONS + processName, Long.parseLong(matcherLeak.group(2)));
@@ -132,11 +130,11 @@ public class MemLeaksHelper implements ICollectorHelper<Long> {
     /**
      * Get pid of all processes excluding process names enclosed in "[]"
      *
-     * @return an ArrayList pids - a list of processes PID
+     * @return a Map<Integer, String> pids - a pair of processes PID and its name
      */
-    private List<Integer> getPids() {
+    private Map<Integer, String> getPids() {
         // return pids
-        List<Integer> pids = new ArrayList<>();
+        Map<Integer, String> pids = new HashMap<>();
         if (mCollectAllProcFlag) {
             try {
                 String pidOutput = executeShellCommand(ALL_PROCESS_CMD);
@@ -157,11 +155,11 @@ public class MemLeaksHelper implements ICollectorHelper<Long> {
                     if (processName.startsWith("[") && processName.endsWith("]")) {
                         continue;
                     }
-                    pids.add(Integer.parseInt(splitLine[1]));
+                    pids.put(Integer.parseInt(splitLine[1]), processName);
                 }
             } catch (IOException ioe) {
                 Log.e(TAG, "Failed to get pid of all processes.", ioe);
-                return new ArrayList<>();
+                return new HashMap<>();
             }
         } else if (mProcessNames.length > 0) {
             for (int i = 0; i < mProcessNames.length; i++) {
@@ -171,11 +169,11 @@ public class MemLeaksHelper implements ICollectorHelper<Long> {
                     Log.e(TAG, "Failed to run " + String.format(PIDOF_CMD, mProcessNames[i]), ioe);
                     continue;
                 }
-                pids.add(Integer.parseInt(mPidOutput.replace("\n", "").trim()));
+                pids.put(Integer.parseInt(mPidOutput.replace("\n", "").trim()), mProcessNames[i]);
             }
         } else {
             Log.w(TAG, "No process names were provided.");
-            return new ArrayList<>();
+            return new HashMap<>();
         }
         return pids;
     }
