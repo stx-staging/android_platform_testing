@@ -53,15 +53,14 @@ public class MemLeaksHelperTest {
 
     /**
      * Test the parser works if the dump contains the correct unreachable memory bytes and
-     * allocations. Test good process name with matched process name, unreachable memory and
-     * allocations. Collect all processes flag is TRUE.
+     * allocations on test level. Test good process name with matched process name, unreachable
+     * memory and allocations. Collect all processes flag is TRUE.
      */
     @Test
-    public void testGetMetrics() throws IOException {
-        assertTrue(mMemLeaksHelper.startCollecting());
+    public void testGetMetricsNoIncrease() throws IOException {
         String memLeaksPidSampleOutput =
                 "system  25905 410 13715708 78536 do_freezer_trap 0 S com.android.chrome";
-        String memLeaksSampleOutput =
+        String memPreviousLeaksSampleOutput =
                 "Applications Memory Usage (in Kilobytes):\n"
                     + "Uptime: 94638627 Realtime: 102961738\n"
                     + "** MEMINFO in pid 25905 [com.android.chrome] **\n"
@@ -133,19 +132,197 @@ public class MemLeaksHelperTest {
                     + "   e86c9440: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00"
                     + " ................\n"
                     + "\n";
+
         doReturn(memLeaksPidSampleOutput)
                 .when(mMemLeaksHelper)
                 .executeShellCommand(matches(mMemLeaksHelper.ALL_PROCESS_CMD));
-        doReturn(memLeaksSampleOutput)
+
+        doReturn(memPreviousLeaksSampleOutput)
                 .when(mMemLeaksHelper)
                 .executeShellCommand(
                         matches(String.format(mMemLeaksHelper.DUMPSYS_MEMIFNO_CMD, 25905)));
+
+        assertTrue(mMemLeaksHelper.startCollecting());
+        Map<String, Long> metrics = mMemLeaksHelper.getMetrics();
+
+        assertFalse(metrics.isEmpty());
+        assertTrue(metrics.containsKey(mMemLeaksHelper.PROC_MEM_BYTES + "com.android.chrome"));
+        assertTrue(metrics.get(mMemLeaksHelper.PROC_MEM_BYTES + "com.android.chrome").equals(0L));
+        assertTrue(metrics.containsKey(mMemLeaksHelper.PROC_ALLOCATIONS + "com.android.chrome"));
+        assertTrue(metrics.get(mMemLeaksHelper.PROC_ALLOCATIONS + "com.android.chrome").equals(0L));
+    }
+
+    /**
+     * Test the parser works if the dump contains the correct unreachable memory bytes and
+     * allocations on test level. Test good process name with matched process name, unreachable
+     * memory and allocations. Collect all processes flag is TRUE.
+     */
+    @Test
+    public void testGetMetricsHasIncrease() throws IOException {
+        String memLeaksPidSampleOutput =
+                "system  25905 410 13715708 78536 do_freezer_trap 0 S com.android.chrome";
+        String memPreviousLeaksSampleOutput =
+                "Applications Memory Usage (in Kilobytes):\n"
+                    + "Uptime: 94638627 Realtime: 102961738\n"
+                    + "** MEMINFO in pid 25905 [com.android.chrome] **\n"
+                    + "                   Pss  Private  Private  SwapPss      Rss     Heap    "
+                    + " Heap     Heap\n"
+                    + "                 Total    Dirty    Clean    Dirty    Total     Size   "
+                    + " Alloc     Free\n"
+                    + "                ------   ------   ------   ------   ------   ------  "
+                    + " ------   ------\n"
+                    + "  Native Heap     2024      812        4     1230     4476    19112    "
+                    + " 4070     2209\n"
+                    + "  Dalvik Heap     4229     1292        0       24    10160    10462    "
+                    + " 2270     8192\n"
+                    + " Dalvik Other     1208      528        4      326     2736\n"
+                    + "        Stack      138      136        0      124      144\n"
+                    + "       Ashmem       16        0        0        0      892\n"
+                    + "    Other dev       16        0       16        0      288\n"
+                    + "     .so mmap     5934      120      732        0    16864\n"
+                    + "    .jar mmap      679        0        0        0    25676\n"
+                    + "    .apk mmap     1947        0      136        0     8540\n"
+                    + "    .dex mmap    10153       20    10096        0    10592\n"
+                    + "    .oat mmap     4961        0     2976        0     8240\n"
+                    + "    .art mmap     4999      364      104      114    14080\n"
+                    + "   Other mmap       97        4        0        0      676\n"
+                    + "      Unknown      305      132        0      184      716\n"
+                    + "        TOTAL    38708     3408    14068     2002   104080    29574    "
+                    + " 6340    10401\n"
+                    + " App Summary\n"
+                    + "                       Pss(KB)                        Rss(KB)\n"
+                    + "                        ------                         ------\n"
+                    + "           Java Heap:     1760                          24240\n"
+                    + "         Native Heap:      812                           4476\n"
+                    + "                Code:    14096                          69980\n"
+                    + "               Stack:      136                            144\n"
+                    + "            Graphics:        0                              0\n"
+                    + "       Private Other:      672\n"
+                    + "              System:    21232\n"
+                    + "             Unknown:                                    5240\n"
+                    + "           TOTAL PSS:    38708            TOTAL RSS:   104080       TOTAL"
+                    + " SWAP PSS:     2002\n"
+                    + " \n"
+                    + " Objects\n"
+                    + "               Views:        0         ViewRootImpl:        0\n"
+                    + "         AppContexts:        8           Activities:        0\n"
+                    + "              Assets:       27        AssetManagers:        0\n"
+                    + "       Local Binders:       15        Proxy Binders:       27\n"
+                    + "       Parcel memory:        3         Parcel count:       14\n"
+                    + "    Death Recipients:        0      OpenSSL Sockets:        0\n"
+                    + "            WebViews:        0\n"
+                    + " SQL\n"
+                    + "         MEMORY_USED:        0\n"
+                    + "  PAGECACHE_OVERFLOW:        0          MALLOC_SIZE:        0\n"
+                    + " \n"
+                    + " Unreachable memory\n"
+                    + "  1632 bytes in 10 unreachable allocations\n"
+                    + "  ABI: 'arm'\n"
+                    + "\n"
+                    + "  336 bytes unreachable at e31c1350\n"
+                    + "   first 20 bytes of contents:\n"
+                    + "   e31c1350: 88 13 e8 07 00 00 00 00 9e 9f 15 08 00 00 00 00"
+                    + " ................\n"
+                    + "   e31c1360: 2c bb 17 08 00 00 00 00 23 8a 89 08 00 00 00 00"
+                    + " ,.......#.......\n"
+                    + "\n"
+                    + "  144 bytes unreachable at e86c9430\n"
+                    + "   first 20 bytes of contents:\n"
+                    + "   e86c9430: 09 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00"
+                    + " ................\n"
+                    + "   e86c9440: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00"
+                    + " ................\n"
+                    + "\n";
+
+        String memCurrentLeaksSampleOutput =
+                "Applications Memory Usage (in Kilobytes):\n"
+                    + "Uptime: 94638627 Realtime: 102961738\n"
+                    + "** MEMINFO in pid 25905 [com.android.chrome] **\n"
+                    + "                   Pss  Private  Private  SwapPss      Rss     Heap    "
+                    + " Heap     Heap\n"
+                    + "                 Total    Dirty    Clean    Dirty    Total     Size   "
+                    + " Alloc     Free\n"
+                    + "                ------   ------   ------   ------   ------   ------  "
+                    + " ------   ------\n"
+                    + "  Native Heap     2024      812        4     1230     4476    19112    "
+                    + " 4070     2209\n"
+                    + "  Dalvik Heap     4229     1292        0       24    10160    10462    "
+                    + " 2270     8192\n"
+                    + " Dalvik Other     1208      528        4      326     2736\n"
+                    + "        Stack      138      136        0      124      144\n"
+                    + "       Ashmem       16        0        0        0      892\n"
+                    + "    Other dev       16        0       16        0      288\n"
+                    + "     .so mmap     5934      120      732        0    16864\n"
+                    + "    .jar mmap      679        0        0        0    25676\n"
+                    + "    .apk mmap     1947        0      136        0     8540\n"
+                    + "    .dex mmap    10153       20    10096        0    10592\n"
+                    + "    .oat mmap     4961        0     2976        0     8240\n"
+                    + "    .art mmap     4999      364      104      114    14080\n"
+                    + "   Other mmap       97        4        0        0      676\n"
+                    + "      Unknown      305      132        0      184      716\n"
+                    + "        TOTAL    38708     3408    14068     2002   104080    29574    "
+                    + " 6340    10401\n"
+                    + " App Summary\n"
+                    + "                       Pss(KB)                        Rss(KB)\n"
+                    + "                        ------                         ------\n"
+                    + "           Java Heap:     1760                          24240\n"
+                    + "         Native Heap:      812                           4476\n"
+                    + "                Code:    14096                          69980\n"
+                    + "               Stack:      136                            144\n"
+                    + "            Graphics:        0                              0\n"
+                    + "       Private Other:      672\n"
+                    + "              System:    21232\n"
+                    + "             Unknown:                                    5240\n"
+                    + "           TOTAL PSS:    38708            TOTAL RSS:   104080       TOTAL"
+                    + " SWAP PSS:     2002\n"
+                    + " \n"
+                    + " Objects\n"
+                    + "               Views:        0         ViewRootImpl:        0\n"
+                    + "         AppContexts:        8           Activities:        0\n"
+                    + "              Assets:       27        AssetManagers:        0\n"
+                    + "       Local Binders:       15        Proxy Binders:       27\n"
+                    + "       Parcel memory:        3         Parcel count:       14\n"
+                    + "    Death Recipients:        0      OpenSSL Sockets:        0\n"
+                    + "            WebViews:        0\n"
+                    + " SQL\n"
+                    + "         MEMORY_USED:        0\n"
+                    + "  PAGECACHE_OVERFLOW:        0          MALLOC_SIZE:        0\n"
+                    + " \n"
+                    + " Unreachable memory\n"
+                    + "  2632 bytes in 20 unreachable allocations\n"
+                    + "  ABI: 'arm'\n"
+                    + "\n"
+                    + "  336 bytes unreachable at e31c1350\n"
+                    + "   first 20 bytes of contents:\n"
+                    + "   e31c1350: 88 13 e8 07 00 00 00 00 9e 9f 15 08 00 00 00 00"
+                    + " ................\n"
+                    + "   e31c1360: 2c bb 17 08 00 00 00 00 23 8a 89 08 00 00 00 00"
+                    + " ,.......#.......\n"
+                    + "\n"
+                    + "  144 bytes unreachable at e86c9430\n"
+                    + "   first 20 bytes of contents:\n"
+                    + "   e86c9430: 09 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00"
+                    + " ................\n"
+                    + "   e86c9440: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00"
+                    + " ................\n"
+                    + "\n";
+
+        doReturn(memLeaksPidSampleOutput)
+                .when(mMemLeaksHelper)
+                .executeShellCommand(matches(mMemLeaksHelper.ALL_PROCESS_CMD));
+
+        doReturn(memPreviousLeaksSampleOutput, memCurrentLeaksSampleOutput)
+                .when(mMemLeaksHelper)
+                .executeShellCommand(
+                        matches(String.format(mMemLeaksHelper.DUMPSYS_MEMIFNO_CMD, 25905)));
+
+        assertTrue(mMemLeaksHelper.startCollecting());
         Map<String, Long> metrics = mMemLeaksHelper.getMetrics();
 
         assertFalse(metrics.isEmpty());
         assertTrue(metrics.containsKey(mMemLeaksHelper.PROC_MEM_BYTES + "com.android.chrome"));
         assertTrue(
-                metrics.get(mMemLeaksHelper.PROC_MEM_BYTES + "com.android.chrome").equals(1632L));
+                metrics.get(mMemLeaksHelper.PROC_MEM_BYTES + "com.android.chrome").equals(1000L));
         assertTrue(metrics.containsKey(mMemLeaksHelper.PROC_ALLOCATIONS + "com.android.chrome"));
         assertTrue(
                 metrics.get(mMemLeaksHelper.PROC_ALLOCATIONS + "com.android.chrome").equals(10L));
@@ -158,7 +335,6 @@ public class MemLeaksHelperTest {
      */
     @Test
     public void testNoUnreachableMemory() throws IOException {
-        assertTrue(mMemLeaksHelper.startCollecting());
         String memLeaksPidSampleOutput =
                 "root 31966   2  0  0 worker_thread   0  S  com.google.android.ims\n";
         String memLeaksSampleOutput =
@@ -230,6 +406,7 @@ public class MemLeaksHelperTest {
                         + " SQL\n"
                         + "         MEMORY_USED:      164\n"
                         + "  PAGECACHE_OVERFLOW:       37          MALLOC_SIZE:       46\n";
+
         doReturn(memLeaksPidSampleOutput)
                 .when(mMemLeaksHelper)
                 .executeShellCommand(matches(mMemLeaksHelper.ALL_PROCESS_CMD));
@@ -237,6 +414,8 @@ public class MemLeaksHelperTest {
                 .when(mMemLeaksHelper)
                 .executeShellCommand(
                         matches(String.format(mMemLeaksHelper.DUMPSYS_MEMIFNO_CMD, 31966)));
+
+        assertTrue(mMemLeaksHelper.startCollecting());
         Map<String, Long> metrics = mMemLeaksHelper.getMetrics();
 
         assertFalse(metrics.isEmpty());
@@ -257,7 +436,6 @@ public class MemLeaksHelperTest {
      */
     @Test
     public void testNoProcessName() throws IOException {
-        assertTrue(mMemLeaksHelper.startCollecting());
         String memLeaksPidSampleOutput =
                 "root          31966     2       0      0 worker_thread       0 S"
                         + " com.google.android.ims\n";
@@ -293,6 +471,7 @@ public class MemLeaksHelperTest {
                         + " \n"
                         + "           TOTAL PSS:        0            TOTAL RSS:        0      "
                         + "TOTAL SWAP (KB):        0\n";
+
         doReturn(memLeaksPidSampleOutput)
                 .when(mMemLeaksHelper)
                 .executeShellCommand(matches(mMemLeaksHelper.ALL_PROCESS_CMD));
@@ -300,6 +479,8 @@ public class MemLeaksHelperTest {
                 .when(mMemLeaksHelper)
                 .executeShellCommand(
                         matches(String.format(mMemLeaksHelper.DUMPSYS_MEMIFNO_CMD, 31966)));
+
+        assertTrue(mMemLeaksHelper.startCollecting());
         Map<String, Long> metrics = mMemLeaksHelper.getMetrics();
 
         assertTrue(metrics.isEmpty());
@@ -311,7 +492,6 @@ public class MemLeaksHelperTest {
      */
     @Test
     public void testEnclosedProcessName() throws IOException {
-        assertTrue(mMemLeaksHelper.startCollecting());
         String memLeaksPidSampleOutput =
                 "root          8616     2       0      0 worker_thread       0 I [dio/dm-46]\n";
         String memLeaksSampleOutput =
@@ -346,9 +526,12 @@ public class MemLeaksHelperTest {
                         + " \n"
                         + "           TOTAL PSS:        0            TOTAL RSS:        0      "
                         + "TOTAL SWAP (KB):        0\n";
+
         doReturn(memLeaksPidSampleOutput)
                 .when(mMemLeaksHelper)
                 .executeShellCommand(matches(mMemLeaksHelper.ALL_PROCESS_CMD));
+
+        assertTrue(mMemLeaksHelper.startCollecting());
         Map<String, Long> metrics = mMemLeaksHelper.getMetrics();
 
         // Skip process names enclosed in "[]"
@@ -372,9 +555,6 @@ public class MemLeaksHelperTest {
                     "com.google.android.googlequicksearchbox:search"
                 };
         boolean flag = false;
-        assertTrue(mMemLeaksHelper.startCollecting());
-        mMemLeaksHelper.setUp(procNames, flag);
-
         String memLeaksPidofSampleOutput1 = "2041\n";
         String memLeaksSampleOutput1 =
                 "Applications Memory Usage (in Kilobytes):\n"
@@ -760,28 +940,30 @@ public class MemLeaksHelperTest {
                 .executeShellCommand(
                         matches(String.format(mMemLeaksHelper.DUMPSYS_MEMIFNO_CMD, 8683)));
 
+        mMemLeaksHelper.setUp(procNames, flag);
+        assertTrue(mMemLeaksHelper.startCollecting());
         Map<String, Long> metrics = mMemLeaksHelper.getMetrics();
+
         assertTrue(metrics.size() == 6);
 
         assertTrue(metrics.containsKey(mMemLeaksHelper.PROC_MEM_BYTES + "com.android.systemui"));
-        assertTrue(
-                metrics.get(mMemLeaksHelper.PROC_MEM_BYTES + "com.android.systemui").equals(752L));
+        assertTrue(metrics.get(mMemLeaksHelper.PROC_MEM_BYTES + "com.android.systemui").equals(0L));
         assertTrue(metrics.containsKey(mMemLeaksHelper.PROC_ALLOCATIONS + "com.android.systemui"));
         assertTrue(
-                metrics.get(mMemLeaksHelper.PROC_ALLOCATIONS + "com.android.systemui").equals(5L));
+                metrics.get(mMemLeaksHelper.PROC_ALLOCATIONS + "com.android.systemui").equals(0L));
 
         assertTrue(
                 metrics.containsKey(
                         mMemLeaksHelper.PROC_MEM_BYTES + "com.google.android.apps.scone"));
         assertTrue(
                 metrics.get(mMemLeaksHelper.PROC_MEM_BYTES + "com.google.android.apps.scone")
-                        .equals(1016L));
+                        .equals(0L));
         assertTrue(
                 metrics.containsKey(
                         mMemLeaksHelper.PROC_ALLOCATIONS + "com.google.android.apps.scone"));
         assertTrue(
                 metrics.get(mMemLeaksHelper.PROC_ALLOCATIONS + "com.google.android.apps.scone")
-                        .equals(3L));
+                        .equals(0L));
 
         assertTrue(
                 metrics.containsKey(
@@ -791,7 +973,7 @@ public class MemLeaksHelperTest {
                 metrics.get(
                                 mMemLeaksHelper.PROC_MEM_BYTES
                                         + "com.google.android.googlequicksearchbox:search")
-                        .equals(720L));
+                        .equals(0L));
         assertTrue(
                 metrics.containsKey(
                         mMemLeaksHelper.PROC_ALLOCATIONS
@@ -800,7 +982,7 @@ public class MemLeaksHelperTest {
                 metrics.get(
                                 mMemLeaksHelper.PROC_ALLOCATIONS
                                         + "com.google.android.googlequicksearchbox:search")
-                        .equals(3L));
+                        .equals(0L));
     }
 
     /**
@@ -812,9 +994,9 @@ public class MemLeaksHelperTest {
     public void testByGivenEmptyNames() throws IOException {
         String[] procNames = new String[] {};
         boolean flag = false;
-        assertTrue(mMemLeaksHelper.startCollecting());
-        mMemLeaksHelper.setUp(procNames, flag);
 
+        mMemLeaksHelper.setUp(procNames, flag);
+        assertTrue(mMemLeaksHelper.startCollecting());
         Map<String, Long> metrics = mMemLeaksHelper.getMetrics();
         assertTrue(metrics.isEmpty());
     }
