@@ -24,8 +24,9 @@ import com.android.server.wm.flicker.readWmTraceFromFile
 import com.android.server.wm.flicker.traces.windowmanager.WindowManagerStateSubject
 import com.android.server.wm.traces.common.ActiveBuffer
 import com.android.server.wm.traces.common.Color
+import com.android.server.wm.traces.common.ComponentMatcher
 import com.android.server.wm.traces.common.DeviceStateDump
-import com.android.server.wm.traces.common.FlickerComponentName
+import com.android.server.wm.traces.common.IComponentMatcher
 import com.android.server.wm.traces.common.Matrix33
 import com.android.server.wm.traces.common.Rect
 import com.android.server.wm.traces.common.RectF
@@ -68,10 +69,10 @@ class WindowManagerStateHelperTest {
         }
     }
 
-    private val chromeComponent = FlickerComponentName.unflattenFromString(
+    private val chromeComponent = ComponentMatcher.unflattenFromString(
         "com.android.chrome/org.chromium.chrome.browser" +
         ".firstrun.FirstRunActivity")
-    private val simpleAppComponentName = FlickerComponentName.unflattenFromString(
+    private val simpleAppComponentName = ComponentMatcher.unflattenFromString(
         "com.android.server.wm.flicker.testapp/.SimpleActivity")
 
     private fun createImaginaryLayer(name: String, index: Int, id: Int, parentId: Int): Layer {
@@ -119,7 +120,7 @@ class WindowManagerStateHelperTest {
         )
     }
 
-    private fun createImaginaryVisibleLayers(names: List<FlickerComponentName>): Array<Layer> {
+    private fun createImaginaryVisibleLayers(names: List<IComponentMatcher>): Array<Layer> {
         val root = createImaginaryLayer("root", -1, id = "root".hashCode(), parentId = -1)
         val layers = mutableListOf(root)
         names.forEachIndexed { index, name ->
@@ -144,21 +145,21 @@ class WindowManagerStateHelperTest {
         return {
             if (iterator.hasNext()) {
                 val wmState = iterator.next()
-                val layerList = mutableListOf(FlickerComponentName.STATUS_BAR,
-                    FlickerComponentName.NAV_BAR)
-                if (wmState.isWindowVisible(FlickerComponentName.SPLASH_SCREEN)) {
-                    layerList.add(FlickerComponentName.SPLASH_SCREEN)
+                val layerList: MutableList<IComponentMatcher> =
+                    mutableListOf(ComponentMatcher.STATUS_BAR, ComponentMatcher.NAV_BAR)
+                if (wmState.isWindowSurfaceShown(ComponentMatcher.SPLASH_SCREEN)) {
+                    layerList.add(ComponentMatcher.SPLASH_SCREEN)
                 }
-                if (wmState.isWindowVisible(FlickerComponentName.SNAPSHOT)) {
-                    layerList.add(FlickerComponentName.SNAPSHOT)
+                if (wmState.isWindowSurfaceShown(ComponentMatcher.SNAPSHOT)) {
+                    layerList.add(ComponentMatcher.SNAPSHOT)
                 }
                 layerList.addAll(
                     wmState.visibleWindows
                         .filter { it.name.contains("/") }
-                        .map { FlickerComponentName.unflattenFromString(it.name) }
+                        .map { ComponentMatcher.unflattenFromString(it.name) }
                 )
                 if (wmState.inputMethodWindowState?.isSurfaceShown == true) {
-                    layerList.add(FlickerComponentName.IME)
+                    layerList.add(ComponentMatcher.IME)
                 }
                 val layerTraceEntry = LayerTraceEntryBuilder(timestamp = 0,
                     displays = emptyArray(),
@@ -179,13 +180,13 @@ class WindowManagerStateHelperTest {
         try {
             WindowManagerStateSubject
                 .assertThat(helper.wmState)
-                .isNonAppWindowVisible(FlickerComponentName.IME)
+                .isNonAppWindowVisible(ComponentMatcher.IME)
             error("IME state should not be available")
         } catch (e: AssertionError) {
             helper.StateSyncBuilder().withImeShown().waitFor()
             WindowManagerStateSubject
                 .assertThat(helper.wmState)
-                .isNonAppWindowVisible(FlickerComponentName.IME)
+                .isNonAppWindowVisible(ComponentMatcher.IME)
         }
     }
 
@@ -198,13 +199,13 @@ class WindowManagerStateHelperTest {
         try {
             WindowManagerStateSubject
                 .assertThat(helper.wmState)
-                .isNonAppWindowVisible(FlickerComponentName.IME)
+                .isNonAppWindowVisible(ComponentMatcher.IME)
             error("IME state should not be available")
         } catch (e: AssertionError) {
             helper.StateSyncBuilder().withImeShown().waitFor()
             WindowManagerStateSubject
                 .assertThat(helper.wmState)
-                .isNonAppWindowVisible(FlickerComponentName.IME)
+                .isNonAppWindowVisible(ComponentMatcher.IME)
         }
     }
 

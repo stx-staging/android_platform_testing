@@ -24,10 +24,10 @@ package com.android.server.wm.traces.common
  *
  * @param packageName The name of the package that the component exists in.  Can
  * not be null.
- * @param className The name of the class inside of <var>pkg</var> that
- * implements the component.  Can not be null.
+ * @param className The name of the class inside <var>pkg</var> that
+ * implements the component.
  */
-data class FlickerComponent(val packageName: String, val className: String) {
+data class ComponentName(val packageName: String, val className: String) {
     /**
      * Obtains the activity name from the component name.
      *
@@ -64,7 +64,7 @@ data class FlickerComponent(val packageName: String, val className: String) {
         }
     }
 
-    fun toShortWindowName(): String {
+    private fun toShortWindowName(): String {
         return when {
             packageName.isNotEmpty() && className.isNotEmpty() ->
                 "$packageName/${className.removePrefix(packageName)}"
@@ -88,10 +88,6 @@ data class FlickerComponent(val packageName: String, val className: String) {
         return result
     }
 
-    fun toActivityRecordFilter(): Regex {
-        return Regex("ActivityRecord\\{.*${Regex.escape(this.toShortWindowName())}")
-    }
-
     private fun appendShortString(sb: StringBuilder, packageName: String, className: String) {
         sb.append(packageName).append('/')
         appendShortClassName(sb, packageName, className)
@@ -108,6 +104,9 @@ data class FlickerComponent(val packageName: String, val className: String) {
         }
         sb.append(className)
     }
+
+    fun toActivityRecordFilter(): Regex =
+        Regex("ActivityRecord\\{.*${Regex.escape(this.toShortWindowName())}")
 
     fun toActivityNameRegex(): Regex =
         Regex(".*${Regex.escape(this.toActivityName())}.*")

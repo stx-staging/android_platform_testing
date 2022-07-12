@@ -16,9 +16,9 @@
 
 package com.android.server.wm.traces.common.service.processors
 
+import com.android.server.wm.traces.common.ComponentMatcher
 import com.android.server.wm.traces.common.ConditionList
 import com.android.server.wm.traces.common.DeviceStateDump
-import com.android.server.wm.traces.common.FlickerComponentName
 import com.android.server.wm.traces.common.WindowManagerConditionsFactory.isImeShown
 import com.android.server.wm.traces.common.WindowManagerConditionsFactory.isLayerColorAlphaOne
 import com.android.server.wm.traces.common.WindowManagerConditionsFactory.isLayerTransformFlagSet
@@ -50,19 +50,19 @@ class ImeDisappearProcessor(logger: (String) -> Unit) : TransitionProcessor(logg
         private val isImeAppeared =
             ConditionList(listOf(
                 isImeShown,
-                isLayerColorAlphaOne(FlickerComponentName.IME),
-                isLayerTransformFlagSet(FlickerComponentName.IME, Transform.TRANSLATE_VAL),
-                isLayerTransformFlagSet(FlickerComponentName.IME, Transform.SCALE_VAL).negate()
+                isLayerColorAlphaOne(ComponentMatcher.IME),
+                isLayerTransformFlagSet(ComponentMatcher.IME, Transform.TRANSLATE_VAL),
+                isLayerTransformFlagSet(ComponentMatcher.IME, Transform.SCALE_VAL).negate()
             ))
         private val isImeDisappearByGesture =
             ConditionList(listOf(
                 isImeShown,
-                isLayerColorAlphaOne(FlickerComponentName.IME).negate()
+                isLayerColorAlphaOne(ComponentMatcher.IME).negate()
             ))
         private val isImeDisappearByAppClose =
             ConditionList(listOf(
                 isImeShown,
-                isLayerTransformFlagSet(FlickerComponentName.IME, Transform.SCALE_VAL)
+                isLayerTransformFlagSet(ComponentMatcher.IME, Transform.SCALE_VAL)
             ))
 
         override fun doProcessState(
@@ -87,7 +87,7 @@ class ImeDisappearProcessor(logger: (String) -> Unit) : TransitionProcessor(logg
         ): FSMState {
             logger.invoke("(${current.layerState.timestamp}) IME disappear started.")
             val inputMethodLayer = current.layerState.visibleLayers.first {
-                it.name.contains(FlickerComponentName.IME.toLayerName())
+                it.name.contains(ComponentMatcher.IME.toLayerName())
             }
             addStartTransitionTag(current, transition, layerId = inputMethodLayer.id)
             return WaitImeDisappearFinished(tags, inputMethodLayer.id)

@@ -16,6 +16,8 @@
 
 package com.android.server.wm.traces.common.windowmanager.windows
 
+import com.android.server.wm.traces.common.IComponentMatcher
+
 /**
  * Represents a display area in the window manager hierarchy
  *
@@ -34,11 +36,16 @@ open class DisplayArea(
             emptyArray()
         }
 
-    fun containsActivity(activityName: String): Boolean {
+    /**
+     * @return if [componentMatcher] matches any activity
+     *
+     * @param componentMatcher Components to search
+     */
+    fun containsActivity(componentMatcher: IComponentMatcher): Boolean {
         return if (!isTaskDisplayArea) {
             false
         } else {
-            activities.any { it.title == activityName }
+            componentMatcher.activityMatchesAnyOf(activities)
         }
     }
 

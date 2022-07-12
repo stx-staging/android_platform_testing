@@ -21,7 +21,8 @@ import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubj
 import com.android.server.wm.traces.common.tags.Tag
 
 /**
- * Checks if the [component] layer is visible at the start of the transition and becomes invisible
+ * Checks if the [componentMatcher] layer is visible at the start of the transition and
+ * becomes invisible
  */
 class LayerBecomesInvisible(windowName: String) : ComponentBaseTest(windowName) {
     /** {@inheritDoc} */
@@ -30,9 +31,9 @@ class LayerBecomesInvisible(windowName: String) : ComponentBaseTest(windowName) 
         wmSubject: WindowManagerTraceSubject,
         layerSubject: LayersTraceSubject
     ) {
-        layerSubject.isVisible(component)
+        layerSubject.isVisible(componentMatcher)
             .then()
-            .isInvisible(component)
+            .isInvisible(componentMatcher)
             .forAllEntries()
     }
 }

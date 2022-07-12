@@ -40,19 +40,19 @@ object WindowManagerConditionsFactory {
      * Condition to check if the nav bar window is visible
      */
     fun isNavBarWindowVisible(): Condition<DUMP> = Condition("isNavBarWindowVisible") {
-        it.wmState.isWindowVisible(FlickerComponentName.NAV_BAR)
+        it.wmState.isWindowSurfaceShown(ComponentMatcher.NAV_BAR)
     }
 
     /**
      * Condition to check if the nav bar layer is visible
      */
-    fun isNavBarLayerVisible(): Condition<DUMP> = isLayerVisible(FlickerComponentName.NAV_BAR)
+    fun isNavBarLayerVisible(): Condition<DUMP> = isLayerVisible(ComponentMatcher.NAV_BAR)
 
     /**
      * Condition to check if the nav bar layer is opaque
      */
     fun isNavBarLayerOpaque(): Condition<DUMP> = Condition("isNavBarLayerOpaque") {
-        it.layerState.getLayerWithBuffer(FlickerComponentName.NAV_BAR)?.color?.isOpaque ?: false
+        it.layerState.getLayerWithBuffer(ComponentMatcher.NAV_BAR)?.color?.isOpaque ?: false
     }
 
     /**
@@ -68,20 +68,20 @@ object WindowManagerConditionsFactory {
      * Condition to check if the nav bar window is visible
      */
     fun isStatusBarWindowVisible(): Condition<DUMP> = Condition("isStatusBarWindowVisible") {
-        it.wmState.isWindowVisible(FlickerComponentName.STATUS_BAR)
+        it.wmState.isWindowSurfaceShown(ComponentMatcher.STATUS_BAR)
     }
 
     /**
      * Condition to check if the nav bar layer is visible
      */
     fun isStatusBarLayerVisible(): Condition<DUMP> =
-        isLayerVisible(FlickerComponentName.STATUS_BAR)
+        isLayerVisible(ComponentMatcher.STATUS_BAR)
 
     /**
      * Condition to check if the nav bar layer is opaque
      */
     fun isStatusBarLayerOpaque(): Condition<DUMP> = Condition("isStatusBarLayerOpaque") {
-        it.layerState.getLayerWithBuffer(FlickerComponentName.STATUS_BAR)?.color?.isOpaque ?: false
+        it.layerState.getLayerWithBuffer(ComponentMatcher.STATUS_BAR)?.color?.isOpaque ?: false
     }
 
     fun isHomeActivityVisible(): Condition<DUMP> =
@@ -107,27 +107,27 @@ object WindowManagerConditionsFactory {
     }
 
     fun containsActivity(
-        component: FlickerComponentName
-    ): Condition<DUMP> = Condition("containsActivity[${component.toActivityName()}]") {
-        it.wmState.containsActivity(component)
+        componentMatcher: IComponentMatcher
+    ): Condition<DUMP> = Condition("containsActivity[${componentMatcher.toActivityName()}]") {
+        it.wmState.containsActivity(componentMatcher)
     }
 
     fun containsWindow(
-        component: FlickerComponentName
-    ): Condition<DUMP> = Condition("containsWindow[${component.toWindowName()}]") {
-        it.wmState.containsWindow(component)
+        componentMatcher: IComponentMatcher
+    ): Condition<DUMP> = Condition("containsWindow[${componentMatcher.toWindowName()}]") {
+        it.wmState.containsWindow(componentMatcher)
     }
 
     fun isWindowSurfaceShown(
-        component: FlickerComponentName
-    ): Condition<DUMP> = Condition("isWindowSurfaceShown[${component.toWindowName()}]") {
-        it.wmState.isWindowSurfaceShown(component)
+        componentMatcher: IComponentMatcher
+    ): Condition<DUMP> = Condition("isWindowSurfaceShown[${componentMatcher.toWindowName()}]") {
+        it.wmState.isWindowSurfaceShown(componentMatcher)
     }
 
     fun isActivityVisible(
-        component: FlickerComponentName
-    ): Condition<DUMP> = Condition("isActivityVisible[${component.toActivityName()}]") {
-        it.wmState.isActivityVisible(component)
+        componentMatcher: IComponentMatcher
+    ): Condition<DUMP> = Condition("isActivityVisible[${componentMatcher.toActivityName()}]") {
+        it.wmState.isActivityVisible(componentMatcher)
     }
 
     fun isWMStateComplete(): Condition<DUMP> = Condition("isWMStateComplete") {
@@ -147,27 +147,27 @@ object WindowManagerConditionsFactory {
         return ConditionList(
             listOf(
                 hasRotationCondition,
-                isLayerVisible(FlickerComponentName.ROTATION).negate(),
-                isLayerVisible(FlickerComponentName.BACK_SURFACE).negate(),
+                isLayerVisible(ComponentMatcher.ROTATION).negate(),
+                isLayerVisible(ComponentMatcher.BACK_SURFACE).negate(),
                 hasLayersAnimating().negate()
             )
         )
     }
 
     fun isWindowVisible(
-        component: FlickerComponentName,
+        componentMatcher: IComponentMatcher,
         displayId: Int = 0
     ): Condition<DUMP> = ConditionList(
-        containsActivity(component),
-        containsWindow(component),
-        isActivityVisible(component),
-        isWindowSurfaceShown(component),
+        containsActivity(componentMatcher),
+        containsWindow(componentMatcher),
+        isActivityVisible(componentMatcher),
+        isWindowSurfaceShown(componentMatcher),
         isAppTransitionIdle(displayId)
     )
 
-    fun isLayerVisible(component: FlickerComponentName): Condition<DUMP> =
-        Condition("isLayerVisible[${component.toLayerName()}]") {
-            it.layerState.isVisible(component)
+    fun isLayerVisible(componentMatcher: IComponentMatcher): Condition<DUMP> =
+        Condition("isLayerVisible[${componentMatcher.toLayerName()}]") {
+            it.layerState.isVisible(componentMatcher)
         }
 
     fun isLayerVisible(layerId: Int): Condition<DUMP> =
@@ -175,10 +175,10 @@ object WindowManagerConditionsFactory {
             it.layerState.getLayerById(layerId)?.isVisible ?: false
         }
 
-    fun isLayerColorAlphaOne(component: FlickerComponentName): Condition<DUMP> =
-        Condition("isLayerColorAlphaOne[${component.toLayerName()}]") {
+    fun isLayerColorAlphaOne(componentMatcher: IComponentMatcher): Condition<DUMP> =
+        Condition("isLayerColorAlphaOne[${componentMatcher.toLayerName()}]") {
             it.layerState.visibleLayers
-                .filter { layer -> component.layerMatchesAnyOf(layer) }
+                .filter { layer -> componentMatcher.layerMatchesAnyOf(layer) }
                 .any { layer -> layer.color.isOpaque }
         }
 
@@ -188,12 +188,15 @@ object WindowManagerConditionsFactory {
             layer?.color?.a == 1.0f
         }
 
-    fun isLayerTransformFlagSet(component: FlickerComponentName, transform: Int): Condition<DUMP> =
+    fun isLayerTransformFlagSet(
+        componentMatcher: IComponentMatcher,
+        transform: Int
+    ): Condition<DUMP> =
         Condition(
-            "isLayerTransformFlagSet[" + "${component.toLayerName()},transform=$transform]"
+            "isLayerTransformFlagSet[" + "${componentMatcher.toLayerName()},transform=$transform]"
         ) {
             it.layerState.visibleLayers
-                .filter { layer -> component.layerMatchesAnyOf(layer) }
+                .filter { layer -> componentMatcher.layerMatchesAnyOf(layer) }
                 .any { layer -> isTransformFlagSet(layer, transform) }
         }
 
@@ -218,8 +221,8 @@ object WindowManagerConditionsFactory {
         Condition("hasLayersAnimating") {
             it.layerState.isAnimating()
         },
-        isLayerVisible(FlickerComponentName.SNAPSHOT).negate(),
-        isLayerVisible(FlickerComponentName.SPLASH_SCREEN).negate()
+        isLayerVisible(ComponentMatcher.SNAPSHOT).negate(),
+        isLayerVisible(ComponentMatcher.SPLASH_SCREEN).negate()
     )
 
     fun isPipWindowLayerSizeMatch(layerId: Int): Condition<DUMP> =
@@ -248,9 +251,9 @@ object WindowManagerConditionsFactory {
     ): Condition<DUMP> = ConditionList(
         listOf(
             isImeOnDisplay(displayId),
-            isLayerVisible(FlickerComponentName.IME),
+            isLayerVisible(ComponentMatcher.IME),
             isImeSurfaceShown(),
-            isWindowSurfaceShown(FlickerComponentName.IME)
+            isWindowSurfaceShown(ComponentMatcher.IME)
         )
     )
 

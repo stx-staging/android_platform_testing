@@ -18,6 +18,7 @@ package com.android.server.wm.traces.common.region
 
 import com.android.server.wm.traces.common.Rect
 import com.android.server.wm.traces.common.RectF
+import com.android.server.wm.traces.common.region.Region.Companion.from
 import kotlin.math.min
 
 /**
@@ -48,6 +49,7 @@ class Region(rects: Array<Rect> = arrayOf()) {
 
     val width: Int get() = bounds.width
     val height: Int get() = bounds.height
+
     // if null we are a rect not empty
     val isEmpty: Boolean get() = fRunHead?.isEmptyHead ?: false
     val isNotEmpty: Boolean get() = !isEmpty
@@ -78,7 +80,8 @@ class Region(rects: Array<Rect> = arrayOf()) {
     fun set(r: Rect): Boolean {
         return if (r.isEmpty ||
             SkRegion_kRunTypeSentinel == r.right ||
-            SkRegion_kRunTypeSentinel == r.bottom) {
+            SkRegion_kRunTypeSentinel == r.bottom
+        ) {
             this.setEmpty()
         } else {
             fBounds = r
@@ -154,8 +157,9 @@ class Region(rects: Array<Rect> = arrayOf()) {
                     fRuns = null
                 } else {
                     fRuns = rgn.fRunHead!!.readonlyRuns
-                    rect = Rect(fRuns!![3], fRuns!![0],
-                        fRuns!![4], fRuns!![1])
+                    rect = Rect(
+                        fRuns!![3], fRuns!![0], fRuns!![4], fRuns!![1]
+                    )
                     fRunsIndex = 5
                 }
             }
@@ -190,8 +194,7 @@ class Region(rects: Array<Rect> = arrayOf()) {
 
                     assert_sentinel(runs[runsIndex + 2], false)
                     assert_sentinel(runs[runsIndex + 3], false)
-                    rect =
-                        Rect(runs[runsIndex + 2], rect.top, runs[runsIndex + 3], runs[runsIndex])
+                    rect = Rect(runs[runsIndex + 2], rect.top, runs[runsIndex + 3], runs[runsIndex])
                     runsIndex += 4
                 } else { // end of rgn
                     done = true
@@ -237,8 +240,12 @@ class Region(rects: Array<Rect> = arrayOf()) {
 
     // the native values for these must match up with the enum in SkRegion.h
     enum class Op(val nativeInt: Int) {
-        DIFFERENCE(0), INTERSECT(1), UNION(2), XOR(3),
-        REVERSE_DIFFERENCE(4), REPLACE(5);
+        DIFFERENCE(0),
+        INTERSECT(1),
+        UNION(2),
+        XOR(3),
+        REVERSE_DIFFERENCE(4),
+        REPLACE(5);
     }
 
     fun union(r: Rect): Boolean {
@@ -276,8 +283,9 @@ class Region(rects: Array<Rect> = arrayOf()) {
             }
             Op.INTERSECT -> {
                 when {
-                    rgnA.isEmpty || rgnB.isEmpty
-                        || rgnA.bounds.intersection(rgnB.bounds).isEmpty -> {
+                    rgnA.isEmpty ||
+                        rgnB.isEmpty ||
+                        rgnA.bounds.intersection(rgnB.bounds).isEmpty -> {
                         this.setEmpty()
                         return false
                     }
@@ -581,12 +589,12 @@ class Region(rects: Array<Rect> = arrayOf()) {
                 // kill empty last span
                 trimmedRuns[stopIndex - 4] = SkRegion_kRunTypeSentinel
                 stopIndex -= 3
-                assert_sentinel(runs[stopIndex - 1], true)    // last y-sentinel
-                assert_sentinel(runs[stopIndex - 2], true)    // last x-sentinel
-                assert_sentinel(runs[stopIndex - 3], false)   // last right
-                assert_sentinel(runs[stopIndex - 4], false)   // last left
-                assert_sentinel(runs[stopIndex - 5], false)   // last interval-count
-                assert_sentinel(runs[stopIndex - 6], false)   // last bottom
+                assert_sentinel(runs[stopIndex - 1], true) // last y-sentinel
+                assert_sentinel(runs[stopIndex - 2], true) // last x-sentinel
+                assert_sentinel(runs[stopIndex - 3], false) // last right
+                assert_sentinel(runs[stopIndex - 4], false) // last left
+                assert_sentinel(runs[stopIndex - 5], false) // last interval-count
+                assert_sentinel(runs[stopIndex - 6], false) // last bottom
                 trimmedRuns = trimmedRuns.subList(startIndex, stopIndex)
             }
 
@@ -623,8 +631,10 @@ class Region(rects: Array<Rect> = arrayOf()) {
     }
 
     private fun setRect(r: Rect): Boolean {
-        if (r.isEmpty || SkRegion_kRunTypeSentinel == r.right ||
-            SkRegion_kRunTypeSentinel == r.bottom) {
+        if (r.isEmpty ||
+            SkRegion_kRunTypeSentinel == r.right ||
+            SkRegion_kRunTypeSentinel == r.bottom
+        ) {
             return this.setEmpty()
         }
         fBounds = r
@@ -642,13 +652,13 @@ class Region(rects: Array<Rect> = arrayOf()) {
         if (count == kRectRegionRuns) {
             assert_sentinel(runs[1], false) // bottom
             require(1 == runs[2])
-            assert_sentinel(runs[3], false)    // left
-            assert_sentinel(runs[4], false)    // right
+            assert_sentinel(runs[3], false) // left
+            assert_sentinel(runs[4], false) // right
             assert_sentinel(runs[5], true)
             assert_sentinel(runs[6], true)
 
-            require(runs[0] < runs[1])    // valid height
-            require(runs[3] < runs[4])    // valid width
+            require(runs[0] < runs[1]) // valid height
+            require(runs[3] < runs[4]) // valid width
 
             return true
         }
@@ -681,9 +691,11 @@ class Region(rects: Array<Rect> = arrayOf()) {
 
             // Assert memcmp won't exceed fArray->count().
             require(runArray.count >= start + len - 1)
-            if (fPrevLen == len &&
-                (1 == len || runArray.subList(fPrevDst, fPrevDst + len).runs
-                    == runArray.subList(start, start + len).runs)) {
+            if (fPrevLen == len && (1 == len || runArray.subList(
+                    fPrevDst,
+                    fPrevDst + len
+                ).runs == runArray.subList(start, start + len).runs)
+            ) {
                 // update Y value
                 runArray[fPrevDst - 2] = bottom
             } else { // accept the new span
@@ -735,13 +747,12 @@ class Region(rects: Array<Rect> = arrayOf()) {
             fun done(): Boolean {
                 require(fALeft <= SkRegion_kRunTypeSentinel)
                 require(fBLeft <= SkRegion_kRunTypeSentinel)
-                return fALeft == SkRegion_kRunTypeSentinel &&
-                    fBLeft == SkRegion_kRunTypeSentinel
+                return fALeft == SkRegion_kRunTypeSentinel && fBLeft == SkRegion_kRunTypeSentinel
             }
 
             fun next() {
-                var inside = 0
-                var left = 0
+                val inside: Int
+                val left: Int
                 var right = 0
                 var aFlush = false
                 var bFlush = false
@@ -825,8 +836,13 @@ class Region(rects: Array<Rect> = arrayOf()) {
         ): Int {
             // This is a worst-case for this span plus two for TWO terminating sentinels.
             array.resizeToAtLeast(
-                dstOffset + distance_to_sentinel(a_runs, a_run_index) +
-                    distance_to_sentinel(b_runs, b_run_index) + 2)
+                dstOffset +
+                    distance_to_sentinel(a_runs, a_run_index) +
+                    distance_to_sentinel(
+                        b_runs,
+                        b_run_index
+                    ) + 2
+            )
             var dstIndex = dstOffset
 
             val rec = SpanRect(a_runs, b_runs, a_run_index, b_run_index)
@@ -840,7 +856,8 @@ class Region(rects: Array<Rect> = arrayOf()) {
 
                 // add left,right to our dst buffer (checking for coincidence
                 if ((rec.fInside - min).toUInt() <= (max - min).toUInt() &&
-                    left < right) { // skip if equal
+                    left < right
+                ) { // skip if equal
                     if (firstInterval || array[dstIndex - 1] < left) {
                         array[dstIndex] = left
                         dstIndex++
@@ -1064,12 +1081,8 @@ class Region(rects: Array<Rect> = arrayOf()) {
             Op.XOR to MinMax(1, 2)
         )
 
-        fun from(
-            left: Int,
-            top: Int,
-            right: Int,
-            bottom: Int
-        ): Region = from(Rect(left, top, right, bottom))
+        fun from(left: Int, top: Int, right: Int, bottom: Int): Region =
+            from(Rect(left, top, right, bottom))
 
         fun from(region: Region): Region = Region().also { it.set(region) }
 

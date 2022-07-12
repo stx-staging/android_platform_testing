@@ -16,9 +16,9 @@
 
 package com.android.server.wm.flicker.service.assertors
 
-import com.android.server.wm.traces.common.FlickerComponentName
+import com.android.server.wm.traces.common.ComponentMatcher
 
 object Components {
-    val LAUNCHER = FlickerComponentName("com.google.android.apps.nexuslauncher",
+    val LAUNCHER = ComponentMatcher("com.google.android.apps.nexuslauncher",
         "com.google.android.apps.nexuslauncher.NexusLauncherActivity")
 }

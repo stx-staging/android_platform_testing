@@ -57,8 +57,8 @@ open class WindowManagerTraceMonitor @JvmOverloads constructor(
     override val isEnabled: Boolean
         get() = windowManager.isWindowTraceEnabled
 
-    override fun setResult(flickerRunResultBuilder: FlickerRunResult.Builder) {
-        flickerRunResultBuilder.setWmTrace(outputFile) {
+    override fun setResult(builder: FlickerRunResult.Builder) {
+        builder.setWmTrace(outputFile) {
             Log.v(FLICKER_TAG, "Parsing WM trace")
             val traceData = Files.readAllBytes(outputFile)
             val wmTrace = WindowManagerTraceParser.parseFromTrace(traceData)

@@ -28,9 +28,10 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.BySelector
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
+import com.android.server.wm.traces.common.ComponentMatcher
 import com.android.server.wm.traces.common.Condition
 import com.android.server.wm.traces.common.DeviceStateDump
-import com.android.server.wm.traces.common.FlickerComponentName
+import com.android.server.wm.traces.common.IComponentMatcher
 import com.android.server.wm.traces.common.WindowManagerConditionsFactory
 import com.android.server.wm.traces.common.layers.BaseLayerTraceEntry
 import com.android.server.wm.traces.common.windowmanager.WindowManagerState
@@ -43,10 +44,10 @@ import com.android.server.wm.traces.parser.windowmanager.WindowManagerStateHelpe
 open class StandardAppHelper @JvmOverloads constructor(
     instr: Instrumentation,
     @JvmField val appName: String,
-    @JvmField val component: FlickerComponentName,
+    @JvmField val componentMatcher: IComponentMatcher,
     protected val launcherStrategy: ILauncherStrategy =
         LauncherStrategyFactory.getInstance(instr).launcherStrategy
-) : AbstractStandardAppHelper(instr) {
+) : AbstractStandardAppHelper(instr), IComponentMatcher by componentMatcher {
     constructor(
         instr: Instrumentation,
         appName: String,
@@ -55,7 +56,7 @@ open class StandardAppHelper @JvmOverloads constructor(
         launcherStrategy: ILauncherStrategy =
             LauncherStrategyFactory.getInstance(instr).launcherStrategy
     ) : this(instr, appName,
-        FlickerComponentName(packageName, ".$activity"), launcherStrategy)
+        ComponentMatcher(packageName, ".$activity"), launcherStrategy)
 
     private val activityManager: ActivityManager?
         get() = mInstrumentation.context.getSystemService(ActivityManager::class.java)
@@ -63,10 +64,10 @@ open class StandardAppHelper @JvmOverloads constructor(
     protected val context: Context
         get() = mInstrumentation.context
 
-    protected val packageName: String = component.packageNames.firstOrNull()
+    protected val packageName: String = componentMatcher.packageNames.firstOrNull()
         ?: error("No package name specified")
 
-    protected val className: String = component.classNames.firstOrNull()
+    protected val className: String = componentMatcher.classNames.firstOrNull()
         ?: error("No package name specified")
 
     protected val uiDevice: UiDevice = UiDevice.getInstance(mInstrumentation)
@@ -128,12 +129,13 @@ open class StandardAppHelper @JvmOverloads constructor(
     private fun waitForActivityDestroyed(
         wmHelper: WindowManagerStateHelper
     ) {
-        val waitMsg = "state of ${component.toActivityName()} to be " +
+        val waitMsg = "state of ${componentMatcher.toActivityName()} to be " +
             WindowManagerState.STATE_DESTROYED
         wmHelper.StateSyncBuilder()
             .add(waitMsg) {
-                !it.wmState.containsActivity(component) ||
-                    it.wmState.hasActivityState(component, WindowManagerState.STATE_DESTROYED)
+                !it.wmState.containsActivity(componentMatcher) ||
+                    it.wmState.hasActivityState(componentMatcher,
+                        WindowManagerState.STATE_DESTROYED)
             }
             .withAppTransitionIdle()
             .waitForAndVerify()
@@ -195,9 +197,9 @@ open class StandardAppHelper @JvmOverloads constructor(
         launchAppViaIntent(action, stringExtras)
 
         val expectedWindow = if (expectedWindowName.isNotEmpty()) {
-            FlickerComponentName("", expectedWindowName)
+            ComponentMatcher("", expectedWindowName)
         } else {
-            component
+            componentMatcher
         }
         val builder = wmHelper.StateSyncBuilder()
             .add(WindowManagerConditionsFactory.isWMStateComplete())
