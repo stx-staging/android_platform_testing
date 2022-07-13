@@ -73,7 +73,7 @@ class MSSIMMatcher(
 
         // Create diff
         val result = PixelPerfectMatcher()
-            .compareBitmaps(expected, given, width, height, null)
+            .compareBitmaps(expected, given, width, height, regions)
         return MatchResult(
             matches = false,
             diff = result.diff,
