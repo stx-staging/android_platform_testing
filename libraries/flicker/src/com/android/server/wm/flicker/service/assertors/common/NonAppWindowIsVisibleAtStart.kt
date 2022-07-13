@@ -21,7 +21,7 @@ import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubj
 import com.android.server.wm.traces.common.tags.Tag
 
 /**
- * Checks if the [component] window is visible at the end of the transition
+ * Checks if the [componentMatcher] window is visible at the end of the transition
  */
 class NonAppWindowIsVisibleAtStart(windowName: String) : ComponentBaseTest(windowName) {
     /** {@inheritDoc} */
@@ -30,6 +30,6 @@ class NonAppWindowIsVisibleAtStart(windowName: String) : ComponentBaseTest(windo
         wmSubject: WindowManagerTraceSubject,
         layerSubject: LayersTraceSubject
     ) {
-        wmSubject.first().isNonAppWindowVisible(component)
+        wmSubject.first().isNonAppWindowVisible(componentMatcher)
     }
 }

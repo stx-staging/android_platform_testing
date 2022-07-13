@@ -33,7 +33,7 @@ import com.android.server.wm.flicker.readWmTraceFromFile
 import com.android.server.wm.flicker.traces.FlickerSubjectException
 import com.android.server.wm.flicker.traces.windowmanager.WindowManagerStateSubject
 import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject.Companion.assertThat
-import com.android.server.wm.traces.common.FlickerComponentName
+import com.android.server.wm.traces.common.ComponentMatcher
 import com.android.server.wm.traces.common.region.Region
 import com.android.server.wm.traces.common.windowmanager.WindowManagerState
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
@@ -76,9 +76,9 @@ class WindowManagerStateSubjectTest {
     fun canDetectAboveAppWindowVisibility_isVisible() {
         assertThat(trace)
             .entry(traceFirstFrameTimestamp)
-            .containsAboveAppWindow(FlickerComponentName.NAV_BAR)
+            .containsAboveAppWindow(ComponentMatcher.NAV_BAR)
             .containsAboveAppWindow(SCREEN_DECOR_COMPONENT)
-            .containsAboveAppWindow(FlickerComponentName.STATUS_BAR)
+            .containsAboveAppWindow(ComponentMatcher.STATUS_BAR)
     }
 
     @Test
@@ -91,8 +91,8 @@ class WindowManagerStateSubjectTest {
         assertFailure(failure).factValue("Is Invisible").contains("pip-dismiss-overlay")
 
         failure = assertThrows(AssertionError::class.java) {
-            subject.containsAboveAppWindow(FlickerComponentName.NAV_BAR)
-                .isNonAppWindowInvisible(FlickerComponentName.NAV_BAR)
+            subject.containsAboveAppWindow(ComponentMatcher.NAV_BAR)
+                .isNonAppWindowInvisible(ComponentMatcher.NAV_BAR)
         }
         assertFailure(failure).factValue("Is Visible").contains("NavigationBar")
     }
@@ -102,7 +102,7 @@ class WindowManagerStateSubjectTest {
         val entry = assertThat(trace)
             .entry(traceFirstFrameTimestamp)
 
-        entry.visibleRegion(FlickerComponentName.STATUS_BAR)
+        entry.visibleRegion(ComponentMatcher.STATUS_BAR)
                 .coversAtLeast(statusBarRegion)
         entry.visibleRegion(LAUNCHER_COMPONENT)
             .coversAtLeast(displayBounds)
@@ -112,7 +112,7 @@ class WindowManagerStateSubjectTest {
     fun canDetectWindowCoversAtLeastRegion_smallerRegion() {
         val entry = assertThat(trace)
             .entry(traceFirstFrameTimestamp)
-        entry.visibleRegion(FlickerComponentName.STATUS_BAR)
+        entry.visibleRegion(ComponentMatcher.STATUS_BAR)
                 .coversAtLeast(Region.from(0, 0, 100, 100))
         entry.visibleRegion(LAUNCHER_COMPONENT)
             .coversAtLeast(Region.from(0, 0, 100, 100))
@@ -122,7 +122,7 @@ class WindowManagerStateSubjectTest {
     fun canDetectWindowCoversAtLeastRegion_largerRegion() {
         val subject = assertThat(trace).entry(traceFirstFrameTimestamp)
         var failure = assertThrows(FlickerSubjectException::class.java) {
-            subject.visibleRegion(FlickerComponentName.STATUS_BAR)
+            subject.visibleRegion(ComponentMatcher.STATUS_BAR)
                     .coversAtLeast(Region.from(0, 0, 1441, 171))
         }
         assertFailure(failure).factValue("Uncovered region").contains("SkRegion((1440,0,1441,171))")
@@ -140,7 +140,7 @@ class WindowManagerStateSubjectTest {
         val entry = assertThat(trace)
                 .entry(traceFirstFrameTimestamp)
 
-        entry.visibleRegion(FlickerComponentName.STATUS_BAR)
+        entry.visibleRegion(ComponentMatcher.STATUS_BAR)
                 .coversExactly(statusBarRegion)
         entry.visibleRegion(LAUNCHER_COMPONENT)
                 .coversExactly(displayBounds)
@@ -150,7 +150,7 @@ class WindowManagerStateSubjectTest {
     fun canDetectWindowCoversExactlyRegion_smallerRegion() {
         val subject = assertThat(trace).entry(traceFirstFrameTimestamp)
         var failure = assertThrows(FlickerSubjectException::class.java) {
-            subject.visibleRegion(FlickerComponentName.STATUS_BAR)
+            subject.visibleRegion(ComponentMatcher.STATUS_BAR)
                     .coversAtMost(Region.from(0, 0, 100, 100))
         }
         assertFailure(failure).factValue("Out-of-bounds region")
@@ -168,7 +168,7 @@ class WindowManagerStateSubjectTest {
     fun canDetectWindowCoversExactlyRegion_largerRegion() {
         val subject = assertThat(trace).entry(traceFirstFrameTimestamp)
         var failure = assertThrows(FlickerSubjectException::class.java) {
-            subject.visibleRegion(FlickerComponentName.STATUS_BAR)
+            subject.visibleRegion(ComponentMatcher.STATUS_BAR)
                     .coversAtLeast(Region.from(0, 0, 1441, 171))
         }
         assertFailure(failure).factValue("Uncovered region").contains("SkRegion((1440,0,1441,171))")
@@ -185,7 +185,7 @@ class WindowManagerStateSubjectTest {
     fun canDetectWindowCoversAtMostRegion_extactSize() {
         val entry = assertThat(trace)
             .entry(traceFirstFrameTimestamp)
-        entry.visibleRegion(FlickerComponentName.STATUS_BAR)
+        entry.visibleRegion(ComponentMatcher.STATUS_BAR)
                 .coversAtMost(statusBarRegion)
         entry.visibleRegion(LAUNCHER_COMPONENT)
             .coversAtMost(displayBounds)
@@ -195,7 +195,7 @@ class WindowManagerStateSubjectTest {
     fun canDetectWindowCoversAtMostRegion_smallerRegion() {
         val subject = assertThat(trace).entry(traceFirstFrameTimestamp)
         var failure = assertThrows(FlickerSubjectException::class.java) {
-            subject.visibleRegion(FlickerComponentName.STATUS_BAR)
+            subject.visibleRegion(ComponentMatcher.STATUS_BAR)
                     .coversAtMost(Region.from(0, 0, 100, 100))
         }
         assertFailure(failure).factValue("Out-of-bounds region")
@@ -214,7 +214,7 @@ class WindowManagerStateSubjectTest {
         val entry = assertThat(trace)
             .entry(traceFirstFrameTimestamp)
 
-        entry.visibleRegion(FlickerComponentName.STATUS_BAR)
+        entry.visibleRegion(ComponentMatcher.STATUS_BAR)
                 .coversAtMost(Region.from(0, 0, 1441, 171))
         entry.visibleRegion(LAUNCHER_COMPONENT)
             .coversAtMost(Region.from(0, 0, 1440, 2961))
@@ -287,11 +287,11 @@ class WindowManagerStateSubjectTest {
         val failure = assertThrows(FlickerSubjectException::class.java) {
             assertThat(trace)
                 .entry(traceFirstFrameTimestamp)
-                .containsNonAppWindow(FlickerComponentName.IME)
-                .isNonAppWindowVisible(FlickerComponentName.IME)
+                .containsNonAppWindow(ComponentMatcher.IME)
+                .isNonAppWindowVisible(ComponentMatcher.IME)
         }
         assertFailure(failure).factValue("Is Invisible")
-            .contains(FlickerComponentName.IME.packageNames.first())
+            .contains(ComponentMatcher.IME.packageNames.first())
     }
 
     @Test
@@ -355,7 +355,7 @@ class WindowManagerStateSubjectTest {
             )
         )
 
-        val mockComponent = FlickerComponentName("", "Mock")
+        val mockComponent = ComponentMatcher("", "Mock")
 
         val failure = assertThrows(FlickerSubjectException::class.java) {
             WindowManagerStateSubject

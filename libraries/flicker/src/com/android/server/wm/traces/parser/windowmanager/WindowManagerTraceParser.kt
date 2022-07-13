@@ -85,12 +85,11 @@ object WindowManagerTraceParser {
      *
      * @param data binary proto data
      */
-    @JvmOverloads
     @JvmStatic
     fun parseFromTrace(
         data: ByteArray?
     ): WindowManagerTrace {
-        var fileProto: WindowManagerTraceFileProto? = null
+        var fileProto: WindowManagerTraceFileProto?
         try {
             measureTimeMillis {
                 fileProto = WindowManagerTraceFileProto.parseFrom(data)
@@ -110,7 +109,6 @@ object WindowManagerTraceParser {
      *
      * @param proto Parsed proto data
      */
-    @JvmOverloads
     @JvmStatic
     fun parseFromTrace(
         proto: WindowManagerTraceFileProto

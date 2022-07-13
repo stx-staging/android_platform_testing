@@ -19,24 +19,27 @@ package com.android.server.wm.traces.parser.windowmanager
 import android.app.ActivityTaskManager
 import android.app.Instrumentation
 import android.app.WindowConfiguration
-import android.graphics.Rect
 import android.os.SystemClock
 import android.util.Log
 import android.view.Display
 import androidx.test.platform.app.InstrumentationRegistry
+import com.android.server.wm.traces.common.ComponentMatcher
+import com.android.server.wm.traces.common.ComponentMatcher.Companion.IME
+import com.android.server.wm.traces.common.ComponentMatcher.Companion.LAUNCHER
+import com.android.server.wm.traces.common.ComponentMatcher.Companion.SNAPSHOT
+import com.android.server.wm.traces.common.ComponentMatcher.Companion.SPLASH_SCREEN
 import com.android.server.wm.traces.common.Condition
 import com.android.server.wm.traces.common.DUMP
 import com.android.server.wm.traces.common.DeviceStateDump
-import com.android.server.wm.traces.common.FlickerComponentName
-import com.android.server.wm.traces.common.FlickerComponentName.Companion.IME
-import com.android.server.wm.traces.common.FlickerComponentName.Companion.LAUNCHER
-import com.android.server.wm.traces.common.FlickerComponentName.Companion.SNAPSHOT
-import com.android.server.wm.traces.common.FlickerComponentName.Companion.SPLASH_SCREEN
+import com.android.server.wm.traces.common.IComponentMatcher
 import com.android.server.wm.traces.common.WaitCondition
 import com.android.server.wm.traces.common.WindowManagerConditionsFactory
 import com.android.server.wm.traces.common.layers.BaseLayerTraceEntry
+import com.android.server.wm.traces.common.layers.LayersTrace
 import com.android.server.wm.traces.common.region.Region
 import com.android.server.wm.traces.common.windowmanager.WindowManagerState
+import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
+import com.android.server.wm.traces.common.windowmanager.windows.Activity
 import com.android.server.wm.traces.common.windowmanager.windows.ConfigurationContainer
 import com.android.server.wm.traces.common.windowmanager.windows.WindowState
 import com.android.server.wm.traces.parser.LOG_TAG
@@ -88,23 +91,28 @@ open class WindowManagerStateHelper @JvmOverloads constructor(
     }
 
     /**
-     * Obtains a [WindowContainer] from the current device state, or null if the WindowContainer
-     * doesn't exist
+     * @return a [WindowState] from the current device state matching [componentMatcher],
+     * or null otherwise
+     *
+     * @param componentMatcher Components to search
      */
-    fun getWindow(activity: FlickerComponentName): WindowState? {
-        val windowName = activity.toWindowName()
+    fun getWindow(componentMatcher: IComponentMatcher): WindowState? {
         return this.currentState.wmState.windowStates
-            .firstOrNull { it.title == windowName }
+            .firstOrNull { componentMatcher.windowMatchesAnyOf(it) }
     }
 
     /**
-     * Obtains the region of a window in the state, or an empty [Rect] is there are none
+     * @return The frame [Region] a [WindowState] matching [componentMatcher]
+     *
+     * @param componentMatcher Components to search
      */
-    fun getWindowRegion(activity: FlickerComponentName): Region {
-        val window = getWindow(activity)
-        return window?.frameRegion ?: Region.EMPTY
-    }
+    fun getWindowRegion(componentMatcher: IComponentMatcher): Region =
+        getWindow(componentMatcher)?.frameRegion ?: Region.EMPTY
 
+    /**
+     * Class to build conditions for waiting on specific [WindowManagerTrace] and [LayersTrace]
+     * conditions
+     */
     inner class StateSyncBuilder {
         private val conditionBuilder = createConditionBuilder()
         private var lastMessage = ""
@@ -120,14 +128,30 @@ open class WindowManagerStateHelper @JvmOverloads constructor(
                     }
                 }.onRetry { SystemClock.sleep(retryIntervalMs) }
 
+        /**
+         * Adds a new [condition] to the list
+         *
+         * @param condition to wait for
+         */
         fun add(condition: Condition<DUMP>): StateSyncBuilder = apply {
             conditionBuilder.withCondition(condition)
         }
 
+        /**
+         * Adds a new [condition] to the list
+         *
+         * @param message describing the condition
+         * @param condition to wait for
+         */
         @JvmOverloads
         fun add(message: String = "", condition: (DUMP) -> Boolean): StateSyncBuilder =
             add(Condition(message, condition))
 
+        /**
+         * Waits until the list of conditions added to [conditionBuilder] are satisfied
+         *
+         * @return if the device state passed all conditions or not
+         */
         fun waitFor(): Boolean {
             val passed = conditionBuilder.build().waitFor()
             // Ensure WindowManagerService wait until all animations have completed
@@ -136,44 +160,76 @@ open class WindowManagerStateHelper @JvmOverloads constructor(
             return passed
         }
 
+        /**
+         * Waits until the list of conditions added to [conditionBuilder] are satisfied and
+         * verifies the device state passes all conditions
+         *
+         * @throws IllegalArgumentException if the conditions were not met
+         */
         fun waitForAndVerify() {
             val success = waitFor()
             require(success) { lastMessage }
         }
 
-        fun withFullScreenApp(component: FlickerComponentName) =
-            isAppFullScreen(component)
-                .withSnapshotGone()
-                .withSplashScreenGone()
-                .add(WindowManagerConditionsFactory.isLayerVisible(component))
-                .add(WindowManagerConditionsFactory.hasLayersAnimating().negate())
-                .add(WindowManagerConditionsFactory.isAppTransitionIdle(Display.DEFAULT_DISPLAY))
+        /**
+         * Waits for an app matching [componentMatcher] to be visible, in full screen, and for
+         * nothing to be animating
+         *
+         * @param componentMatcher Components to search
+         * @param displayId of the target display
+         */
+        @JvmOverloads
+        fun withFullScreenApp(
+            componentMatcher: IComponentMatcher,
+            displayId: Int = Display.DEFAULT_DISPLAY
+        ) = withFullScreenAppCondition(componentMatcher)
+            .withAppTransitionIdle(displayId)
+            .add(WindowManagerConditionsFactory.isLayerVisible(componentMatcher))
 
-        fun withHomeActivityVisible() =
-            add(WindowManagerConditionsFactory.isHomeActivityVisible())
+        /**
+         * Waits until the home activity is visible and nothing to be animating
+         *
+         * @param displayId of the target display
+         */
+        @JvmOverloads
+        fun withHomeActivityVisible(displayId: Int = Display.DEFAULT_DISPLAY) =
+            withAppTransitionIdle(displayId)
+                .add(WindowManagerConditionsFactory.isHomeActivityVisible())
                 .add(WindowManagerConditionsFactory.isLayerVisible(LAUNCHER))
-                .add(WindowManagerConditionsFactory.isAppTransitionIdle(Display.DEFAULT_DISPLAY))
-                .add(WindowManagerConditionsFactory.hasLayersAnimating().negate())
                 .add(WindowManagerConditionsFactory.isNavBarVisible())
                 .add(WindowManagerConditionsFactory.isStatusBarVisible())
 
-        fun withRecentsActivityVisible() =
-            add(WindowManagerConditionsFactory.isRecentsActivityVisible())
+        /**
+         * Waits until the home activity is visible and nothing to be animating
+         *
+         * @param displayId of the target display
+         */
+        @JvmOverloads
+        fun withRecentsActivityVisible(displayId: Int = Display.DEFAULT_DISPLAY) =
+            withAppTransitionIdle(displayId)
+                .add(WindowManagerConditionsFactory.isRecentsActivityVisible())
                 .add(WindowManagerConditionsFactory.isLayerVisible(LAUNCHER))
-                .add(WindowManagerConditionsFactory.isAppTransitionIdle(Display.DEFAULT_DISPLAY))
-                .add(WindowManagerConditionsFactory.hasLayersAnimating().negate())
 
         /**
-         * Wait for specific rotation for the default display. Values are Surface#Rotation
+         * Wait for specific rotation for the display with id [displayId]
+         *
+         * @param rotation expected. Values are [Surface#Rotation]
+         * @param displayId of the target display
          */
         @JvmOverloads
         fun withRotation(rotation: Int, displayId: Int = Display.DEFAULT_DISPLAY) =
-            add(WindowManagerConditionsFactory.isAppTransitionIdle(Display.DEFAULT_DISPLAY))
+            withAppTransitionIdle(displayId)
                 .add(WindowManagerConditionsFactory.hasRotation(rotation, displayId))
 
-        fun withActivityState(activity: FlickerComponentName, activityState: String) =
-            add(Condition("state of ${activity.toActivityName()} to be $activityState") {
-                it.wmState.hasActivityState(activity, activityState)
+        /**
+         * Waits until a [WindowState] matching [componentMatcher] has a state of [activityState]
+         *
+         * @param componentMatcher Components to search
+         * @param activityState expected activity state
+         */
+        fun withActivityState(componentMatcher: IComponentMatcher, activityState: String) =
+            add(Condition("state of ${componentMatcher.toActivityName()} to be $activityState") {
+                it.wmState.hasActivityState(componentMatcher, activityState)
             })
 
         /**
@@ -183,11 +239,27 @@ open class WindowManagerStateHelper @JvmOverloads constructor(
             add(WindowManagerConditionsFactory.isNavBarVisible())
                 .add(WindowManagerConditionsFactory.isStatusBarVisible())
 
-        fun withActivityRemoved(component: FlickerComponentName) =
-            add(WindowManagerConditionsFactory.containsActivity(component).negate())
-                .add(WindowManagerConditionsFactory.containsWindow(component).negate())
-                .add(WindowManagerConditionsFactory.isAppTransitionIdle(Display.DEFAULT_DISPLAY))
+        /**
+         * Wait until neither an [Activity] nor a [WindowState] matching [componentMatcher] exist
+         * on the display with id [displayId] and for nothing to be animating
+         *
+         * @param componentMatcher Components to search
+         * @param displayId of the target display
+         */
+        @JvmOverloads
+        fun withActivityRemoved(
+            componentMatcher: IComponentMatcher,
+            displayId: Int = Display.DEFAULT_DISPLAY
+        ) = withAppTransitionIdle(displayId)
+            .add(WindowManagerConditionsFactory.containsActivity(componentMatcher).negate())
+            .add(WindowManagerConditionsFactory.containsWindow(componentMatcher).negate())
 
+        /**
+         * Wait until the splash screen and snapshot starting windows no longer exist, no layers
+         * are animating, and [WindowManagerState] is idle on display [displayId]
+         *
+         * @param displayId of the target display
+         */
         @JvmOverloads
         fun withAppTransitionIdle(displayId: Int = Display.DEFAULT_DISPLAY) =
             withSplashScreenGone()
@@ -195,70 +267,110 @@ open class WindowManagerStateHelper @JvmOverloads constructor(
                 .add(WindowManagerConditionsFactory.isAppTransitionIdle(displayId))
                 .add(WindowManagerConditionsFactory.hasLayersAnimating().negate())
 
-        fun withWindowSurfaceDisappeared(component: FlickerComponentName) =
-            add(WindowManagerConditionsFactory.isWindowVisible(component).negate())
-                .add(WindowManagerConditionsFactory.isLayerVisible(component).negate())
-                .add(WindowManagerConditionsFactory.isAppTransitionIdle(Display.DEFAULT_DISPLAY))
+        /**
+         * Wait until least one [WindowState] matching [componentMatcher] is not visible on
+         * display with idd [displayId] and nothing is animating
+         *
+         * @param componentMatcher Components to search
+         * @param displayId of the target display
+         */
+        @JvmOverloads
+        fun withWindowSurfaceDisappeared(
+            componentMatcher: IComponentMatcher,
+            displayId: Int = Display.DEFAULT_DISPLAY
+        ) = withAppTransitionIdle(displayId)
+            .add(WindowManagerConditionsFactory.isWindowSurfaceShown(componentMatcher).negate())
+            .add(WindowManagerConditionsFactory.isLayerVisible(componentMatcher).negate())
+            .add(WindowManagerConditionsFactory.isAppTransitionIdle(displayId))
 
-        fun withWindowSurfaceAppeared(component: FlickerComponentName) =
-            add(WindowManagerConditionsFactory.isWindowSurfaceShown(component))
-                .add(WindowManagerConditionsFactory.isLayerVisible(component))
-                .add(WindowManagerConditionsFactory.isAppTransitionIdle(Display.DEFAULT_DISPLAY))
+        /**
+         * Wait until least one [WindowState] matching [componentMatcher] is visible on display
+         * with idd [displayId] and nothing is animating
+         *
+         * @param componentMatcher Components to search
+         * @param displayId of the target display
+         */
+        @JvmOverloads
+        fun withWindowSurfaceAppeared(
+            componentMatcher: IComponentMatcher,
+            displayId: Int = Display.DEFAULT_DISPLAY
+        ) = withAppTransitionIdle(displayId)
+            .add(WindowManagerConditionsFactory.isWindowSurfaceShown(componentMatcher))
+            .add(WindowManagerConditionsFactory.isLayerVisible(componentMatcher))
 
         /**
          * Waits until the IME window and layer are visible
+         *
+         * @param displayId of the target display
          */
-        fun withImeShown() =
-            add(WindowManagerConditionsFactory.isImeShown(Display.DEFAULT_DISPLAY))
-                .add(WindowManagerConditionsFactory.isAppTransitionIdle(Display.DEFAULT_DISPLAY))
+        @JvmOverloads
+        fun withImeShown(displayId: Int = Display.DEFAULT_DISPLAY) =
+            withAppTransitionIdle(displayId)
+                .add(WindowManagerConditionsFactory.isImeShown(displayId))
 
         /**
-         * Waits until the IME layer is no longer visible. Cannot wait for the window as
-         * its visibility information is updated at a later state and is not reliable in
-         * the trace
+         * Waits until the [IME] layer is no longer visible.
+         *
+         * Cannot wait for the window as its visibility information is updated at a later state
+         * and is not reliable in the trace
+         *
+         * @param displayId of the target display
          */
-        fun withImeGone() =
-            add(WindowManagerConditionsFactory.isLayerVisible(IME).negate())
-                .add(WindowManagerConditionsFactory.isAppTransitionIdle(Display.DEFAULT_DISPLAY))
+        @JvmOverloads
+        fun withImeGone(displayId: Int = Display.DEFAULT_DISPLAY) =
+            withAppTransitionIdle(displayId)
+                .add(WindowManagerConditionsFactory.isLayerVisible(IME).negate())
 
         /**
          * Waits until a window is in PIP mode. That is:
          *
          * - wait until a window is pinned ([WindowManagerState.pinnedWindows])
          * - no layers animating
-         * - and [FlickerComponentName.PIP_CONTENT_OVERLAY] is no longer visible
+         * - and [ComponentMatcher.PIP_CONTENT_OVERLAY] is no longer visible
+         *
+         * @param displayId of the target display
          */
-        fun withPipShown() =
-            add(WindowManagerConditionsFactory.hasLayersAnimating().negate())
+        @JvmOverloads
+        fun withPipShown(displayId: Int = Display.DEFAULT_DISPLAY) =
+            withAppTransitionIdle(displayId)
                 .add(WindowManagerConditionsFactory.hasPipWindow())
-                .add(WindowManagerConditionsFactory.isAppTransitionIdle(Display.DEFAULT_DISPLAY))
 
         /**
          * Waits until a window is no longer in PIP mode. That is:
          *
          * - wait until there are no pinned ([WindowManagerState.pinnedWindows])
          * - no layers animating
-         * - and [FlickerComponentName.PIP_CONTENT_OVERLAY] is no longer visible
+         * - and [ComponentMatcher.PIP_CONTENT_OVERLAY] is no longer visible
+         *
+         * @param displayId of the target display
          */
-        fun withPipGone() =
-            add(WindowManagerConditionsFactory.hasLayersAnimating().negate())
+        @JvmOverloads
+        fun withPipGone(displayId: Int = Display.DEFAULT_DISPLAY) =
+            withAppTransitionIdle(displayId)
                 .add(WindowManagerConditionsFactory.hasPipWindow().negate())
-                .add(WindowManagerConditionsFactory.isAppTransitionIdle(Display.DEFAULT_DISPLAY))
 
+        /**
+         * Waits until the [SNAPSHOT] is gone
+         */
         fun withSnapshotGone() =
             add(WindowManagerConditionsFactory.isLayerVisible(SNAPSHOT).negate())
-                .add(WindowManagerConditionsFactory.isAppTransitionIdle(Display.DEFAULT_DISPLAY))
 
+        /**
+         * Waits until the [SPLASH_SCREEN] is gone
+         */
         fun withSplashScreenGone() =
             add(WindowManagerConditionsFactory.isLayerVisible(SPLASH_SCREEN).negate())
-                .add(WindowManagerConditionsFactory.isAppTransitionIdle(Display.DEFAULT_DISPLAY))
 
+        /**
+         * Waits until the is no top visible app window in the [WindowManagerState]
+         */
         fun withoutTopVisibleAppWindows() = add("noAppWindowsOnTop") {
             it.wmState.topVisibleAppWindow == null
         }
 
         /**
          * Wait for the activities to appear in proper stacks and for valid state in AM and WM.
+         *
          * @param waitForActivityState array of activity states to wait for.
          */
         internal fun withValidState(vararg waitForActivityState: WaitForValidActivityState) =
@@ -274,18 +386,19 @@ open class WindowManagerStateHelper @JvmOverloads constructor(
                 }
             }
 
-        private fun isAppFullScreen(component: FlickerComponentName) =
-            waitForValidStateCondition(WaitForValidActivityState
-                .Builder(component)
-                .setWindowingMode(WindowConfiguration.WINDOWING_MODE_FULLSCREEN)
-                .setActivityType(WindowConfiguration.ACTIVITY_TYPE_STANDARD)
-                .build()
+        private fun withFullScreenAppCondition(componentMatcher: IComponentMatcher) =
+            waitForValidStateCondition(
+                WaitForValidActivityState
+                    .Builder(componentMatcher)
+                    .setWindowingMode(WindowConfiguration.WINDOWING_MODE_FULLSCREEN)
+                    .setActivityType(WindowConfiguration.ACTIVITY_TYPE_STANDARD)
+                    .build()
             )
     }
 
     companion object {
         /**
-         * @return true if should wait for some activities to become visible.
+         * @return true if it should wait for some activities to become visible.
          */
         private fun shouldWaitForActivities(
             state: DeviceStateDump<WindowManagerState, BaseLayerTraceEntry>,
@@ -308,9 +421,7 @@ open class WindowManagerStateHelper @JvmOverloads constructor(
                 if (!activityWindowVisible) {
                     Log.i(LOG_TAG, "Activity window not visible: ${activityState.windowName}")
                     allActivityWindowsVisible = false
-                } else if (activityState.activityName != null && !state.wmState.isActivityVisible(
-                        activityState.activityName
-                    )
+                } else if (!state.wmState.isActivityVisible(activityState.activityName)
                 ) {
                     Log.i(LOG_TAG, "Activity not visible: ${activityState.activityName}")
                     allActivityWindowsVisible = false
@@ -319,15 +430,17 @@ open class WindowManagerStateHelper @JvmOverloads constructor(
                     var windowInCorrectState = false
                     for (ws in matchingWindowStates) {
                         if (activityState.stackId != ActivityTaskManager.INVALID_STACK_ID &&
-                            ws.stackId != activityState.stackId) {
+                            ws.stackId != activityState.stackId
+                        ) {
                             continue
                         }
                         if (!ws.isWindowingModeCompatible(activityState.windowingMode)) {
                             continue
                         }
                         if (activityState.activityType !=
-                                WindowConfiguration.ACTIVITY_TYPE_UNDEFINED &&
-                            ws.activityType != activityState.activityType) {
+                            WindowConfiguration.ACTIVITY_TYPE_UNDEFINED &&
+                            ws.activityType != activityState.activityType
+                        ) {
                             continue
                         }
                         windowInCorrectState = true

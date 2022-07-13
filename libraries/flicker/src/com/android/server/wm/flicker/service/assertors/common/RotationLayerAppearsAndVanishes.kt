@@ -19,11 +19,11 @@ package com.android.server.wm.flicker.service.assertors.common
 import com.android.server.wm.flicker.service.assertors.BaseAssertion
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
-import com.android.server.wm.traces.common.FlickerComponentName
+import com.android.server.wm.traces.common.ComponentMatcher
 import com.android.server.wm.traces.common.tags.Tag
 
 /**
- * Checks that the [FlickerComponentName.ROTATION] layer appears during the transition,
+ * Checks that the [ComponentMatcher.ROTATION] layer appears during the transition,
  * doesn't flicker, and disappears before the transition is complete.
  */
 class RotationLayerAppearsAndVanishes : BaseAssertion() {
@@ -34,13 +34,13 @@ class RotationLayerAppearsAndVanishes : BaseAssertion() {
         layerSubject: LayersTraceSubject
     ) {
         val window = wmSubject.first().wmState.topVisibleAppWindow
-        val appComponent = FlickerComponentName.unflattenFromString(window?.title ?: "")
+        val appComponent = ComponentMatcher.unflattenFromString(window?.title ?: "")
         layerSubject.isVisible(appComponent)
             .then()
-            .isVisible(FlickerComponentName.ROTATION)
+            .isVisible(ComponentMatcher.ROTATION)
             .then()
             .isVisible(appComponent)
-            .isInvisible(FlickerComponentName.ROTATION)
+            .isInvisible(ComponentMatcher.ROTATION)
             .forAllEntries()
     }
 }

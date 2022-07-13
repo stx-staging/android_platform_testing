@@ -16,11 +16,13 @@
 
 package com.android.server.wm.flicker.traces.windowmanager
 
+import androidx.annotation.VisibleForTesting
 import com.android.server.wm.flicker.assertions.Assertion
 import com.android.server.wm.flicker.traces.FlickerFailureStrategy
 import com.android.server.wm.flicker.traces.FlickerTraceSubject
 import com.android.server.wm.flicker.traces.region.RegionTraceSubject
-import com.android.server.wm.traces.common.FlickerComponentName
+import com.android.server.wm.traces.common.ComponentMatcher
+import com.android.server.wm.traces.common.IComponentMatcher
 import com.android.server.wm.traces.common.region.RegionTrace
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 import com.android.server.wm.traces.common.windowmanager.windows.WindowState
@@ -57,7 +59,8 @@ class WindowManagerTraceSubject private constructor(
     fm: FailureMetadata,
     val trace: WindowManagerTrace,
     override val parent: WindowManagerTraceSubject?
-) : FlickerTraceSubject<WindowManagerStateSubject>(fm, trace) {
+) : FlickerTraceSubject<WindowManagerStateSubject>(fm, trace),
+    IWindowManagerSubject<WindowManagerTraceSubject, RegionTraceSubject> {
     override val selfFacts
         get() = super.selfFacts.toMutableList()
 
@@ -72,27 +75,32 @@ class WindowManagerTraceSubject private constructor(
     override fun skipUntilFirstAssertion(): WindowManagerTraceSubject =
         apply { super.skipUntilFirstAssertion() }
 
-    fun isEmpty(): WindowManagerTraceSubject = apply {
+    /** {@inheritDoc} */
+    override fun isEmpty(): WindowManagerTraceSubject = apply {
         check("Trace is empty").that(trace).isEmpty()
     }
 
-    fun isNotEmpty(): WindowManagerTraceSubject = apply {
+    /** {@inheritDoc} */
+    override fun isNotEmpty(): WindowManagerTraceSubject = apply {
         check("Trace is not empty").that(trace).isNotEmpty()
     }
 
     /**
-     * @return List of [WindowStateSubject]s matching [partialWindowTitle] in the order they
+     * @return List of [WindowStateSubject]s matching [componentMatcher] in the order they
      *      appear on the trace
+     *
+     * @param componentMatcher Components to search
      */
-    fun windowStates(partialWindowTitle: String): List<WindowStateSubject> {
-        return subjects
-            .map { it.windowState { windows -> windows.title.contains(partialWindowTitle) } }
+    fun windowStates(componentMatcher: IComponentMatcher): List<WindowStateSubject> =
+        subjects
+            .map { it.windowState { windows -> componentMatcher.windowMatchesAnyOf(windows) } }
             .filter { it.isNotEmpty }
-    }
 
     /**
      * @return List of [WindowStateSubject]s matching [predicate] in the order they
      *      appear on the trace
+     *
+     * @param predicate To search
      */
     fun windowStates(predicate: (WindowState) -> Boolean): List<WindowStateSubject> {
         return subjects
@@ -101,280 +109,481 @@ class WindowManagerTraceSubject private constructor(
     }
 
     /** {@inheritDoc} */
+    override fun notContains(componentMatcher: IComponentMatcher): WindowManagerTraceSubject =
+        notContains(componentMatcher, isOptional = false)
+
+    /**
+     * See [notContains]
+     */
     fun notContains(
-        component: FlickerComponentName,
-        isOptional: Boolean = false
+        componentMatcher: IComponentMatcher,
+        isOptional: Boolean
     ): WindowManagerTraceSubject = apply {
-        addAssertion("notContains(${component.toWindowName()})", isOptional) {
-            it.notContains(component)
+        addAssertion("notContains(${componentMatcher.toWindowName()})", isOptional) {
+            it.notContains(componentMatcher)
         }
     }
 
+    /** {@inheritDoc} */
+    override fun isAboveAppWindowVisible(
+        componentMatcher: IComponentMatcher
+    ): WindowManagerTraceSubject = isAboveAppWindowVisible(componentMatcher, isOptional = false)
+
     /**
-     * Checks if the non-app window with title containing [component] exists above the app
-     * windows and is visible
-     *
-     * @param component Component to search
-     * @param isOptional If this assertion is optional or must pass
+     * See [isAboveAppWindowVisible]
      */
-    @JvmOverloads
     fun isAboveAppWindowVisible(
-        component: FlickerComponentName,
-        isOptional: Boolean = false
+        componentMatcher: IComponentMatcher,
+        isOptional: Boolean
     ): WindowManagerTraceSubject = apply {
-        addAssertion("isAboveAppWindowVisible(${component.toWindowName()})", isOptional) {
-            it.containsAboveAppWindow(component)
-                .isNonAppWindowVisible(component)
+        addAssertion("isAboveAppWindowVisible(${componentMatcher.toWindowName()})", isOptional) {
+            it.isAboveAppWindowVisible(componentMatcher)
         }
     }
 
+    /** {@inheritDoc} */
+    override fun isAboveAppWindowInvisible(
+        componentMatcher: IComponentMatcher
+    ): WindowManagerTraceSubject = isAboveAppWindowInvisible(componentMatcher, isOptional = false)
+
     /**
-     * Checks if the non-app window with title containing [component] exists above the app
-     * windows and is invisible
-     *
-     * @param component Component to search
-     * @param isOptional If this assertion is optional or must pass
+     * See [isAboveAppWindowInvisible]
      */
-    @JvmOverloads
     fun isAboveAppWindowInvisible(
-        component: FlickerComponentName,
-        isOptional: Boolean = false
+        componentMatcher: IComponentMatcher,
+        isOptional: Boolean
     ): WindowManagerTraceSubject = apply {
-        addAssertion("isAboveAppWindowInvisible(${component.toWindowName()})", isOptional) {
-            it.containsAboveAppWindow(component)
-                .isNonAppWindowInvisible(component)
+        addAssertion("isAboveAppWindowInvisible(${componentMatcher.toWindowName()})", isOptional) {
+            it.isAboveAppWindowInvisible(componentMatcher)
         }
     }
 
+    /** {@inheritDoc} */
+    override fun isBelowAppWindowVisible(
+        componentMatcher: IComponentMatcher
+    ): WindowManagerTraceSubject = isBelowAppWindowVisible(componentMatcher, isOptional = false)
+
     /**
-     * Checks if the non-app window with title containing [component] exists below the app
-     * windows and is visible
-     *
-     * @param component Component to search
-     * @param isOptional If this assertion is optional or must pass
+     * See [isBelowAppWindowVisible]
      */
-    @JvmOverloads
     fun isBelowAppWindowVisible(
-        component: FlickerComponentName,
-        isOptional: Boolean = false
+        componentMatcher: IComponentMatcher,
+        isOptional: Boolean
     ): WindowManagerTraceSubject = apply {
-        addAssertion("isBelowAppWindowVisible(${component.toWindowName()})", isOptional) {
-            it.containsBelowAppWindow(component)
-                .isNonAppWindowVisible(component)
+        addAssertion("isBelowAppWindowVisible(${componentMatcher.toWindowName()})", isOptional) {
+            it.isBelowAppWindowVisible(componentMatcher)
         }
     }
 
+    /** {@inheritDoc} */
+    override fun isBelowAppWindowInvisible(
+        componentMatcher: IComponentMatcher
+    ): WindowManagerTraceSubject = isBelowAppWindowInvisible(componentMatcher, isOptional = false)
+
     /**
-     * Checks if the non-app window with title containing [component] exists below the app
-     * windows and is invisible
-     *
-     * @param component Component to search
-     * @param isOptional If this assertion is optional or must pass
+     * See [isBelowAppWindowInvisible]
      */
-    @JvmOverloads
     fun isBelowAppWindowInvisible(
-        component: FlickerComponentName,
-        isOptional: Boolean = false
+        componentMatcher: IComponentMatcher,
+        isOptional: Boolean
     ): WindowManagerTraceSubject = apply {
-        addAssertion("isBelowAppWindowInvisible(${component.toWindowName()})", isOptional) {
-            it.containsBelowAppWindow(component)
-                .isNonAppWindowInvisible(component)
+        addAssertion("isBelowAppWindowInvisible(${componentMatcher.toWindowName()})", isOptional) {
+            it.isBelowAppWindowInvisible(componentMatcher)
         }
     }
 
+    /** {@inheritDoc} */
+    override fun isNonAppWindowVisible(
+        componentMatcher: IComponentMatcher
+    ): WindowManagerTraceSubject = isNonAppWindowVisible(componentMatcher, isOptional = false)
+
     /**
-     * Checks if non-app window with title containing the [component] exists above or
-     * below the app windows and is visible
-     *
-     * @param component Component to search
-     * @param isOptional If this assertion is optional or must pass
+     * See [isNonAppWindowVisible]
      */
-    @JvmOverloads
     fun isNonAppWindowVisible(
-        component: FlickerComponentName,
-        isOptional: Boolean = false
+        componentMatcher: IComponentMatcher,
+        isOptional: Boolean
     ): WindowManagerTraceSubject = apply {
-        addAssertion("isNonAppWindowVisible(${component.toWindowName()})", isOptional) {
-            it.isNonAppWindowVisible(component)
+        addAssertion("isNonAppWindowVisible(${componentMatcher.toWindowName()})", isOptional) {
+            it.isNonAppWindowVisible(componentMatcher)
         }
     }
 
+    /** {@inheritDoc} */
+    override fun isNonAppWindowInvisible(
+        componentMatcher: IComponentMatcher
+    ): WindowManagerTraceSubject = isNonAppWindowInvisible(componentMatcher, isOptional = false)
+
     /**
-     * Checks if non-app window with title containing the [component] exists above or
-     * below the app windows and is invisible
-     *
-     * @param component Component to search
-     * @param isOptional If this assertion is optional or must pass
+     * See [isNonAppWindowInvisible]
      */
-    @JvmOverloads
     fun isNonAppWindowInvisible(
-        component: FlickerComponentName,
-        isOptional: Boolean = false
+        componentMatcher: IComponentMatcher,
+        isOptional: Boolean
     ): WindowManagerTraceSubject = apply {
-        addAssertion("isNonAppWindowInvisible(${component.toWindowName()})", isOptional) {
-            it.isNonAppWindowInvisible(component)
+        addAssertion("isNonAppWindowInvisible(${componentMatcher.toWindowName()})", isOptional) {
+            it.isNonAppWindowInvisible(componentMatcher)
         }
     }
 
+    /** {@inheritDoc} */
+    override fun isAppWindowOnTop(
+        componentMatcher: IComponentMatcher
+    ): WindowManagerTraceSubject = isAppWindowOnTop(componentMatcher, isOptional = false)
+
     /**
-     * Checks if app window with title containing the [component] is on top
-     *
-     * @param component Component to search
-     * @param isOptional If this assertion is optional or must pass
+     * See [isAppWindowOnTop]
      */
-    @JvmOverloads
     fun isAppWindowOnTop(
-        component: FlickerComponentName,
-        isOptional: Boolean = false
+        componentMatcher: IComponentMatcher,
+        isOptional: Boolean
     ): WindowManagerTraceSubject = apply {
-        addAssertion("isAppWindowOnTop(${component.toWindowName()})", isOptional) {
-            it.isAppWindowOnTop(component)
+        addAssertion("isAppWindowOnTop(${componentMatcher.toWindowName()})", isOptional) {
+            it.isAppWindowOnTop(componentMatcher)
         }
     }
 
+    /** {@inheritDoc} */
+    override fun isAppWindowNotOnTop(
+        componentMatcher: IComponentMatcher
+    ): WindowManagerTraceSubject = isAppWindowNotOnTop(componentMatcher, isOptional = false)
+
     /**
-     * Checks if app window with title containing the [component] is not on top
-     *
-     * @param component Component to search
-     * @param isOptional If this assertion is optional or must pass
+     * See [isAppWindowNotOnTop]
      */
-    @JvmOverloads
     fun isAppWindowNotOnTop(
-        component: FlickerComponentName,
-        isOptional: Boolean = false
+        componentMatcher: IComponentMatcher,
+        isOptional: Boolean
     ): WindowManagerTraceSubject = apply {
-        addAssertion("appWindowNotOnTop(${component.toWindowName()})", isOptional) {
-            it.isAppWindowNotOnTop(component)
+        addAssertion("appWindowNotOnTop(${componentMatcher.toWindowName()})", isOptional) {
+            it.isAppWindowNotOnTop(componentMatcher)
         }
     }
 
+    /** {@inheritDoc} */
+    override fun isAppWindowVisible(
+        componentMatcher: IComponentMatcher
+    ): WindowManagerTraceSubject = isAppWindowVisible(componentMatcher, isOptional = false)
+
     /**
-     * Checks if app window with title containing the [component] is visible
-     *
-     * @param component Component to search
-     * @param isOptional If this assertion is optional or must pass
+     * See [isAppWindowVisible]
      */
-    @JvmOverloads
     fun isAppWindowVisible(
-        component: FlickerComponentName,
-        isOptional: Boolean = false
+        componentMatcher: IComponentMatcher,
+        isOptional: Boolean
     ): WindowManagerTraceSubject = apply {
-        addAssertion("isAppWindowVisible(${component.toWindowName()})", isOptional) {
-            it.isAppWindowVisible(component)
+        addAssertion("isAppWindowVisible(${componentMatcher.toWindowName()})", isOptional) {
+            it.isAppWindowVisible(componentMatcher)
         }
     }
 
+    /** {@inheritDoc} */
+    override fun hasNoVisibleAppWindow(): WindowManagerTraceSubject =
+        hasNoVisibleAppWindow(isOptional = false)
+
     /**
-     * Checks if there are no visible app windows.
-     *
-     * @param isOptional If this assertion is optional or must pass
+     * See [hasNoVisibleAppWindow]
      */
-    @JvmOverloads
-    fun hasNoVisibleAppWindow(isOptional: Boolean = false): WindowManagerTraceSubject = apply {
+    fun hasNoVisibleAppWindow(isOptional: Boolean): WindowManagerTraceSubject = apply {
         addAssertion("hasNoVisibleAppWindow()", isOptional) {
             it.hasNoVisibleAppWindow()
         }
     }
 
+    /** {@inheritDoc} */
+    override fun isAppSnapshotStartingWindowVisibleFor(
+        componentMatcher: IComponentMatcher
+    ): WindowManagerTraceSubject = isAppSnapshotStartingWindowVisibleFor(
+        componentMatcher,
+        isOptional = false
+    )
+
     /**
-     * Checks if the activity with title containing [component] is visible
-     *
-     * In the case that an app is stopped in the background (e.g. OS stopped it to release memory)
-     * the app window will not be immediately visible when switching back to the app. Checking if a
-     * snapshotStartingWindow is present for that app instead can decrease flakiness levels of the
-     * assertion.
-     *
-     * @param component Component to search
-     * @param isOptional If this assertion is optional or must pass
+     * See [isAppSnapshotStartingWindowVisibleFor]
      */
-    @JvmOverloads
     fun isAppSnapshotStartingWindowVisibleFor(
-        component: FlickerComponentName,
-        isOptional: Boolean = false
+        componentMatcher: IComponentMatcher,
+        isOptional: Boolean
     ): WindowManagerTraceSubject = apply {
         addAssertion(
-            "isAppSnapshotStartingWindowVisibleFor(${component.toWindowName()})", isOptional) {
-            it.isAppSnapshotStartingWindowVisibleFor(component)
+            "isAppSnapshotStartingWindowVisibleFor(${componentMatcher.toWindowName()})", isOptional
+        ) {
+            it.isAppSnapshotStartingWindowVisibleFor(componentMatcher)
         }
     }
 
+    /** {@inheritDoc} */
+    override fun isAppWindowInvisible(
+        componentMatcher: IComponentMatcher
+    ): WindowManagerTraceSubject = isAppWindowInvisible(componentMatcher, isOptional = false)
+
     /**
-     * Checks if app window with title containing the [component] is invisible
-     *
-     * Note: This assertion have issues with the launcher window, because it contains 2 windows
-     * with the same name and only 1 is visible at a time. Prefer [isAppWindowOnTop] for launcher
-     * instead
-     *
-     * @param component Component to search
-     * @param isOptional If this assertion is optional or must pass
+     * See [isAppWindowInvisible]
      */
-    @JvmOverloads
     fun isAppWindowInvisible(
-        component: FlickerComponentName,
-        isOptional: Boolean = false
+        componentMatcher: IComponentMatcher,
+        isOptional: Boolean
     ): WindowManagerTraceSubject = apply {
-        addAssertion("isAppWindowInvisible(${component.toWindowName()})", isOptional) {
-            it.isAppWindowInvisible(component)
+        addAssertion("isAppWindowInvisible(${componentMatcher.toWindowName()})", isOptional) {
+            it.isAppWindowInvisible(componentMatcher)
         }
     }
 
-    /**
-     * Checks if no app windows containing the [component] overlap with each other.
-     *
-     * @param component Component to search
-     */
-    fun noWindowsOverlap(
-        vararg component: FlickerComponentName
+    /** {@inheritDoc} */
+    override fun doNotOverlap(
+        vararg componentMatcher: IComponentMatcher
     ): WindowManagerTraceSubject = apply {
-        val repr = component.joinToString(", ") { it.toWindowName() }
-        verify("Must give more than one window to check! (Given $repr)")
-                .that(component)
-                .hasLength(1)
+        val repr = componentMatcher.joinToString(", ") { it.toWindowName() }
         addAssertion("noWindowsOverlap($repr)") {
-            it.doNotOverlap(*component)
+            it.doNotOverlap(*componentMatcher)
         }
     }
 
-    /**
-     * Checks if the window named [aboveWindow] is above the one named [belowWindow] in
-     * z-order.
-     *
-     * @param aboveWindow Expected top window
-     * @param belowWindow Expected bottom window
-     */
-    fun isAboveWindow(
-        aboveWindow: FlickerComponentName,
-        belowWindow: FlickerComponentName
+    /** {@inheritDoc} */
+    override fun isAboveWindow(
+        aboveWindowComponent: IComponentMatcher,
+        belowWindowComponent: IComponentMatcher
     ): WindowManagerTraceSubject = apply {
-        val aboveWindowTitle = aboveWindow.toWindowName()
-        val belowWindowTitle = belowWindow.toWindowName()
-        require(aboveWindowTitle != belowWindowTitle)
+        val aboveWindowTitle = aboveWindowComponent.toWindowName()
+        val belowWindowTitle = belowWindowComponent.toWindowName()
         addAssertion("$aboveWindowTitle is above $belowWindowTitle") {
-            it.isAboveWindow(aboveWindow, belowWindow)
+            it.isAboveWindow(aboveWindowComponent, belowWindowComponent)
         }
     }
 
     /**
-     * Obtains the trace of regions occupied by all windows with name containing any of [components]
-     *
-     * @param components Components to search
+     * See [isAppWindowInvisible]
      */
-    fun visibleRegion(vararg components: FlickerComponentName): RegionTraceSubject {
-        val regionTrace = RegionTrace(components, subjects.map {
-            it.visibleRegion(*components).regionEntry
+    override fun visibleRegion(componentMatcher: IComponentMatcher?): RegionTraceSubject {
+        val regionTrace = RegionTrace(componentMatcher, subjects.map {
+            it.visibleRegion(componentMatcher).regionEntry
         }.toTypedArray())
 
         return RegionTraceSubject.assertThat(regionTrace, this)
     }
 
+    /** {@inheritDoc} */
+    override fun contains(
+        componentMatcher: IComponentMatcher
+    ): WindowManagerTraceSubject = contains(componentMatcher, isOptional = false)
+
+    /**
+     * See [contains]
+     */
+    fun contains(
+        componentMatcher: IComponentMatcher,
+        isOptional: Boolean
+    ): WindowManagerTraceSubject = apply {
+        addAssertion("contains(${componentMatcher.toWindowName()})", isOptional) {
+            it.contains(componentMatcher)
+        }
+    }
+
+    /** {@inheritDoc} */
+    override fun containsAboveAppWindow(
+        componentMatcher: IComponentMatcher
+    ): WindowManagerTraceSubject = containsAboveAppWindow(componentMatcher, isOptional = false)
+
+    /**
+     * See [containsAboveAppWindow]
+     */
+    fun containsAboveAppWindow(
+        componentMatcher: IComponentMatcher,
+        isOptional: Boolean
+    ): WindowManagerTraceSubject = apply {
+        addAssertion("containsAboveAppWindow(${componentMatcher.toWindowName()})", isOptional) {
+            it.containsAboveAppWindow(componentMatcher)
+        }
+    }
+
+    /** {@inheritDoc} */
+    override fun containsAppWindow(
+        componentMatcher: IComponentMatcher
+    ): WindowManagerTraceSubject = containsAppWindow(componentMatcher, isOptional = false)
+
+    /**
+     * See [containsAppWindow]
+     */
+    fun containsAppWindow(
+        componentMatcher: IComponentMatcher,
+        isOptional: Boolean
+    ): WindowManagerTraceSubject = apply {
+        addAssertion("containsAppWindow(${componentMatcher.toWindowName()})", isOptional) {
+            it.containsAboveAppWindow(componentMatcher)
+        }
+    }
+
+    /** {@inheritDoc} */
+    override fun containsBelowAppWindow(
+        componentMatcher: IComponentMatcher
+    ): WindowManagerTraceSubject = containsBelowAppWindow(componentMatcher, isOptional = false)
+
+    /**
+     * See [containsBelowAppWindow]
+     */
+    fun containsBelowAppWindow(
+        componentMatcher: IComponentMatcher,
+        isOptional: Boolean
+    ): WindowManagerTraceSubject = apply {
+        addAssertion("containsBelowAppWindows(${componentMatcher.toWindowName()})", isOptional) {
+            it.containsBelowAppWindow(componentMatcher)
+        }
+    }
+
+    /** {@inheritDoc} */
+    override fun containsNonAppWindow(
+        componentMatcher: IComponentMatcher
+    ): WindowManagerTraceSubject = containsNonAppWindow(componentMatcher, isOptional = false)
+
+    /**
+     * See [containsNonAppWindow]
+     */
+    fun containsNonAppWindow(
+        componentMatcher: IComponentMatcher,
+        isOptional: Boolean
+    ): WindowManagerTraceSubject = apply {
+        addAssertion("containsNonAppWindow(${componentMatcher.toWindowName()})", isOptional) {
+            it.containsNonAppWindow(componentMatcher)
+        }
+    }
+
+    /** {@inheritDoc} */
+    override fun isHomeActivityInvisible(): WindowManagerTraceSubject =
+        isHomeActivityInvisible(isOptional = false)
+
+    /**
+     * See [isHomeActivityInvisible]
+     */
+    fun isHomeActivityInvisible(isOptional: Boolean): WindowManagerTraceSubject = apply {
+        addAssertion("isHomeActivityInvisible", isOptional) {
+            it.isHomeActivityInvisible()
+        }
+    }
+
+    /** {@inheritDoc} */
+    override fun isHomeActivityVisible(): WindowManagerTraceSubject =
+        isHomeActivityVisible(isOptional = false)
+
+    /**
+     * See [isHomeActivityVisible]
+     */
+    fun isHomeActivityVisible(isOptional: Boolean): WindowManagerTraceSubject = apply {
+        addAssertion("isHomeActivityVisible", isOptional) {
+            it.isHomeActivityVisible()
+        }
+    }
+
+    /** {@inheritDoc} */
+    override fun hasRotation(rotation: Int, displayId: Int): WindowManagerTraceSubject =
+        hasRotation(rotation, displayId, isOptional = false)
+
+    /**
+     * See [hasRotation]
+     */
+    fun hasRotation(
+        rotation: Int,
+        displayId: Int,
+        isOptional: Boolean
+    ): WindowManagerTraceSubject = apply {
+        addAssertion("hasRotation($rotation, display=$displayId)", isOptional) {
+            it.hasRotation(rotation, displayId)
+        }
+    }
+
+    /** {@inheritDoc} */
+    override fun isNotPinned(
+        componentMatcher: IComponentMatcher
+    ): WindowManagerTraceSubject =
+        isNotPinned(componentMatcher, isOptional = false)
+
+    /**
+     * See [isNotPinned]
+     */
+    fun isNotPinned(
+        componentMatcher: IComponentMatcher,
+        isOptional: Boolean
+    ): WindowManagerTraceSubject = apply {
+        addAssertion("isNotPinned(${componentMatcher.toWindowName()})", isOptional) {
+            it.isNotPinned(componentMatcher)
+        }
+    }
+
+    /** {@inheritDoc} */
+    override fun isPinned(
+        componentMatcher: IComponentMatcher
+    ): WindowManagerTraceSubject =
+        isPinned(componentMatcher, isOptional = false)
+
+    /**
+     * See [isPinned]
+     */
+    fun isPinned(
+        componentMatcher: IComponentMatcher,
+        isOptional: Boolean
+    ): WindowManagerTraceSubject = apply {
+        addAssertion("isPinned(${componentMatcher.toWindowName()})", isOptional) {
+            it.isPinned(componentMatcher)
+        }
+    }
+
+    /** {@inheritDoc} */
+    override fun isRecentsActivityInvisible(): WindowManagerTraceSubject =
+        isRecentsActivityInvisible(isOptional = false)
+
+    /**
+     * See [isRecentsActivityInvisible]
+     */
+    fun isRecentsActivityInvisible(isOptional: Boolean): WindowManagerTraceSubject = apply {
+        addAssertion("isRecentsActivityInvisible", isOptional) {
+            it.isRecentsActivityInvisible()
+        }
+    }
+
+    /** {@inheritDoc} */
+    override fun isRecentsActivityVisible(): WindowManagerTraceSubject =
+        isRecentsActivityVisible(isOptional = false)
+
+    /**
+     * See [isRecentsActivityVisible]
+     */
+    fun isRecentsActivityVisible(isOptional: Boolean): WindowManagerTraceSubject = apply {
+        addAssertion("isRecentsActivityVisible", isOptional) {
+            it.isRecentsActivityVisible()
+        }
+    }
+
+    @VisibleForTesting
+    override fun isValid(): WindowManagerTraceSubject = apply {
+        addAssertion("isValid") {
+            it.isValid()
+        }
+    }
+
+    /** {@inheritDoc} */
+    override fun notContainsAppWindow(
+        componentMatcher: IComponentMatcher
+    ): WindowManagerTraceSubject = notContainsAppWindow(componentMatcher, isOptional = false)
+
+    /**
+     * See [notContainsAppWindow]
+     */
+    fun notContainsAppWindow(
+        componentMatcher: IComponentMatcher,
+        isOptional: Boolean
+    ): WindowManagerTraceSubject = apply {
+        addAssertion("notContainsAppWindow(${componentMatcher.toWindowName()})", isOptional) {
+            it.notContainsAppWindow(componentMatcher)
+        }
+    }
+
     /**
      * Checks that all visible layers are shown for more than one consecutive entry
      */
-    @JvmOverloads
     fun visibleWindowsShownMoreThanOneConsecutiveEntry(
-        ignoreWindows: List<FlickerComponentName> = listOf(
-            FlickerComponentName.SPLASH_SCREEN,
-            FlickerComponentName.SNAPSHOT)
+        ignoreWindows: List<ComponentMatcher> = listOf(
+            ComponentMatcher.SPLASH_SCREEN,
+            ComponentMatcher.SNAPSHOT
+        )
     ): WindowManagerTraceSubject = apply {
         visibleEntriesShownMoreThanOneConsecutiveTime { subject ->
             subject.wmState.windowStates
@@ -390,6 +599,7 @@ class WindowManagerTraceSubject private constructor(
     /**
      * Executes a custom [assertion] on the current subject
      */
+    @JvmOverloads
     operator fun invoke(
         name: String,
         isOptional: Boolean = false,
@@ -414,7 +624,7 @@ class WindowManagerTraceSubject private constructor(
 
     companion object {
         /**
-         * Boiler-plate Subject.Factory for WmTraceSubject
+         * Boilerplate Subject.Factory for WmTraceSubject
          */
         private fun getFactory(
             parent: WindowManagerTraceSubject?
@@ -428,7 +638,6 @@ class WindowManagerTraceSubject private constructor(
          * @param trace WindowManager trace
          */
         @JvmStatic
-        @JvmOverloads
         fun assertThat(
             trace: WindowManagerTrace,
             parent: WindowManagerTraceSubject? = null

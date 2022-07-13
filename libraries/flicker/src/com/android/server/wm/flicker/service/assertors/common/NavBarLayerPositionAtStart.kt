@@ -20,11 +20,11 @@ import com.android.server.wm.flicker.helpers.WindowUtils
 import com.android.server.wm.flicker.service.assertors.BaseAssertion
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
-import com.android.server.wm.traces.common.FlickerComponentName
+import com.android.server.wm.traces.common.ComponentMatcher
 import com.android.server.wm.traces.common.tags.Tag
 
 /**
- * Checks if the [FlickerComponentName.NAV_BAR] layer is placed at the correct position at the
+ * Checks if the [ComponentMatcher.NAV_BAR] layer is placed at the correct position at the
  * start of the transition
  */
 class NavBarLayerPositionAtStart : BaseAssertion() {
@@ -37,7 +37,7 @@ class NavBarLayerPositionAtStart : BaseAssertion() {
         val firstLayersSubject = layerSubject.first()
         val display = firstLayersSubject.entry.displays.minByOrNull { it.id }
             ?: throw RuntimeException("There is no display!")
-        firstLayersSubject.visibleRegion(FlickerComponentName.NAV_BAR)
+        firstLayersSubject.visibleRegion(ComponentMatcher.NAV_BAR)
             .coversExactly(WindowUtils.getNavigationBarPosition(display))
     }
 }

@@ -20,7 +20,8 @@ import com.android.server.wm.flicker.assertions.Assertion
 import com.android.server.wm.flicker.traces.FlickerFailureStrategy
 import com.android.server.wm.flicker.traces.FlickerTraceSubject
 import com.android.server.wm.flicker.traces.region.RegionTraceSubject
-import com.android.server.wm.traces.common.FlickerComponentName
+import com.android.server.wm.traces.common.ComponentMatcher
+import com.android.server.wm.traces.common.IComponentMatcher
 import com.android.server.wm.traces.common.layers.Layer
 import com.android.server.wm.traces.common.layers.LayersTrace
 import com.android.server.wm.traces.common.region.RegionTrace
@@ -57,182 +58,196 @@ class LayersTraceSubject private constructor(
     fm: FailureMetadata,
     val trace: LayersTrace,
     override val parent: LayersTraceSubject?
-) : FlickerTraceSubject<LayerTraceEntrySubject>(fm, trace) {
+) : FlickerTraceSubject<LayerTraceEntrySubject>(fm, trace),
+    ILayerSubject<LayersTraceSubject, RegionTraceSubject> {
     override val selfFacts
         get() = super.selfFacts.toMutableList()
     override val subjects by lazy {
         trace.entries.map { LayerTraceEntrySubject.assertThat(it, trace, this) }
     }
 
-    /**
-     * Executes a custom [assertion] on the current subject
-     */
-    operator fun invoke(assertion: Assertion<LayersTrace>): LayersTraceSubject = apply {
-        assertion(this.trace)
-    }
-
     /** {@inheritDoc} */
     override fun then(): LayersTraceSubject = apply { super.then() }
 
-    fun isEmpty(): LayersTraceSubject = apply {
+    /** {@inheritDoc} */
+    override fun isEmpty(): LayersTraceSubject = apply {
         check("Trace is empty").that(trace).isEmpty()
     }
 
-    fun isNotEmpty() = apply {
+    /** {@inheritDoc} */
+    override fun isNotEmpty(): LayersTraceSubject = apply {
         check("Trace is not empty").that(trace).isNotEmpty()
     }
 
-    /**
-     * @return LayerSubject that can be used to make assertions on a single layer matching
-     * [name] and [frameNumber].
-     */
-    fun layer(name: String, frameNumber: Long): LayerSubject {
+    /** {@inheritDoc} */
+    override fun layer(name: String, frameNumber: Long): LayerSubject {
         return subjects
             .map { it.layer(name, frameNumber) }
             .firstOrNull { it.isNotEmpty }
-            ?: LayerSubject.assertThat(null, this,
-                timestamp = subjects.firstOrNull()?.entry?.timestamp ?: 0L)
+            ?: LayerSubject.assertThat(
+                null, this,
+                timestamp = subjects.firstOrNull()?.entry?.timestamp ?: 0L
+            )
     }
 
     /**
      * @return List of [LayerSubject]s matching [name] in the order they appear on the trace
      */
-    fun layers(name: String): List<LayerSubject> {
-        return subjects
+    fun layers(name: String): List<LayerSubject> =
+        subjects
             .map { it.layer { layer -> layer.name.contains(name) } }
             .filter { it.isNotEmpty }
-    }
 
     /**
      * @return List of [LayerSubject]s matching [predicate] in the order they appear on the trace
      */
-    fun layers(predicate: (Layer) -> Boolean): List<LayerSubject> {
-        return subjects
+    fun layers(predicate: (Layer) -> Boolean): List<LayerSubject> =
+        subjects
             .map { it.layer { layer -> predicate(layer) } }
             .filter { it.isNotEmpty }
-    }
 
     /**
      * Checks that all visible layers are shown for more than one consecutive entry
      */
     @JvmOverloads
     fun visibleLayersShownMoreThanOneConsecutiveEntry(
-        ignoreLayers: List<FlickerComponentName> = listOf(FlickerComponentName.SPLASH_SCREEN,
-            FlickerComponentName.SNAPSHOT)
+        ignoreLayers: List<ComponentMatcher> = listOf(
+            ComponentMatcher.SPLASH_SCREEN,
+            ComponentMatcher.SNAPSHOT
+        )
     ): LayersTraceSubject = apply {
         visibleEntriesShownMoreThanOneConsecutiveTime { subject ->
             subject.entry.visibleLayers
-                .filter { ignoreLayers.none { component -> component.toLayerName() in it.name } }
+                .filter {
+                    ignoreLayers.none { componentMatcher ->
+                        componentMatcher.toLayerName() in it.name
+                    }
+                }
                 .map { it.name }
                 .toSet()
         }
     }
 
+    /** {@inheritDoc} */
+    override fun notContains(componentMatcher: IComponentMatcher): LayersTraceSubject =
+        notContains(componentMatcher, isOptional = false)
+
     /**
-     * Asserts that each entry in the trace doesn't contain a [Layer] with [Layer.name]
-     * containing [component].
-     *
-     * @param component Name of the layer to search
-     * @param isOptional If this assertion is optional or must pass
+     * See [notContains]
      */
-    @JvmOverloads
     fun notContains(
-        component: FlickerComponentName,
-        isOptional: Boolean = false
+        componentMatcher: IComponentMatcher,
+        isOptional: Boolean
     ): LayersTraceSubject =
         apply {
-            addAssertion("notContains(${component.toLayerName()})", isOptional) {
-                it.notContains(component)
+            addAssertion("notContains(${componentMatcher.toLayerName()})", isOptional) {
+                it.notContains(componentMatcher)
             }
         }
 
+    /** {@inheritDoc} */
+    override fun contains(componentMatcher: IComponentMatcher): LayersTraceSubject =
+        contains(componentMatcher, isOptional = false)
+
     /**
-     * Asserts that each entry in the trace contains a [Layer] with [Layer.name] containing any of
-     * [component].
-     *
-     * @param component Name of the layer to search
-     * @param isOptional If this assertion is optional or must pass
+     * See [contains]
      */
-    @JvmOverloads
     fun contains(
-        component: FlickerComponentName,
-        isOptional: Boolean = false
-    ): LayersTraceSubject =
-        apply { addAssertion("contains(${component.toLayerName()})", isOptional) {
-            it.contains(component) }
-        }
-
-    /**
-     * Asserts that each entry in the trace contains a [Layer] with [Layer.name] containing any of
-     * [component] that is visible.
-     *
-     * @param component Name of the layer to search
-     */
-    @JvmOverloads
-    fun isVisible(
-        component: FlickerComponentName,
-        isOptional: Boolean = false
-    ): LayersTraceSubject =
-        apply { addAssertion("isVisible(${component.toLayerName()})", isOptional) {
-            it.isVisible(component) }
-        }
-
-    /**
-     * Asserts that each entry in the trace doesn't contain a [Layer] with [Layer.name]
-     * containing [component] or that the layer is not visible .
-     *
-     * @param component Name of the layer to search
-     */
-    @JvmOverloads
-    fun isInvisible(
-        component: FlickerComponentName,
-        isOptional: Boolean = false
+        componentMatcher: IComponentMatcher,
+        isOptional: Boolean
     ): LayersTraceSubject =
         apply {
-            addAssertion("isInvisible(${component.toLayerName()})", isOptional) {
-                it.isInvisible(component)
+            addAssertion("contains(${componentMatcher.toLayerName()})", isOptional) {
+                it.contains(componentMatcher)
+            }
+        }
+
+    /** {@inheritDoc} */
+    override fun isVisible(componentMatcher: IComponentMatcher): LayersTraceSubject =
+        isVisible(componentMatcher, isOptional = false)
+
+    /**
+     * See [isVisible]
+     */
+    fun isVisible(
+        componentMatcher: IComponentMatcher,
+        isOptional: Boolean
+    ): LayersTraceSubject =
+        apply {
+            addAssertion("isVisible(${componentMatcher.toLayerName()})", isOptional) {
+                it.isVisible(componentMatcher)
+            }
+        }
+
+    /** {@inheritDoc} */
+    override fun isInvisible(componentMatcher: IComponentMatcher): LayersTraceSubject =
+        isInvisible(componentMatcher, isOptional = false)
+
+    /**
+     * See [isInvisible]
+     */
+    fun isInvisible(
+        componentMatcher: IComponentMatcher,
+        isOptional: Boolean
+    ): LayersTraceSubject =
+        apply {
+            addAssertion("isInvisible(${componentMatcher.toLayerName()})", isOptional) {
+                it.isInvisible(componentMatcher)
+            }
+        }
+
+    /** {@inheritDoc} */
+    override fun isSplashScreenVisibleFor(
+        componentMatcher: IComponentMatcher
+    ): LayersTraceSubject =
+        isSplashScreenVisibleFor(componentMatcher, isOptional = false)
+
+    /**
+     * See [isSplashScreenVisibleFor]
+     */
+    fun isSplashScreenVisibleFor(
+        componentMatcher: IComponentMatcher,
+        isOptional: Boolean
+    ): LayersTraceSubject =
+        apply {
+            addAssertion(
+                "isSplashScreenVisibleFor(${componentMatcher.toLayerName()})",
+                isOptional
+            ) {
+                it.isSplashScreenVisibleFor(componentMatcher)
             }
         }
 
     /**
-     * Asserts that each entry in the trace contains a visible splash screen [Layer] for a [layer]
-     * with [Layer.name] containing any of [component].
-     *
-     * @param component Name of the layer to search
+     * See [visibleRegion]
      */
-    @JvmOverloads
-    fun isSplashScreenVisibleFor(
-        component: FlickerComponentName,
-        isOptional: Boolean = false
-    ): LayersTraceSubject = apply {
-        addAssertion("isSplashScreenVisibleFor(${component.toLayerName()})", isOptional) {
-            it.isSplashScreenVisibleFor(component)
-        }
-    }
+    fun visibleRegion(): RegionTraceSubject =
+        visibleRegion(componentMatcher = null, useCompositionEngineRegionOnly = false)
 
     /**
-     * Obtains the trace of regions occupied by all layers with name containing [components]
-     *
-     * @param components Components to search for
-     * @param useCompositionEngineRegionOnly If true, uses only the region calculated from the
-     *   Composition Engine (CE) -- visibleRegion in the proto definition. Otherwise calculates
-     *   the visible region when the information is not available from the CE
+     * See [visibleRegion]
      */
-    @JvmOverloads
-    fun visibleRegion(
-        vararg components: FlickerComponentName,
-        useCompositionEngineRegionOnly: Boolean = true
+    fun visibleRegion(componentMatcher: IComponentMatcher?): RegionTraceSubject =
+        visibleRegion(componentMatcher, useCompositionEngineRegionOnly = false)
+
+    /** {@inheritDoc} */
+    override fun visibleRegion(
+        componentMatcher: IComponentMatcher?,
+        useCompositionEngineRegionOnly: Boolean
     ): RegionTraceSubject {
-        val regionTrace = RegionTrace(components, subjects.map {
-            it.visibleRegion(components = components, useCompositionEngineRegionOnly)
-                            .regionEntry
-        }.toTypedArray())
+        val regionTrace = RegionTrace(componentMatcher,
+            subjects.map {
+                it.visibleRegion(componentMatcher, useCompositionEngineRegionOnly)
+                    .regionEntry
+            }.toTypedArray()
+        )
         return RegionTraceSubject.assertThat(regionTrace, this)
     }
 
     /**
      * Executes a custom [assertion] on the current subject
      */
+    @JvmOverloads
     operator fun invoke(
         name: String,
         isOptional: Boolean = false,
@@ -242,16 +257,16 @@ class LayersTraceSubject private constructor(
     fun hasFrameSequence(
         name: String,
         frameNumbers: Iterable<Long>
-    ): LayersTraceSubject = hasFrameSequence(FlickerComponentName("", name), frameNumbers)
+    ): LayersTraceSubject = hasFrameSequence(ComponentMatcher("", name), frameNumbers)
 
     fun hasFrameSequence(
-        component: FlickerComponentName,
+        componentMatcher: IComponentMatcher,
         frameNumbers: Iterable<Long>
     ): LayersTraceSubject = apply {
         val firstFrame = frameNumbers.first()
         val entries = trace.entries.asSequence()
             // map entry to buffer layers with name
-            .map { it.getLayerWithBuffer(component) }
+            .map { it.getLayerWithBuffer(componentMatcher) }
             // removing all entries without the layer
             .filterNotNull()
             // removing all entries with the same frame number
@@ -266,7 +281,7 @@ class LayersTraceSubject private constructor(
         }.all { it }
         val allFramesFound = frameNumbers.count() == numFound
         if (!allFramesFound || !frameNumbersMatch) {
-            val message = "Could not find Layer:" + component.toLayerName() +
+            val message = "Could not find Layer:" + componentMatcher.toLayerName() +
                 " with frame sequence:" + frameNumbers.joinToString(",") +
                 " Found:\n" + entries.joinToString("\n")
             fail(message)
@@ -291,7 +306,7 @@ class LayersTraceSubject private constructor(
 
     companion object {
         /**
-         * Boiler-plate Subject.Factory for LayersTraceSubject
+         * Boilerplate Subject.Factory for LayersTraceSubject
          */
         private fun getFactory(parent: LayersTraceSubject?): Factory<Subject, LayersTrace> =
             Factory { fm, subject -> LayersTraceSubject(fm, subject, parent) }
@@ -304,7 +319,10 @@ class LayersTraceSubject private constructor(
          */
         @JvmStatic
         @JvmOverloads
-        fun assertThat(trace: LayersTrace, parent: LayersTraceSubject? = null): LayersTraceSubject {
+        fun assertThat(
+            trace: LayersTrace,
+            parent: LayersTraceSubject? = null
+        ): LayersTraceSubject {
             val strategy = FlickerFailureStrategy()
             val subject = StandardSubjectBuilder.forCustomFailureStrategy(strategy)
                 .about(getFactory(parent))

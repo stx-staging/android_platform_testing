@@ -19,8 +19,8 @@ package com.android.server.wm.traces.parser.layers
 import android.surfaceflinger.nano.Layers
 import android.surfaceflinger.nano.Layerstrace
 import android.util.Log
-import com.android.server.wm.traces.common.layers.Layer
 import com.android.server.wm.traces.common.layers.BaseLayerTraceEntry
+import com.android.server.wm.traces.common.layers.Layer
 import com.android.server.wm.traces.common.layers.LayersTrace
 import com.android.server.wm.traces.parser.LOG_TAG
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException
@@ -47,7 +47,7 @@ class LayersTraceParser {
             ignoreLayersInVirtualDisplay: Boolean = true,
             orphanLayerCallback: ((Layer) -> Boolean)? = null
         ): LayersTrace {
-            var fileProto: Layerstrace.LayersTraceFileProto? = null
+            var fileProto: Layerstrace.LayersTraceFileProto?
             try {
                 measureTimeMillis {
                     fileProto = Layerstrace.LayersTraceFileProto.parseFrom(data)

@@ -19,7 +19,6 @@ package com.android.server.wm.flicker.traces.region
 import com.android.server.wm.flicker.assertions.FlickerSubject
 import com.android.server.wm.flicker.traces.FlickerFailureStrategy
 import com.android.server.wm.flicker.traces.FlickerTraceSubject
-import com.android.server.wm.traces.common.FlickerComponentName
 import com.android.server.wm.traces.common.Rect
 import com.android.server.wm.traces.common.region.Region
 import com.android.server.wm.traces.common.region.RegionTrace
@@ -33,17 +32,17 @@ class RegionTraceSubject(
     override val parent: FlickerSubject?
 ) : FlickerTraceSubject<RegionSubject>(fm, trace) {
 
-    private val components: Array<out FlickerComponentName> = trace.components
+    private val components = trace.components
 
     override val subjects by lazy {
         trace.entries.map { RegionSubject.assertThat(it, this, it.timestamp) }
     }
 
     private val componentsAsString get() =
-        if (components.isEmpty()) {
+        if (components == null) {
             "<any>"
         } else {
-            "[" + components.joinToString() + "]"
+            "[$components]"
         }
 
     /**

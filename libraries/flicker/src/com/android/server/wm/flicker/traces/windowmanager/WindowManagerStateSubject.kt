@@ -16,16 +16,14 @@
 
 package com.android.server.wm.flicker.traces.windowmanager
 
-import android.view.Display
 import androidx.annotation.VisibleForTesting
 import com.android.server.wm.flicker.assertions.Assertion
 import com.android.server.wm.flicker.assertions.FlickerSubject
 import com.android.server.wm.flicker.traces.FlickerFailureStrategy
 import com.android.server.wm.flicker.traces.region.RegionSubject
-import com.android.server.wm.traces.common.FlickerComponentName
+import com.android.server.wm.traces.common.IComponentMatcher
 import com.android.server.wm.traces.common.region.Region
 import com.android.server.wm.traces.common.windowmanager.WindowManagerState
-import com.android.server.wm.traces.common.windowmanager.windows.Activity
 import com.android.server.wm.traces.common.windowmanager.windows.WindowState
 import com.google.common.truth.Fact
 import com.google.common.truth.FailureMetadata
@@ -61,7 +59,8 @@ class WindowManagerStateSubject private constructor(
     val wmState: WindowManagerState,
     val trace: WindowManagerTraceSubject?,
     override val parent: FlickerSubject?
-) : FlickerSubject(fm, wmState) {
+) : FlickerSubject(fm, wmState),
+    IWindowManagerSubject<WindowManagerStateSubject, RegionSubject> {
     override val timestamp: Long get() = wmState.timestamp
     override val selfFacts = listOf(Fact.fact("Entry", wmState))
 
@@ -93,52 +92,29 @@ class WindowManagerStateSubject private constructor(
     operator fun invoke(assertion: Assertion<WindowManagerState>): WindowManagerStateSubject =
         apply { assertion(this.wmState) }
 
-    /**
-     * Asserts the current WindowManager state doesn't contain [WindowState]s
-     */
-    fun isEmpty(): WindowManagerStateSubject = apply {
+    /** {@inheritDoc} */
+    override fun isEmpty(): WindowManagerStateSubject = apply {
         check("State is empty").that(subjects).isEmpty()
     }
 
-    /**
-     * Asserts the current WindowManager state contains [WindowState]s
-     */
-    fun isNotEmpty(): WindowManagerStateSubject = apply {
+    /** {@inheritDoc} */
+    override fun isNotEmpty(): WindowManagerStateSubject = apply {
         check("State is not empty").that(subjects).isNotEmpty()
     }
 
-    /**
-     * Obtains the region occupied by all windows with name containing any of [components]
-     * alias of [visibleRegion]
-     *
-     * @param components Components to search
-     * @deprecated using [visibleRegion] is preferred
-     */
-    fun frameRegion(vararg components: FlickerComponentName): RegionSubject {
-        return visibleRegion(*components)
-    }
-
-    /**
-     * Obtains the region occupied by all windows with name containing any of [components]
-     *
-     * @param components Components to search
-     */
-    fun visibleRegion(vararg components: FlickerComponentName): RegionSubject {
-        val windowNames = components.map { it.toWindowName() }
-
-        val selectedWindows = if (components.isEmpty()) {
+    /** {@inheritDoc} */
+    override fun visibleRegion(componentMatcher: IComponentMatcher?): RegionSubject {
+        val selectedWindows = if (componentMatcher == null) {
             // No filters so use all subjects
             subjects
         } else {
             subjects.filter {
-                subject -> windowNames.any {
-                    layerName -> subject.name.contains(layerName)
-                }
+                it.windowState != null && componentMatcher.windowMatchesAnyOf(it.windowState)
             }
         }
 
         if (selectedWindows.isEmpty()) {
-            val str = if (windowNames.isNotEmpty()) windowNames.joinToString() else "<any>"
+            val str = componentMatcher?.toWindowName() ?: "<any>"
             fail(Fact.fact(ASSERTION_TAG, "visibleRegion($str)"),
                     Fact.fact("Could not find windows", str))
         }
@@ -149,40 +125,29 @@ class WindowManagerStateSubject private constructor(
         return RegionSubject.assertThat(visibleRegions, this, timestamp)
     }
 
-    /**
-     * Asserts the state contains a [WindowState] with title matching [component] above the
-     * app windows
-     *
-     * @param component Component to search
-     */
-    fun containsAboveAppWindow(component: FlickerComponentName): WindowManagerStateSubject = apply {
-        contains(aboveAppWindows, component)
-    }
-
-    /**
-     * Asserts the state contains a [WindowState] with title matching [component] below the
-     * app windows
-     *
-     * @param component Component to search
-     */
-    fun containsBelowAppWindow(component: FlickerComponentName): WindowManagerStateSubject = apply {
-        contains(belowAppWindows, component)
-    }
-
-    /**
-     * Asserts the state contains [WindowState]s with titles matching [aboveWindowComponent] and
-     * [belowWindowComponent], and that [aboveWindowComponent] is above [belowWindowComponent]
-     *
-     * This assertion can be used, for example, to assert that a PIP window is shown above
-     * other apps.
-     *
-     * @param aboveWindowComponent name of the window that should be above
-     * @param belowWindowComponent name of the window that should be below
-     */
-    fun isAboveWindow(
-        aboveWindowComponent: FlickerComponentName,
-        belowWindowComponent: FlickerComponentName
+    /** {@inheritDoc} */
+    override fun containsAboveAppWindow(
+        componentMatcher: IComponentMatcher
     ): WindowManagerStateSubject = apply {
+        contains(aboveAppWindows, componentMatcher)
+    }
+
+    /** {@inheritDoc} */
+    override fun containsBelowAppWindow(
+        componentMatcher: IComponentMatcher
+    ): WindowManagerStateSubject = apply {
+        contains(belowAppWindows, componentMatcher)
+    }
+
+    /** {@inheritDoc} */
+    override fun isAboveWindow(
+        aboveWindowComponent: IComponentMatcher,
+        belowWindowComponent: IComponentMatcher
+    ): WindowManagerStateSubject = apply {
+        val aboveWindowTitle = aboveWindowComponent.toWindowName()
+        val belowWindowTitle = belowWindowComponent.toWindowName()
+        require(aboveWindowTitle != belowWindowTitle)
+
         contains(aboveWindowComponent)
         contains(belowWindowComponent)
 
@@ -196,76 +161,75 @@ class WindowManagerStateSubject private constructor(
                 it.windowState != null &&
                     aboveWindowComponent.windowMatchesAnyOf(it.windowState)
             }
-            val aboveWindowTitle = aboveWindowComponent.toWindowName()
-            val belowWindowTitle = belowWindowComponent.toWindowName()
+            val aboveWindowTitleStr = aboveWindowComponent.toWindowName()
+            val belowWindowTitleStr = belowWindowComponent.toWindowName()
             aboveWindow.fail(
                 Fact.fact(ASSERTION_TAG, "isAboveWindow(" +
-                    "above=$aboveWindowTitle, " +
-                    "below=$belowWindowTitle"),
-                Fact.fact("Above", aboveWindowTitle),
-                Fact.fact("Below", belowWindowTitle))
+                    "above=$aboveWindowTitleStr, " +
+                    "below=$belowWindowTitleStr"),
+                Fact.fact("Above", aboveWindowTitleStr),
+                Fact.fact("Below", belowWindowTitleStr))
         }
     }
 
-    /**
-     * Asserts the state contains a non-app [WindowState] with title matching [component]
-     *
-     * @param component Component to search
-     */
-    fun containsNonAppWindow(component: FlickerComponentName): WindowManagerStateSubject = apply {
-        contains(nonAppWindows, component)
+    /** {@inheritDoc} */
+    override fun containsNonAppWindow(
+        componentMatcher: IComponentMatcher
+    ): WindowManagerStateSubject = apply {
+        contains(nonAppWindows, componentMatcher)
     }
 
-    /**
-     * Asserts the title of the top visible app window in the state contains [component]
-     *
-     * @param component Component to search
-     */
-    fun isAppWindowOnTop(component: FlickerComponentName): WindowManagerStateSubject = apply {
+    /** {@inheritDoc} */
+    override fun isAppWindowOnTop(
+        componentMatcher: IComponentMatcher
+    ): WindowManagerStateSubject = apply {
         if (wmState.visibleAppWindows.isEmpty()) {
             fail(
-                Fact.fact(ASSERTION_TAG, "isAppWindowOnTop(${component.toWindowName()})"),
+                Fact.fact(ASSERTION_TAG, "isAppWindowOnTop(${componentMatcher.toWindowName()})"),
                 Fact.fact("Not found", "No visible app windows found")
             )
         }
         val topVisibleAppWindow = wmState.topVisibleAppWindow
-        if (topVisibleAppWindow == null || !component.windowMatchesAnyOf(topVisibleAppWindow)) {
+        if (topVisibleAppWindow == null ||
+            !componentMatcher.windowMatchesAnyOf(topVisibleAppWindow)
+        ) {
             isNotEmpty()
             val topWindow = subjects.first { it.windowState == topVisibleAppWindow }
             topWindow.fail(
-                Fact.fact(ASSERTION_TAG, "isAppWindowOnTop(${component.toWindowName()})"),
-                Fact.fact("Not on top", component.toWindowName()),
+                Fact.fact(ASSERTION_TAG, "isAppWindowOnTop(${componentMatcher.toWindowName()})"),
+                Fact.fact("Not on top", componentMatcher.toWindowName()),
                 Fact.fact("Found", wmState.topVisibleAppWindow)
             )
         }
     }
 
-    /**
-     * Asserts the title of the top visible app window in the state contains [component]
-     *
-     * @param component Component to search
-     */
-    fun isAppWindowNotOnTop(component: FlickerComponentName): WindowManagerStateSubject = apply {
+    /** {@inheritDoc} */
+    override fun isAppWindowNotOnTop(
+        componentMatcher: IComponentMatcher
+    ): WindowManagerStateSubject = apply {
         val topVisibleAppWindow = wmState.topVisibleAppWindow
-        if (topVisibleAppWindow != null && component.windowMatchesAnyOf(topVisibleAppWindow)) {
+        if (topVisibleAppWindow != null &&
+            componentMatcher.windowMatchesAnyOf(topVisibleAppWindow)
+        ) {
             val topWindow = subjects.first { it.windowState == topVisibleAppWindow }
             topWindow.fail(
-                Fact.fact(ASSERTION_TAG, "isAppWindowNotOnTop(${component.toWindowName()})"),
-                Fact.fact("On top", component.toWindowName())
+                Fact.fact(ASSERTION_TAG, "isAppWindowNotOnTop(${componentMatcher.toWindowName()})"),
+                Fact.fact("On top", componentMatcher.toWindowName())
             )
         }
     }
 
-    /**
-     * Asserts the bounds of the [WindowState]s title matching [component] don't overlap.
-     *
-     * @param component Component to search
-     */
-    fun doNotOverlap(
-        vararg component: FlickerComponentName
+    /** {@inheritDoc} */
+    override fun doNotOverlap(
+        vararg componentMatcher: IComponentMatcher
     ): WindowManagerStateSubject = apply {
-        component.forEach { contains(it) }
-        val foundWindows = component.toSet()
+        val repr = componentMatcher.joinToString(", ") { it.toWindowName() }
+        verify("Must give more than one window to check! (Given $repr)")
+            .that(componentMatcher)
+            .hasLength(1)
+
+        componentMatcher.forEach { contains(it) }
+        val foundWindows = componentMatcher.toSet()
             .associateWith { act ->
                 wmState.windowStates.firstOrNull { act.windowMatchesAnyOf(it) }
             }
@@ -284,7 +248,8 @@ class WindowManagerStateSubject private constructor(
                     val window = foundWindows[ourTitle] ?: error("Window $ourTitle not found")
                     val windowSubject = subjects.first { it.windowState == window }
                     windowSubject.fail(Fact.fact(ASSERTION_TAG,
-                            "noWindowsOverlap${component.joinToString { it.toWindowName() }}"),
+                            "noWindowsOverlap" +
+                                componentMatcher.joinToString { it.toWindowName() }),
                         Fact.fact("Overlap", ourTitle),
                         Fact.fact("Overlap", otherTitle))
                 }
@@ -292,72 +257,58 @@ class WindowManagerStateSubject private constructor(
         }
     }
 
-    /**
-     * Asserts the state contains an app [WindowState] with title matching [component]
-     *
-     * @param component Component to search
-     */
-    fun containsAppWindow(component: FlickerComponentName): WindowManagerStateSubject = apply {
+    /** {@inheritDoc} */
+    override fun containsAppWindow(
+        componentMatcher: IComponentMatcher
+    ): WindowManagerStateSubject = apply {
         // Check existence of activity
-        val activity = wmState.getActivitiesForWindow(component).firstOrNull()
-        check("Activity for window ${component.toWindowName()} must exist.")
+        val activity = wmState.getActivitiesForWindow(componentMatcher).firstOrNull()
+        check("Activity for window ${componentMatcher.toWindowName()} must exist.")
             .that(activity).isNotNull()
         // Check existence of window.
-        contains(component)
+        contains(componentMatcher)
     }
 
-    /**
-     * Asserts the display with id [displayId] has rotation [rotation]
-     *
-     * @param rotation to assert
-     * @param displayId of the target display
-     */
-    @JvmOverloads
-    fun hasRotation(
+    /** {@inheritDoc} */
+    override fun hasRotation(
         rotation: Int,
-        displayId: Int = Display.DEFAULT_DISPLAY
+        displayId: Int
     ): WindowManagerStateSubject = apply {
         check("Rotation should be $rotation")
             .that(rotation)
             .isEqualTo(wmState.getRotation(displayId))
     }
 
-    /**
-     * Asserts the state contains a [WindowState] with title matching [component].
-     *
-     * @param component Component name to search
-     */
-    fun contains(component: FlickerComponentName): WindowManagerStateSubject = apply {
-        contains(subjects, component)
+    /** {@inheritDoc} */
+    override fun contains(
+        componentMatcher: IComponentMatcher
+    ): WindowManagerStateSubject = apply {
+        contains(subjects, componentMatcher)
     }
 
-    /**
-     * Asserts the state doesn't contain a [WindowState] nor an [Activity] with title
-     * matching [component].
-     *
-     * @param component Component name to search
-     */
-    fun notContainsAppWindow(component: FlickerComponentName): WindowManagerStateSubject = apply {
+    /** {@inheritDoc} */
+    override fun notContainsAppWindow(
+        componentMatcher: IComponentMatcher
+    ): WindowManagerStateSubject = apply {
         // system components (e.g., NavBar, StatusBar, PipOverlay) don't have a package name
         // nor an activity, ignore them
-        check("Activity=${component.toActivityName()} must NOT exist.")
-            .that(wmState.containsActivity(component))
+        check("Activity=${componentMatcher.toActivityName()} must NOT exist.")
+            .that(wmState.containsActivity(componentMatcher))
             .isFalse()
-        notContains(component)
+        notContains(componentMatcher)
     }
 
-    /**
-     * Asserts the state doesn't contain a [WindowState] with title matching [component].
-     *
-     * @param component Component name to search
-     */
-    fun notContains(component: FlickerComponentName): WindowManagerStateSubject = apply {
-        check("Window=${component.toWindowName()} must NOT exits.")
-            .that(wmState.containsWindow(component))
+    /** {@inheritDoc} */
+    override fun notContains(
+        componentMatcher: IComponentMatcher
+    ): WindowManagerStateSubject = apply {
+        check("Window=${componentMatcher.toWindowName()} must NOT exits.")
+            .that(wmState.containsWindow(componentMatcher))
             .isFalse()
     }
 
-    fun isRecentsActivityVisible(): WindowManagerStateSubject = apply {
+    /** {@inheritDoc} */
+    override fun isRecentsActivityVisible(): WindowManagerStateSubject = apply {
         if (wmState.isHomeRecentsComponent) {
             isHomeActivityVisible()
         } else {
@@ -367,7 +318,8 @@ class WindowManagerStateSubject private constructor(
         }
     }
 
-    fun isRecentsActivityInvisible(): WindowManagerStateSubject = apply {
+    /** {@inheritDoc} */
+    override fun isRecentsActivityInvisible(): WindowManagerStateSubject = apply {
         if (wmState.isHomeRecentsComponent) {
             isHomeActivityInvisible()
         } else {
@@ -377,16 +329,9 @@ class WindowManagerStateSubject private constructor(
         }
     }
 
-    /**
-     * Asserts the state is valid, that is, if it has:
-     *   - a resumed activity
-     *   - a focused activity
-     *   - a focused window
-     *   - a front window
-     *   - a focused app
-     */
+    /** {@inheritDoc} */
     @VisibleForTesting
-    fun isValid(): WindowManagerStateSubject = apply {
+    override fun isValid(): WindowManagerStateSubject = apply {
         check("Must have stacks").that(wmState.stackCount).isGreaterThan(0)
         // TODO: Update when keyguard will be shown on multiple displays
         if (!wmState.keyguardControllerState.isKeyguardShowing) {
@@ -414,44 +359,30 @@ class WindowManagerStateSubject private constructor(
             .isNotEmpty()
     }
 
-    /**
-     * Asserts the state contains a visible window with [WindowState.title] matching [component].
-     *
-     * Also, if [component] has a package name (i.e., is not a system component), also checks that
-     * it contains a visible [Activity] with [Activity.title] matching [component].
-     *
-     * @param component Component name to search
-     */
-    fun isNonAppWindowVisible(component: FlickerComponentName): WindowManagerStateSubject = apply {
-        checkWindowVisibility("isVisible", nonAppWindows, component, isVisible = true)
+    /** {@inheritDoc} */
+    override fun isNonAppWindowVisible(
+        componentMatcher: IComponentMatcher
+    ): WindowManagerStateSubject = apply {
+        checkWindowVisibility("isVisible", nonAppWindows, componentMatcher, isVisible = true)
     }
 
-    /**
-     * Asserts the state contains a visible window with [WindowState.title] matching [component].
-     *
-     * Also, if [component] has a package name (i.e., is not a system component), also checks that
-     * it contains a visible [Activity] with [Activity.title] matching [component].
-     *
-     * @param component Component name to search
-     */
-    fun isAppWindowVisible(
-        component: FlickerComponentName
+    /** {@inheritDoc} */
+    override fun isAppWindowVisible(
+        componentMatcher: IComponentMatcher
     ): WindowManagerStateSubject = apply {
-        containsAppWindow(component)
+        containsAppWindow(componentMatcher)
 
         // Check existence of activity
-        val activity = wmState.getActivitiesForWindow(component).firstOrNull()
+        val activity = wmState.getActivitiesForWindow(componentMatcher).firstOrNull()
         // Check visibility of activity and window.
         check("Activity=${activity?.name} must be visible.")
             .that(activity?.isVisible ?: false)
             .isTrue()
-        checkWindowVisibility("isVisible", appWindows, component, isVisible = true)
+        checkWindowVisibility("isVisible", appWindows, componentMatcher, isVisible = true)
     }
 
-    /**
-     * Asserts the state contains no visible app windows.
-     */
-    fun hasNoVisibleAppWindow() {
+    /** {@inheritDoc} */
+    override fun hasNoVisibleAppWindow(): WindowManagerStateSubject = apply {
         if (visibleAppWindows.isNotEmpty()) {
             val visibleAppWindows = visibleAppWindows.joinToString { it.name }
             fail(
@@ -461,125 +392,95 @@ class WindowManagerStateSubject private constructor(
         }
     }
 
-    /**
-     * Asserts the state contains an invisible window with [WindowState.title] matching [component].
-     *
-     * Also, if [component] has a package name (i.e., is not a system component), also checks that
-     * it contains an invisible [Activity] with [Activity.title] matching [component].
-     *
-     * @param component Component name to search
-     */
-    fun isAppWindowInvisible(
-        component: FlickerComponentName
+    /** {@inheritDoc} */
+    override fun isAppWindowInvisible(
+        componentMatcher: IComponentMatcher
     ): WindowManagerStateSubject = apply {
         // system components (e.g., NavBar, StatusBar, PipOverlay) don't have a package name
         // nor an activity, ignore them
         // activity is visible, check window
-        if (wmState.isActivityVisible(component)) {
-            checkWindowVisibility("isInvisible", appWindows, component, isVisible = false)
+        if (wmState.isActivityVisible(componentMatcher)) {
+            checkWindowVisibility("isInvisible", appWindows, componentMatcher, isVisible = false)
         }
     }
 
-    /**
-     * Asserts the state contains an invisible window with [WindowState.title] matching [component].
-     *
-     * Also, if [component] has a package name (i.e., is not a system component), also checks that
-     * it contains an invisible [Activity] with [Activity.title] matching [component].
-     *
-     * @param component Component name to search
-     */
-    fun isNonAppWindowInvisible(
-        component: FlickerComponentName
+    /** {@inheritDoc} */
+    override fun isNonAppWindowInvisible(
+        componentMatcher: IComponentMatcher
     ): WindowManagerStateSubject = apply {
-        checkWindowVisibility("isInvisible", nonAppWindows, component, isVisible = false)
+        checkWindowVisibility("isInvisible", nonAppWindows, componentMatcher, isVisible = false)
     }
 
     private fun checkWindowVisibility(
         assertionName: String,
         subjectList: List<WindowStateSubject>,
-        component: FlickerComponentName,
+        componentMatcher: IComponentMatcher,
         isVisible: Boolean
     ) {
         // Check existence of window.
-        contains(subjectList, component)
+        contains(subjectList, componentMatcher)
 
         val foundWindows = subjectList.filter {
-            it.windowState != null && component.windowMatchesAnyOf(it.windowState)
+            it.windowState != null && componentMatcher.windowMatchesAnyOf(it.windowState)
         }
         val windowsWithVisibility = foundWindows.filter { it.isVisible == isVisible }
 
         if (windowsWithVisibility.isEmpty()) {
             val errorTag = if (isVisible) "Is Invisible" else "Is Visible"
             val facts = listOf<Fact>(
-                Fact.fact(ASSERTION_TAG, "$assertionName(${component.toWindowName()})"),
-                Fact.fact(errorTag, component.toWindowName())
+                Fact.fact(ASSERTION_TAG, "$assertionName(${componentMatcher.toWindowName()})"),
+                Fact.fact(errorTag, componentMatcher.toWindowName())
             )
             foundWindows.first().fail(facts)
         }
     }
 
-    private fun contains(subjectList: List<WindowStateSubject>, component: FlickerComponentName) {
+    private fun contains(
+        subjectList: List<WindowStateSubject>,
+        componentMatcher: IComponentMatcher
+    ) {
         val windowStates = subjectList.mapNotNull { it.windowState }
-        check("Window=${component.toWindowName()} must exist.")
-            .that(component.windowMatchesAnyOf(windowStates))
+        check("Window=${componentMatcher.toWindowName()} must exist.")
+            .that(componentMatcher.windowMatchesAnyOf(windowStates))
             .isTrue()
     }
 
-    /**
-     * Asserts the state home activity is visible
-     */
-    fun isHomeActivityVisible(): WindowManagerStateSubject = apply {
+    /** {@inheritDoc} */
+    override fun isHomeActivityVisible(): WindowManagerStateSubject = apply {
         val homeIsVisible = wmState.homeActivity?.isVisible ?: false
         check("Home activity doesn't exist").that(wmState.homeActivity).isNotNull()
         check("Home activity is not visible").that(homeIsVisible).isTrue()
     }
 
-    /**
-     * Asserts the state home activity is invisible
-     */
-    fun isHomeActivityInvisible(): WindowManagerStateSubject = apply {
+    /** {@inheritDoc} */
+    override fun isHomeActivityInvisible(): WindowManagerStateSubject = apply {
         val homeIsVisible = wmState.homeActivity?.isVisible ?: false
         check("Home activity is visible").that(homeIsVisible).isFalse()
     }
 
-    /**
-     * Asserts that [component] exists and is pinned (in PIP mode)
-     *
-     * @param component Component name to search
-     */
-    fun isPinned(component: FlickerComponentName): WindowManagerStateSubject = apply {
-        contains(component)
-        check("Window ${component.toWindowName()} in PIP mode")
-            .that(wmState.isInPipMode(component))
+    /** {@inheritDoc} */
+    override fun isPinned(componentMatcher: IComponentMatcher): WindowManagerStateSubject = apply {
+        contains(componentMatcher)
+        check("Window ${componentMatcher.toWindowName()} in PIP mode")
+            .that(wmState.isInPipMode(componentMatcher))
             .isTrue()
     }
 
-    /**
-     * Asserts that [component] exists and is not pinned (not in PIP mode)
-     *
-     * @param component Component name to search
-     */
-    fun isNotPinned(component: FlickerComponentName): WindowManagerStateSubject = apply {
-        contains(component)
-        check("Window ${component.toWindowName()} not in PIP mode")
-            .that(wmState.isInPipMode(component))
+    /** {@inheritDoc} */
+    override fun isNotPinned(
+        componentMatcher: IComponentMatcher
+    ): WindowManagerStateSubject = apply {
+        contains(componentMatcher)
+        check("Window ${componentMatcher.toWindowName()} not in PIP mode")
+            .that(wmState.isInPipMode(componentMatcher))
             .isFalse()
     }
 
-    /**
-     * Checks if the activity with title containing [component] is visible
-     *
-     * In the case that an app is stopped in the background (e.g. OS stopped it to release memory)
-     * the app window will not be immediately visible when switching back to the app. Checking if a
-     * snapshotStartingWindow is present for that app instead can decrease flakiness levels of the
-     * assertion.
-     *
-     * @param component Component to search
-     */
-    fun isAppSnapshotStartingWindowVisibleFor(
-        component: FlickerComponentName,
-    ) {
-        val activity = wmState.getActivitiesForWindow(component).firstOrNull()
+    /** {@inheritDoc} */
+    override fun isAppSnapshotStartingWindowVisibleFor(
+        componentMatcher: IComponentMatcher
+    ): WindowManagerStateSubject = apply {
+        val activity = wmState.getActivitiesForWindow(componentMatcher).firstOrNull()
 
         // Check existence and visibility of SnapshotStartingWindow
         val snapshotStartingWindow = activity?.children
@@ -588,6 +489,34 @@ class WindowManagerStateSubject private constructor(
             .that(snapshotStartingWindow?.isVisible ?: false).isTrue()
     }
 
+    /** {@inheritDoc} */
+    override fun isAboveAppWindowVisible(
+        componentMatcher: IComponentMatcher
+    ): WindowManagerStateSubject =
+        containsAboveAppWindow(componentMatcher)
+            .isNonAppWindowVisible(componentMatcher)
+
+    /** {@inheritDoc} */
+    override fun isAboveAppWindowInvisible(
+        componentMatcher: IComponentMatcher
+    ): WindowManagerStateSubject =
+        containsAboveAppWindow(componentMatcher)
+            .isNonAppWindowInvisible(componentMatcher)
+
+    /** {@inheritDoc} */
+    override fun isBelowAppWindowVisible(
+        componentMatcher: IComponentMatcher
+    ): WindowManagerStateSubject =
+        containsBelowAppWindow(componentMatcher)
+            .isNonAppWindowVisible(componentMatcher)
+
+    /** {@inheritDoc} */
+    override fun isBelowAppWindowInvisible(
+        componentMatcher: IComponentMatcher
+    ): WindowManagerStateSubject =
+        containsBelowAppWindow(componentMatcher)
+            .isNonAppWindowInvisible(componentMatcher)
+
     /**
      * Obtains the first subject with [WindowState.title] containing [name].
      *
@@ -595,11 +524,10 @@ class WindowManagerStateSubject private constructor(
      * actually exists in the hierarchy use [WindowStateSubject.exists] or
      * [WindowStateSubject.doesNotExist]
      */
-    fun windowState(name: String): WindowStateSubject {
-        return subjects.firstOrNull {
+    fun windowState(name: String): WindowStateSubject =
+        subjects.firstOrNull {
             it.windowState?.name?.contains(name) == true
         } ?: WindowStateSubject.assertThat(name, this, timestamp)
-    }
 
     /**
      * Obtains the first subject matching  [predicate].
@@ -611,11 +539,10 @@ class WindowManagerStateSubject private constructor(
      * @param predicate to search for a subject
      * @param name Name of the subject to use when not found (optional)
      */
-    fun windowState(name: String = "", predicate: (WindowState) -> Boolean): WindowStateSubject {
-        return subjects.firstOrNull {
+    fun windowState(name: String = "", predicate: (WindowState) -> Boolean): WindowStateSubject =
+        subjects.firstOrNull {
             it.windowState?.run { predicate(this) } ?: false
         } ?: WindowStateSubject.assertThat(name, this, timestamp)
-    }
 
     override fun toString(): String {
         return "WindowManagerStateSubject($wmState)"
@@ -623,7 +550,7 @@ class WindowManagerStateSubject private constructor(
 
     companion object {
         /**
-         * Boiler-plate Subject.Factory for WindowManagerStateSubject
+         * Boilerplate Subject.Factory for WindowManagerStateSubject
          *
          * @param parent containing the entry
          */

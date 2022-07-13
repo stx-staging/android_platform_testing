@@ -21,7 +21,7 @@ import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubj
 import com.android.server.wm.traces.common.tags.Tag
 
 /**
- * Checks if the [component] layer is visible at the start of the transition
+ * Checks if the [componentMatcher] layer is visible at the start of the transition
  */
 class LayerIsVisibleAtStart(windowName: String) : ComponentBaseTest(windowName) {
     /** {@inheritDoc} */
@@ -30,6 +30,6 @@ class LayerIsVisibleAtStart(windowName: String) : ComponentBaseTest(windowName) 
         wmSubject: WindowManagerTraceSubject,
         layerSubject: LayersTraceSubject
     ) {
-        layerSubject.first().isVisible(component)
+        layerSubject.first().isVisible(componentMatcher)
     }
 }

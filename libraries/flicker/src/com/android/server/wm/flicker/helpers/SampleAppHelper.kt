@@ -20,7 +20,8 @@ import android.app.Instrumentation
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
-import com.android.server.wm.traces.common.FlickerComponentName
+import com.android.server.wm.traces.common.ComponentMatcher
+import com.android.server.wm.traces.common.IComponentMatcher
 
 /**
  * Helper to launch the default browser app (compatible with AOSP)
@@ -46,11 +47,11 @@ class SampleAppHelper(
             return intent
         }
 
-        private fun getBrowserComponent(pkgManager: PackageManager): FlickerComponentName {
+        private fun getBrowserComponent(pkgManager: PackageManager): IComponentMatcher {
             val intent = getBrowserIntent()
             val resolveInfo = pkgManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY)
                 ?: error("Unable to resolve browser activity")
-            return FlickerComponentName(resolveInfo.activityInfo.packageName, className = "")
+            return ComponentMatcher(resolveInfo.activityInfo.packageName, className = "")
         }
     }
 }

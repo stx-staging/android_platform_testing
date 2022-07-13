@@ -36,12 +36,11 @@ class TagTraceParserUtil {
          *
          * @param data binary proto data
          */
-        @JvmOverloads
         @JvmStatic
         fun parseFromTrace(
             data: ByteArray
         ): TagTrace {
-            var fileProto: FlickerTagTraceProto? = null
+            var fileProto: FlickerTagTraceProto?
             try {
                 measureTimeMillis {
                     fileProto = FlickerTagTraceProto.parseFrom(data)
@@ -62,7 +61,6 @@ class TagTraceParserUtil {
          *
          * @param proto Parsed proto data
          */
-        @JvmOverloads
         @JvmStatic
         fun parseFromTrace(
             proto: FlickerTagTraceProto
