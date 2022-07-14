@@ -25,6 +25,7 @@ class Transition(
     val type: Type,
     val start: Long,
     val end: Long,
+    val collectingStart: Long,
     val startTransaction: Transaction,
     val finishTransaction: Transaction,
     val changes: List<TransitionChange>,
@@ -32,10 +33,14 @@ class Transition(
 ) : ITraceEntry {
     override val timestamp = start
 
-    val isIncomplete: Boolean get() = start == -1L || end == -1L || aborted
+    val isIncomplete: Boolean get() = collectingStart == -1L || start == -1L || end == -1L ||
+            aborted
 
     override fun toString(): String =
-        "Transition($type, start=$start, end=$end, changes=[${changes.joinToString()}])"
+        "Transition#${hashCode()}" +
+                "($type, aborted=$aborted, start=$start, end=$end," +
+                "startTransaction=$startTransaction, finishTransaction=$finishTransaction, " +
+                "changes=[${changes.joinToString()}])"
 
     companion object {
         enum class Type(val value: Int) {
@@ -64,6 +69,7 @@ class Transition(
             var type: Type = Type.UNDEFINED
             var start: Long = -1
             var end: Long = -1
+            var collectingStart: Long = -1
             var changes: List<TransitionChange> = emptyList()
             var aborted = false
             var startTransactionId = -1L
@@ -73,6 +79,9 @@ class Transition(
 
             // Assumes each state is reported once
             fun addState(state: TransitionState) {
+                if (state.state == State.COLLECTING) {
+                    this.collectingStart = state.timestamp
+                }
                 if (state.state == State.PLAYING) {
                     this.start = state.timestamp
                     this.changes = state.changes
@@ -108,7 +117,14 @@ class Transition(
                     "Can't build transition without matched finish transaction"
                 }
                 return Transition(
-                    type, start, end, startTransaction, finishTransaction, changes, aborted
+                    type,
+                    start,
+                    end,
+                    collectingStart,
+                    startTransaction,
+                    finishTransaction,
+                    changes,
+                    aborted
                 )
             }
         }

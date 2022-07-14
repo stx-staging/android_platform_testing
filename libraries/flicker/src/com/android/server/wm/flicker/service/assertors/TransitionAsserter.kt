@@ -131,7 +131,7 @@ class TransitionAsserter(
  * Return a new trace contains only the entries that were applied during the transition's execution.
  */
 private fun WindowManagerTrace.transitionSlice(transition: Transition): WindowManagerTrace {
-    return slice(transition.start, transition.end)
+    return slice(transition.collectingStart, transition.end)
 }
 
 /**
