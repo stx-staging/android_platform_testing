@@ -63,7 +63,7 @@ class LayerTraceEntrySubject private constructor(
 ) : FlickerSubject(fm, entry),
     ILayerSubject<LayerTraceEntrySubject, RegionSubject> {
     override val timestamp: Long get() = entry.timestamp
-    override val selfFacts = listOf(Fact.fact("Entry", entry))
+    override val selfFacts = listOf(Fact.fact("SF State", entry))
 
     val subjects by lazy {
         entry.flattenedLayers.map { LayerSubject.assertThat(it, this, timestamp) }
@@ -79,14 +79,14 @@ class LayerTraceEntrySubject private constructor(
 
     /** {@inheritDoc} */
     override fun isEmpty(): LayerTraceEntrySubject = apply {
-        check("Entry should not be empty")
+        check("SF State")
             .that(entry.flattenedLayers)
             .isEmpty()
     }
 
     /** {@inheritDoc} */
     override fun isNotEmpty(): LayerTraceEntrySubject = apply {
-        check("Entry should not be empty")
+        check("SF State")
             .that(entry.flattenedLayers)
             .isNotEmpty()
     }

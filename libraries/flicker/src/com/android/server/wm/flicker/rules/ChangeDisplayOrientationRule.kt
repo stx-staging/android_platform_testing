@@ -75,7 +75,10 @@ data class ChangeDisplayOrientationRule @JvmOverloads constructor(
                 // During seamless rotation the app window is shown
                 val currWmState = wmHelper.currentState.wmState
                 if (currWmState.visibleWindows.none { it.isFullscreen }) {
-                    wmHelper.StateSyncBuilder().withNavBarStatusBarVisible().waitForAndVerify()
+                    wmHelper.StateSyncBuilder()
+                    .withNavOrTaskBarVisible()
+                    .withStatusBarVisible()
+                    .waitForAndVerify()
                 }
             } catch (e: RemoteException) {
                 throw RuntimeException(e)

@@ -227,11 +227,9 @@ class RegionSubject(
             !intersection.op(region, Region.Op.XOR)
 
         if (!covers) {
-            fail(
-                Fact.fact("Region to test", testRegion),
+            fail(Fact.fact("Region to test", testRegion),
                 Fact.fact("Covered region", region),
-                Fact.fact("Out-of-bounds region", intersection)
-            )
+                Fact.fact("Out-of-bounds region", intersection))
         }
     }
 
@@ -296,11 +294,9 @@ class RegionSubject(
             !intersection.op(testRegion, Region.Op.XOR)
 
         if (!covers) {
-            fail(
-                Fact.fact("Region to test", testRegion),
+            fail(Fact.fact("Region to test", testRegion),
                 Fact.fact("Covered region", region),
-                Fact.fact("Uncovered region", intersection)
-            )
+                Fact.fact("Uncovered region", intersection))
         }
     }
 
@@ -324,11 +320,9 @@ class RegionSubject(
         val isNotEmpty = intersection.op(testRegion, Region.Op.XOR)
 
         if (isNotEmpty) {
-            fail(
-                Fact.fact("Region to test", testRegion),
+            fail(Fact.fact("Region to test", testRegion),
                 Fact.fact("Covered region", region),
-                Fact.fact("Uncovered region", intersection)
-            )
+                Fact.fact("Uncovered region", intersection))
         }
     }
 
@@ -351,11 +345,9 @@ class RegionSubject(
         val isEmpty = !intersection.op(testRegion, Region.Op.INTERSECT)
 
         if (isEmpty) {
-            fail(
-                Fact.fact("Region to test", testRegion),
+            fail(Fact.fact("Region to test", testRegion),
                 Fact.fact("Covered region", region),
-                Fact.fact("Overlap region", intersection)
-            )
+                Fact.fact("Overlap region", intersection))
         }
     }
 
@@ -378,11 +370,9 @@ class RegionSubject(
         val isEmpty = !intersection.op(testRegion, Region.Op.INTERSECT)
 
         if (!isEmpty) {
-            fail(
-                Fact.fact("Region to test", testRegion),
+            fail(Fact.fact("Region to test", testRegion),
                 Fact.fact("Covered region", region),
-                Fact.fact("Overlap region", intersection)
-            )
+                Fact.fact("Overlap region", intersection))
         }
     }
 
@@ -402,28 +392,29 @@ class RegionSubject(
      */
     fun isSameAspectRatio(other: RegionSubject): RegionSubject = apply {
         val aspectRatio = this.region.width.toFloat() /
-            this.region.height
+                this.region.height
         val otherAspectRatio = other.region.width.toFloat() /
-            other.region.height
-        check("Should have same aspect ratio, old is $aspectRatio and new is $otherAspectRatio")
-            .that(abs(aspectRatio - otherAspectRatio) > 0.1).isFalse()
+                other.region.height
+        check("Aspect Ratio Difference (Old=$aspectRatio, New=$otherAspectRatio)")
+            .that(abs(aspectRatio - otherAspectRatio))
+            .isAtMost(0.1f)
     }
 
     companion object {
         @VisibleForTesting
-        const val MSG_ERROR_TOP_POSITION = "Incorrect top position"
+        const val MSG_ERROR_TOP_POSITION = "Top position"
 
         @VisibleForTesting
-        const val MSG_ERROR_BOTTOM_POSITION = "Incorrect top position"
+        const val MSG_ERROR_BOTTOM_POSITION = "Bottom position"
 
         @VisibleForTesting
-        const val MSG_ERROR_LEFT_POSITION = "Incorrect left position"
+        const val MSG_ERROR_LEFT_POSITION = "Left position"
 
         @VisibleForTesting
-        const val MSG_ERROR_RIGHT_POSITION = "Incorrect right position"
+        const val MSG_ERROR_RIGHT_POSITION = "Right position"
 
         @VisibleForTesting
-        const val MSG_ERROR_AREA = "Incorrect rect area"
+        const val MSG_ERROR_AREA = "Rect area"
 
         private fun mergeRegions(regions: Array<Region>): Region {
             val result = Region.EMPTY
@@ -494,12 +485,8 @@ class RegionSubject(
         @JvmStatic
         @JvmOverloads
         fun assertThat(rect: Array<RectF>, parent: FlickerSubject? = null, timestamp: Long):
-            RegionSubject = assertThat(
-            mergeRegions(
-                rect.map { Region.from(it.toRect()) }.toTypedArray()
-            ),
-            parent, timestamp
-        )
+            RegionSubject = assertThat(mergeRegions(
+                rect.map { Region.from(it.toRect()) }.toTypedArray()), parent, timestamp)
 
         /**
          * User-defined entry point for existing regions

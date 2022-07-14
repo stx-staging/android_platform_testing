@@ -71,12 +71,12 @@ class LayersTraceSubject private constructor(
 
     /** {@inheritDoc} */
     override fun isEmpty(): LayersTraceSubject = apply {
-        check("Trace is empty").that(trace).isEmpty()
+        check("Trace").that(trace).isEmpty()
     }
 
     /** {@inheritDoc} */
     override fun isNotEmpty(): LayersTraceSubject = apply {
-        check("Trace is not empty").that(trace).isNotEmpty()
+        check("Trace").that(trace).isNotEmpty()
     }
 
     /** {@inheritDoc} */

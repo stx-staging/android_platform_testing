@@ -27,36 +27,110 @@ import com.android.server.wm.traces.common.windowmanager.windows.WindowState
 typealias DUMP = DeviceStateDump<WindowManagerState, BaseLayerTraceEntry>
 
 object WindowManagerConditionsFactory {
+    private fun getNavBarComponent(wmState: WindowManagerState) =
+        if (wmState.isTablet) ComponentMatcher.TASK_BAR else ComponentMatcher.NAV_BAR
+
     /**
-     * Condition to check if the nav bar window is visible
+     * Condition to check if the [ComponentMatcher.NAV_BAR] or [ComponentMatcher.TASK_BAR]
+     * windows are visible
      */
-    fun isNavBarVisible(): Condition<DUMP> = ConditionList(
+    fun isNavOrTaskBarVisible(): Condition<DUMP> = ConditionList(
         listOf(
-            isNavBarWindowVisible(), isNavBarLayerVisible(), isNavBarLayerOpaque()
+            isNavOrTaskBarWindowVisible(),
+            isNavOrTaskBarLayerVisible(),
+            isNavOrTaskBarLayerOpaque()
         )
     )
 
     /**
-     * Condition to check if the nav bar window is visible
+     * Condition to check if the [ComponentMatcher.NAV_BAR] or [ComponentMatcher.TASK_BAR]
+     * windows are visible
+     */
+    fun isNavOrTaskBarWindowVisible(): Condition<DUMP> =
+        Condition("isNavBarOrTaskBarWindowVisible") {
+            val component = getNavBarComponent(it.wmState)
+            it.wmState.isWindowSurfaceShown(component)
+        }
+
+    /**
+     * Condition to check if the [ComponentMatcher.NAV_BAR] or [ComponentMatcher.TASK_BAR]
+     * layers are visible
+     */
+    fun isNavOrTaskBarLayerVisible(): Condition<DUMP> =
+        Condition("isNavBarOrTaskBarLayerVisible") {
+            val component = getNavBarComponent(it.wmState)
+            it.layerState.isVisible(component)
+        }
+
+    /**
+     * Condition to check if the [ComponentMatcher.NAV_BAR] layer is opaque
+     */
+    fun isNavOrTaskBarLayerOpaque(): Condition<DUMP> =
+        Condition("isNavOrTaskBarLayerOpaque") {
+            val component = getNavBarComponent(it.wmState)
+            it.layerState.getLayerWithBuffer(component)?.color?.isOpaque ?: false
+        }
+
+    /**
+     * Condition to check if the [ComponentMatcher.NAV_BAR] window is visible
+     */
+    fun isNavBarVisible(): Condition<DUMP> = ConditionList(
+        listOf(
+            isNavBarWindowVisible(),
+            isNavBarLayerVisible(),
+            isNavBarLayerOpaque()
+        )
+    )
+
+    /**
+     * Condition to check if the [ComponentMatcher.NAV_BAR] window is visible
      */
     fun isNavBarWindowVisible(): Condition<DUMP> = Condition("isNavBarWindowVisible") {
         it.wmState.isWindowSurfaceShown(ComponentMatcher.NAV_BAR)
     }
 
     /**
-     * Condition to check if the nav bar layer is visible
+     * Condition to check if the [ComponentMatcher.NAV_BAR] layer is visible
      */
     fun isNavBarLayerVisible(): Condition<DUMP> = isLayerVisible(ComponentMatcher.NAV_BAR)
 
     /**
-     * Condition to check if the nav bar layer is opaque
+     * Condition to check if the [ComponentMatcher.NAV_BAR] layer is opaque
      */
     fun isNavBarLayerOpaque(): Condition<DUMP> = Condition("isNavBarLayerOpaque") {
         it.layerState.getLayerWithBuffer(ComponentMatcher.NAV_BAR)?.color?.isOpaque ?: false
     }
 
     /**
-     * Condition to check if the status bar window is visible
+     * Condition to check if the [ComponentMatcher.TASK_BAR] window is visible
+     */
+    fun isTaskBarVisible(): Condition<DUMP> = ConditionList(
+        listOf(
+            isTaskBarWindowVisible(), isTaskBarLayerVisible(), isTaskBarLayerOpaque()
+        )
+    )
+
+    /**
+     * Condition to check if the [ComponentMatcher.TASK_BAR] window is visible
+     */
+    fun isTaskBarWindowVisible(): Condition<DUMP> = Condition("isTaskBarWindowVisible") {
+        it.wmState.isWindowSurfaceShown(ComponentMatcher.TASK_BAR)
+    }
+
+    /**
+     * Condition to check if the [ComponentMatcher.TASK_BAR] layer is visible
+     */
+    fun isTaskBarLayerVisible(): Condition<DUMP> = isLayerVisible(ComponentMatcher.TASK_BAR)
+
+    /**
+     * Condition to check if the [ComponentMatcher.TASK_BAR] layer is opaque
+     */
+    fun isTaskBarLayerOpaque(): Condition<DUMP> = Condition("isTaskBarLayerOpaque") {
+        it.layerState.getLayerWithBuffer(ComponentMatcher.TASK_BAR)?.color?.isOpaque ?: false
+    }
+
+    /**
+     * Condition to check if the [ComponentMatcher.STATUS_BAR] window is visible
      */
     fun isStatusBarVisible(): Condition<DUMP> = ConditionList(
         listOf(
@@ -65,20 +139,20 @@ object WindowManagerConditionsFactory {
     )
 
     /**
-     * Condition to check if the nav bar window is visible
+     * Condition to check if the [ComponentMatcher.STATUS_BAR] window is visible
      */
     fun isStatusBarWindowVisible(): Condition<DUMP> = Condition("isStatusBarWindowVisible") {
         it.wmState.isWindowSurfaceShown(ComponentMatcher.STATUS_BAR)
     }
 
     /**
-     * Condition to check if the nav bar layer is visible
+     * Condition to check if the [ComponentMatcher.STATUS_BAR] layer is visible
      */
     fun isStatusBarLayerVisible(): Condition<DUMP> =
         isLayerVisible(ComponentMatcher.STATUS_BAR)
 
     /**
-     * Condition to check if the nav bar layer is opaque
+     * Condition to check if the [ComponentMatcher.STATUS_BAR] layer is opaque
      */
     fun isStatusBarLayerOpaque(): Condition<DUMP> = Condition("isStatusBarLayerOpaque") {
         it.layerState.getLayerWithBuffer(ComponentMatcher.STATUS_BAR)?.color?.isOpaque ?: false

@@ -16,7 +16,7 @@
 
 package com.android.server.wm.flicker.layers
 
-import com.android.server.wm.flicker.IMAGINARY_COMPONENT
+import com.android.server.wm.flicker.TestComponents
 import com.android.server.wm.flicker.assertThatErrorContainsDebugInfo
 import com.android.server.wm.flicker.assertThrows
 import com.android.server.wm.flicker.readLayerTraceFromFile
@@ -39,7 +39,7 @@ class LayersTraceEntryTest {
         val error = assertThrows(AssertionError::class.java) {
             assertThat(layersTraceEntries)
                 .first()
-                .contains(IMAGINARY_COMPONENT)
+                .contains(TestComponents.IMAGINARY)
         }
         assertThatErrorContainsDebugInfo(error)
     }
