@@ -100,6 +100,13 @@ data class FlickerTestParameter(
     val isGesturalNavigation =
         navBarMode == WindowManagerPolicyConstants.NAV_BAR_MODE_GESTURAL_OVERLAY
 
+    val isTablet: Boolean get() = config[IS_TABLET] as Boolean?
+        ?: error("$IS_TABLET property not initialized. Use [setIsTablet] to initialize ")
+
+    fun setIsTablet(isTablet: Boolean) {
+        config[IS_TABLET] = isTablet
+    }
+
     /**
      * Clean the internal flicker reference (cache)
      */
@@ -266,6 +273,7 @@ data class FlickerTestParameter(
     override fun toString(): String = name
 
     companion object {
+        internal const val IS_TABLET = "isTablet"
         internal const val REPETITIONS = "repetitions"
         internal const val START_ROTATION = "startRotation"
         internal const val END_ROTATION = "endRotation"

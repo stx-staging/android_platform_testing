@@ -56,6 +56,7 @@ open class WindowManagerState(
     val isVisible: Boolean = true
     val stableId: String get() = this::class.simpleName ?: error("Unable to determine class")
     val name: String get() = prettyTimestamp(timestamp)
+    val isTablet: Boolean get() = displays.any { it.isTablet }
 
     val windowContainers: Array<WindowContainer>
         get() = root.collectDescendants()

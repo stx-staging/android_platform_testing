@@ -194,10 +194,10 @@ open class WindowManagerStateHelper @JvmOverloads constructor(
         @JvmOverloads
         fun withHomeActivityVisible(displayId: Int = Display.DEFAULT_DISPLAY) =
             withAppTransitionIdle(displayId)
+                .withNavOrTaskBarVisible()
+                .withStatusBarVisible()
                 .add(WindowManagerConditionsFactory.isHomeActivityVisible())
                 .add(WindowManagerConditionsFactory.isLayerVisible(LAUNCHER))
-                .add(WindowManagerConditionsFactory.isNavBarVisible())
-                .add(WindowManagerConditionsFactory.isStatusBarVisible())
 
         /**
          * Waits until the home activity is visible and nothing to be animating
@@ -233,11 +233,15 @@ open class WindowManagerStateHelper @JvmOverloads constructor(
             })
 
         /**
+         * Waits until the [ComponentMatcher.NAV_BAR] or [ComponentMatcher.TASK_BAR] are visible
+         * (windows and layers)
+         */
+        fun withNavOrTaskBarVisible() = add(WindowManagerConditionsFactory.isNavOrTaskBarVisible())
+
+        /**
          * Waits until the navigation and status bars are visible (windows and layers)
          */
-        fun withNavBarStatusBarVisible() =
-            add(WindowManagerConditionsFactory.isNavBarVisible())
-                .add(WindowManagerConditionsFactory.isStatusBarVisible())
+        fun withStatusBarVisible() = add(WindowManagerConditionsFactory.isStatusBarVisible())
 
         /**
          * Wait until neither an [Activity] nor a [WindowState] matching [componentMatcher] exist
@@ -386,7 +390,7 @@ open class WindowManagerStateHelper @JvmOverloads constructor(
                 }
             }
 
-        private fun withFullScreenAppCondition(componentMatcher: IComponentMatcher) =
+        fun withFullScreenAppCondition(componentMatcher: IComponentMatcher) =
             waitForValidStateCondition(
                 WaitForValidActivityState
                     .Builder(componentMatcher)

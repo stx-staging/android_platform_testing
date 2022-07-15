@@ -36,10 +36,8 @@ public class MemLeaksHelper implements ICollectorHelper<Long> {
             "(?<bytes>[0-9]+) bytes in (?<allocations>[0-9]+) unreachable allocations";
 
     @VisibleForTesting public static final String ALL_PROCESS_CMD = "ps -A";
-
     @VisibleForTesting
     public static final String DUMPSYS_MEMIFNO_CMD = "dumpsys meminfo --unreachable %d";
-
     @VisibleForTesting public static final String PIDOF_CMD = "pidof %s";
     @VisibleForTesting public static final String PROC_MEM_BYTES = "proc_unreachable_memory_bytes_";
     @VisibleForTesting
@@ -49,6 +47,7 @@ public class MemLeaksHelper implements ICollectorHelper<Long> {
     private boolean mCollectAllProcFlag = true;
     private String mPidOutput;
     private UiDevice mUiDevice;
+    private Map<String, Long> mPrevious = new HashMap<>();
 
     /**
      * Sets up the helper before it starts collecting.
@@ -63,6 +62,7 @@ public class MemLeaksHelper implements ICollectorHelper<Long> {
 
     @Override
     public boolean startCollecting() {
+        mPrevious = getMeminfo();
         return true;
     }
 
@@ -73,6 +73,22 @@ public class MemLeaksHelper implements ICollectorHelper<Long> {
 
     @Override
     public Map<String, Long> getMetrics() {
+        Map<String, Long> current = getMeminfo();
+        Map<String, Long> results = new HashMap<>();
+
+        for (String processName : current.keySet()) {
+            results.put(processName, current.get(processName) - mPrevious.get(processName));
+        }
+
+        return results;
+    }
+
+    /**
+     * Get unreachable memory information
+     *
+     * @return a Map<String, Long> meminfo - a pair of process name and its values
+     */
+    private Map<String, Long> getMeminfo() {
         // Get all the process PIDs first
         Map<Integer, String> pids = getPids();
         Map<String, Long> results = new HashMap<>();

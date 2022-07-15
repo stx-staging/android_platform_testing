@@ -74,14 +74,14 @@ class WindowStateSubject private constructor(
      * Asserts that current subject doesn't exist in the window hierarchy
      */
     fun doesNotExist(): WindowStateSubject = apply {
-        check("doesNotExist").that(windowState).isNull()
+        check("Window exists ${windowState?.name}").that(windowState == null).isTrue()
     }
 
     /**
      * Asserts that current subject exists in the window hierarchy
      */
     fun exists(): WindowStateSubject = apply {
-        check("$windowTitle does not exists").that(windowState).isNotNull()
+        check("Window exists $windowTitle").that(windowState == null).isFalse()
     }
 
     override fun toString(): String {

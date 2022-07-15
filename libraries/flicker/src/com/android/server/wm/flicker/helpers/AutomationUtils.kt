@@ -157,7 +157,8 @@ fun UiDevice.openQuickstep(
     }
     assertNotNull("Recent items didn't appear", recents)
     wmHelper.StateSyncBuilder()
-        .withNavBarStatusBarVisible()
+        .withNavOrTaskBarVisible()
+        .withStatusBarVisible()
         .withAppTransitionIdle()
         .waitForAndVerify()
 }

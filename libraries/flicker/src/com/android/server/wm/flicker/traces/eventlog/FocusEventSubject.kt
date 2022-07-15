@@ -21,6 +21,7 @@ import com.android.server.wm.flicker.traces.FlickerFailureStrategy
 import com.google.common.truth.Fact
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.StandardSubjectBuilder
+import com.google.common.truth.Subject.Factory
 
 class FocusEventSubject(
     fm: FailureMetadata,
@@ -31,13 +32,13 @@ class FocusEventSubject(
     override val selfFacts by lazy { listOf(Fact.simpleFact(event.toString())) }
 
     fun hasFocus() {
-        check("Does not have focus")
+        check("Has focus")
             .that(event.hasFocus())
             .isTrue()
     }
 
     fun hasNotFocus() {
-        check("Does not have focus")
+        check("Has focus")
             .that(event.hasFocus())
             .isFalse()
     }

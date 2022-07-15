@@ -39,15 +39,22 @@ open class Activity(
      *
      * @param componentMatcher Components to search
      */
-    fun hasWindow(componentMatcher: IComponentMatcher): Boolean {
-        return collectDescendants<WindowState> { componentMatcher.windowMatchesAnyOf(it) }
-            .isNotEmpty()
-    }
+    fun getWindows(componentMatcher: IComponentMatcher): Array<WindowState> =
+        getWindows { componentMatcher.windowMatchesAnyOf(it) }
 
-    internal fun hasWindow(windowState: WindowState): Boolean {
-        return collectDescendants<WindowState> { windowState == it }
-            .isNotEmpty()
-    }
+    /**
+     * Checks if the activity contains a [WindowState] matching [componentMatcher]
+     *
+     * @param componentMatcher Components to search
+     */
+    fun hasWindow(componentMatcher: IComponentMatcher): Boolean =
+        getWindows(componentMatcher).isNotEmpty()
+
+    internal fun hasWindow(windowState: WindowState): Boolean =
+        getWindows { windowState == it }.isNotEmpty()
+
+    private fun getWindows(predicate: (WindowState) -> Boolean) =
+        collectDescendants<WindowState> { predicate(it) }
 
     override fun toString(): String {
         return "${this::class.simpleName}: {$token $title} state=$state visible=$isVisible"

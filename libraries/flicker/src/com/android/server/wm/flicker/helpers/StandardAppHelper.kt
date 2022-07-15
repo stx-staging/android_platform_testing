@@ -213,7 +213,8 @@ open class StandardAppHelper @JvmOverloads constructor(
         val currWmState = wmHelper.currentState.wmState
         if (currWmState.visibleWindows.none { it.isFullscreen }) {
             wmHelper.StateSyncBuilder()
-                .withNavBarStatusBarVisible()
+                .withNavOrTaskBarVisible()
+                .withStatusBarVisible()
                 .waitForAndVerify()
         }
     }

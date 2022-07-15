@@ -77,12 +77,12 @@ class WindowManagerTraceSubject private constructor(
 
     /** {@inheritDoc} */
     override fun isEmpty(): WindowManagerTraceSubject = apply {
-        check("Trace is empty").that(trace).isEmpty()
+        check("Trace").that(trace).isEmpty()
     }
 
     /** {@inheritDoc} */
     override fun isNotEmpty(): WindowManagerTraceSubject = apply {
-        check("Trace is not empty").that(trace).isNotEmpty()
+        check("Trace").that(trace).isNotEmpty()
     }
 
     /**
@@ -341,13 +341,13 @@ class WindowManagerTraceSubject private constructor(
 
     /** {@inheritDoc} */
     override fun isAboveWindow(
-        aboveWindowComponent: IComponentMatcher,
-        belowWindowComponent: IComponentMatcher
+        aboveWindowComponentMatcher: IComponentMatcher,
+        belowWindowComponentMatcher: IComponentMatcher
     ): WindowManagerTraceSubject = apply {
-        val aboveWindowTitle = aboveWindowComponent.toWindowName()
-        val belowWindowTitle = belowWindowComponent.toWindowName()
+        val aboveWindowTitle = aboveWindowComponentMatcher.toWindowName()
+        val belowWindowTitle = belowWindowComponentMatcher.toWindowName()
         addAssertion("$aboveWindowTitle is above $belowWindowTitle") {
-            it.isAboveWindow(aboveWindowComponent, belowWindowComponent)
+            it.isAboveWindow(aboveWindowComponentMatcher, belowWindowComponentMatcher)
         }
     }
 
@@ -638,6 +638,7 @@ class WindowManagerTraceSubject private constructor(
          * @param trace WindowManager trace
          */
         @JvmStatic
+        @JvmOverloads
         fun assertThat(
             trace: WindowManagerTrace,
             parent: WindowManagerTraceSubject? = null

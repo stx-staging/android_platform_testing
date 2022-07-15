@@ -69,7 +69,7 @@ class EventLogSubject private constructor(
     }
 
     fun focusDoesNotChange() = apply {
-        check("Focus should not change")
+        check("Focus changes")
             .that(_focusChanges)
             .isEmpty()
     }
