@@ -94,23 +94,39 @@ open class TransitionRunner {
         safeExecution(flicker, executionErrors) {
             runTestSetup(flicker)
             for (x in 0 until flicker.repetitions) {
+                Log.d(FLICKER_TAG, "${flicker.testName} - " +
+                        "Running iteration $x/${flicker.repetitions}")
                 iteration = x
                 results[iteration] = FlickerRunResult(flicker.testName, iteration)
                 val description = Description.createSuiteDescription(flicker.testName)
                 if (flicker.faasEnabled) {
+                    Log.d(FLICKER_TAG, "${flicker.testName} - " +
+                            "Setting up FaaS for iteration $x/${flicker.repetitions}")
                     flicker.faas.setCriticalUserJourneyName(flicker.testName)
                     flicker.faas.testStarted(description)
                 }
+                Log.d(FLICKER_TAG, "${flicker.testName} - " +
+                        "Running transition setup $x/${flicker.repetitions}")
                 runTransitionSetup(flicker)
+                Log.d(FLICKER_TAG, "${flicker.testName} - " +
+                        "Running transition $x/${flicker.repetitions}")
                 runTransition(flicker)
+                Log.d(FLICKER_TAG, "${flicker.testName} - " +
+                        "Running transition teardown $x/${flicker.repetitions}")
                 runTransitionTeardown(flicker)
+                Log.d(FLICKER_TAG, "${flicker.testName} - " +
+                        "Processing transition traces $x/${flicker.repetitions}")
                 processRunTraces(flicker, RunStatus.ASSERTION_SUCCESS)
                 if (flicker.faasEnabled) {
+                    Log.d(FLICKER_TAG, "${flicker.testName} - " +
+                            "Notifying FaaS of finished transition $x/${flicker.repetitions}")
                     flicker.faas.testFinished(description)
                     if (flicker.faas.executionErrors.isNotEmpty()) {
                         executionErrors.addAll(flicker.faas.executionErrors)
                     }
                 }
+                Log.d(FLICKER_TAG, "${flicker.testName} - " +
+                        "Completed iteration $x/${flicker.repetitions}")
             }
 
             runTestTeardown(flicker)
