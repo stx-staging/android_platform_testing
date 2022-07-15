@@ -157,7 +157,26 @@ class FlickerBlockJUnit4ClassRunner @JvmOverloads constructor(
                     }
                     // Report all the execution errors collected during the Flicker setup and
                     // transition execution
-                    results.checkForExecutionErrors()
+                    val executionErrors = results.executionErrors
+                    if (executionErrors.isNotEmpty()) {
+                        // Log all the execution error
+                        for (executionError in executionErrors) {
+                            Log.e(FLICKER_TAG, "Flicker Execution Error", executionError)
+                        }
+                        val messageLengthLimit = 300
+                        val errorMessage = executionErrors.joinToString("\n", "- ") {
+                            it.message?.take(messageLengthLimit) +
+                                    (if ((it.message?.length ?: 0) > messageLengthLimit)
+                                        "..." else "")
+                        }
+                        val simpleException = Throwable("Flicker Execution Failed:\n" +
+                                "${errorMessage.prependIndent()}\n\n" +
+                                "Check log for more information.")
+                        // avoid printing any of the stack trace to send less data in the bundle
+                        // (b/238894657)
+                        simpleException.stackTrace = emptyArray()
+                        throw simpleException
+                    }
                 }
             }
             runLeaf(statement, description, notifier)
@@ -282,7 +301,7 @@ class FlickerBlockJUnit4ClassRunner @JvmOverloads constructor(
      * Adds to `errors` for each method annotated with `@Test`that
      * is not a public, void instance method with no arguments.
      */
-    fun validateFlickerObject(errors: MutableList<Throwable>) {
+    private fun validateFlickerObject(errors: MutableList<Throwable>) {
         val methods = testClass.getAnnotatedMethods(FlickerBuilderProvider::class.java)
 
         if (methods.isEmpty() || methods.size > 1) {

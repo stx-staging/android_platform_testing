@@ -16,7 +16,6 @@
 
 package com.android.server.wm.flicker
 
-import com.android.internal.annotations.VisibleForTesting
 import com.android.server.wm.flicker.TransitionRunner.Companion.ExecutionError
 import com.android.server.wm.flicker.assertions.AssertionData
 import com.android.server.wm.flicker.assertions.FlickerAssertionError
@@ -44,8 +43,6 @@ data class FlickerResult(
     /** Failed runs due to execution errors which we shouldn't run assertions on */
     private val failedRuns: List<FlickerRunResult> = runResults.filter { it.isFailedRun }
 
-    val combinedExecutionError = CombinedExecutionError(executionErrors)
-
     /**
      * List of failures during assertion
      */
@@ -67,19 +64,6 @@ data class FlickerResult(
         return currFailures
     }
 
-    /**
-     * Asserts if there have been any execution errors while running the transitions
-     */
-    @VisibleForTesting
-    fun checkForExecutionErrors() {
-        if (executionErrors.isNotEmpty()) {
-            if (executionErrors.size == 1) {
-                throw executionErrors[0]
-            }
-            throw combinedExecutionError
-        }
-    }
-
     fun isEmpty(): Boolean = executionErrors.isEmpty() && successfulRuns.isEmpty()
 
     fun isNotEmpty(): Boolean = !isEmpty()
@@ -90,40 +74,5 @@ data class FlickerResult(
 
     fun lock() {
         runResults.forEach { it.lock() }
-    }
-
-    companion object {
-        class CombinedExecutionError(val errors: List<Throwable>?) : Throwable() {
-            init {
-                if (errors != null && errors.size == 1) {
-                    super.setStackTrace(errors[0].stackTrace)
-                } else {
-                    super.setStackTrace(emptyArray())
-                }
-            }
-
-            override val message: String? get() {
-                if (errors == null || errors.isEmpty()) {
-                    return null
-                }
-                if (errors.size == 1) {
-                    return errors[0].toString()
-                }
-
-                return buildString {
-                    append("Combined errors of:")
-                    for (error in errors) {
-                        append("\n\t-")
-                        append(error.toString())
-                        append("\n")
-                        append(error.stackTraceToString().prependIndent("\t\t"))
-                        append("\nAND")
-                    }
-                }
-            }
-
-            override val cause: Throwable?
-                get() = errors?.get(0)
-        }
     }
 }
