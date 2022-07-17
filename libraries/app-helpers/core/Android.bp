@@ -25,6 +25,9 @@ java_library {
         "androidx.test.runner",
         "launcher-helper-lib",
     ],
+    static_libs: [
+        "spectatio-util-lib",
+    ],
     srcs: ["src/**/*.java"],
 }
 
