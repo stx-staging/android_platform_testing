@@ -44,6 +44,44 @@ import org.mockito.Mockito.verify
 class FlickerBlockJUnit4ClassRunnerTest {
 
     @Test
+    fun doesNotRunWithEmptyTestParameter() {
+        val testClass = TestClass(SimpleFaasTest::class.java)
+        val test = TestWithParameters("[TEST]", testClass, listOf())
+        try {
+            val runner = FlickerBlockJUnit4ClassRunner(test)
+            runner.run(RunNotifier())
+            throw Throwable("Expected runner to fail but did not")
+        } catch (e: Throwable) {
+            Truth.assertThat(e).hasMessageThat()
+                    .contains("No FlickerTestParameter provided for FlickerRunner")
+        }
+    }
+
+    @Test
+    fun doesNotRunWithoutValidFlickerTestParameter() {
+        val testClass = TestClass(SimpleFaasTest::class.java)
+        val test = TestWithParameters("[TEST]", testClass, listOf("invalid param"))
+        try {
+            val runner = FlickerBlockJUnit4ClassRunner(test)
+            runner.run(RunNotifier())
+            throw Throwable("Expected runner to fail but did not")
+        } catch (e: Throwable) {
+            Truth.assertThat(e).hasMessageThat()
+                    .contains("No FlickerTestParameter provided for FlickerRunner")
+        }
+    }
+
+    @Test
+    fun runsWithValidFlickerTestParameter() {
+        val testClass = TestClass(SimpleFaasTest::class.java)
+        val parameters = FlickerTestParameterFactory.getInstance()
+                .getConfigNonRotationTests()
+        val test = TestWithParameters("[TEST]", testClass, listOf(parameters[0]))
+        val runner = FlickerBlockJUnit4ClassRunner(test)
+        runner.run(RunNotifier())
+    }
+
+    @Test
     fun transitionNotRerunWithFaasEnabled() {
         val repetitions = 3
         transitionRunCount = 0

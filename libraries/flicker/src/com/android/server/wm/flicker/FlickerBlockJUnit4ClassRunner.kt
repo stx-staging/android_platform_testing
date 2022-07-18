@@ -69,8 +69,9 @@ import org.junit.runners.parameterized.TestWithParameters
 class FlickerBlockJUnit4ClassRunner @JvmOverloads constructor(
     test: TestWithParameters,
     private val parameters: Array<Any> = test.parameters.toTypedArray(),
-    private val flickerTestParameter: FlickerTestParameter? =
+    private val flickerTestParameter: FlickerTestParameter =
         parameters.filterIsInstance<FlickerTestParameter>().firstOrNull()
+                ?: error("No FlickerTestParameter provided for FlickerRunner")
 ) : BlockJUnit4ClassRunnerWithParameters(test) {
     private var flickerBuilderProviderMethod: FrameworkMethod? = null
 
@@ -148,7 +149,7 @@ class FlickerBlockJUnit4ClassRunner @JvmOverloads constructor(
                 @Throws(Throwable::class)
                 override fun evaluate() {
                     methodBlock(method).evaluate()
-                    require(flickerTestParameter!!.isInitialized) {
+                    require(flickerTestParameter.isInitialized) {
                         "flickerTestParameter not initialized"
                     }
                     val results = flickerTestParameter.result
@@ -210,10 +211,6 @@ class FlickerBlockJUnit4ClassRunner @JvmOverloads constructor(
                 it.className == "androidx.test.internal.runner.AndroidLogOnlyBuilder"
             }
         ) {
-            require(flickerTestParameter != null) {
-                "Can't computeTests with null flickerTestParameter"
-            }
-
             val hasFlickerServiceCompatibleAnnotation = TestClass(super.createTest()::class.java)
                 .annotations.filterIsInstance<FlickerServiceCompatible>().firstOrNull() != null
 
@@ -236,10 +233,6 @@ class FlickerBlockJUnit4ClassRunner @JvmOverloads constructor(
      * results and then create functional test results for each of them.
      */
     private fun computeFlickerServiceTests(onlyBlockingAssertions: Boolean): List<FrameworkMethod> {
-        require(flickerTestParameter != null) {
-            "Can't computeFlickerServiceTests with null flickerTestParameter"
-        }
-
         val flickerTestMethods = mutableListOf<FlickerFrameworkMethod>()
 
         val flicker = flickerTestParameter.flicker
@@ -339,12 +332,14 @@ class FlickerBlockJUnit4ClassRunner @JvmOverloads constructor(
      */
     override fun createTest(): Any {
         val test = super.createTest()
-        if (flickerTestParameter?.isInitialized != true) {
+        if (!flickerTestParameter.isInitialized) {
             Log.v(FLICKER_TAG, "Flicker object is not yet initialized")
             injectFlickerOnTestParams(test)
         }
 
-        val flicker = flickerTestParameter?.flicker
+        // Get to ensure flicker is properly initialized
+        // Will error out if not
+        flickerTestParameter.flicker
         return test
     }
 
@@ -352,9 +347,8 @@ class FlickerBlockJUnit4ClassRunner @JvmOverloads constructor(
      * Builds a flicker object and assigns it to the test parameters
      */
     private fun injectFlickerOnTestParams(test: Any) {
-        val flickerTestParameter = flickerTestParameter
         val flickerBuilderProviderMethod = flickerBuilderProviderMethod
-        if (flickerTestParameter != null && flickerBuilderProviderMethod != null) {
+        if (flickerBuilderProviderMethod != null) {
             val testClass = test::class.java
             val testName = testClass.simpleName
             Log.v(
