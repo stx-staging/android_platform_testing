@@ -36,7 +36,7 @@ fun Rect.toAndroidRect(): android.graphics.Rect {
 }
 
 fun android.graphics.Rect.toFlickerRect(): Rect {
-    return Rect(left, top, right, bottom)
+    return Rect.from(left, top, right, bottom)
 }
 
 private fun executeCommand(uiAutomation: UiAutomation, cmd: String): ByteArray {
