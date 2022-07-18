@@ -23,7 +23,7 @@ package com.android.server.wm.traces.common
  *
  * This class is used by flicker and Winscope
  */
-open class Rect(
+open class Rect internal constructor(
     val left: Int = 0,
     val top: Int = 0,
     val right: Int = 0,
@@ -44,7 +44,7 @@ open class Rect(
      * Returns a [RectF] version fo this rectangle.
      */
     fun toRectF(): RectF {
-        return RectF(left.toFloat(), top.toFloat(), right.toFloat(), bottom.toFloat())
+        return RectF.from(left.toFloat(), top.toFloat(), right.toFloat(), bottom.toFloat())
     }
 
     open fun prettyPrint(): String =
@@ -76,7 +76,7 @@ open class Rect(
         val newTop = maxOf(top, crop.top)
         val newRight = minOf(right, crop.right)
         val newBottom = minOf(bottom, crop.bottom)
-        return Rect(newLeft, newTop, newRight, newBottom)
+        return from(newLeft, newTop, newRight, newBottom)
     }
 
     /** Returns true if: fLeft <= x < fRight && fTop <= y < fBottom.
@@ -119,10 +119,19 @@ open class Rect(
     override fun toString(): String = prettyPrint()
 
     fun clone(): Rect {
-        return if (this == EMPTY) EMPTY else Rect(left, top, right, bottom)
+        return from(left, top, right, bottom)
     }
 
     companion object {
         val EMPTY: Rect = Rect()
+
+        fun from(left: Int, top: Int, right: Int, bottom: Int): Rect {
+            val newRect = Rect(left, top, right, bottom)
+            return if (newRect.isEmpty) {
+                EMPTY
+            } else {
+                newRect
+            }
+        }
     }
 }

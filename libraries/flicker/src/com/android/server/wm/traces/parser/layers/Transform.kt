@@ -16,8 +16,8 @@
 
 package com.android.server.wm.traces.parser.layers
 
-import android.surfaceflinger.nano.Layers
 import android.surfaceflinger.nano.Common.TransformProto
+import android.surfaceflinger.nano.Layers
 import com.android.server.wm.traces.common.Matrix33
 import com.android.server.wm.traces.common.layers.Transform
 import com.android.server.wm.traces.common.layers.Transform.Companion.FLIP_H_VAL
@@ -50,20 +50,15 @@ private fun getMatrix(transform: TransformProto?, position: Layers.PositionProto
 private fun Int?.getDefaultTransform(x: Float, y: Float): Matrix33 {
     return when {
         // IDENTITY
-        this == null ->
-            Matrix33(1f, 0f, x, 0f, 1f, y)
+        this == null -> Matrix33.identity(x, y)
         // // ROT_270 = ROT_90|FLIP_H|FLIP_V
-        isFlagSet(ROT_90_VAL or FLIP_V_VAL or FLIP_H_VAL) ->
-            Matrix33(0f, -1f, x, 1f, 0f, y)
+        isFlagSet(ROT_90_VAL or FLIP_V_VAL or FLIP_H_VAL) -> Matrix33.rot270(x, y)
         // ROT_180 = FLIP_H|FLIP_V
-        isFlagSet(FLIP_V_VAL or FLIP_H_VAL) ->
-            Matrix33(-1f, 0f, x, 0f, -1f, y)
+        isFlagSet(FLIP_V_VAL or FLIP_H_VAL) -> Matrix33.rot180(x, y)
         // ROT_90
-        isFlagSet(ROT_90_VAL) ->
-            Matrix33(0f, 1f, x, -1f, 0f, y)
+        isFlagSet(ROT_90_VAL) -> Matrix33.rot90(x, y)
         // IDENTITY
-        isFlagClear(SCALE_VAL or ROTATE_VAL) ->
-            Matrix33(1f, 0f, x, 0f, 1f, y)
+        isFlagClear(SCALE_VAL or ROTATE_VAL) -> Matrix33.identity(x, y)
         else ->
             throw IllegalStateException("Unknown transform type $this")
     }

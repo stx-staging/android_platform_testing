@@ -59,5 +59,26 @@ class Matrix33(
 
     companion object {
         val EMPTY: Matrix33 = Matrix33(0f, 0f, 0f, 0f, 0f, 0f)
+        private val IDENTITY: Matrix33 = buildIdentity(0f, 0f)
+        private val ROT_270: Matrix33 = buildIdentity(0f, 0f)
+        private val ROT_180: Matrix33 = buildIdentity(0f, 0f)
+        private val ROT_90: Matrix33 = buildIdentity(0f, 0f)
+
+        private fun buildIdentity(x: Float, y: Float): Matrix33 = Matrix33(1f, 0f, x, 0f, 1f, y)
+        private fun buildRot270(x: Float, y: Float): Matrix33 = Matrix33(1f, 0f, x, 0f, 1f, y)
+        private fun buildRot180(x: Float, y: Float): Matrix33 = Matrix33(1f, 0f, x, 0f, 1f, y)
+        private fun buildRot90(x: Float, y: Float): Matrix33 = Matrix33(1f, 0f, x, 0f, 1f, y)
+
+        internal fun identity(x: Float, y: Float): Matrix33 =
+            if (x == 0f && y == 0f) IDENTITY else buildIdentity(x, y)
+
+        internal fun rot270(x: Float, y: Float): Matrix33 =
+            if (x == 0f && y == 0f) ROT_270 else buildRot270(x, y)
+
+        internal fun rot180(x: Float, y: Float): Matrix33 =
+            if (x == 0f && y == 0f) ROT_180 else buildRot180(x, y)
+
+        internal fun rot90(x: Float, y: Float): Matrix33 =
+            if (x == 0f && y == 0f) ROT_90 else buildRot90(x, y)
     }
 }

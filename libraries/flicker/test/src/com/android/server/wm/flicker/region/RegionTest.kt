@@ -18,6 +18,7 @@ package com.android.server.wm.flicker.region
 
 import com.android.server.wm.traces.common.Rect
 import com.android.server.wm.traces.common.region.Region
+import kotlin.random.Random
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotSame
@@ -26,7 +27,6 @@ import org.junit.Before
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
-import kotlin.random.Random
 
 /**
  * Contains [Region] tests. To run this test:
@@ -146,7 +146,7 @@ class RegionTest {
         Region.from(oriRegion)
 
         // Test Region(Rect)
-        val rect = Rect()
+        val rect = Rect.from(0, 0, 0, 0)
         Region.from(rect)
 
         // Test Region(int, int, int, int)
@@ -155,7 +155,7 @@ class RegionTest {
 
     @Test
     fun testSet1() {
-        val rect = Rect(1, 2, 3, 4)
+        val rect = Rect.from(1, 2, 3, 4)
         val oriRegion = Region.from(rect)
         assertTrue(mRegion.set(oriRegion))
         assertEquals(1, mRegion.bounds.left)
@@ -166,7 +166,7 @@ class RegionTest {
 
     @Test
     fun testSet2() {
-        val rect = Rect(1, 2, 3, 4)
+        val rect = Rect.from(1, 2, 3, 4)
         assertTrue(mRegion.set(rect))
         assertEquals(1, mRegion.bounds.left)
         assertEquals(2, mRegion.bounds.top)
@@ -203,17 +203,17 @@ class RegionTest {
         // More than one rectangle
         mRegion = Region()
         mRegion.set(1, 1, 2, 2)
-        mRegion.union(Rect(3, 3, 5, 5))
+        mRegion.union(Rect.from(3, 3, 5, 5))
         assertTrue(mRegion.isComplex())
     }
 
     @Test
     fun testUnion() {
-        val rect1 = Rect()
-        val rect2 = Rect(0, 0, 20, 20)
-        val rect3 = Rect(5, 5, 10, 10)
-        val rect4 = Rect(10, 10, 30, 30)
-        val rect5 = Rect(40, 40, 60, 60)
+        val rect1 = Rect.from(0, 0, 0, 0)
+        val rect2 = Rect.from(0, 0, 20, 20)
+        val rect3 = Rect.from(5, 5, 10, 10)
+        val rect4 = Rect.from(10, 10, 30, 30)
+        val rect5 = Rect.from(40, 40, 60, 60)
 
         // union (inclusive-or) the two regions
         mRegion.set(rect2)
@@ -290,11 +290,11 @@ class RegionTest {
 
     @Test
     fun testOp1() {
-        val rect1 = Rect()
-        val rect2 = Rect(0, 0, 20, 20)
-        val rect3 = Rect(5, 5, 10, 10)
-        val rect4 = Rect(10, 10, 30, 30)
-        val rect5 = Rect(40, 40, 60, 60)
+        val rect1 = Rect.from(0, 0, 0, 0)
+        val rect2 = Rect.from(0, 0, 20, 20)
+        val rect3 = Rect.from(5, 5, 10, 10)
+        val rect4 = Rect.from(10, 10, 30, 30)
+        val rect5 = Rect.from(40, 40, 60, 60)
         verifyNullRegionOp1(rect1)
         verifyDifferenceOp1(rect1, rect2, rect3, rect4, rect5)
         verifyIntersectOp1(rect1, rect2, rect3, rect4, rect5)
@@ -519,10 +519,10 @@ class RegionTest {
 
     @Test
     fun testOp2() {
-        val rect2 = Rect(0, 0, 20, 20)
-        val rect3 = Rect(5, 5, 10, 10)
-        val rect4 = Rect(10, 10, 30, 30)
-        val rect5 = Rect(40, 40, 60, 60)
+        val rect2 = Rect.from(0, 0, 20, 20)
+        val rect3 = Rect.from(5, 5, 10, 10)
+        val rect4 = Rect.from(10, 10, 30, 30)
+        val rect5 = Rect.from(40, 40, 60, 60)
         verifyNullRegionOp2()
         verifyDifferenceOp2(rect2)
         verifyIntersectOp2(rect2)
@@ -973,8 +973,8 @@ class RegionTest {
 
     @Test
     fun testOp4() {
-        val rect1 = Rect()
-        val rect2 = Rect(0, 0, 20, 20)
+        val rect1 = Rect.from(0, 0, 0, 0)
+        val rect2 = Rect.from(0, 0, 20, 20)
         val region1 = Region()
         val region2 = Region.from(0, 0, 20, 20)
         val region3 = Region.from(5, 5, 10, 10)

@@ -21,7 +21,7 @@ package com.android.server.wm.traces.common
  *
  * This class is used by flicker and Winscope
  */
-class Color(r: Float, g: Float, b: Float, val a: Float) : Color3(r, g, b) {
+class Color private constructor(r: Float, g: Float, b: Float, val a: Float) : Color3(r, g, b) {
     override val isEmpty: Boolean
         get() = a == 0f || r < 0 || g < 0 || b < 0
 
@@ -53,5 +53,14 @@ class Color(r: Float, g: Float, b: Float, val a: Float) : Color3(r, g, b) {
 
     companion object {
         val EMPTY: Color = Color(r = -1f, g = -1f, b = -1f, a = 0f)
+        val DEFAULT: Color = Color(r = 0f, g = 0f, b = 0f, a = 1f)
+
+        fun from(r: Float, g: Float, b: Float, a: Float): Color {
+            return when (val newColor = Color(r, g, b, a)) {
+                EMPTY -> EMPTY
+                DEFAULT -> DEFAULT
+                else -> newColor
+            }
+        }
     }
 }

@@ -477,7 +477,7 @@ class Region(rects: Array<Rect> = arrayOf()) {
             fYSpanCount = ySpanCount
             fIntervalCount = intervalCount
 
-            return Rect(left, top, right, bot)
+            return Rect.from(left, top, right, bot)
         }
 
         fun clone(): RunHead {

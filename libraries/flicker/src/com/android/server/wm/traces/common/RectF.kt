@@ -21,7 +21,7 @@ package com.android.server.wm.traces.common
  *
  * This class is used by flicker and Winscope
  */
-data class RectF(
+class RectF private constructor(
     val left: Float = 0f,
     val top: Float = 0f,
     val right: Float = 0f,
@@ -44,7 +44,7 @@ data class RectF(
      * All fractional parts are rounded to 0
      */
     fun toRect(): Rect {
-        return Rect(left.toInt(), top.toInt(), right.toInt(), bottom.toInt())
+        return Rect.from(left.toInt(), top.toInt(), right.toInt(), bottom.toInt())
     }
 
     /**
@@ -71,7 +71,7 @@ data class RectF(
         val newTop = maxOf(top, crop.top)
         val newRight = minOf(right, crop.right)
         val newBottom = minOf(bottom, crop.bottom)
-        return RectF(newLeft, newTop, newRight, newBottom)
+        return from(newLeft, newTop, newRight, newBottom)
     }
 
     /**
@@ -109,7 +109,7 @@ data class RectF(
             if (this.bottom > bottom) {
                 intersectionBottom = bottom
             }
-            return RectF(intersectionLeft, intersectionTop, intersectionRight, intersectionBottom)
+            return from(intersectionLeft, intersectionTop, intersectionRight, intersectionBottom)
         }
         return EMPTY
     }
@@ -160,5 +160,14 @@ data class RectF(
 
     companion object {
         val EMPTY: RectF = RectF()
+
+        fun from(left: Float, top: Float, right: Float, bottom: Float): RectF {
+            val newRect = RectF(left, top, right, bottom)
+            return if (newRect.isEmpty) {
+                EMPTY
+            } else {
+                newRect
+            }
+        }
     }
 }
