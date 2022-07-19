@@ -101,14 +101,18 @@ class FlickerServiceResultsCollector(
     }
 
     private fun stopTracingAndCollectFlickerMetrics(dataRecord: DataRecord) {
+        Log.i(LOG_TAG, "Stopping trace collection")
         tracesCollector.stop()
+        Log.i(LOG_TAG, "Stopped trace collection")
         val collectedTraces = tracesCollector.getCollectedTraces()
         val flickerService = FlickerService()
+        Log.i(LOG_TAG, "Processing traces")
         val results = flickerService.process(
             collectedTraces.wmTrace,
             collectedTraces.layersTrace,
             collectedTraces.transitionsTrace
         )
+        Log.i(LOG_TAG, "Got ${results.size} results")
         assertionResults.addAll(results)
         val aggregatedResults = processFlickerResults(results)
         collectMetrics(dataRecord, aggregatedResults)
@@ -136,6 +140,7 @@ class FlickerServiceResultsCollector(
 
         while (it.hasNext()) {
             val (key, result) = it.next()
+            Log.v(LOG_TAG, "Adding metric ${key}_FAILURES = ${result.failures}")
             data.addStringMetric("${key}_FAILURES", "${result.failures}")
         }
     }

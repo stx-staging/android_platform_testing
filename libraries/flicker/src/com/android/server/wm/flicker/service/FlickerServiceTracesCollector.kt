@@ -16,6 +16,7 @@
 
 package com.android.server.wm.flicker.service
 
+import android.util.Log
 import com.android.server.wm.flicker.monitor.LayersTraceMonitor
 import com.android.server.wm.flicker.monitor.TraceMonitor
 import com.android.server.wm.flicker.monitor.TransitionsTraceMonitor
@@ -52,18 +53,23 @@ class FlickerServiceTracesCollector(val outputDir: Path) : ITracesCollector {
     }
 
     override fun stop() {
+        Log.v(LOG_TAG, "Creating output directory for trace files")
         Files.createDirectories(outputDir)
 
+        Log.v(LOG_TAG, "Stopping trace monitors")
         traceMonitors.forEach {
             it.stop()
         }
 
+        Log.v(LOG_TAG, "Processing wmTrace from file")
         wmTrace = getWindowManagerTraceFromFile(
             FlickerService.getFassFilePath(outputDir, "wm_trace")
         )
+        Log.v(LOG_TAG, "Processing layers trace from file")
         layersTrace = getLayersTraceFromFile(
             FlickerService.getFassFilePath(outputDir, "layers_trace")
         )
+        Log.v(LOG_TAG, "Processing transitions trace from file")
         transitionsTrace = getTransitionsTraceFromFile(
             FlickerService.getFassFilePath(outputDir, "transition_trace"),
             FlickerService.getFassFilePath(outputDir, "transactions_trace")
@@ -145,5 +151,9 @@ class FlickerServiceTracesCollector(val outputDir: Path) : ITracesCollector {
     private fun getTransactionsTraceFromFile(traceFilePath: Path): TransactionsTrace {
         val transactionsTraceByteArray: ByteArray = Files.readAllBytes(traceFilePath)
         return TransactionsTraceParser.parseFromTrace(transactionsTraceByteArray)
+    }
+
+    companion object {
+        private val LOG_TAG = "FlickerTracesCollector"
     }
 }
