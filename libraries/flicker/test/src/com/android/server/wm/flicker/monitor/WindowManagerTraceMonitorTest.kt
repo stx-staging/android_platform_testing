@@ -19,10 +19,10 @@ package com.android.server.wm.flicker.monitor
 import androidx.test.uiautomator.UiDevice
 import com.android.server.wm.nano.WindowManagerTraceFileProto
 import com.google.common.truth.Truth
+import java.nio.file.Path
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
-import java.nio.file.Path
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class WindowManagerTraceMonitorTest : TraceMonitorTest<WindowManagerTraceMonitor>() {

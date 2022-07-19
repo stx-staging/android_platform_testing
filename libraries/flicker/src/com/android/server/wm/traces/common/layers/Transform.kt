@@ -143,7 +143,7 @@ open class Transform(val type: Int?, val matrix: Matrix33) {
         val leftBottom = multiplyVec2(matrix, rect.left, rect.bottom)
         val rightBottom = multiplyVec2(matrix, rect.right, rect.bottom)
 
-        return RectF(
+        return RectF.from(
             left = arrayOf(leftTop.x, rightTop.x, leftBottom.x, rightBottom.x).minOrNull() ?: 0f,
             top = arrayOf(leftTop.y, rightTop.y, leftBottom.y, rightBottom.y).minOrNull() ?: 0f,
             right = arrayOf(leftTop.x, rightTop.x, leftBottom.x, rightBottom.x).minOrNull() ?: 0f,

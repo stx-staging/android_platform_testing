@@ -124,7 +124,7 @@ class LayerTraceEntryLazy(
         @JvmStatic
         fun Layers.FloatRectProto?.toRectF(): RectF? {
             return this?.let {
-                RectF(left = left, top = top, right = right, bottom = bottom)
+                RectF.from(left = left, top = top, right = right, bottom = bottom)
             }
         }
 
@@ -140,7 +140,7 @@ class LayerTraceEntryLazy(
             if (this == null) {
                 return Color.EMPTY
             }
-            return Color(r, g, b, a)
+            return Color.from(r, g, b, a)
         }
 
         @JvmStatic
@@ -161,7 +161,7 @@ class LayerTraceEntryLazy(
                 (crop.right - crop.left) <= 0 || (crop.bottom - crop.top) <= 0 ->
                     com.android.server.wm.traces.common.Rect.EMPTY
                 else ->
-                    com.android.server.wm.traces.common.Rect(
+                    com.android.server.wm.traces.common.Rect.from(
                         crop.left, crop.top, crop.right, crop.bottom
                     )
             }
@@ -182,16 +182,9 @@ class LayerTraceEntryLazy(
         }
 
         @JvmStatic
-        fun Common.RectProto?.toRect(): com.android.server.wm.traces.common.Rect {
-            return if ((this == null) ||
-                ((this.right - this.left) <= 0 || (this.bottom - this.top) <= 0)
-            ) {
-                com.android.server.wm.traces.common.Rect.EMPTY
-            } else {
-                com.android.server.wm.traces.common.Rect(
-                    this.left, this.top, this.right, this.bottom
+        fun Common.RectProto?.toRect(): com.android.server.wm.traces.common.Rect =
+            com.android.server.wm.traces.common.Rect.from(
+                    this?.left ?: 0, this?.top ?: 0, this?.right ?: 0, this?.bottom ?: 0
                 )
-            }
-        }
     }
 }

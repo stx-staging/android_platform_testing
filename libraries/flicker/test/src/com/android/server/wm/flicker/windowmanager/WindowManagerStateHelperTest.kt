@@ -77,7 +77,7 @@ class WindowManagerStateHelperTest {
 
     private fun createImaginaryLayer(name: String, index: Int, id: Int, parentId: Int): Layer {
         val transform = Transform(0, Matrix33.EMPTY)
-        val rect = RectF(
+        val rect = RectF.from(
             left = index.toFloat(),
             top = index.toFloat(),
             right = index.toFloat() + 1,
@@ -92,7 +92,7 @@ class WindowManagerStateHelperTest {
             activeBuffer = ActiveBuffer(1, 1, 1, 1),
             flags = 0,
             bounds = rect,
-            color = Color(0f, 0f, 0f, 1f),
+            color = Color.DEFAULT,
             _isOpaque = true,
             shadowRadius = 0f,
             cornerRadius = 0f,
@@ -112,7 +112,7 @@ class WindowManagerStateHelperTest {
             zOrderRelativeOfId = -1,
             stackId = 0,
             requestedTransform = transform,
-            requestedColor = Color(0f, 0f, 0f, 1f),
+            requestedColor = Color.DEFAULT,
             cornerRadiusCrop = RectF.EMPTY,
             inputTransform = transform,
             inputRegion = Region.from(rect.toRect())
