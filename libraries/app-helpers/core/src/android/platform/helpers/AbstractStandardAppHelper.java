@@ -34,6 +34,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.RemoteException;
 import android.os.SystemClock;
+import android.os.Trace;
 import android.os.UserHandle;
 import android.platform.helpers.exceptions.AccountException;
 import android.platform.helpers.exceptions.TestHelperException;
@@ -190,29 +191,40 @@ public abstract class AbstractStandardAppHelper implements IAppHelper {
     /** {@inheritDoc} */
     @Override
     public void open() {
+        Trace.beginSection("open app");
         // Grant notification permission if necessary - otherwise the app may display a permission
         // prompt that interferes with tests
+        Trace.beginSection("notification permission");
         maybeGrantNotificationPermission();
+        Trace.endSection();
 
         // Turn on the screen if necessary.
         try {
+            Trace.beginSection("wake screen");
             if (!mDevice.isScreenOn()) {
                 mDevice.wakeUp();
             }
         } catch (RemoteException e) {
             throw new TestHelperException("Could not unlock the device.", e);
+        } finally {
+            Trace.endSection();
         }
         // Unlock the screen if necessary.
+        Trace.beginSection("unlock screen");
         if (mDevice.hasObject(By.res("com.android.systemui", "keyguard_bottom_area"))) {
             mDevice.pressMenu();
             mDevice.waitForIdle();
         }
+        Trace.endSection();
         // Launch the application as normal.
         String pkg = getPackage();
         long launchInitiationTimeMs = System.currentTimeMillis();
 
+        Trace.beginSection("register dialog watchers");
         registerDialogWatchers();
+        Trace.endSection();
         if (mFavorShellCommands) {
+            Trace.beginSection("favor shell commands, launching");
             String output = null;
             try {
                 Log.i(LOG_TAG, String.format("Sending command to launch: %s", pkg));
@@ -224,27 +236,40 @@ public abstract class AbstractStandardAppHelper implements IAppHelper {
             } catch (ActivityNotFoundException e) {
                 removeDialogWatchers();
                 throw new TestHelperException(String.format("Failed to find package: %s", pkg), e);
+            } finally {
+                Trace.endSection();
             }
         } else {
+            Trace.beginSection("launch using launcher strategy");
             // Launch using the UI and launcher strategy.
             String id = getLauncherName();
             if (!mDevice.hasObject(By.pkg(pkg).depth(0))) {
                 getLauncherStrategy().launch(id, pkg);
                 Log.i(LOG_TAG, "Launched package: id=" + id + ", pkg=" + pkg);
             }
+            Trace.endSection();
         }
 
-        // Ensure the package is in the foreground for success.
-        if (!mDevice.wait(Until.hasObject(By.pkg(pkg).depth(0)), mLaunchTimeout)) {
-            removeDialogWatchers();
-            throw new IllegalStateException(
+        Trace.beginSection("wait for foreground");
+        try {
+            // Ensure the package is in the foreground for success.
+            if (!mDevice.wait(Until.hasObject(By.pkg(pkg).depth(0)), mLaunchTimeout)) {
+                removeDialogWatchers();
+                throw new IllegalStateException(
                     String.format(
-                            "Did not find package, %s, in foreground after %d ms.",
-                            pkg, System.currentTimeMillis() - launchInitiationTimeMs));
+                        "Did not find package, %s, in foreground after %d ms.",
+                        pkg, System.currentTimeMillis() - launchInitiationTimeMs));
+            }
+        } finally {
+            Trace.endSection();
         }
+        Trace.beginSection("removeDialogWatchers");
         removeDialogWatchers();
+        Trace.endSection();
+        Trace.beginSection("idleApp: " + mAppIdle);
         // Idle for specified time after app launch
         idleApp();
+        Trace.endSection();
     }
 
     private void idleApp() {
