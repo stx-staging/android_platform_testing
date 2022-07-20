@@ -499,18 +499,36 @@ class FlickerBlockJUnit4ClassRunner @JvmOverloads constructor(
     }
 
     private fun getFilteredChildren(): List<FrameworkMethod> {
-        if (filteredChildren == null) {
-            childrenLock.lock()
-            try {
-                if (filteredChildren == null) {
-                    filteredChildren = Collections.unmodifiableList(
-                            ArrayList<FrameworkMethod>(children))
-                }
-            } finally {
-                childrenLock.unlock()
+        childrenLock.lock()
+        val filteredChildren = try {
+            if (filteredChildren != null) {
+                filteredChildren!!
+            } else {
+                Collections.unmodifiableList(ArrayList<FrameworkMethod>(children))
             }
+        } finally {
+            childrenLock.unlock()
         }
-        return filteredChildren!!
+        return filteredChildren
+    }
+
+    override fun testCount(): Int {
+        return super.testCount()
+    }
+
+    override fun getDescription(): Description {
+        val clazz = testClass.javaClass
+        // if subclass overrides `getName()` then we should use it
+        // to maintain backwards compatibility with JUnit 4.12
+        val description: Description = if (clazz == null || clazz.name != name) {
+            Description.createSuiteDescription(name, *runnerAnnotations)
+        } else {
+            Description.createSuiteDescription(clazz, *runnerAnnotations)
+        }
+        for (child in getFilteredChildren()) {
+            description.addChild(describeChild(child))
+        }
+        return description
     }
 
     /**
