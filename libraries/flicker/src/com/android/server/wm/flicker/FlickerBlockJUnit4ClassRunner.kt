@@ -148,9 +148,16 @@ class FlickerBlockJUnit4ClassRunner @JvmOverloads constructor(
                 @Throws(Throwable::class)
                 override fun evaluate() {
                     methodBlock(method).evaluate()
+                    require(flickerTestParameter!!.isInitialized) {
+                        "flickerTestParameter not initialized"
+                    }
+                    val results = flickerTestParameter.result
+                    requireNotNull(results) {
+                        "Flicker results are null after test evaluation..."
+                    }
                     // Report all the execution errors collected during the Flicker setup and
                     // transition execution
-                    flickerTestParameter!!.result!!.checkForExecutionErrors()
+                    results.checkForExecutionErrors()
                 }
             }
             runLeaf(statement, description, notifier)
