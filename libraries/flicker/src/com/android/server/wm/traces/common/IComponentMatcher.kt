@@ -23,8 +23,9 @@ import com.android.server.wm.traces.common.windowmanager.windows.WindowState
 interface IComponentMatcher {
     val packageNames: Array<String>
     val classNames: Array<String>
+    val components: List<ComponentName>
 
-    fun or(other: ComponentMatcher): ComponentMatcher
+    fun or(other: IComponentMatcher): IComponentMatcher
     fun toActivityRecordFilter(): Regex
     fun windowMatchesAnyOf(window: WindowState): Boolean
     fun windowMatchesAnyOf(windows: Collection<WindowState>): Boolean
