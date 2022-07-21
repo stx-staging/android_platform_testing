@@ -106,7 +106,6 @@ open class TransitionRunner {
                 if (flicker.faasEnabled) {
                     Log.d(FLICKER_TAG, "${flicker.testName} - " +
                             "Setting up FaaS for iteration $x/${flicker.repetitions}")
-                    flicker.faas.setCriticalUserJourneyName(flicker.testName)
                     flicker.faas.testStarted(description)
                 }
                 Log.d(FLICKER_TAG, "${flicker.testName} - " +
