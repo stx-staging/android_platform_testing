@@ -148,13 +148,23 @@ class FlickerBlockJUnit4ClassRunner @JvmOverloads constructor(
             val statement: Statement = object : Statement() {
                 @Throws(Throwable::class)
                 override fun evaluate() {
-                    methodBlock(method).evaluate()
+                    if (!flickerTestParameter.isInitialized) {
+                        Log.v(FLICKER_TAG, "Flicker object is not yet initialized")
+                        injectFlickerOnTestParams()
+                    }
                     require(flickerTestParameter.isInitialized) {
                         "flickerTestParameter not initialized"
                     }
+                    val flicker = flickerTestParameter.flicker
+                    var ranChecks = false
+                    flicker.setAssertionsCheckedCallback { ranChecks = true }
+                    methodBlock(method).evaluate()
+                    require(isInjectedFaasTest(method) || ranChecks) {
+                        "No Flicker assertions ran on test..."
+                    }
                     val results = flickerTestParameter.result
                     requireNotNull(results) {
-                        "Flicker results are null after test evaluation..."
+                        "Flicker results are null after test evaluation... "
                     }
                     // Report all the execution errors collected during the Flicker setup and
                     // transition execution
@@ -346,7 +356,7 @@ class FlickerBlockJUnit4ClassRunner @JvmOverloads constructor(
     /**
      * Builds a flicker object and assigns it to the test parameters
      */
-    private fun injectFlickerOnTestParams(test: Any) {
+    private fun injectFlickerOnTestParams(test: Any = super.createTest()) {
         val flickerBuilderProviderMethod = flickerBuilderProviderMethod
         if (flickerBuilderProviderMethod != null) {
             val testClass = test::class.java
