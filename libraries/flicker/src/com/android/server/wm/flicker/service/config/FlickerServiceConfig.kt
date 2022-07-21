@@ -90,34 +90,34 @@ class FlickerServiceConfig {
         }
 
         val COMMON_ASSERTIONS = listOf(
-            LayerIsVisibleAtStart(Components.NAV_BAR) runAs BLOCKING,
-            LayerIsVisibleAtEnd(Components.NAV_BAR) runAs BLOCKING,
-            NonAppWindowIsVisibleAlways(Components.NAV_BAR) runAs BLOCKING,
-            NonAppWindowIsVisibleAlways(Components.STATUS_BAR) runAs BLOCKING,
-            LayerIsVisibleAlways(Components.STATUS_BAR) runAs BLOCKING,
-            EntireScreenCoveredAtStart() runAs BLOCKING,
-            EntireScreenCoveredAtEnd() runAs BLOCKING,
-            EntireScreenCoveredAlways() runAs BLOCKING,
-            VisibleWindowsShownMoreThanOneConsecutiveEntry() runAs BLOCKING,
-            VisibleLayersShownMoreThanOneConsecutiveEntry() runAs BLOCKING,
+            LayerIsVisibleAtStart(Components.NAV_BAR) runAs NON_BLOCKING,
+            LayerIsVisibleAtEnd(Components.NAV_BAR) runAs NON_BLOCKING,
+            NonAppWindowIsVisibleAlways(Components.NAV_BAR) runAs NON_BLOCKING,
+            NonAppWindowIsVisibleAlways(Components.STATUS_BAR) runAs NON_BLOCKING,
+            LayerIsVisibleAlways(Components.STATUS_BAR) runAs NON_BLOCKING,
+            EntireScreenCoveredAtStart() runAs NON_BLOCKING,
+            EntireScreenCoveredAtEnd() runAs NON_BLOCKING,
+            EntireScreenCoveredAlways() runAs NON_BLOCKING,
+            VisibleWindowsShownMoreThanOneConsecutiveEntry() runAs NON_BLOCKING,
+            VisibleLayersShownMoreThanOneConsecutiveEntry() runAs NON_BLOCKING,
             StatusBarLayerPositionAtStart() runAs NON_BLOCKING,
             StatusBarLayerPositionAtEnd() runAs NON_BLOCKING
         )
 
         val APP_LAUNCH_ASSERTIONS = COMMON_ASSERTIONS + listOf(
-            AppLayerIsVisibleAtStart(Components.LAUNCHER) runAs BLOCKING,
-            AppLayerIsInvisibleAtStart(Components.OPENING_APP) runAs BLOCKING,
+            AppLayerIsVisibleAtStart(Components.LAUNCHER) runAs NON_BLOCKING,
+            AppLayerIsInvisibleAtStart(Components.OPENING_APP) runAs NON_BLOCKING,
 
-            AppLayerIsInvisibleAtEnd(Components.LAUNCHER) runAs BLOCKING,
-            AppLayerIsVisibleAtEnd(Components.OPENING_APP) runAs BLOCKING
+            AppLayerIsInvisibleAtEnd(Components.LAUNCHER) runAs NON_BLOCKING,
+            AppLayerIsVisibleAtEnd(Components.OPENING_APP) runAs NON_BLOCKING
         )
 
         val APP_CLOSE_ASSERTIONS = COMMON_ASSERTIONS + listOf(
-            AppLayerIsVisibleAtStart(Components.CLOSING_APP) runAs BLOCKING,
-            AppLayerIsInvisibleAtStart(Components.LAUNCHER) runAs BLOCKING,
+            AppLayerIsVisibleAtStart(Components.CLOSING_APP) runAs NON_BLOCKING,
+            AppLayerIsInvisibleAtStart(Components.LAUNCHER) runAs NON_BLOCKING,
 
-            AppLayerIsInvisibleAtEnd(Components.CLOSING_APP) runAs BLOCKING,
-            AppLayerIsVisibleAtEnd(Components.LAUNCHER) runAs BLOCKING
+            AppLayerIsInvisibleAtEnd(Components.CLOSING_APP) runAs NON_BLOCKING,
+            AppLayerIsVisibleAtEnd(Components.LAUNCHER) runAs NON_BLOCKING
         )
     }
 }
