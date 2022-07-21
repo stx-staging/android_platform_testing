@@ -28,6 +28,7 @@ import com.android.server.wm.flicker.assertions.FlickerSubject
 import com.android.server.wm.flicker.dsl.AssertionTag
 import com.android.server.wm.flicker.dsl.FlickerBuilder
 import com.android.server.wm.flicker.helpers.SampleAppHelper
+import com.android.server.wm.flicker.helpers.isShellTransitionsEnabled
 import com.android.server.wm.flicker.rules.ChangeDisplayOrientationRule
 import com.android.server.wm.flicker.rules.LaunchAppRule
 import com.android.server.wm.flicker.rules.RemoveAllTasksButHomeRule
@@ -50,11 +51,14 @@ data class FlickerTestParameter(
 ) {
     private var internalFlicker: Flicker? = null
 
-    private val flicker: Flicker get() = internalFlicker ?: error("Flicker not initialized")
+    internal val flicker: Flicker get() = internalFlicker ?: error("Flicker not initialized")
     private val name: String get() = nameOverride ?: defaultName(this)
 
     internal val isInitialized: Boolean get() = internalFlicker != null
     internal val result: FlickerResult? get() = internalFlicker?.result
+
+    @VisibleForTesting
+    val currentIteration: Int get() = flicker.runner.iteration
 
     /**
      * If the initial screen rotation is 90 (landscape) or 180 (seascape) degrees
@@ -86,8 +90,10 @@ data class FlickerTestParameter(
      * Defaults to [WindowManagerPolicyConstants.NAV_BAR_MODE_GESTURAL_OVERLAY]
      */
     val navBarMode: String
-        get() = config.getOrDefault(NAV_BAR_MODE,
-            WindowManagerPolicyConstants.NAV_BAR_MODE_GESTURAL_OVERLAY) as String
+        get() = config.getOrDefault(
+            NAV_BAR_MODE,
+            WindowManagerPolicyConstants.NAV_BAR_MODE_GESTURAL_OVERLAY
+        ) as String
 
     val navBarModeName
         get() = when (this.navBarMode) {
@@ -107,6 +113,13 @@ data class FlickerTestParameter(
         config[IS_TABLET] = isTablet
     }
 
+    val isFaasEnabled get() = config.getOrDefault(FAAS_ENABLED, false) as Boolean &&
+        isShellTransitionsEnabled
+
+    fun enableFaas() {
+        config[FAAS_ENABLED] = true
+    }
+
     /**
      * Clean the internal flicker reference (cache)
      */
@@ -121,6 +134,7 @@ data class FlickerTestParameter(
         internalFlicker = builder
             .withTestName { "${testName}_$name" }
             .repeat { config.getOrDefault(REPETITIONS, 1) as Int }
+            .withFlickerAsAService { isFaasEnabled }
             .build(TransitionRunnerWithRules(getTestSetupRules(builder.instrumentation)))
     }
 
@@ -278,20 +292,25 @@ data class FlickerTestParameter(
         internal const val START_ROTATION = "startRotation"
         internal const val END_ROTATION = "endRotation"
         internal const val NAV_BAR_MODE = "navBarMode"
+        internal const val FAAS_ENABLED = "faasEnabled"
 
         @VisibleForTesting
         @JvmStatic
         fun buildWmStartAssertion(assertion: WindowManagerStateSubject.() -> Unit): AssertionData =
-            AssertionData(tag = AssertionTag.START,
+            AssertionData(
+                tag = AssertionTag.START,
                 expectedSubjectClass = WindowManagerStateSubject::class,
-                assertion = assertion as FlickerSubject.() -> Unit)
+                assertion = assertion as FlickerSubject.() -> Unit
+            )
 
         @VisibleForTesting
         @JvmStatic
         fun buildWmEndAssertion(assertion: WindowManagerStateSubject.() -> Unit): AssertionData =
-            AssertionData(tag = AssertionTag.END,
+            AssertionData(
+                tag = AssertionTag.END,
                 expectedSubjectClass = WindowManagerStateSubject::class,
-                assertion = assertion as FlickerSubject.() -> Unit)
+                assertion = assertion as FlickerSubject.() -> Unit
+            )
 
         @VisibleForTesting
         @JvmStatic
@@ -301,9 +320,11 @@ data class FlickerTestParameter(
                 assertion()
                 this.forAllEntries()
             }
-            return AssertionData(tag = AssertionTag.ALL,
+            return AssertionData(
+                tag = AssertionTag.ALL,
                 expectedSubjectClass = WindowManagerTraceSubject::class,
-                assertion = closedAssertion as FlickerSubject.() -> Unit)
+                assertion = closedAssertion as FlickerSubject.() -> Unit
+            )
         }
 
         @VisibleForTesting
@@ -311,9 +332,11 @@ data class FlickerTestParameter(
         fun buildWMTagAssertion(
             tag: String,
             assertion: WindowManagerStateSubject.() -> Unit
-        ): AssertionData = AssertionData(tag = tag,
+        ): AssertionData = AssertionData(
+            tag = tag,
             expectedSubjectClass = WindowManagerStateSubject::class,
-            assertion = assertion as FlickerSubject.() -> Unit)
+            assertion = assertion as FlickerSubject.() -> Unit
+        )
 
         @VisibleForTesting
         @JvmStatic
@@ -331,7 +354,8 @@ data class FlickerTestParameter(
                 regionTraceSubject.forAllEntries()
             }
 
-            return AssertionData(tag = AssertionTag.ALL,
+            return AssertionData(
+                tag = AssertionTag.ALL,
                 expectedSubjectClass = WindowManagerTraceSubject::class,
                 assertion = closedAssertion as FlickerSubject.() -> Unit)
         }
@@ -339,16 +363,20 @@ data class FlickerTestParameter(
         @VisibleForTesting
         @JvmStatic
         fun buildLayersStartAssertion(assertion: LayerTraceEntrySubject.() -> Unit): AssertionData =
-            AssertionData(tag = AssertionTag.START,
+            AssertionData(
+                tag = AssertionTag.START,
                 expectedSubjectClass = LayerTraceEntrySubject::class,
-                assertion = assertion as FlickerSubject.() -> Unit)
+                assertion = assertion as FlickerSubject.() -> Unit
+            )
 
         @VisibleForTesting
         @JvmStatic
         fun buildLayersEndAssertion(assertion: LayerTraceEntrySubject.() -> Unit): AssertionData =
-            AssertionData(tag = AssertionTag.END,
+            AssertionData(
+                tag = AssertionTag.END,
                 expectedSubjectClass = LayerTraceEntrySubject::class,
-                assertion = assertion as FlickerSubject.() -> Unit)
+                assertion = assertion as FlickerSubject.() -> Unit
+            )
 
         @VisibleForTesting
         @JvmStatic
@@ -359,9 +387,11 @@ data class FlickerTestParameter(
                 this.forAllEntries()
             }
 
-            return AssertionData(tag = AssertionTag.ALL,
+            return AssertionData(
+                tag = AssertionTag.ALL,
                 expectedSubjectClass = LayersTraceSubject::class,
-                assertion = closedAssertion as FlickerSubject.() -> Unit)
+                assertion = closedAssertion as FlickerSubject.() -> Unit
+            )
         }
 
         @VisibleForTesting
@@ -369,9 +399,11 @@ data class FlickerTestParameter(
         fun buildLayersTagAssertion(
             tag: String,
             assertion: LayerTraceEntrySubject.() -> Unit
-        ): AssertionData = AssertionData(tag = tag,
+        ): AssertionData = AssertionData(
+            tag = tag,
             expectedSubjectClass = LayerTraceEntrySubject::class,
-            assertion = assertion as FlickerSubject.() -> Unit)
+            assertion = assertion as FlickerSubject.() -> Unit
+        )
 
         @VisibleForTesting
         @JvmOverloads
@@ -393,16 +425,20 @@ data class FlickerTestParameter(
                 regionTraceSubject.forAllEntries()
             }
 
-            return AssertionData(tag = AssertionTag.ALL,
-                    expectedSubjectClass = LayersTraceSubject::class,
-                    assertion = closedAssertion as FlickerSubject.() -> Unit)
+            return AssertionData(
+                tag = AssertionTag.ALL,
+                expectedSubjectClass = LayersTraceSubject::class,
+                assertion = closedAssertion as FlickerSubject.() -> Unit
+            )
         }
 
         @JvmStatic
         fun buildEventLogAssertion(assertion: EventLogSubject.() -> Unit): AssertionData =
-            AssertionData(tag = AssertionTag.ALL,
+            AssertionData(
+                tag = AssertionTag.ALL,
                 expectedSubjectClass = EventLogSubject::class,
-                assertion = assertion as FlickerSubject.() -> Unit)
+                assertion = assertion as FlickerSubject.() -> Unit
+            )
 
         fun defaultName(test: FlickerTestParameter) = buildString {
             append(Surface.rotationToString(test.startRotation))

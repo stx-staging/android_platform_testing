@@ -71,8 +71,8 @@ open class EventLogMonitor : ITransitionMonitor, FlickerRunResult.IResultSetter 
         _logs = getEventLogs(EVENT_LOG_INPUT_FOCUS_TAG)
     }
 
-    override fun setResult(builder: FlickerRunResult.Builder) {
-        builder.eventLog = buildProcessedEventLogs()
+    override fun setResult(result: FlickerRunResult) {
+        result.eventLog = buildProcessedEventLogs()
     }
 
     private fun buildProcessedEventLogs(): List<FocusEvent> {

@@ -16,20 +16,20 @@
 
 package com.android.server.wm.flicker.service.assertors.common
 
+import com.android.server.wm.flicker.service.assertors.ComponentBuilder
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
-import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
-import com.android.server.wm.traces.common.tags.Tag
+import com.android.server.wm.traces.common.transition.Transition
 
 /**
  * Checks if the [componentMatcher] layer is invisible at the start of the transition
  */
-class LayerIsInvisibleAtStart(windowName: String) : ComponentBaseTest(windowName) {
+class LayerIsInvisibleAtStart(component: ComponentBuilder) :
+    BaseAssertionBuilderWithComponent(component) {
     /** {@inheritDoc} */
     override fun doEvaluate(
-        tag: Tag,
-        wmSubject: WindowManagerTraceSubject,
+        transition: Transition,
         layerSubject: LayersTraceSubject
     ) {
-        layerSubject.first().isInvisible(componentMatcher)
+        layerSubject.first().isInvisible(component.build(transition))
     }
 }

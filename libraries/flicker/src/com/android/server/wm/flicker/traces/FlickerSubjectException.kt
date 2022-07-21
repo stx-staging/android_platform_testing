@@ -28,10 +28,10 @@ class FlickerSubjectException(
 ) : AssertionError(cause.message, if (cause is FlickerSubjectException) null else cause) {
     internal val timestamp = subject.timestamp
     private val prettyTimestamp =
-            if (timestamp > 0) "${prettyTimestamp(timestamp)} (timestamp=$timestamp)" else ""
+        if (timestamp > 0) "${prettyTimestamp(timestamp)} (timestamp=$timestamp)" else ""
 
     internal val errorType: String =
-            if (cause is AssertionError) "Flicker assertion error" else "Unknown error"
+        if (cause is AssertionError) "Flicker assertion error" else "Unknown error"
 
     internal val errorDescription = buildString {
         appendLine("Where? $prettyTimestamp")
@@ -49,7 +49,7 @@ class FlickerSubjectException(
 
     internal val subjectInformation = buildString {
         appendLine("Facts:")
-        subject.completeFacts.forEach { append("\t").appendLine(it) }
+        subject.completeFacts.forEach { appendLine(it.toString().prependIndent("\t")) }
     }
 
     override val message: String

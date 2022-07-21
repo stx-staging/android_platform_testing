@@ -23,6 +23,7 @@ class LayerTraceEntryBuilder(
     timestamp: Any,
     layers: Array<Layer>,
     private val displays: Array<Display>,
+    private val vSyncId: Long,
     private val hwcBlob: String = "",
     private val where: String = ""
 ) {
@@ -61,8 +62,11 @@ class LayerTraceEntryBuilder(
                 return@forEach
             }
             throw RuntimeException(
-                ("Failed to parse layers trace. Found orphan layer with id = ${orphan.id}" +
-                    " with parentId = ${orphan.parentId}"))
+                (
+                    "Failed to parse layers trace. Found orphan layer with id = ${orphan.id}" +
+                        " with parentId = ${orphan.parentId}"
+                    )
+            )
         }
     }
 
@@ -190,7 +194,9 @@ class LayerTraceEntryBuilder(
         // Fail if we find orphan layers.
         notifyOrphansLayers()
 
-        return LayerTraceEntry(timestamp, hwcBlob, where, filteredDisplays.toTypedArray(),
-                filteredRoots.toTypedArray())
+        return LayerTraceEntry(
+            timestamp, hwcBlob, where, filteredDisplays.toTypedArray(), vSyncId,
+            filteredRoots.toTypedArray()
+        )
     }
 }

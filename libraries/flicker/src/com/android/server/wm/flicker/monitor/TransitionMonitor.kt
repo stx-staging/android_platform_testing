@@ -16,7 +16,6 @@
 
 package com.android.server.wm.flicker.monitor
 
-import com.android.server.wm.flicker.FlickerRunResult
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -41,9 +40,6 @@ abstract class TransitionMonitor(
         } finally {
             this.stop()
         }
-
-        val builder = FlickerRunResult.Builder()
-        builder.setResultFrom(this)
 
         return outputFile.let {
             Files.readAllBytes(it).also { _ -> Files.delete(it) }

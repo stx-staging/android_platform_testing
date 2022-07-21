@@ -43,7 +43,10 @@ data class AssertionData @VisibleForTesting constructor(
      * @param run Run to be asserted
      */
     fun checkAssertion(run: FlickerRunResult) {
-        val subjects = run.getSubjects().firstOrNull { expectedSubjectClass.isInstance(it) }
-        subjects?.run { assertion(this) }
+        val subjects = run.getSubjects(tag).filter { expectedSubjectClass.isInstance(it) }
+        if (subjects.isEmpty()) {
+            return
+        }
+        subjects.forEach { it.run { assertion(this) } }
     }
 }

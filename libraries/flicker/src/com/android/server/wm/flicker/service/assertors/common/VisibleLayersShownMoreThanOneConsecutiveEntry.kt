@@ -16,20 +16,18 @@
 
 package com.android.server.wm.flicker.service.assertors.common
 
-import com.android.server.wm.flicker.service.assertors.BaseAssertion
+import com.android.server.wm.flicker.service.assertors.BaseAssertionBuilder
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
-import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
-import com.android.server.wm.traces.common.tags.Tag
+import com.android.server.wm.traces.common.transition.Transition
 
 /**
  * Checks that all layers that are visible on the trace, are visible for at least 2
  * consecutive entries.
  */
-class VisibleLayersShownMoreThanOneConsecutiveEntry : BaseAssertion() {
+class VisibleLayersShownMoreThanOneConsecutiveEntry : BaseAssertionBuilder() {
     /** {@inheritDoc} */
     override fun doEvaluate(
-        tag: Tag,
-        wmSubject: WindowManagerTraceSubject,
+        transition: Transition,
         layerSubject: LayersTraceSubject
     ) {
         layerSubject.visibleLayersShownMoreThanOneConsecutiveEntry().forAllEntries()

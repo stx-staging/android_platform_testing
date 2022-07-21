@@ -30,7 +30,7 @@ import com.android.server.wm.traces.common.ITrace
 data class LayersTrace(
     override val entries: Array<BaseLayerTraceEntry>
 ) : ITrace<BaseLayerTraceEntry>, List<BaseLayerTraceEntry> by entries.toList() {
-    constructor(entry: BaseLayerTraceEntry): this(arrayOf(entry))
+    constructor(entry: BaseLayerTraceEntry) : this(arrayOf(entry))
 
     override fun toString(): String {
         return "LayersTrace(Start: ${entries.firstOrNull()}, " +
@@ -47,8 +47,7 @@ data class LayersTrace(
     }
 
     override fun hashCode(): Int {
-        var result = entries.contentHashCode()
-        return result
+        return entries.contentHashCode()
     }
 
     /**
@@ -58,7 +57,7 @@ data class LayersTrace(
      * @param to the end timestamp
      * @return the subtrace trace(from, to)
      */
-    fun filter(from: Long, to: Long): LayersTrace {
+    fun slice(from: Long, to: Long): LayersTrace {
         return LayersTrace(
             this.entries
                 .dropWhile { it.timestamp < from }

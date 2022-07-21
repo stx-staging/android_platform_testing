@@ -22,10 +22,10 @@ import com.android.server.wm.flicker.monitor.IFileGeneratingMonitor
 import com.android.server.wm.flicker.monitor.ITransitionMonitor
 import com.android.server.wm.traces.common.ConditionList
 import com.android.server.wm.traces.common.WindowManagerConditionsFactory
-import com.android.server.wm.traces.parser.DeviceDumpParser
 import com.android.server.wm.traces.parser.getCurrentState
 import java.io.IOException
 import java.nio.file.Files
+import org.junit.runner.Description
 
 /**
  * Runner to execute the transitions of a flicker test
@@ -46,9 +46,12 @@ open class TransitionRunner {
     /**
      * Iteration identifier during test run
      */
-    private var iteration = 0
+    internal var iteration = -1
+        private set
     private val tags = mutableSetOf<String>()
-    private var tagsResults = mutableListOf<FlickerRunResult>()
+
+    // Iteration to resultBuilder
+    private var results = mutableMapOf<Int, FlickerRunResult>()
 
     /**
      * Executes the setup, transitions and teardown defined in [flicker]
@@ -56,7 +59,7 @@ open class TransitionRunner {
      * @param flicker test specification
      * @throws IllegalArgumentException If the transitions are empty or repetitions is set to 0
      */
-    open fun execute(flicker: Flicker): FlickerResult {
+    open fun execute(flicker: Flicker, useCacheIfAvailable: Boolean = true): FlickerResult {
         check(flicker)
         return run(flicker)
     }
@@ -69,14 +72,16 @@ open class TransitionRunner {
      */
     protected fun check(flicker: Flicker) {
         require(flicker.transitions.isNotEmpty()) {
-            "A flicker test must include transitions to run" }
+            "A flicker test must include transitions to run"
+        }
         require(flicker.repetitions > 0) {
-            "Number of repetitions must be greater than 0" }
+            "Number of repetitions must be greater than 0"
+        }
     }
 
     open fun cleanUp() {
         tags.clear()
-        tagsResults.clear()
+        results.clear()
     }
 
     /**
@@ -85,45 +90,74 @@ open class TransitionRunner {
      * @param flicker test specification
      */
     internal open fun run(flicker: Flicker): FlickerResult {
-        val runs = mutableListOf<FlickerRunResult>()
         val executionErrors = mutableListOf<ExecutionError>()
-        safeExecution(flicker, runs, executionErrors) {
+        safeExecution(flicker, executionErrors) {
             runTestSetup(flicker)
-
             for (x in 0 until flicker.repetitions) {
+                Log.d(FLICKER_TAG, "${flicker.testName} - " +
+                        "Running iteration $x/${flicker.repetitions}")
                 iteration = x
+                results[iteration] = FlickerRunResult(flicker.testName, iteration)
+                val description = Description.createSuiteDescription(flicker.testName)
+                if (flicker.faasEnabled) {
+                    Log.d(FLICKER_TAG, "${flicker.testName} - " +
+                            "Setting up FaaS for iteration $x/${flicker.repetitions}")
+                    flicker.faas.setCriticalUserJourneyName(flicker.testName)
+                    flicker.faas.testStarted(description)
+                }
+                Log.d(FLICKER_TAG, "${flicker.testName} - " +
+                        "Running transition setup $x/${flicker.repetitions}")
                 runTransitionSetup(flicker)
+                Log.d(FLICKER_TAG, "${flicker.testName} - " +
+                        "Running transition $x/${flicker.repetitions}")
                 runTransition(flicker)
+                Log.d(FLICKER_TAG, "${flicker.testName} - " +
+                        "Running transition teardown $x/${flicker.repetitions}")
                 runTransitionTeardown(flicker)
-                processRunTraces(flicker, runs, RunStatus.ASSERTION_SUCCESS)
+                Log.d(FLICKER_TAG, "${flicker.testName} - " +
+                        "Processing transition traces $x/${flicker.repetitions}")
+                processRunTraces(flicker, RunStatus.ASSERTION_SUCCESS)
+                if (flicker.faasEnabled) {
+                    Log.d(FLICKER_TAG, "${flicker.testName} - " +
+                            "Notifying FaaS of finished transition $x/${flicker.repetitions}")
+                    flicker.faas.testFinished(description)
+                    if (flicker.faas.executionErrors.isNotEmpty()) {
+                        executionErrors.addAll(flicker.faas.executionErrors)
+                    }
+                }
+                Log.d(FLICKER_TAG, "${flicker.testName} - " +
+                        "Completed iteration $x/${flicker.repetitions}")
             }
 
             runTestTeardown(flicker)
         }
 
-        runs.addAll(tagsResults)
-        val result = FlickerResult(runs.toList(), tags.toSet(), executionErrors)
+        val result = FlickerResult(
+            results.values.toList(), // toList ensures we clone the list before cleanUp
+            tags.toSet(),
+            executionErrors
+        )
         cleanUp()
         return result
     }
 
     private fun safeExecution(
         flicker: Flicker,
-        runs: MutableList<FlickerRunResult>,
         executionErrors: MutableList<ExecutionError>,
         execution: () -> Unit
     ) {
         try {
             execution()
         } catch (e: TestSetupFailure) {
-            // If we failure on the test setup we can't run any of the transitions
+            // If we fail on the test setup we can't run any of the transitions
             executionErrors.add(e)
         } catch (e: TransitionSetupFailure) {
             // If we fail on the transition run setup then we don't want to run any further
             // transitions nor save any results for this run. We simply want to run the test
             // teardown.
             executionErrors.add(e)
-            safeExecution(flicker, runs, executionErrors) {
+            getCurrentRunResult().setStatus(RunStatus.RUN_FAILED)
+            safeExecution(flicker, executionErrors) {
                 runTestTeardown(flicker)
             }
         } catch (e: TransitionExecutionFailure) {
@@ -132,8 +166,8 @@ open class TransitionRunner {
             // want to run the test teardown
             executionErrors.add(e)
             flicker.traceMonitors.forEach { it.tryStop() }
-            safeExecution(flicker, runs, executionErrors) {
-                processRunTraces(flicker, runs, RunStatus.RUN_FAILED)
+            safeExecution(flicker, executionErrors) {
+                processRunTraces(flicker, RunStatus.RUN_FAILED)
                 runTestTeardown(flicker)
             }
         } catch (e: TransitionTeardownFailure) {
@@ -142,15 +176,15 @@ open class TransitionRunner {
             // But, we do want to run the test teardown.
             executionErrors.add(e)
             flicker.traceMonitors.forEach { it.tryStop() }
-            safeExecution(flicker, runs, executionErrors) {
-                processRunTraces(flicker, runs, RunStatus.RUN_FAILED)
+            safeExecution(flicker, executionErrors) {
+                processRunTraces(flicker, RunStatus.RUN_FAILED)
                 runTestTeardown(flicker)
             }
         } catch (e: TraceProcessingFailure) {
             // If we fail to process the run traces we still want to run the teardowns and report
             // the execution error.
             executionErrors.add(e)
-            safeExecution(flicker, runs, executionErrors) {
+            safeExecution(flicker, executionErrors) {
                 runTransitionTeardown(flicker)
                 runTestTeardown(flicker)
             }
@@ -158,26 +192,37 @@ open class TransitionRunner {
             // If we fail in the execution of the test teardown there is nothing else to do apart
             // from reporting the execution error.
             executionErrors.add(e)
-            for (run in runs) {
-                run.setRunFailed()
-            }
+            getCurrentRunResult().setStatus(RunStatus.RUN_FAILED)
         }
     }
 
     /**
      * Parses the traces collected by the monitors to generate FlickerRunResults containing the
      * parsed trace and information about the status of the run.
-     * The run results are added to the runs list which is then used to run Flicker assertions on.
+     * The run results are added to the resultBuilders list which is then used to run Flicker
+     * assertions on.
      */
     @Throws(TraceProcessingFailure::class)
     private fun processRunTraces(
         flicker: Flicker,
-        runs: MutableList<FlickerRunResult>,
         status: RunStatus
     ) {
         try {
-            val runResults = buildRunResults(flicker, iteration, status)
-            runs.addAll(runResults)
+            val result = getCurrentRunResult()
+            result.setStatus(status)
+            setMonitorResults(flicker, result)
+            result.lock()
+
+            if (flicker.faasEnabled && !status.isFailure) {
+                // Don't run FaaS on failed transitions
+                val wmTrace = result.buildWmTrace()
+                val layersTrace = result.buildLayersTrace()
+                val transitionsTrace = result.buildTransitionsTrace()
+
+                flicker.faasTracesCollector.wmTrace = wmTrace
+                flicker.faasTracesCollector.layersTrace = layersTrace
+                flicker.faasTracesCollector.transitionsTrace = transitionsTrace
+            }
         } catch (e: Throwable) {
             // We have failed to add the results to the runs, so we can effectively consider these
             // results as "lost" as they won't be used from now forth. So we can safely rename
@@ -191,13 +236,6 @@ open class TransitionRunner {
             }
             throw TraceProcessingFailure(e)
         }
-
-        // Update the status of all the tags created in this iteration and add them to runs
-        for (result in tagsResults) {
-            result.status = status
-            runs.add(result)
-        }
-        tagsResults.clear()
     }
 
     @Throws(TestSetupFailure::class)
@@ -253,17 +291,16 @@ open class TransitionRunner {
         }
     }
 
-    private fun buildRunResults(
+    private fun setMonitorResults(
         flicker: Flicker,
-        iteration: Int,
-        status: RunStatus
-    ): List<FlickerRunResult> {
-        val resultBuilder = FlickerRunResult.Builder()
+        result: FlickerRunResult,
+    ): FlickerRunResult {
+
         flicker.traceMonitors.forEach {
-            resultBuilder.setResultFrom(it)
+            result.setResultsFromMonitor(it)
         }
 
-        return resultBuilder.buildAll(flicker.testName, iteration, status)
+        return result
     }
 
     private fun ITransitionMonitor.tryStop() {
@@ -298,32 +335,29 @@ open class TransitionRunner {
         tags.add(tag)
 
         val deviceStateBytes = getCurrentState(flicker.instrumentation.uiAutomation)
-        val deviceState = DeviceDumpParser.fromDump(deviceStateBytes.first, deviceStateBytes.second)
         try {
-            val wmTraceFile = flicker.outputDir.resolve(
-                getTaggedFilePath(flicker, tag, "wm_trace"))
-            Files.write(wmTraceFile, deviceStateBytes.first)
-
-            val layersTraceFile = flicker.outputDir.resolve(
-                getTaggedFilePath(flicker, tag, "layers_trace"))
-            Files.write(layersTraceFile, deviceStateBytes.second)
-
-            val builder = FlickerRunResult.Builder()
-            val result = builder.buildStateResult(
-                tag,
-                deviceState.wmState?.asTrace(),
-                deviceState.layerState?.asTrace(),
-                wmTraceFile,
-                layersTraceFile,
-                flicker.testName,
-                iteration,
-                // Undefined until it is updated in processRunTraces
-                RunStatus.UNDEFINED
+            val wmDumpFile = flicker.outputDir.resolve(
+                getTaggedFilePath(flicker, tag, "wm_dump")
             )
-            tagsResults.add(result)
+            Files.write(wmDumpFile, deviceStateBytes.first)
+
+            val layersDumpFile = flicker.outputDir.resolve(
+                getTaggedFilePath(flicker, tag, "layers_dump")
+            )
+            Files.write(layersDumpFile, deviceStateBytes.second)
+
+            getCurrentRunResult().addTaggedState(
+                tag,
+                wmDumpFile.toFile(),
+                layersDumpFile.toFile(),
+            )
         } catch (e: IOException) {
             throw RuntimeException("Unable to create trace file: ${e.message}", e)
         }
+    }
+
+    private fun getCurrentRunResult(): FlickerRunResult {
+        return results[iteration]!!
     }
 
     companion object {
@@ -331,12 +365,14 @@ open class TransitionRunner {
          * Conditions that determine when the UI is in a stable stable and no windows or layers are
          * animating or changing state.
          */
-        private val UI_STABLE_CONDITIONS = ConditionList(listOf(
+        private val UI_STABLE_CONDITIONS = ConditionList(
+            listOf(
                 WindowManagerConditionsFactory.isWMStateComplete(),
                 WindowManagerConditionsFactory.hasLayersAnimating().negate()
-        ))
+            )
+        )
 
-        open class ExecutionError(val inner: Throwable) : Throwable(inner) {
+        open class ExecutionError(private val inner: Throwable) : Throwable(inner) {
             init {
                 super.setStackTrace(inner.stackTrace)
             }

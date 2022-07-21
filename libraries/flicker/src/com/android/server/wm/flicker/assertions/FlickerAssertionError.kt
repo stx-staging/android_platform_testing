@@ -16,11 +16,11 @@
 
 package com.android.server.wm.flicker.assertions
 
-import com.android.server.wm.flicker.TraceFile
+import com.android.server.wm.flicker.RunResultArtifacts
 import kotlin.AssertionError
 
 class FlickerAssertionError(
     message: String,
     cause: Throwable?,
-    val traceFile: TraceFile?
+    val traceFile: RunResultArtifacts?
 ) : AssertionError(message, cause)

@@ -16,7 +16,7 @@
 
 package com.android.server.wm.flicker
 
-import com.android.server.wm.flicker.FlickerRunResult.Companion.RunStatus
+import com.android.internal.annotations.VisibleForTesting
 import com.android.server.wm.flicker.TransitionRunner.Companion.ExecutionError
 import com.android.server.wm.flicker.assertions.AssertionData
 import com.android.server.wm.flicker.assertions.FlickerAssertionError
@@ -29,7 +29,7 @@ data class FlickerResult(
     /**
      * Result of each transition run
      */
-    @JvmField val runResults: List<FlickerRunResult> = listOf(),
+    @JvmField val runResults: Collection<FlickerRunResult>,
     /**
      * List of test created during the execution
      */
@@ -39,15 +39,6 @@ data class FlickerResult(
      */
     @JvmField val executionErrors: List<ExecutionError> = listOf()
 ) {
-    init {
-        for (result in runResults) {
-            require(result.status != RunStatus.UNDEFINED) {
-                "Can't create FlickerResult from RunResult ${result.traceName} " +
-                        "(${result.assertionTag}) with UNDEFINED status."
-            }
-        }
-    }
-
     /** Successful runs on which we can run assertions */
     val successfulRuns: List<FlickerRunResult> = runResults.filter { it.isSuccessfulRun }
     /** Failed runs due to execution errors which we shouldn't run assertions on */
@@ -71,8 +62,7 @@ data class FlickerResult(
         Truth.assertWithMessage("No transitions were not executed successful")
                 .that(successfulRuns).isNotEmpty()
 
-        val filteredRuns = successfulRuns.filter { it.assertionTag == assertion.tag }
-        val currFailures = filteredRuns.mapNotNull { run -> run.checkAssertion(assertion) }
+        val currFailures = successfulRuns.mapNotNull { run -> run.checkAssertion(assertion) }
         failures.addAll(currFailures)
         return currFailures
     }
@@ -80,7 +70,8 @@ data class FlickerResult(
     /**
      * Asserts if there have been any execution errors while running the transitions
      */
-    internal fun checkForExecutionErrors() {
+    @VisibleForTesting
+    fun checkForExecutionErrors() {
         if (executionErrors.isNotEmpty()) {
             if (executionErrors.size == 1) {
                 throw executionErrors[0]
@@ -92,6 +83,14 @@ data class FlickerResult(
     fun isEmpty(): Boolean = executionErrors.isEmpty() && successfulRuns.isEmpty()
 
     fun isNotEmpty(): Boolean = !isEmpty()
+
+    fun clearFromMemory() {
+        runResults.forEach { it.clearFromMemory() }
+    }
+
+    fun lock() {
+        runResults.forEach { it.lock() }
+    }
 
     companion object {
         class CombinedExecutionError(val errors: List<Throwable>?) : Throwable() {

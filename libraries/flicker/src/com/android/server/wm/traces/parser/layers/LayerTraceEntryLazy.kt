@@ -34,6 +34,7 @@ class LayerTraceEntryLazy(
     override val timestamp: Long,
     override val hwcBlob: String = "",
     override val where: String = "",
+    override val vSyncId: Long = -1L,
     private val ignoreLayersStackMatchNoDisplay: Boolean = true,
     private val ignoreLayersInVirtualDisplay: Boolean = true,
     private var displayProtos: Array<Display.DisplayProto> = emptyArray(),
@@ -44,7 +45,9 @@ class LayerTraceEntryLazy(
     private val parsedEntry by lazy {
         val layers = layerProtos.map { newLayer(it) }.toTypedArray()
         val displays = displayProtos.map { newDisplay(it) }.toTypedArray()
-        val builder = LayerTraceEntryBuilder(timestamp, layers, displays, hwcBlob, where)
+        val builder = LayerTraceEntryBuilder(
+            timestamp, layers, displays, vSyncId, hwcBlob, where
+        )
             .setOrphanLayerCallback(orphanLayerCallback)
             .ignoreLayersStackMatchNoDisplay(ignoreLayersStackMatchNoDisplay)
             .ignoreVirtualDisplay(ignoreLayersInVirtualDisplay)
