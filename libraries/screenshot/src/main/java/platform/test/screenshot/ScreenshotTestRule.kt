@@ -27,6 +27,7 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
+import androidx.test.runner.screenshot.Screenshot
 import org.junit.rules.TestRule
 import org.junit.rules.TestWatcher
 import org.junit.runner.Description
@@ -118,7 +119,8 @@ open class ScreenshotTestRule(
      * @throws IllegalArgumentException If the golden identifier contains forbidden characters or
      * is empty.
      */
-    fun assertBitmapAgainstGolden(
+    @Deprecated("use the ScreenshotTestRuleAsserter")
+    public fun assertBitmapAgainstGolden(
         actual: Bitmap,
         goldenIdentifier: String,
         matcher: BitmapMatcher
@@ -150,7 +152,8 @@ open class ScreenshotTestRule(
      * @throws IllegalArgumentException If the golden identifier contains forbidden characters or
      * is empty.
      */
-    fun assertBitmapAgainstGolden(
+    @Deprecated("use the ScreenshotTestRuleAsserter")
+    public fun assertBitmapAgainstGolden(
         actual: Bitmap,
         goldenIdentifier: String,
         matcher: BitmapMatcher,
@@ -400,6 +403,44 @@ open class ScreenshotTestRule(
             }
         }
         return Bitmap.createBitmap(bitmapArray, original.width, original.height, original.config)
+    }
+}
+
+typealias BitmapSupplier = () -> Bitmap
+
+/**
+ * Implements a screenshot asserter based on the ScreenshotRule
+ */
+class ScreenshotRuleAsserter private constructor(private val rule: ScreenshotTestRule) : ScreenshotAsserter {
+    // use the most constraining matcher as default
+    private var matcher: BitmapMatcher = PixelPerfectMatcher()
+    // use the instrumentation screenshot as default
+    private var screenShotter: BitmapSupplier = { Screenshot.capture().bitmap }
+    override fun assertGoldenImage(goldenId: String) {
+        rule.assertBitmapAgainstGolden(screenShotter(), goldenId, matcher)
+    }
+
+    override fun assertGoldenImage(goldenId: String, areas: List<Rect>) {
+        rule.assertBitmapAgainstGolden(screenShotter(), goldenId, matcher, areas)
+    }
+
+    class Builder(private val rule: ScreenshotTestRule) {
+        private var asserter = ScreenshotRuleAsserter(rule)
+        fun withMatcher(matcher: BitmapMatcher): Builder {
+            asserter.matcher = matcher
+            return this
+        }
+
+        fun setScreenshotProvider(screenshotProvider: BitmapSupplier): Builder {
+            asserter.screenShotter = screenshotProvider
+            return this
+        }
+
+        fun build(): ScreenshotAsserter {
+            val built = asserter
+            asserter = ScreenshotRuleAsserter(rule)
+            return built
+        }
     }
 }
 
