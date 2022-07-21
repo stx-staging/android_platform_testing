@@ -31,6 +31,7 @@ import java.util.Collections
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 import org.junit.FixMethodOrder
+import org.junit.Ignore
 import org.junit.internal.AssumptionViolatedException
 import org.junit.internal.runners.model.EachTestNotifier
 import org.junit.internal.runners.statements.RunAfters
@@ -134,6 +135,14 @@ class FlickerBlockJUnit4ClassRunner @JvmOverloads constructor(
 
     private fun isInjectedFaasTest(method: FrameworkMethod): Boolean {
         return method is FlickerFrameworkMethod
+    }
+
+    override fun isIgnored(child: FrameworkMethod): Boolean {
+        if (child is FlickerFrameworkMethod) {
+            return child.isIgnored()
+        }
+
+        return child.getAnnotation(Ignore::class.java) != null
     }
 
     /**
@@ -255,15 +264,9 @@ class FlickerBlockJUnit4ClassRunner @JvmOverloads constructor(
         for (aggregatedResult in aggregateFaasResults(flicker.faas.assertionResults)
             .entries.iterator()) {
             val testName = aggregatedResult.key
-            var results = aggregatedResult.value
-            if (onlyBlockingAssertions) {
-                results = results.filter { it.invocationGroup == AssertionInvocationGroup.BLOCKING }
-            }
-            if (results.isEmpty()) {
-                continue
-            }
+            val results = aggregatedResult.value
 
-            val injectedTestCase = FlickerTestCase(results)
+            val injectedTestCase = FlickerTestCase(results, onlyBlockingAssertions)
             val mockedTestMethod = TestClass(injectedTestCase.javaClass)
                 .getAnnotatedMethods(FlickerTestCase.InjectedTest::class.java).first()
             val mockedFrameworkMethod = FlickerFrameworkMethod(
