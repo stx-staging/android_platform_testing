@@ -35,13 +35,23 @@ abstract class TraceMonitor internal constructor(
     override val outputFile: Path = outputDir.resolve(sourceFile.fileName)
     abstract val isEnabled: Boolean
 
+    /** Starts monitor. */
     final override fun start() {
-        startTracing()
+        try {
+            startTracing()
+        } catch (e: Throwable) {
+            throw RuntimeException("Could not start trace", e)
+        }
     }
 
+    /** Stops monitor. */
     final override fun stop() {
-        stopTracing()
-        moveTraceFileToOutputDir()
+        try {
+            stopTracing()
+            moveTraceFileToOutputDir()
+        } catch (e: Throwable) {
+            throw RuntimeException("Could not start trace", e)
+        }
     }
 
     abstract fun startTracing()

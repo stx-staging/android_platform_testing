@@ -21,9 +21,9 @@ import com.android.server.wm.traces.common.windowmanager.windows.Activity
 import com.android.server.wm.traces.common.windowmanager.windows.WindowState
 
 class ComponentMatcher(
-    _components: Array<ComponentName>
+    private val _components: Array<ComponentName>
 ) : IComponentMatcher {
-    private val components = _components.toMutableList()
+    override val components get() = _components.toMutableList()
 
     override val packageNames: Array<String> get() =
         components.map { it.packageName }.toTypedArray()
@@ -37,7 +37,7 @@ class ComponentMatcher(
     constructor(packageName: String, className: String) :
         this(arrayOf(ComponentName(packageName, className)))
 
-    override fun or(other: ComponentMatcher): ComponentMatcher {
+    override fun or(other: IComponentMatcher): IComponentMatcher {
         val newComponents = components.toMutableList()
             .also { it.addAll(other.components) }
         return ComponentMatcher(newComponents.toTypedArray())

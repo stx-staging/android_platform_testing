@@ -47,7 +47,7 @@ class TransitionRunnerWithRules(private val setupRules: TestRule) : TransitionRu
 
     override fun cleanUp() {
         super.cleanUp()
-        result = null
+        result?.clearFromMemory()
     }
 
     /**

@@ -90,6 +90,7 @@ class LayersTraceParser {
                         traceProto.elapsedRealtimeNanos,
                         traceProto.hwcBlob,
                         traceProto.where,
+                        traceProto.vsyncId,
                         ignoreLayersStackMatchNoDisplay,
                         ignoreLayersInVirtualDisplay,
                         traceProto.displays,
@@ -101,7 +102,8 @@ class LayersTraceParser {
                 traceParseTime += entryParseTime
             }
             Log.v(
-                LOG_TAG, "Parsing duration (Layers Trace): ${traceParseTime}ms " +
+                LOG_TAG,
+                "Parsing duration (Layers Trace): ${traceParseTime}ms " +
                     "(avg ${traceParseTime / max(entries.size, 1)}ms per entry)"
             )
             return LayersTrace(entries.toTypedArray())
@@ -124,7 +126,8 @@ class LayersTraceParser {
                 displayProtos = emptyArray(),
                 layerProtos = proto.layers,
                 ignoreLayersStackMatchNoDisplay = false,
-                ignoreLayersInVirtualDisplay = false
+                ignoreLayersInVirtualDisplay = false,
+                vSyncId = -1L,
             )
             return LayersTrace(entry)
         }

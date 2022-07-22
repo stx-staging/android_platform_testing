@@ -16,7 +16,6 @@
 
 package com.android.server.wm.flicker
 
-import com.android.server.wm.flicker.FlickerRunResult.Companion.RunStatus.RUN_SUCCESS
 import com.android.server.wm.flicker.traces.eventlog.EventLogSubject
 import com.android.server.wm.flicker.traces.eventlog.FocusEvent
 import org.junit.Test
@@ -28,13 +27,13 @@ import org.junit.Test
 class EventLogSubjectTest {
     @Test
     fun canDetectFocusChanges() {
-        val builder = FlickerRunResult.Builder()
-        builder.eventLog =
+        val runResult = FlickerRunResult("testName", 0 /*iteration*/)
+        runResult.eventLog =
                 listOf(FocusEvent(0, "WinB", FocusEvent.Focus.GAINED, "test"),
                         FocusEvent(0, "test WinA window", FocusEvent.Focus.LOST, "test"),
                         FocusEvent(0, "WinB", FocusEvent.Focus.LOST, "test"),
                         FocusEvent(0, "test WinC", FocusEvent.Focus.GAINED, "test"))
-        val result = builder.buildEventLogResult(RUN_SUCCESS).eventLogSubject
+        val result = runResult.eventLogSubject
         requireNotNull(result) { "Event log subject was not built" }
         result.focusChanges("WinA", "WinB", "WinC")
                 .forAllEntries()
@@ -47,9 +46,10 @@ class EventLogSubjectTest {
 
     @Test
     fun canDetectFocusDoesNotChange() {
-        val builder = FlickerRunResult.Builder()
-        val result = builder.buildEventLogResult(RUN_SUCCESS).eventLogSubject
-        require(result != null) { "Event log subject was not built" }
+        val runResult = FlickerRunResult("testName", 0 /*iteration*/)
+        runResult.eventLog = emptyList()
+        val result = runResult.eventLogSubject
+        requireNotNull(result) { "Event log subject was not built" }
         result.focusDoesNotChange().forAllEntries()
     }
 }

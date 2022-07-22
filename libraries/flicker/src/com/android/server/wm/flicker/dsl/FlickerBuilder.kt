@@ -28,9 +28,11 @@ import com.android.server.wm.flicker.monitor.EventLogMonitor
 import com.android.server.wm.flicker.monitor.ITransitionMonitor
 import com.android.server.wm.flicker.monitor.LayersTraceMonitor
 import com.android.server.wm.flicker.monitor.ScreenRecorder
+import com.android.server.wm.flicker.monitor.TransactionsTraceMonitor
+import com.android.server.wm.flicker.monitor.TransitionsTraceMonitor
 import com.android.server.wm.flicker.monitor.WindowManagerTraceMonitor
-import com.android.server.wm.traces.common.layers.LayersTrace
 import com.android.server.wm.traces.common.layers.BaseLayerTraceEntry
+import com.android.server.wm.traces.common.layers.LayersTrace
 import com.android.server.wm.traces.common.windowmanager.WindowManagerState
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerStateHelper
@@ -51,7 +53,8 @@ class FlickerBuilder private constructor(
     private val teardownCommands: TestCommandsBuilder,
     private val transitionCommands: MutableList<Flicker.() -> Any>,
     val device: UiDevice,
-    private val traceMonitors: MutableList<ITransitionMonitor>
+    private val traceMonitors: MutableList<ITransitionMonitor>,
+    private var faasEnabled: Boolean = false
 ) {
     /**
      * Default flicker builder constructor
@@ -76,12 +79,12 @@ class FlickerBuilder private constructor(
          */
         wmHelper: WindowManagerStateHelper = WindowManagerStateHelper(instrumentation),
         traceMonitors: MutableList<ITransitionMonitor> = mutableListOf<ITransitionMonitor>()
-                .also {
-                    it.add(WindowManagerTraceMonitor(outputDir))
-                    it.add(LayersTraceMonitor(outputDir))
-                    it.add(ScreenRecorder(instrumentation.targetContext, outputDir))
-                    it.add(EventLogMonitor())
-                }
+            .also {
+                it.add(WindowManagerTraceMonitor(outputDir))
+                it.add(LayersTraceMonitor(outputDir))
+                it.add(ScreenRecorder(instrumentation.targetContext, outputDir))
+                it.add(EventLogMonitor())
+            }
     ) : this(
         instrumentation,
         launcherStrategy,
@@ -110,7 +113,8 @@ class FlickerBuilder private constructor(
         TestCommandsBuilder(otherBuilder.teardownCommands),
         otherBuilder.transitionCommands.toMutableList(),
         UiDevice.getInstance(otherBuilder.instrumentation),
-        otherBuilder.traceMonitors.toMutableList()
+        otherBuilder.traceMonitors.toMutableList(),
+        faasEnabled = otherBuilder.faasEnabled
     )
 
     /**
@@ -179,6 +183,52 @@ class FlickerBuilder private constructor(
     }
 
     /**
+     * Disable [TransitionsTraceMonitor].
+     */
+    fun withoutTransitionTracing(): FlickerBuilder = apply {
+        withTransitionTracing { null }
+    }
+
+    /**
+     * Configure a [TransitionsTraceMonitor] to obtain [TransitionsTrace].
+     *
+     * By default shell transition tracing is disabled.
+     */
+    fun withTransitionTracing(
+        traceMonitor: (Path) -> TransitionsTraceMonitor?
+    ): FlickerBuilder = apply {
+        traceMonitors.removeIf { it is TransitionsTraceMonitor }
+        val newMonitor = traceMonitor(outputDir)
+
+        if (newMonitor != null) {
+            traceMonitors.add(newMonitor)
+        }
+    }
+
+    /**
+     * Disable [TransactionsTraceMonitor].
+     */
+    fun withoutTransactionsTracing(): FlickerBuilder = apply {
+        withTransactionsTracing { null }
+    }
+
+    /**
+     * Configure a [TransactionsTraceMonitor] to obtain [TransactionsTrace].
+     *
+     * By default shell transition tracing is disabled.
+     */
+    fun withTransactionsTracing(
+        traceMonitor: (Path) -> TransactionsTraceMonitor?
+    ): FlickerBuilder = apply {
+        traceMonitors.removeIf { it is TransactionsTraceMonitor }
+        val newMonitor = traceMonitor(outputDir)
+
+        if (newMonitor != null) {
+            traceMonitors.add(newMonitor)
+        }
+    }
+
+    /**
      * Configure a [ScreenRecorder].
      *
      * By default the tracing is always active. To disable tracing return null
@@ -201,6 +251,10 @@ class FlickerBuilder private constructor(
         val repeat = predicate()
         require(repeat >= 1) { "Number of repetitions should be greater or equal to 1" }
         iterations = repeat
+    }
+
+    fun withFlickerAsAService(predicate: () -> Boolean): FlickerBuilder = apply {
+        faasEnabled = predicate()
     }
 
     /**
@@ -230,22 +284,34 @@ class FlickerBuilder private constructor(
      * Creates a new Flicker runner based on the current builder configuration
      */
     @JvmOverloads
-    fun build(runner: TransitionRunner = TransitionRunner()) = Flicker(
-        instrumentation,
-        device,
-        launcherStrategy,
-        outputDir,
-        testName,
-        iterations,
-        traceMonitors,
-        setupCommands.buildTestCommands(),
-        setupCommands.buildRunCommands(),
-        teardownCommands.buildTestCommands(),
-        teardownCommands.buildRunCommands(),
-        transitionCommands,
-        runner,
-        wmHelper
-    )
+    fun build(runner: TransitionRunner = TransitionRunner()): Flicker {
+        if (faasEnabled) {
+            traceMonitors.add(TransitionsTraceMonitor(outputDir))
+            traceMonitors.add(TransactionsTraceMonitor(outputDir))
+        }
+
+        require(testName.isNotEmpty()) {
+            "Test name must be provided by calling .withTestName {} on builder"
+        }
+
+        return Flicker(
+            instrumentation,
+            device,
+            launcherStrategy,
+            outputDir,
+            testName,
+            iterations,
+            traceMonitors,
+            setupCommands.buildTestCommands(),
+            setupCommands.buildRunCommands(),
+            teardownCommands.buildTestCommands(),
+            teardownCommands.buildRunCommands(),
+            transitionCommands,
+            runner,
+            wmHelper,
+            faasEnabled = faasEnabled
+        )
+    }
 
     /**
      * Returns a copy of the current builder with the changes of [block] applied

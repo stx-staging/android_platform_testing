@@ -60,11 +60,12 @@ data class WindowManagerTrace(
      * @param to the end timestamp
      * @return the subtrace trace(from, to)
      */
-    fun filter(from: Long, to: Long): WindowManagerTrace {
+    fun slice(from: Long, to: Long): WindowManagerTrace {
         return WindowManagerTrace(
             this.entries
                 .dropWhile { it.timestamp < from }
                 .dropLastWhile { it.timestamp > to }
-                .toTypedArray())
+                .toTypedArray()
+        )
     }
 }
