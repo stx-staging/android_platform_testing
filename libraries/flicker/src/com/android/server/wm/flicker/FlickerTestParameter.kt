@@ -51,7 +51,8 @@ data class FlickerTestParameter(
 ) {
     private var internalFlicker: Flicker? = null
 
-    internal val flicker: Flicker get() = internalFlicker ?: error("Flicker not initialized")
+    @VisibleForTesting
+    val flicker: Flicker get() = internalFlicker ?: error("Flicker not initialized")
     private val name: String get() = nameOverride ?: defaultName(this)
 
     internal val isInitialized: Boolean get() = internalFlicker != null
