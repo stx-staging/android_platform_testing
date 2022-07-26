@@ -159,28 +159,9 @@ public class HealthTestingUtils {
     }
 
     /**
-     * @see HealthTestingUtils#waitForValueToSettle When supplier throws a StaleObjectException, the
-     *     settle timer resets.
-     */
-    public static <T> T waitForValueToSettleCatchingStaleObjectExceptions(
-            Supplier<String> errorMessage, Supplier<T> supplier) {
-        return waitForValueToSettle(
-                errorMessage,
-                () -> {
-                    try {
-                        return supplier.get();
-                    } catch (StaleObjectException e) {
-                        return null;
-                    }
-                },
-                /* minimumSettleTime= */ DEFAULT_SETTLE_TIME_MS,
-                /* timeoutMs= */ WAIT_TIME_MS);
-    }
-
-    /**
      * Waits for the supplier to return the same value for a specified time period. If the value
      * changes, the timer gets restarted. Fails when reaching the timeout. The minimum running time
-     * of this method is the settle time. Null values returned by the supplier reset the timer.
+     * of this method is the settle time.
      *
      * @return the settled value. Fails if it doesn't settle.
      */
@@ -197,7 +178,7 @@ public class HealthTestingUtils {
             T newValue = supplier.get();
             final long currentTime = SystemClock.uptimeMillis();
 
-            if (!Objects.equals(previousValue, newValue) || newValue == null) {
+            if (!Objects.equals(previousValue, newValue)) {
                 settledSince = currentTime;
                 previousValue = newValue;
             } else if (currentTime >= settledSince + minimumSettleTime) {
