@@ -22,8 +22,12 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.android.server.wm.flicker.annotation.FlickerServiceCompatible
 import com.android.server.wm.flicker.dsl.FlickerBuilder
 import com.android.server.wm.flicker.helpers.SampleAppHelper
-import com.android.server.wm.flicker.helpers.wakeUpAndGoToHomeScreen
+import com.android.server.wm.flicker.monitor.TraceMonitor.Companion.WINSCOPE_EXT
 import com.google.common.truth.Truth
+import java.io.File
+import kotlin.io.path.createDirectories
+import kotlin.io.path.createFile
+import kotlin.io.path.writeBytes
 import org.junit.Assert
 import org.junit.FixMethodOrder
 import org.junit.Test
@@ -166,7 +170,7 @@ class FlickerBlockJUnit4ClassRunnerTest {
     fun transitionNotRerunWithFaasEnabled() {
         val repetitions = 3
         transitionRunCount = 0
-        val testClass = TestClass(SimpleFaasTest::class.java)
+        val testClass = TestClass(TransitionRunCounterWithFaasTest::class.java)
         val parameters = FlickerTestParameterFactory.getInstance()
                 .getConfigNonRotationTests(repetitions = repetitions)
         val test = TestWithParameters("[PARAMS]", testClass, listOf(parameters[0]))
@@ -221,23 +225,9 @@ class FlickerBlockJUnit4ClassRunnerTest {
         private val testApp: SampleAppHelper = SampleAppHelper(instrumentation)
 
         @FlickerBuilderProvider
-        fun buildFlicker(): FlickerBuilder {
-            return FlickerBuilder(instrumentation).apply {
-                setup {
-                    test {
-                        device.wakeUpAndGoToHomeScreen()
-                    }
-                }
-                transitions {
-                    transitionRunCount++
-                    testApp.launchViaIntent(wmHelper)
-                    wmHelper.StateSyncBuilder().withFullScreenApp(testApp).waitForAndVerify()
-                }
-                teardown {
-                    test {
-                        testApp.exit(wmHelper)
-                    }
-                }
+        open fun buildFlicker(): FlickerBuilder {
+            return FlickerBuilder(instrumentation).usingExistingTraces {
+                generateTraceFilesFromScenarioTraces("AppLaunch")
             }
         }
 
@@ -323,6 +313,21 @@ class FlickerBlockJUnit4ClassRunnerTest {
     class SimpleFaasTestWithFlakyTest(testSpec: FlickerTestParameter) :
             SimpleTestWithFlakyTest(testSpec)
 
+    @RunWith(Parameterized::class)
+    @FlickerServiceCompatible
+    @Parameterized.UseParametersRunnerFactory(FlickerParametersRunnerFactory::class)
+    class TransitionRunCounterWithFaasTest(testSpec: FlickerTestParameter):
+            SimpleFaasTest(testSpec) {
+        @FlickerBuilderProvider
+        override fun buildFlicker(): FlickerBuilder {
+            return FlickerBuilder(instrumentation).apply {
+                transitions {
+                    transitionRunCount++
+                }
+            }
+        }
+    }
+
     companion object {
         const val TRANSITION_FAILURE_MESSAGE = "Transition execution failed"
 
@@ -343,5 +348,36 @@ class FlickerBlockJUnit4ClassRunnerTest {
 
         var transitionRunCount = 0
         var flakyTestRuns = 0
+
+        private fun generateTraceFilesFromScenarioTraces(scenario: String):
+                FlickerBuilder.TraceFiles {
+            val randomString = (1..10)
+                    .map { (('A'..'Z') + ('a'..'z')).random() }
+                    .joinToString("")
+
+            var wmTrace: File? = null
+            var layersTrace: File? = null
+            var transactionsTrace: File? = null
+            var transitionsTrace: File? = null
+            val traces = mapOf<String, (File) -> Unit>(
+                "wm_trace" to { wmTrace = it },
+                "layers_trace" to { layersTrace = it },
+                "transactions_trace" to { transactionsTrace = it },
+                "transition_trace" to { transitionsTrace = it }
+            )
+            for ((traceName, resultSetter) in traces.entries) {
+                val traceBytes = readTestFile("scenarios/$scenario/$traceName$WINSCOPE_EXT")
+                val traceFile = getDefaultFlickerOutputDir()
+                        .resolve("${traceName}_$randomString$WINSCOPE_EXT")
+                traceFile.parent.createDirectories()
+                traceFile.createFile()
+                traceFile.writeBytes(traceBytes)
+                resultSetter.invoke(traceFile.toFile())
+            }
+
+            return FlickerBuilder.TraceFiles(
+                wmTrace!!, layersTrace!!, transactionsTrace!!, transitionsTrace!!
+            )
+        }
     }
 }

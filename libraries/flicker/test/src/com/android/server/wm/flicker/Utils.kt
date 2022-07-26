@@ -19,6 +19,7 @@ package com.android.server.wm.flicker
 import android.content.Context
 import androidx.test.platform.app.InstrumentationRegistry
 import com.android.server.wm.flicker.FlickerRunResult.Companion.RunStatus.ASSERTION_SUCCESS
+import com.android.server.wm.flicker.helpers.isShellTransitionsEnabled
 import com.android.server.wm.flicker.traces.FlickerSubjectException
 import com.android.server.wm.traces.common.layers.LayersTrace
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
@@ -127,7 +128,17 @@ fun assertArchiveContainsAllTraces(
 
     val archiveStream = ZipInputStream(FileInputStream(archivePath.toFile()))
 
-    val expectedFiles = listOf("wm_trace.winscope", "layers_trace.winscope", "transition.mp4")
+    val expectedFiles = mutableListOf(
+        "wm_trace.winscope",
+        "layers_trace.winscope",
+        "transition.mp4",
+        "transactions_trace.winscope"
+    )
+
+    if (isShellTransitionsEnabled) {
+        expectedFiles.add("transition_trace.winscope")
+    }
+
     val actualFiles = generateSequence { archiveStream.nextEntry }.map { it.name }.toList()
 
     Truth.assertThat(actualFiles).hasSize(expectedFiles.size)
