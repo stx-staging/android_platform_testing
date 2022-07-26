@@ -19,6 +19,10 @@ package com.android.server.wm.flicker
 import android.app.Instrumentation
 import androidx.test.platform.app.InstrumentationRegistry
 import com.android.server.wm.flicker.dsl.FlickerBuilder
+import com.android.server.wm.flicker.helpers.SampleAppHelper
+import com.android.server.wm.flicker.helpers.wakeUpAndGoToHomeScreen
+import com.google.common.truth.Truth
+import org.junit.Assert
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -38,6 +42,64 @@ import org.mockito.Mockito.verify
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class FlickerBlockJUnit4ClassRunnerTest {
+
+    @Test
+    fun doesNotRunWithEmptyTestParameter() {
+        val testClass = TestClass(SimpleFaasTest::class.java)
+        val test = TestWithParameters("[TEST]", testClass, listOf())
+        try {
+            val runner = FlickerBlockJUnit4ClassRunner(test)
+            runner.run(RunNotifier())
+            throw Throwable("Expected runner to fail but did not")
+        } catch (e: Throwable) {
+            Truth.assertThat(e).hasMessageThat()
+                    .contains("No FlickerTestParameter provided for FlickerRunner")
+        }
+    }
+
+    @Test
+    fun doesNotRunWithoutValidFlickerTestParameter() {
+        val testClass = TestClass(SimpleFaasTest::class.java)
+        val test = TestWithParameters("[TEST]", testClass, listOf("invalid param"))
+        try {
+            val runner = FlickerBlockJUnit4ClassRunner(test)
+            runner.run(RunNotifier())
+            throw Throwable("Expected runner to fail but did not")
+        } catch (e: Throwable) {
+            Truth.assertThat(e).hasMessageThat()
+                    .contains("No FlickerTestParameter provided for FlickerRunner")
+        }
+    }
+
+    @Test
+    fun runsWithValidFlickerTestParameter() {
+        val testClass = TestClass(SimpleFaasTest::class.java)
+        val parameters = FlickerTestParameterFactory.getInstance()
+                .getConfigNonRotationTests()
+        val test = TestWithParameters("[TEST]", testClass, listOf(parameters[0]))
+        val runner = FlickerBlockJUnit4ClassRunner(test)
+        runner.run(RunNotifier())
+    }
+
+    @Test
+    fun transitionNotRerunWithFaasEnabled() {
+        val repetitions = 3
+        transitionRunCount = 0
+        val testClass = TestClass(SimpleFaasTest::class.java)
+        val parameters = FlickerTestParameterFactory.getInstance()
+                .getConfigNonRotationTests(repetitions = repetitions)
+        val test = TestWithParameters("[TEST]", testClass, listOf(parameters[0]))
+
+        val runner = FlickerBlockJUnit4ClassRunner(test)
+        runner.run(RunNotifier())
+        val executionErrors = parameters[0].flicker.result!!.executionErrors
+        Truth.assertWithMessage("No flicker execution errors were expected but got some ::" +
+                executionErrors.joinToString())
+                .that(executionErrors).isEmpty()
+
+        Assert.assertEquals(repetitions, transitionRunCount)
+        transitionRunCount = 0
+    }
 
     @Test
     fun reportsExecutionErrors() {
@@ -60,10 +122,50 @@ class FlickerBlockJUnit4ClassRunnerTest {
 
         runner.run(notifier)
         verify(notifier).fireTestFailure(argThat {
-            failure -> failure.message == "java.lang.Exception: $TRANSITION_FAILURE_MESSAGE" &&
+            failure -> failure.message.contains(TRANSITION_FAILURE_MESSAGE) &&
                 failure.description.isTest &&
                 failure.description.displayName == "test[TEST](${klass.name})"
         })
+    }
+
+    /**
+     * Below are all the mock test classes uses for testing purposes
+     */
+
+    @RunWith(Parameterized::class)
+    @Parameterized.UseParametersRunnerFactory(FlickerParametersRunnerFactory::class)
+    class SimpleFaasTest(private val testSpec: FlickerTestParameter) {
+        val instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation()
+        private val testApp: SampleAppHelper = SampleAppHelper(instrumentation)
+
+        @FlickerBuilderProvider
+        fun buildFlicker(): FlickerBuilder {
+            return FlickerBuilder(instrumentation).apply {
+                setup {
+                    test {
+                        device.wakeUpAndGoToHomeScreen()
+                    }
+                }
+                transitions {
+                    transitionRunCount++
+                    testApp.launchViaIntent(wmHelper)
+                    wmHelper.StateSyncBuilder().withFullScreenApp(testApp).waitForAndVerify()
+                }
+                teardown {
+                    test {
+                        testApp.exit(wmHelper)
+                    }
+                }
+            }
+        }
+
+        @Test
+        fun test() {
+            testSpec.assertWm {
+                // Random test to make sure flicker transition is executed
+                this.visibleWindowsShownMoreThanOneConsecutiveEntry()
+            }
+        }
     }
 
     @RunWith(Parameterized::class)
@@ -116,5 +218,7 @@ class FlickerBlockJUnit4ClassRunnerTest {
 
     companion object {
         const val TRANSITION_FAILURE_MESSAGE = "Transition execution failed"
+
+        var transitionRunCount = 0
     }
 }
