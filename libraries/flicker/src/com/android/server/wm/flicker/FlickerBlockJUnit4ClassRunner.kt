@@ -337,9 +337,9 @@ class FlickerBlockJUnit4ClassRunner @JvmOverloads constructor(
             injectFlickerOnTestParams(test)
         }
 
-        // Get to ensure flicker is properly initialized
-        // Will error out if not
-        flickerTestParameter.flicker
+        require(flickerTestParameter.isInitialized) {
+            "Failed to initialize flickerTestParameter on test creation $test"
+        }
         return test
     }
 

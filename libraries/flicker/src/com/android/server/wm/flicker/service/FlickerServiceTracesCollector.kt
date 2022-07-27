@@ -19,6 +19,7 @@ package com.android.server.wm.flicker.service
 import android.util.Log
 import com.android.server.wm.flicker.monitor.LayersTraceMonitor
 import com.android.server.wm.flicker.monitor.TraceMonitor
+import com.android.server.wm.flicker.monitor.TransactionsTraceMonitor
 import com.android.server.wm.flicker.monitor.TransitionsTraceMonitor
 import com.android.server.wm.flicker.monitor.WindowManagerTraceMonitor
 import com.android.server.wm.flicker.service.ITracesCollector.Companion.Traces
@@ -38,7 +39,8 @@ class FlickerServiceTracesCollector(val outputDir: Path) : ITracesCollector {
     private val traceMonitors = listOf<TraceMonitor>(
         WindowManagerTraceMonitor(outputDir),
         LayersTraceMonitor(outputDir),
-        TransitionsTraceMonitor(outputDir)
+        TransitionsTraceMonitor(outputDir),
+        TransactionsTraceMonitor(outputDir)
     )
 
     private var wmTrace: WindowManagerTrace? = null
