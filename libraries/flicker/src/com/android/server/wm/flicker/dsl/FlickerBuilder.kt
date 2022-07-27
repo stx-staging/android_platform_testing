@@ -24,6 +24,7 @@ import com.android.server.wm.flicker.Flicker
 import com.android.server.wm.flicker.FlickerDslMarker
 import com.android.server.wm.flicker.TransitionRunner
 import com.android.server.wm.flicker.getDefaultFlickerOutputDir
+import com.android.server.wm.flicker.helpers.isShellTransitionsEnabled
 import com.android.server.wm.flicker.monitor.EventLogMonitor
 import com.android.server.wm.flicker.monitor.ITransitionMonitor
 import com.android.server.wm.flicker.monitor.LayersTraceMonitor
@@ -86,7 +87,10 @@ class FlickerBuilder private constructor(
             .also {
                 it.add(WindowManagerTraceMonitor(outputDir))
                 it.add(LayersTraceMonitor(outputDir))
-                it.add(TransitionsTraceMonitor(outputDir))
+                if (isShellTransitionsEnabled) {
+                    // Transition tracing only works if shell transitions are enabled.
+                    it.add(TransitionsTraceMonitor(outputDir))
+                }
                 it.add(TransactionsTraceMonitor(outputDir))
                 it.add(ScreenRecorder(instrumentation.targetContext, outputDir))
                 it.add(EventLogMonitor())
