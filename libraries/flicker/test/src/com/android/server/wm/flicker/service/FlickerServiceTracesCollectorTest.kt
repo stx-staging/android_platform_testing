@@ -20,7 +20,10 @@ import android.app.Instrumentation
 import androidx.test.platform.app.InstrumentationRegistry
 import com.android.server.wm.flicker.getDefaultFlickerOutputDir
 import com.android.server.wm.flicker.helpers.SampleAppHelper
+import com.android.server.wm.flicker.helpers.isShellTransitionsEnabled
 import com.google.common.truth.Truth
+import org.junit.Assume
+import org.junit.Before
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
@@ -33,6 +36,11 @@ import org.junit.runners.MethodSorters
 class FlickerServiceTracesCollectorTest {
     val instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation()
     private val testApp: SampleAppHelper = SampleAppHelper(instrumentation)
+
+    @Before
+    fun before() {
+        Assume.assumeTrue(isShellTransitionsEnabled)
+    }
 
     @Test
     fun canCollectTraces() {

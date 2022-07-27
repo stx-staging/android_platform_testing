@@ -22,6 +22,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.android.server.wm.flicker.annotation.FlickerServiceCompatible
 import com.android.server.wm.flicker.dsl.FlickerBuilder
 import com.android.server.wm.flicker.helpers.SampleAppHelper
+import com.android.server.wm.flicker.helpers.isShellTransitionsEnabled
 import com.android.server.wm.flicker.monitor.TraceMonitor.Companion.WINSCOPE_EXT
 import com.google.common.truth.Truth
 import java.io.File
@@ -29,6 +30,7 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.createFile
 import kotlin.io.path.writeBytes
 import org.junit.Assert
+import org.junit.Assume
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runner.Description
@@ -124,6 +126,8 @@ class FlickerBlockJUnit4ClassRunnerTest {
 
     @Test
     fun injectsFlickerServiceTests() {
+        Assume.assumeTrue(isShellTransitionsEnabled)
+
         val testClass = TestClass(SimpleFaasTest::class.java)
         val parameters = FlickerTestParameterFactory.getInstance()
                 .getConfigNonRotationTests()
@@ -144,6 +148,8 @@ class FlickerBlockJUnit4ClassRunnerTest {
 
     @Test
     fun injectedFlickerTestsAreNotExcludedByFilter() {
+        Assume.assumeTrue(isShellTransitionsEnabled)
+
         val testClass = TestClass(SimpleFaasTestWithFlakyTest::class.java)
         val parameters = FlickerTestParameterFactory.getInstance()
                 .getConfigNonRotationTests()
@@ -168,6 +174,8 @@ class FlickerBlockJUnit4ClassRunnerTest {
 
     @Test
     fun transitionNotRerunWithFaasEnabled() {
+        Assume.assumeTrue(isShellTransitionsEnabled)
+
         val repetitions = 3
         transitionRunCount = 0
         val testClass = TestClass(TransitionRunCounterWithFaasTest::class.java)
