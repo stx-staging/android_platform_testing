@@ -69,6 +69,6 @@ abstract class TraceMonitor internal constructor(
     companion object {
         @JvmStatic
         protected val TRACE_DIR = Paths.get("/data/misc/wmtrace/")
-        internal const val WINSCOPE_EXT = ".winscope"
+        const val WINSCOPE_EXT = ".winscope"
     }
 }

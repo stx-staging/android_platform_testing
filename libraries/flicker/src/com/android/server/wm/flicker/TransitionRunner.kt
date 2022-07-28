@@ -20,6 +20,7 @@ import android.util.Log
 import com.android.server.wm.flicker.FlickerRunResult.Companion.RunStatus
 import com.android.server.wm.flicker.monitor.IFileGeneratingMonitor
 import com.android.server.wm.flicker.monitor.ITransitionMonitor
+import com.android.server.wm.flicker.monitor.NoTraceMonitor
 import com.android.server.wm.traces.common.ConditionList
 import com.android.server.wm.traces.common.WindowManagerConditionsFactory
 import com.android.server.wm.traces.parser.getCurrentState
@@ -71,13 +72,16 @@ open class TransitionRunner {
      * @throws IllegalArgumentException If the transitions are empty or repetitions is set to 0
      */
     protected fun check(flicker: Flicker) {
-        require(flicker.transitions.isNotEmpty()) {
+        require(flicker.transitions.isNotEmpty() || onlyHasNoTraceMonitors(flicker)) {
             "A flicker test must include transitions to run"
         }
         require(flicker.repetitions > 0) {
             "Number of repetitions must be greater than 0"
         }
     }
+
+    private fun onlyHasNoTraceMonitors(flicker: Flicker) =
+            flicker.traceMonitors.all { it is NoTraceMonitor }
 
     open fun cleanUp() {
         tags.clear()
