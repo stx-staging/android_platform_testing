@@ -17,34 +17,43 @@
 package com.android.server.wm.flicker.service
 
 import com.android.server.wm.flicker.service.assertors.AssertionResult
+import com.android.server.wm.flicker.service.config.AssertionInvocationGroup
 import junit.framework.Assert
 
-class FlickerTestCase(val results: List<AssertionResult>) {
+class FlickerTestCase(val results: List<AssertionResult>, isBlockingTest: Boolean) {
+
+    private val resultsToReport = if (isBlockingTest) {
+        results.filter { it.invocationGroup == AssertionInvocationGroup.BLOCKING }
+    } else {
+        results
+    }
+
+    val shouldSkip = resultsToReport.isEmpty()
 
     // Used by the FlickerBlockJUnit4ClassRunner to identify the test method within this class
     annotation class InjectedTest
 
     @InjectedTest
     fun injectedTest(param: Any) {
-        if (containsFailures) {
+        if (containsFailuresToReport) {
             Assert.fail(assertionMessage)
         }
     }
 
-    private val containsFailures: Boolean get() = results.any { it.failed }
+    private val containsFailuresToReport: Boolean get() = resultsToReport.any { it.failed }
 
     private val assertionMessage: String get() {
-        if (!containsFailures) {
-            return "${results.size}/${results.size} PASSED"
+        if (!containsFailuresToReport) {
+            return "${resultsToReport.size}/${resultsToReport.size} PASSED"
         }
 
-        if (results.size == 1) {
-            return results[0].assertionError!!.message
+        if (resultsToReport.size == 1) {
+            return resultsToReport[0].assertionError!!.message
         }
 
         return buildString {
-            append("$failedCount/${results.size} FAILED\n")
-            for (result in results) {
+            append("$failedCount/${resultsToReport.size} FAILED\n")
+            for (result in resultsToReport) {
                 if (result.failed) {
                     append("\n${result.assertionError!!.message.prependIndent("  ")}")
                 }

@@ -40,6 +40,10 @@ class FlickerFrameworkMethod(
         return name
     }
 
+    fun isIgnored(): Boolean {
+        return this.target.shouldSkip
+    }
+
     /**
      * We are reusing the same method with different parameters for each of our test results.
      * So we can't use the parent definition of this which check for method equality, otherwise

@@ -31,6 +31,7 @@ import java.util.Collections
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 import org.junit.FixMethodOrder
+import org.junit.Ignore
 import org.junit.internal.AssumptionViolatedException
 import org.junit.internal.runners.model.EachTestNotifier
 import org.junit.internal.runners.statements.RunAfters
@@ -136,6 +137,14 @@ class FlickerBlockJUnit4ClassRunner @JvmOverloads constructor(
         return method is FlickerFrameworkMethod
     }
 
+    override fun isIgnored(child: FrameworkMethod): Boolean {
+        if (child is FlickerFrameworkMethod) {
+            return child.isIgnored()
+        }
+
+        return child.getAnnotation(Ignore::class.java) != null
+    }
+
     /**
      * Implementation of ParentRunner based on BlockJUnit4ClassRunner.
      * Modified to report Flicker execution errors in the test results.
@@ -148,13 +157,23 @@ class FlickerBlockJUnit4ClassRunner @JvmOverloads constructor(
             val statement: Statement = object : Statement() {
                 @Throws(Throwable::class)
                 override fun evaluate() {
-                    methodBlock(method).evaluate()
+                    if (!flickerTestParameter.isInitialized) {
+                        Log.v(FLICKER_TAG, "Flicker object is not yet initialized")
+                        injectFlickerOnTestParams()
+                    }
                     require(flickerTestParameter.isInitialized) {
                         "flickerTestParameter not initialized"
                     }
+                    val flicker = flickerTestParameter.flicker
+                    var ranChecks = false
+                    flicker.setAssertionsCheckedCallback { ranChecks = true }
+                    methodBlock(method).evaluate()
+                    require(isInjectedFaasTest(method) || ranChecks) {
+                        "No Flicker assertions ran on test..."
+                    }
                     val results = flickerTestParameter.result
                     requireNotNull(results) {
-                        "Flicker results are null after test evaluation..."
+                        "Flicker results are null after test evaluation... "
                     }
                     // Report all the execution errors collected during the Flicker setup and
                     // transition execution
@@ -245,15 +264,9 @@ class FlickerBlockJUnit4ClassRunner @JvmOverloads constructor(
         for (aggregatedResult in aggregateFaasResults(flicker.faas.assertionResults)
             .entries.iterator()) {
             val testName = aggregatedResult.key
-            var results = aggregatedResult.value
-            if (onlyBlockingAssertions) {
-                results = results.filter { it.invocationGroup == AssertionInvocationGroup.BLOCKING }
-            }
-            if (results.isEmpty()) {
-                continue
-            }
+            val results = aggregatedResult.value
 
-            val injectedTestCase = FlickerTestCase(results)
+            val injectedTestCase = FlickerTestCase(results, onlyBlockingAssertions)
             val mockedTestMethod = TestClass(injectedTestCase.javaClass)
                 .getAnnotatedMethods(FlickerTestCase.InjectedTest::class.java).first()
             val mockedFrameworkMethod = FlickerFrameworkMethod(
@@ -346,7 +359,7 @@ class FlickerBlockJUnit4ClassRunner @JvmOverloads constructor(
     /**
      * Builds a flicker object and assigns it to the test parameters
      */
-    private fun injectFlickerOnTestParams(test: Any) {
+    private fun injectFlickerOnTestParams(test: Any = super.createTest()) {
         val flickerBuilderProviderMethod = flickerBuilderProviderMethod
         if (flickerBuilderProviderMethod != null) {
             val testClass = test::class.java
