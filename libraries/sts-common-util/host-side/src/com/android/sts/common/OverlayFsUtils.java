@@ -74,6 +74,15 @@ public class OverlayFsUtils extends TestWatcher {
         assertNotNull("device not set.", device);
         assertTrue("dir needs to be an absolute path.", dir.startsWith("/"));
 
+        // Setup list of temp dirs to be deleted upon cleanup
+        List<String> dirs;
+        if (!workingDirs.containsKey(device)) {
+            dirs = new ArrayList<>(2);
+            workingDirs.put(device, dirs);
+        } else {
+            dirs = workingDirs.get(device);
+        }
+
         // losetup doesn't work for image paths 64 bytes or longer, so we have to truncate
         String dirHash = Hashing.md5().hashString(dir, StandardCharsets.UTF_8).toString();
         int pathPrefixLength = WRITABLE_DIR.toString().length() + 1 + OVERLAYFS_PREFIX.length();
@@ -105,23 +114,17 @@ public class OverlayFsUtils extends TestWatcher {
         CommandUtil.runAndCheck(device, "setenforce 0");
         Path tempdir = WRITABLE_DIR.resolve(id);
         Path tempimg = tempdir.getParent().resolve(tempdir.getFileName().toString() + ".img");
+        dirs.add(tempimg.toString());
+        dirs.add(tempdir.toString());
+
         CommandUtil.runAndCheck(
                 device,
                 String.format("dd if=/dev/zero of='%s' bs=%dM count=1", tempimg, megabytes));
-        CommandUtil.runAndCheck(device, String.format("mkdir '%s'", tempdir));
         CommandUtil.runAndCheck(device, String.format("mkfs.ext4 '%s'", tempimg));
+        CommandUtil.runAndCheck(device, String.format("mkdir '%s'", tempdir));
+
         CommandUtil.runAndCheck(
                 device, String.format("mount -o loop '%s' '%s'", tempimg, tempdir), 3);
-
-        List<String> dirs;
-        if (!workingDirs.containsKey(device)) {
-            dirs = new ArrayList<>(2);
-            workingDirs.put(device, dirs);
-        } else {
-            dirs = workingDirs.get(device);
-        }
-        dirs.add(tempdir.toString());
-        dirs.add(tempimg.toString());
 
         String upperdir = tempdir.resolve("upper").toString();
         String workdir = tempdir.resolve("workdir").toString();
