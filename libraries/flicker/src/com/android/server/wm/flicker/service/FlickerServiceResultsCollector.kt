@@ -38,7 +38,6 @@ class FlickerServiceResultsCollector(
     private val tracesCollector: ITracesCollector = FlickerServiceTracesCollector(outputDir),
     instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation()
 ) : BaseMetricListener() {
-    private var criticalUserJourneyName: String = UNDEFINED_CUJ
     private var collectMetricsPerTest = true
 
     private val _executionErrors = mutableListOf<ExecutionError>()
@@ -147,17 +146,12 @@ class FlickerServiceResultsCollector(
 
     private fun getKeyForAssertionResult(result: AssertionResult): String {
         val assertionName = "${result.scenario}#${result.assertionName}"
-        return "$FASS_METRICS_PREFIX::$criticalUserJourneyName::$assertionName"
-    }
-
-    fun setCriticalUserJourneyName(className: String?) {
-        this.criticalUserJourneyName = className ?: UNDEFINED_CUJ
+        return "$FAAS_METRICS_PREFIX::$assertionName"
     }
 
     companion object {
         // Unique prefix to add to all fass metrics to identify them
-        private const val FASS_METRICS_PREFIX = "FASS"
-        private const val UNDEFINED_CUJ = "UndefinedCUJ"
+        private const val FAAS_METRICS_PREFIX = "FAAS"
         private val LOG_TAG = "FlickerResultsCollector"
 
         class AggregatedFlickerResult {

@@ -107,6 +107,8 @@ class Flicker(
 
     var result: FlickerResult? = null
 
+    private var assertionsCheckedCallback: ((Boolean) -> Unit)? = null
+
     /**
      * Executes the test transition.
      *
@@ -123,28 +125,36 @@ class Flicker(
      * @throws AssertionError If the assertions fail or the transition crashed
      */
     fun checkAssertion(assertion: AssertionData) {
-        if (result == null) {
-            execute()
-        }
-
-        val result = result
-
-        requireNotNull(result)
-        if (result.successfulRuns.isEmpty()) {
-            // No successful transition runs so can't check assertions against anything
-            // Any execution errors that lead to having no successful runs will be reported
-            // appropriately by the FlickerBlockJUnit4ClassRunner.
-            if (result.executionErrors.isEmpty()) {
-                // If there are no execution errors we want to throw an error here since we won't
-                // fail later in the FlickerBlockJUnit4ClassRunner.
-                throw Exception("No transition runs were executed! Can't check assertion.")
+        var ranChecks = false
+        try {
+            if (result == null) {
+                execute()
             }
-            return
-        }
 
-        val failures = result.checkAssertion(assertion)
-        if (failures.isNotEmpty()) {
-            throw failures.first()
+            val result = result
+
+            requireNotNull(result)
+
+            if (result.successfulRuns.isEmpty()) {
+                // No successful transition runs so can't check assertions against anything
+                // Any execution errors that lead to having no successful runs will be reported
+                // appropriately by the FlickerBlockJUnit4ClassRunner.
+                if (result.executionErrors.isEmpty()) {
+                    // If there are no execution errors we want to throw an error here since we won't
+                    // fail later in the FlickerBlockJUnit4ClassRunner.
+                    throw Exception("No transition runs were executed! Can't check assertion.")
+                }
+
+                return
+            }
+
+            val failures = result.checkAssertion(assertion)
+            ranChecks = true
+            if (failures.isNotEmpty()) {
+                throw failures.first()
+            }
+        } finally {
+            assertionsCheckedCallback?.invoke(ranChecks)
         }
     }
 
@@ -178,5 +188,9 @@ class Flicker(
 
     override fun toString(): String {
         return this.testName
+    }
+
+    fun setAssertionsCheckedCallback(assertionsCheckedCallback: (Boolean) -> Unit) {
+        this.assertionsCheckedCallback = assertionsCheckedCallback
     }
 }
