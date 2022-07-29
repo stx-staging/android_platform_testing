@@ -18,6 +18,7 @@ package com.android.sts.common;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
+import static com.android.sts.common.CommandUtil.runAndCheck;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -101,8 +102,7 @@ public class OverlayFsUtils extends TestWatcher {
         assertTrue("Can't acquire root for " + device.getSerialNumber(), device.enableAdbRoot());
 
         // Match permissions of upper dir to lower dir
-        String statOut =
-                CommandUtil.runAndCheck(device, "stat -c '%U %G %a %C' '" + dir + "'").getStdout();
+        String statOut = runAndCheck(device, "stat -c '%U %G %a %C' '" + dir + "'").getStdout();
         Matcher m = PERM_PATTERN.matcher(statOut);
         assertTrue("Bad stats output: " + statOut, m.find());
         String user = m.group("user");
@@ -111,34 +111,37 @@ public class OverlayFsUtils extends TestWatcher {
         String seContext = m.group("secontext");
 
         // Disable SELinux enforcement and mount a loopback ext4 image
-        CommandUtil.runAndCheck(device, "setenforce 0");
+        runAndCheck(device, "setenforce 0");
         Path tempdir = WRITABLE_DIR.resolve(id);
         Path tempimg = tempdir.getParent().resolve(tempdir.getFileName().toString() + ".img");
         dirs.add(tempimg.toString());
         dirs.add(tempdir.toString());
 
-        CommandUtil.runAndCheck(
+        runAndCheck(
                 device,
                 String.format("dd if=/dev/zero of='%s' bs=%dM count=1", tempimg, megabytes));
-        CommandUtil.runAndCheck(device, String.format("mkfs.ext4 '%s'", tempimg));
-        CommandUtil.runAndCheck(device, String.format("mkdir '%s'", tempdir));
+        runAndCheck(device, String.format("mkfs.ext4 '%s'", tempimg));
+        runAndCheck(device, String.format("mkdir '%s'", tempdir));
 
-        CommandUtil.runAndCheck(
-                device, String.format("mount -o loop '%s' '%s'", tempimg, tempdir), 3);
+        String loopbackDev =
+                runAndCheck(device, String.format("losetup -f -s '%s'", tempimg), 3)
+                        .getStdout()
+                        .strip();
+        runAndCheck(device, String.format("mount '%s' '%s'", loopbackDev, tempdir), 3);
 
         String upperdir = tempdir.resolve("upper").toString();
         String workdir = tempdir.resolve("workdir").toString();
 
-        CommandUtil.runAndCheck(device, String.format("mkdir -p '%s' '%s'", upperdir, workdir));
-        CommandUtil.runAndCheck(device, String.format("chown %s:%s '%s'", user, group, upperdir));
-        CommandUtil.runAndCheck(device, String.format("chcon '%s' '%s'", seContext, upperdir));
-        CommandUtil.runAndCheck(device, String.format("chmod %s '%s'", unixPerm, upperdir));
+        runAndCheck(device, String.format("mkdir -p '%s' '%s'", upperdir, workdir));
+        runAndCheck(device, String.format("chown %s:%s '%s'", user, group, upperdir));
+        runAndCheck(device, String.format("chcon '%s' '%s'", seContext, upperdir));
+        runAndCheck(device, String.format("chmod %s '%s'", unixPerm, upperdir));
 
         String mountCmd =
                 String.format(
                         "mount -t overlay '%s' -o lowerdir='%s',upperdir='%s',workdir='%s' '%s'",
                         id, dir, upperdir, workdir, dir);
-        CommandUtil.runAndCheck(device, mountCmd);
+        runAndCheck(device, mountCmd);
     }
 
     public boolean anyOverlayFsMounted() throws DeviceNotAvailableException {
@@ -163,12 +166,12 @@ public class OverlayFsUtils extends TestWatcher {
             assertTrue("Can't acquire root: " + device.getSerialNumber(), device.enableAdbRoot());
             if (workingDirs.containsKey(device)) {
                 for (String dir : workingDirs.get(device)) {
-                    CommandUtil.runAndCheck(device, String.format("rm -rf '%s'", dir));
+                    runAndCheck(device, String.format("rm -rf '%s'", dir));
                 }
             }
 
             // Restore SELinux enforcement state
-            CommandUtil.runAndCheck(device, "setenforce 1");
+            runAndCheck(device, "setenforce 1");
 
             assertTrue("Can't remove root: " + device.getSerialNumber(), device.disableAdbRoot());
         } catch (DeviceNotAvailableException e) {
