@@ -52,6 +52,12 @@ private fun getCurrentWindowManagerState(uiAutomation: UiAutomation) =
 private fun getCurrentLayersState(uiAutomation: UiAutomation) =
     executeCommand(uiAutomation, "dumpsys SurfaceFlinger --proto")
 
+/**
+ * Gets the current device state dump containing the [WindowManagerState] (optional) and the
+ * [BaseLayerTraceEntry] (optional) in raw (byte) data.
+ *
+ * @param dumpFlags Flags determining which types of traces should be included in the dump
+ */
 @JvmOverloads
 fun getCurrentState(
     uiAutomation: UiAutomation,
@@ -76,15 +82,28 @@ fun getCurrentState(
     return Pair(wmTraceData, layersTraceData)
 }
 
+/**
+ * Gets the current device state dump containing the [WindowManagerState] (optional) and the
+ * [BaseLayerTraceEntry] (optional) parsed
+ *
+ * @param dumpFlags Flags determining which types of traces should be included in the dump
+ * @param clearCacheAfterParsing If the caching used while parsing the proto should be
+ *                               cleared or remain in memory
+ */
 @JvmOverloads
 fun getCurrentStateDump(
     uiAutomation: UiAutomation,
-    @WmStateDumpFlags dumpFlags: Int = FLAG_STATE_DUMP_FLAG_WM.or(FLAG_STATE_DUMP_FLAG_LAYERS)
+    @WmStateDumpFlags dumpFlags: Int = FLAG_STATE_DUMP_FLAG_WM.or(FLAG_STATE_DUMP_FLAG_LAYERS),
+    clearCacheAfterParsing: Boolean
 ): DeviceStateDump<WindowManagerState?, BaseLayerTraceEntry?> {
     val currentStateDump = getCurrentState(uiAutomation, dumpFlags)
     val wmTraceData = currentStateDump.first
     val layersTraceData = currentStateDump.second
-    return DeviceDumpParser.fromDump(wmTraceData, layersTraceData)
+    return DeviceDumpParser.fromDump(
+        wmTraceData,
+        layersTraceData,
+        clearCacheAfterParsing = clearCacheAfterParsing
+    )
 }
 
 /**

@@ -23,6 +23,7 @@ import com.android.server.wm.flicker.readWmTraceFromDumpFile
 import com.android.server.wm.flicker.readWmTraceFromFile
 import com.android.server.wm.flicker.traces.windowmanager.WindowManagerStateSubject
 import com.android.server.wm.traces.common.ActiveBuffer
+import com.android.server.wm.traces.common.Cache
 import com.android.server.wm.traces.common.Color
 import com.android.server.wm.traces.common.ComponentMatcher
 import com.android.server.wm.traces.common.DeviceStateDump
@@ -39,6 +40,7 @@ import com.android.server.wm.traces.common.windowmanager.WindowManagerState
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerStateHelper
 import com.google.common.truth.Truth
+import org.junit.Before
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
@@ -59,6 +61,7 @@ class WindowManagerStateHelperTest {
         retryIntervalMs: Long = 500L
     ) : WindowManagerStateHelper(
         InstrumentationRegistry.getInstrumentation(),
+        clearCacheAfterParsing = false,
         deviceDumpSupplier, numRetries, retryIntervalMs
     ) {
         var wmState: WindowManagerState = _wmState
@@ -79,29 +82,34 @@ class WindowManagerStateHelperTest {
         "com.android.server.wm.flicker.testapp/.SimpleActivity"
     )
 
+    @Before
+    fun before() {
+        Cache.clear()
+    }
+
     private fun createImaginaryLayer(name: String, index: Int, id: Int, parentId: Int): Layer {
-        val transform = Transform(0, Matrix33.EMPTY)
+        val transform = Transform.from(0, Matrix33.EMPTY)
         val rect = RectF.from(
             left = index.toFloat(),
             top = index.toFloat(),
             right = index.toFloat() + 1,
             bottom = index.toFloat() + 1
         )
-        return Layer(
+        return Layer.from(
             name,
             id,
             parentId,
             z = 0,
             visibleRegion = Region.from(rect.toRect()),
-            activeBuffer = ActiveBuffer(1, 1, 1, 1),
+            activeBuffer = ActiveBuffer.from(1, 1, 1, 1),
             flags = 0,
             bounds = rect,
             color = Color.DEFAULT,
-            _isOpaque = true,
+            isOpaque = true,
             shadowRadius = 0f,
             cornerRadius = 0f,
             type = "",
-            _screenBounds = rect,
+            screenBounds = rect,
             transform = transform,
             sourceBounds = rect,
             currFrame = 0,
@@ -120,7 +128,6 @@ class WindowManagerStateHelperTest {
             cornerRadiusCrop = RectF.EMPTY,
             inputTransform = transform,
             inputRegion = Region.from(rect.toRect())
-
         )
     }
 

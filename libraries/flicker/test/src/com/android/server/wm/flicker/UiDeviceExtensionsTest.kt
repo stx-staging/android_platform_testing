@@ -48,7 +48,11 @@ class UiDeviceExtensionsTest {
         @WmStateDumpFlags dumpFlags: Int = FLAG_STATE_DUMP_FLAG_WM.or(FLAG_STATE_DUMP_FLAG_LAYERS)
     ): DeviceStateDump<WindowManagerState?, BaseLayerTraceEntry?> {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
-        return getCurrentStateDump(instrumentation.uiAutomation, dumpFlags)
+        return getCurrentStateDump(
+            instrumentation.uiAutomation,
+            dumpFlags,
+            clearCacheAfterParsing = false
+        )
     }
 
     @Test

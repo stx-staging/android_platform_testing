@@ -36,6 +36,7 @@ import com.android.server.wm.traces.common.IComponentMatcher
 import com.android.server.wm.traces.common.WaitCondition
 import com.android.server.wm.traces.common.WindowManagerConditionsFactory
 import com.android.server.wm.traces.common.layers.BaseLayerTraceEntry
+import com.android.server.wm.traces.common.layers.LayerTraceEntry
 import com.android.server.wm.traces.common.layers.LayersTrace
 import com.android.server.wm.traces.common.region.Region
 import com.android.server.wm.traces.common.windowmanager.WindowManagerState
@@ -46,16 +47,23 @@ import com.android.server.wm.traces.common.windowmanager.windows.WindowState
 import com.android.server.wm.traces.parser.LOG_TAG
 import com.android.server.wm.traces.parser.getCurrentStateDump
 
+/**
+ * Helper class to wait on [WindowManagerState] or [LayerTraceEntry] conditions
+ */
 open class WindowManagerStateHelper @JvmOverloads constructor(
     /**
      * Instrumentation to run the tests
      */
     private val instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation(),
+    private val clearCacheAfterParsing: Boolean = true,
     /**
      * Predicate to supply a new UI information
      */
     private val deviceDumpSupplier: () -> DUMP = {
-        val currState = getCurrentStateDump(instrumentation.uiAutomation)
+        val currState = getCurrentStateDump(
+            instrumentation.uiAutomation,
+            clearCacheAfterParsing = clearCacheAfterParsing
+        )
         DeviceStateDump(
             currState.wmState ?: error("Unable to parse WM trace"),
             currState.layerState ?: error("Unable to parse Layers trace")

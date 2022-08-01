@@ -50,8 +50,6 @@ open class Rect internal constructor(
     open fun prettyPrint(): String =
         if (isEmpty) "[empty]" else "($left, $top) - ($right, $bottom)"
 
-    override fun equals(other: Any?): Boolean = other?.toString() == this.toString()
-
     /**
      * Returns true iff the specified rectangle r is inside or equal to this
      * rectangle. An empty rectangle never contains another rectangle.
@@ -122,16 +120,22 @@ open class Rect internal constructor(
         return from(left, top, right, bottom)
     }
 
-    companion object {
-        val EMPTY: Rect = Rect()
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Rect) return false
 
-        fun from(left: Int, top: Int, right: Int, bottom: Int): Rect {
-            val newRect = Rect(left, top, right, bottom)
-            return if (newRect.isEmpty) {
-                EMPTY
-            } else {
-                newRect
-            }
-        }
+        if (left != other.left) return false
+        if (top != other.top) return false
+        if (right != other.right) return false
+        if (bottom != other.bottom) return false
+
+        return true
+    }
+
+    companion object {
+        val EMPTY: Rect get() = withCache { Rect() }
+
+        fun from(left: Int, top: Int, right: Int, bottom: Int): Rect =
+            withCache { Rect(left, top, right, bottom) }
     }
 }
