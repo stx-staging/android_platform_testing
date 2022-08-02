@@ -18,7 +18,7 @@ package com.android.server.wm.flicker.service
 
 import com.android.server.wm.flicker.service.assertors.AssertionResult
 import com.android.server.wm.flicker.service.assertors.TransitionAsserter
-import com.android.server.wm.flicker.service.config.FlickerServiceConfig
+import com.android.server.wm.flicker.service.config.Assertions.assertionsForTransition
 import com.android.server.wm.traces.common.layers.LayersTrace
 import com.android.server.wm.traces.common.transition.TransitionsTrace
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
@@ -27,7 +27,6 @@ import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
  * Invokes the configured assertors and summarizes the results.
  */
 class AssertionEngine(
-    private val config: FlickerServiceConfig,
     private val logger: (String) -> Unit
 ) {
     fun analyze(
@@ -45,7 +44,7 @@ class AssertionEngine(
                 continue
             }
 
-            val assertionsToCheck = config.assertionsForTransition(transition)
+            val assertionsToCheck = assertionsForTransition(transition)
             logger.invoke("${assertionsToCheck.size} assertions to check for $transition")
 
             val result = TransitionAsserter(assertionsToCheck, logger)

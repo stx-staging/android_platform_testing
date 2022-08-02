@@ -16,9 +16,9 @@
 
 package com.android.server.wm.flicker.service.assertors
 
-import com.android.server.wm.flicker.service.config.AssertionInvocationGroup
-import com.android.server.wm.flicker.service.config.AssertionInvocationGroup.NON_BLOCKING
-import com.android.server.wm.flicker.service.config.FlickerServiceConfig.Companion.Scenario
+import com.android.server.wm.flicker.service.config.common.AssertionInvocationGroup
+import com.android.server.wm.flicker.service.config.common.AssertionInvocationGroup.NON_BLOCKING
+import com.android.server.wm.flicker.service.config.common.Scenario
 import com.android.server.wm.flicker.traces.FlickerSubjectException
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
