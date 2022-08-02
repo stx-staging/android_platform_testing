@@ -28,6 +28,7 @@ import com.android.server.wm.traces.common.ComponentMatcher.Companion.IME
 import com.android.server.wm.traces.common.ComponentMatcher.Companion.LAUNCHER
 import com.android.server.wm.traces.common.ComponentMatcher.Companion.SNAPSHOT
 import com.android.server.wm.traces.common.ComponentMatcher.Companion.SPLASH_SCREEN
+import com.android.server.wm.traces.common.ComponentMatcher.Companion.SPLIT_DIVIDER
 import com.android.server.wm.traces.common.Condition
 import com.android.server.wm.traces.common.DUMP
 import com.android.server.wm.traces.common.DeviceStateDump
@@ -198,6 +199,16 @@ open class WindowManagerStateHelper @JvmOverloads constructor(
                 .withStatusBarVisible()
                 .add(WindowManagerConditionsFactory.isHomeActivityVisible())
                 .add(WindowManagerConditionsFactory.isLayerVisible(LAUNCHER))
+
+        /**
+         * Waits until the split-screen divider is visible and nothing to be animating
+         *
+         * @param displayId of the target display
+         */
+        @JvmOverloads
+        fun withSplitDividerVisible(displayId: Int = Display.DEFAULT_DISPLAY) =
+            withAppTransitionIdle(displayId)
+                .add(WindowManagerConditionsFactory.isLayerVisible(SPLIT_DIVIDER))
 
         /**
          * Waits until the home activity is visible and nothing to be animating
