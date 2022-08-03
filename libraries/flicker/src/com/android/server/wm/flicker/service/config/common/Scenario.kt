@@ -104,12 +104,12 @@ enum class Scenario(
         }
 
         val tagStates = mutableListOf<TagState>()
-        for ((timestamp, tags) in tagsByTs.toSortedMap()) {
+        for ((timestamp, tags) in tagsByTs) {
             tagStates.add(
                 TagState(timestamp.toString(), tags.toTypedArray())
             )
         }
 
-        return TagTrace(tagStates.toTypedArray())
+        return TagTrace(tagStates.sortedBy { it.timestamp }.toTypedArray())
     }
 }
