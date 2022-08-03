@@ -185,6 +185,7 @@ class ComponentMatcher(
         val PIP_CONTENT_OVERLAY = ComponentMatcher("", "PipContentOverlay")
         val LAUNCHER = ComponentMatcher("com.google.android.apps.nexuslauncher",
             "com.google.android.apps.nexuslauncher.NexusLauncherActivity")
+        val SPLIT_DIVIDER = ComponentMatcher("", "StageCoordinatorSplitDivider")
 
         /**
          * Creates a component matcher from a window or layer name.
