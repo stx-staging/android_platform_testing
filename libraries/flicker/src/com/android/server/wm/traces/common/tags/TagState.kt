@@ -29,9 +29,9 @@ import com.android.server.wm.traces.common.prettyTimestamp
  * @param isFallback False indicate if the tag timestamp was found or true if a default tag is made
  */
 class TagState(
-        _timestamp: String,
-        val tags: Array<Tag>,
-        val isFallback: Boolean = false
+    _timestamp: String,
+    val tags: Array<Tag>,
+    val isFallback: Boolean = false
 ) : ITraceEntry {
     override val timestamp: Long = _timestamp.toLong()
     override fun toString(): String = "FlickerTagState(timestamp=${prettyTimestamp(timestamp)}, " +

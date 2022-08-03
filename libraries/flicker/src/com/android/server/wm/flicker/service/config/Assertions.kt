@@ -36,9 +36,16 @@ import com.android.server.wm.flicker.service.assertors.common.VisibleLayersShown
 import com.android.server.wm.flicker.service.assertors.common.VisibleWindowsShownMoreThanOneConsecutiveEntry
 import com.android.server.wm.flicker.service.config.common.AssertionInvocationGroup
 import com.android.server.wm.flicker.service.config.common.Scenario
+import com.android.server.wm.flicker.service.config.common.ScenarioInstance
 import com.android.server.wm.traces.common.transition.Transition
 
 object Assertions {
+    fun assertionsForScenarioInstance(scenarioInstance: ScenarioInstance): List<AssertionData> {
+        return assertionsForScenario(scenarioInstance.scenario).map {
+            AssertionData(scenarioInstance.scenario, it, it.invocationGroup)
+        }
+    }
+
     fun assertionsForTransition(transition: Transition): List<AssertionData> {
         val assertions: MutableList<AssertionData> = mutableListOf()
         for (scenario in Scenario.values()) {
@@ -96,6 +103,11 @@ object Assertions {
             Scenario.COMMON -> COMMON_ASSERTIONS
             Scenario.APP_LAUNCH -> APP_LAUNCH_ASSERTIONS
             Scenario.APP_CLOSE -> APP_CLOSE_ASSERTIONS
+            Scenario.ROTATION -> TODO()
+            Scenario.IME_APPEAR -> TODO()
+            Scenario.IME_DISAPPEAR -> TODO()
+            Scenario.PIP_ENTER -> TODO()
+            Scenario.PIP_EXIT -> TODO()
         }
     }
 }
