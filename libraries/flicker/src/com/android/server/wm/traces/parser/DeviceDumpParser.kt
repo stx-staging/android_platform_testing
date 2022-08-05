@@ -18,6 +18,7 @@ package com.android.server.wm.traces.parser
 
 import com.android.server.wm.traces.common.DeviceStateDump
 import com.android.server.wm.traces.common.DeviceTraceDump
+import com.android.server.wm.traces.common.NullableDeviceStateDump
 import com.android.server.wm.traces.common.layers.BaseLayerTraceEntry
 import com.android.server.wm.traces.common.layers.LayersTrace
 import com.android.server.wm.traces.common.windowmanager.WindowManagerState
@@ -42,12 +43,12 @@ class DeviceDumpParser {
          *                               cleared or remain in memory
          */
         @JvmStatic
-        fun fromDump(
+        fun fromNullableDump(
             wmTraceData: ByteArray,
             layersTraceData: ByteArray,
             clearCacheAfterParsing: Boolean
-        ): DeviceStateDump<WindowManagerState?, BaseLayerTraceEntry?> {
-            return DeviceStateDump(
+        ): NullableDeviceStateDump {
+            return NullableDeviceStateDump(
                 wmState = if (wmTraceData.isNotEmpty()) {
                     WindowManagerTraceParser.parseFromDump(
                         wmTraceData,
@@ -68,9 +69,29 @@ class DeviceDumpParser {
         }
 
         /**
+         * See [fromNullableDump]
+         */
+        @JvmStatic
+        fun fromDump(
+            wmTraceData: ByteArray,
+            layersTraceData: ByteArray,
+            clearCacheAfterParsing: Boolean
+        ): DeviceStateDump {
+            val nullableDump = fromNullableDump(
+                wmTraceData,
+                layersTraceData,
+                clearCacheAfterParsing
+            )
+            return DeviceStateDump(
+                nullableDump.wmState ?: error("WMState dump missing"),
+                nullableDump.layerState ?: error("Layer State dump missing")
+            )
+        }
+
+        /**
          * Creates a device state dump containing the WindowManager and Layers trace
          * obtained from a regular trace. The parsed traces may contain a multiple
-         * [WindowManagerState] or [LayerTraceEntry].
+         * [WindowManagerState] or [BaseLayerTraceEntry].
          *
          * @param wmTraceData [WindowManagerTrace] content
          * @param layersTraceData [LayersTrace] content

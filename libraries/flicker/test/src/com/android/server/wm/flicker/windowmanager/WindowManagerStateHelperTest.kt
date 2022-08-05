@@ -31,7 +31,6 @@ import com.android.server.wm.traces.common.IComponentMatcher
 import com.android.server.wm.traces.common.Matrix33
 import com.android.server.wm.traces.common.Rect
 import com.android.server.wm.traces.common.RectF
-import com.android.server.wm.traces.common.layers.BaseLayerTraceEntry
 import com.android.server.wm.traces.common.layers.Layer
 import com.android.server.wm.traces.common.layers.LayerTraceEntryBuilder
 import com.android.server.wm.traces.common.layers.Transform
@@ -56,7 +55,7 @@ class WindowManagerStateHelperTest {
         /**
          * Predicate to supply a new UI information
          */
-        deviceDumpSupplier: () -> DeviceStateDump<WindowManagerState, BaseLayerTraceEntry>,
+        deviceDumpSupplier: () -> DeviceStateDump,
         numRetries: Int = 5,
         retryIntervalMs: Long = 500L
     ) : WindowManagerStateHelper(
@@ -68,7 +67,7 @@ class WindowManagerStateHelperTest {
             private set
 
         override fun updateCurrState(
-            value: DeviceStateDump<WindowManagerState, BaseLayerTraceEntry>
+            value: DeviceStateDump
         ) {
             wmState = value.wmState
         }
@@ -151,9 +150,7 @@ class WindowManagerStateHelperTest {
      * Alongside the SF trac,e this function creates an imaginary SF trace with visible Status
      * and NavBar, as well as all visible non-system windows (those with name containing /)
      */
-    private fun WindowManagerTrace.asSupplier(
-        startingTimestamp: Long = 0
-    ): () -> DeviceStateDump<WindowManagerState, BaseLayerTraceEntry> {
+    private fun WindowManagerTrace.asSupplier(startingTimestamp: Long = 0): () -> DeviceStateDump {
         val iterator = this.dropWhile { it.timestamp < startingTimestamp }.iterator()
         return {
             if (iterator.hasNext()) {

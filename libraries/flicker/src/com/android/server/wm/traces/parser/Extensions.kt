@@ -25,9 +25,8 @@ import android.util.Log
 import com.android.server.wm.traces.common.ComponentMatcher
 import com.android.server.wm.traces.common.DeviceStateDump
 import com.android.server.wm.traces.common.IComponentMatcher
+import com.android.server.wm.traces.common.NullableDeviceStateDump
 import com.android.server.wm.traces.common.Rect
-import com.android.server.wm.traces.common.layers.BaseLayerTraceEntry
-import com.android.server.wm.traces.common.windowmanager.WindowManagerState
 
 internal const val LOG_TAG = "AMWM_FLICKER"
 
@@ -91,17 +90,27 @@ fun getCurrentState(
  *                               cleared or remain in memory
  */
 @JvmOverloads
-fun getCurrentStateDump(
+fun getCurrentStateDumpNullable(
     uiAutomation: UiAutomation,
     @WmStateDumpFlags dumpFlags: Int = FLAG_STATE_DUMP_FLAG_WM.or(FLAG_STATE_DUMP_FLAG_LAYERS),
     clearCacheAfterParsing: Boolean
-): DeviceStateDump<WindowManagerState?, BaseLayerTraceEntry?> {
+): NullableDeviceStateDump {
     val currentStateDump = getCurrentState(uiAutomation, dumpFlags)
-    val wmTraceData = currentStateDump.first
-    val layersTraceData = currentStateDump.second
+    return DeviceDumpParser.fromNullableDump(
+        currentStateDump.first,
+        currentStateDump.second,
+        clearCacheAfterParsing = clearCacheAfterParsing
+    )
+}
+
+fun getCurrentStateDump(
+    uiAutomation: UiAutomation,
+    clearCacheAfterParsing: Boolean
+): DeviceStateDump {
+    val currentStateDump = getCurrentState(uiAutomation)
     return DeviceDumpParser.fromDump(
-        wmTraceData,
-        layersTraceData,
+        currentStateDump.first,
+        currentStateDump.second,
         clearCacheAfterParsing = clearCacheAfterParsing
     )
 }
