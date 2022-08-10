@@ -37,6 +37,7 @@ import com.android.server.wm.flicker.service.assertors.assertions.VisibleWindows
 import com.android.server.wm.flicker.service.assertors.common.AppLayerBecomesVisible
 import com.android.server.wm.flicker.service.assertors.common.AppWindowBecomesTopWindow
 import com.android.server.wm.flicker.service.assertors.common.AppWindowBecomesVisible
+import com.android.server.wm.flicker.service.config.common.AssertionInvocationGroup.BLOCKING
 import com.android.server.wm.flicker.service.config.common.AssertionInvocationGroup.NON_BLOCKING
 import com.android.server.wm.flicker.service.config.common.Scenario
 import com.android.server.wm.flicker.service.config.common.ScenarioInstance
@@ -66,24 +67,23 @@ object Assertions {
     }
 
     private val COMMON_ASSERTIONS = listOf(
-        LayerIsVisibleAtStart(Components.NAV_BAR) runAs NON_BLOCKING,
-        LayerIsVisibleAtEnd(Components.NAV_BAR) runAs NON_BLOCKING,
+        LayerIsVisibleAtStart(Components.NAV_BAR) runAs BLOCKING,
+        LayerIsVisibleAtEnd(Components.NAV_BAR) runAs BLOCKING,
         NonAppWindowIsVisibleAlways(Components.NAV_BAR) runAs NON_BLOCKING,
         NonAppWindowIsVisibleAlways(Components.STATUS_BAR) runAs NON_BLOCKING,
-        LayerIsVisibleAlways(Components.STATUS_BAR) runAs NON_BLOCKING,
-        EntireScreenCoveredAtStart() runAs NON_BLOCKING,
-        EntireScreenCoveredAtEnd() runAs NON_BLOCKING,
-        EntireScreenCoveredAlways() runAs NON_BLOCKING,
-        VisibleWindowsShownMoreThanOneConsecutiveEntry() runAs NON_BLOCKING,
-        VisibleLayersShownMoreThanOneConsecutiveEntry() runAs NON_BLOCKING,
-        StatusBarLayerPositionAtStart() runAs NON_BLOCKING,
-        StatusBarLayerPositionAtEnd() runAs NON_BLOCKING
+        LayerIsVisibleAlways(Components.STATUS_BAR) runAs BLOCKING,
+        EntireScreenCoveredAtStart() runAs BLOCKING,
+        EntireScreenCoveredAtEnd() runAs BLOCKING,
+        EntireScreenCoveredAlways() runAs BLOCKING,
+        VisibleWindowsShownMoreThanOneConsecutiveEntry() runAs BLOCKING,
+        VisibleLayersShownMoreThanOneConsecutiveEntry() runAs BLOCKING,
+        StatusBarLayerPositionAtStart() runAs BLOCKING,
+        StatusBarLayerPositionAtEnd() runAs BLOCKING,
     )
 
     private val APP_LAUNCH_ASSERTIONS = COMMON_ASSERTIONS + listOf(
         AppLayerIsVisibleAtStart(Components.LAUNCHER) runAs NON_BLOCKING,
-        AppLayerIsInvisibleAtStart(Components.OPENING_APP)
-                runAs NON_BLOCKING,
+        AppLayerIsInvisibleAtStart(Components.OPENING_APP) runAs BLOCKING,
 
         AppLayerIsInvisibleAtEnd(Components.LAUNCHER) runAs NON_BLOCKING,
         AppLayerIsVisibleAtEnd(Components.OPENING_APP) runAs NON_BLOCKING,
@@ -93,11 +93,11 @@ object Assertions {
     )
 
     private val APP_CLOSE_ASSERTIONS = COMMON_ASSERTIONS + listOf(
-        AppLayerIsVisibleAtStart(Components.CLOSING_APP) runAs NON_BLOCKING,
+        AppLayerIsVisibleAtStart(Components.CLOSING_APP) runAs BLOCKING,
         AppLayerIsInvisibleAtStart(Components.LAUNCHER) runAs NON_BLOCKING,
 
-        AppLayerIsInvisibleAtEnd(Components.CLOSING_APP) runAs NON_BLOCKING,
-        AppLayerIsVisibleAtEnd(Components.LAUNCHER) runAs NON_BLOCKING
+        AppLayerIsInvisibleAtEnd(Components.CLOSING_APP) runAs BLOCKING,
+        AppLayerIsVisibleAtEnd(Components.LAUNCHER) runAs NON_BLOCKING,
     )
 
     private fun assertionsForScenario(scenario: Scenario): List<BaseAssertionBuilder> {
