@@ -34,6 +34,9 @@ import com.android.server.wm.flicker.service.assertors.assertions.StatusBarLayer
 import com.android.server.wm.flicker.service.assertors.assertions.StatusBarLayerPositionAtStart
 import com.android.server.wm.flicker.service.assertors.assertions.VisibleLayersShownMoreThanOneConsecutiveEntry
 import com.android.server.wm.flicker.service.assertors.assertions.VisibleWindowsShownMoreThanOneConsecutiveEntry
+import com.android.server.wm.flicker.service.assertors.common.AppLayerBecomesVisible
+import com.android.server.wm.flicker.service.assertors.common.AppWindowBecomesTopWindow
+import com.android.server.wm.flicker.service.assertors.common.AppWindowBecomesVisible
 import com.android.server.wm.flicker.service.config.common.AssertionInvocationGroup.NON_BLOCKING
 import com.android.server.wm.flicker.service.config.common.Scenario
 import com.android.server.wm.flicker.service.config.common.ScenarioInstance
@@ -83,7 +86,10 @@ object Assertions {
                 runAs NON_BLOCKING,
 
         AppLayerIsInvisibleAtEnd(Components.LAUNCHER) runAs NON_BLOCKING,
-        AppLayerIsVisibleAtEnd(Components.OPENING_APP) runAs NON_BLOCKING
+        AppLayerIsVisibleAtEnd(Components.OPENING_APP) runAs NON_BLOCKING,
+        AppLayerBecomesVisible(Components.OPENING_APP) runAs NON_BLOCKING,
+        AppWindowBecomesVisible(Components.OPENING_APP) runAs NON_BLOCKING,
+        AppWindowBecomesTopWindow(Components.OPENING_APP) runAs NON_BLOCKING,
     )
 
     private val APP_CLOSE_ASSERTIONS = COMMON_ASSERTIONS + listOf(
