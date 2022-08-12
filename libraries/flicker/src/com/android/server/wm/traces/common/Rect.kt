@@ -23,7 +23,7 @@ package com.android.server.wm.traces.common
  *
  * This class is used by flicker and Winscope
  */
-open class Rect internal constructor(
+class Rect internal constructor(
     val left: Int = 0,
     val top: Int = 0,
     val right: Int = 0,
@@ -36,9 +36,9 @@ open class Rect internal constructor(
     /**
      * Returns true if the rectangle is empty (left >= right or top >= bottom)
      */
-    val isEmpty: Boolean = width <= 0 || height <= 0
+    val isEmpty: Boolean get() = width <= 0 || height <= 0
 
-    val isNotEmpty: Boolean = !isEmpty
+    val isNotEmpty: Boolean get() = !isEmpty
 
     /**
      * Returns a [RectF] version fo this rectangle.
@@ -47,7 +47,7 @@ open class Rect internal constructor(
         return RectF.from(left.toFloat(), top.toFloat(), right.toFloat(), bottom.toFloat())
     }
 
-    open fun prettyPrint(): String =
+    fun prettyPrint(): String =
         if (isEmpty) "[empty]" else "($left, $top) - ($right, $bottom)"
 
     /**
