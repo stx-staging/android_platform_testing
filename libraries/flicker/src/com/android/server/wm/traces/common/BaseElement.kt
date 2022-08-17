@@ -14,17 +14,8 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.traces.common.transactions
+package com.android.server.wm.traces.common
 
-data class Transaction(
-    val pid: Int,
-    val uid: Int,
-    val vSyncId: Long,
-    val postTime: Long,
-    val id: Long,
-) {
-    override fun toString(): String {
-        return "Transaction#${hashCode().toString(16)}" +
-                "(pid=$pid, uid=$uid, vSyncId=$vSyncId, postTime=$postTime, id=$id)"
-    }
+interface BaseElement<ChildType> {
+    val children: Array<ChildType>
 }

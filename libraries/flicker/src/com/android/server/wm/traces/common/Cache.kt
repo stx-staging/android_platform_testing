@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.traces.common.transactions
+package com.android.server.wm.traces.common
 
-data class Transaction(
-    val pid: Int,
-    val uid: Int,
-    val vSyncId: Long,
-    val postTime: Long,
-    val id: Long,
-) {
-    override fun toString(): String {
-        return "Transaction#${hashCode().toString(16)}" +
-                "(pid=$pid, uid=$uid, vSyncId=$vSyncId, postTime=$postTime, id=$id)"
+object Cache {
+    private val cache = mutableMapOf<Any, Any>()
+
+    fun <T : Any> get(element: T): T {
+        return cache.getOrPut(element) { element } as T
+    }
+
+    fun clear() {
+        cache.clear()
     }
 }
+
+inline fun <reified T : Any> withCache(newInstancePredicate: () -> T): T =
+    Cache.get(newInstancePredicate())

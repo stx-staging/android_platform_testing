@@ -14,17 +14,23 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.traces.common.transactions
+package com.android.server.wm.traces.common
 
-data class Transaction(
-    val pid: Int,
-    val uid: Int,
-    val vSyncId: Long,
-    val postTime: Long,
-    val id: Long,
-) {
-    override fun toString(): String {
-        return "Transaction#${hashCode().toString(16)}" +
-                "(pid=$pid, uid=$uid, vSyncId=$vSyncId, postTime=$postTime, id=$id)"
-    }
-}
+import com.android.server.wm.traces.common.layers.BaseLayerTraceEntry
+import com.android.server.wm.traces.common.windowmanager.WindowManagerState
+
+/**
+ * Represents a state dump optionally containing the [WindowManagerState] and
+ * the [BaseLayerTraceEntry] parsed.
+ */
+open class NullableDeviceStateDump(
+    /**
+     * Parsed [WindowManagerState]
+     */
+    open val wmState: WindowManagerState?,
+
+    /**
+     * Parsed [BaseLayerTraceEntry]
+     */
+    open val layerState: BaseLayerTraceEntry?
+)
