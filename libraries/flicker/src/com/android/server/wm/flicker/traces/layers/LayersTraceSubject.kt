@@ -21,6 +21,7 @@ import com.android.server.wm.flicker.traces.FlickerFailureStrategy
 import com.android.server.wm.flicker.traces.FlickerTraceSubject
 import com.android.server.wm.flicker.traces.region.RegionTraceSubject
 import com.android.server.wm.traces.common.ComponentNameMatcher
+import com.android.server.wm.traces.common.EdgeExtensionComponentMatcher
 import com.android.server.wm.traces.common.IComponentMatcher
 import com.android.server.wm.traces.common.layers.Layer
 import com.android.server.wm.traces.common.layers.LayersTrace
@@ -118,16 +119,17 @@ class LayersTraceSubject private constructor(
      */
     @JvmOverloads
     fun visibleLayersShownMoreThanOneConsecutiveEntry(
-        ignoreLayers: List<ComponentNameMatcher> = listOf(
+        ignoreLayers: List<IComponentMatcher> = listOf(
             ComponentNameMatcher.SPLASH_SCREEN,
-            ComponentNameMatcher.SNAPSHOT
+            ComponentNameMatcher.SNAPSHOT,
+            EdgeExtensionComponentMatcher()
         )
     ): LayersTraceSubject = apply {
         visibleEntriesShownMoreThanOneConsecutiveTime { subject ->
             subject.entry.visibleLayers
                 .filter {
                     ignoreLayers.none { componentMatcher ->
-                        componentMatcher.toLayerName() in it.name
+                        componentMatcher.layerMatchesAnyOf(it)
                     }
                 }
                 .map { it.name }
