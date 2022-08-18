@@ -232,7 +232,6 @@ class Layer private constructor(
         if (z != other.z) return false
         if (currFrame != other.currFrame) return false
         if (stableId != other.stableId) return false
-        if (parent != other.parent) return false
         if (zOrderRelativeOf != other.zOrderRelativeOf) return false
         if (zOrderRelativeParentOf != other.zOrderRelativeParentOf) return false
         if (_children != other._children) return false
@@ -240,6 +239,33 @@ class Layer private constructor(
         if (_partiallyOccludedBy != other._partiallyOccludedBy) return false
         if (_coveredBy != other._coveredBy) return false
         if (isMissing != other.isMissing) return false
+        if (visibleRegion != other.visibleRegion) return false
+        if (activeBuffer != other.activeBuffer) return false
+        if (flags != other.flags) return false
+        if (bounds != other.bounds) return false
+        if (color != other.color) return false
+        if (shadowRadius != other.shadowRadius) return false
+        if (cornerRadius != other.cornerRadius) return false
+        if (type != other.type) return false
+        if (transform != other.transform) return false
+        if (sourceBounds != other.sourceBounds) return false
+        if (effectiveScalingMode != other.effectiveScalingMode) return false
+        if (bufferTransform != other.bufferTransform) return false
+        if (hwcCompositionType != other.hwcCompositionType) return false
+        if (hwcCrop != other.hwcCrop) return false
+        if (hwcFrame != other.hwcFrame) return false
+        if (backgroundBlurRadius != other.backgroundBlurRadius) return false
+        if (crop != other.crop) return false
+        if (isRelativeOf != other.isRelativeOf) return false
+        if (zOrderRelativeOfId != other.zOrderRelativeOfId) return false
+        if (stackId != other.stackId) return false
+        if (requestedTransform != other.requestedTransform) return false
+        if (requestedColor != other.requestedColor) return false
+        if (cornerRadiusCrop != other.cornerRadiusCrop) return false
+        if (inputTransform != other.inputTransform) return false
+        if (inputRegion != other.inputRegion) return false
+        if (screenBounds != other.screenBounds) return false
+        if (isOpaque != other.isOpaque) return false
 
         return true
     }
