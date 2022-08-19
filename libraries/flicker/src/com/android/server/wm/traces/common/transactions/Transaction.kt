@@ -16,11 +16,18 @@
 
 package com.android.server.wm.traces.common.transactions
 
+import kotlin.js.JsName
+
 data class Transaction(
+    @JsName("pid")
     val pid: Int,
+    @JsName("uid")
     val uid: Int,
+    @JsName("vSyncId")
     val vSyncId: Long,
+    @JsName("postTime")
     val postTime: Long,
+    @JsName("id")
     val id: Long,
 ) {
     override fun toString(): String {

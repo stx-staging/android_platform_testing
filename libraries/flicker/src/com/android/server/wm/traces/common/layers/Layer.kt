@@ -21,6 +21,7 @@ import com.android.server.wm.traces.common.Color
 import com.android.server.wm.traces.common.Rect
 import com.android.server.wm.traces.common.RectF
 import com.android.server.wm.traces.common.region.Region
+import kotlin.js.JsName
 
 /**
  * Represents a single layer with links to its parent and child layers.
@@ -290,6 +291,7 @@ class Layer private constructor(
     }
 
     companion object {
+        @JsName("from")
         fun from(
             name: String,
             id: Int,

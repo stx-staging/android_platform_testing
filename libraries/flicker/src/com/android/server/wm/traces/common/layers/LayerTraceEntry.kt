@@ -17,6 +17,7 @@
 package com.android.server.wm.traces.common.layers
 
 import com.android.server.wm.traces.common.RectF
+import kotlin.js.JsName
 
 /**
  * Represents a single Layer trace entry.
@@ -35,6 +36,7 @@ class LayerTraceEntry(
 ) : BaseLayerTraceEntry() {
     override val flattenedLayers: Array<Layer> = fillFlattenedLayers(_rootLayers)
 
+    @JsName("fillFlattenedLayers")
     private fun fillFlattenedLayers(rootLayers: Array<Layer>): Array<Layer> {
         val layers = mutableListOf<Layer>()
         val roots = rootLayers.fillOcclusionState().toMutableList()
@@ -63,6 +65,7 @@ class LayerTraceEntry(
         return traverseList
     }
 
+    @JsName("fillOcclusionState")
     private fun Array<Layer>.fillOcclusionState(): Array<Layer> {
         val traversalList = topDownTraversal().reversed()
 
