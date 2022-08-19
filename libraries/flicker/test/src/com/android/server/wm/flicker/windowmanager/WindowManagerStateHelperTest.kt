@@ -27,7 +27,7 @@ import com.android.server.wm.traces.common.Cache
 import com.android.server.wm.traces.common.Color
 import com.android.server.wm.traces.common.ComponentNameMatcher
 import com.android.server.wm.traces.common.DeviceStateDump
-import com.android.server.wm.traces.common.IComponentMatcher
+import com.android.server.wm.traces.common.IComponentName
 import com.android.server.wm.traces.common.Matrix33
 import com.android.server.wm.traces.common.Rect
 import com.android.server.wm.traces.common.RectF
@@ -130,7 +130,7 @@ class WindowManagerStateHelperTest {
         )
     }
 
-    private fun createImaginaryVisibleLayers(names: List<IComponentMatcher>): Array<Layer> {
+    private fun createImaginaryVisibleLayers(names: List<IComponentName>): Array<Layer> {
         val root = createImaginaryLayer("root", -1, id = "root".hashCode(), parentId = -1)
         val layers = mutableListOf(root)
         names.forEachIndexed { index, name ->
@@ -155,7 +155,7 @@ class WindowManagerStateHelperTest {
         return {
             if (iterator.hasNext()) {
                 val wmState = iterator.next()
-                val layerList: MutableList<IComponentMatcher> =
+                val layerList: MutableList<IComponentName> =
                     mutableListOf(ComponentNameMatcher.STATUS_BAR, ComponentNameMatcher.NAV_BAR)
                 if (wmState.isWindowSurfaceShown(ComponentNameMatcher.SPLASH_SCREEN)) {
                     layerList.add(ComponentNameMatcher.SPLASH_SCREEN)

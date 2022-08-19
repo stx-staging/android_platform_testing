@@ -52,24 +52,9 @@ class ComponentIdMatcher(
     override fun layerMatchesAnyOf(layers: Array<Layer>) =
             layers.any { it.id == layerId }
 
-    override fun toActivityRecordFilter(): (Layer) -> Boolean = {
-        // TODO: Do we want to match parent or children of the layer with layerId that
-        //  match the activity record?
-        it.id == layerId
-    }
+    override fun toActivityIdentifier() = toWindowIdentifier()
 
-    /**
-     * @return the name of the activities represented by all [components], separated by "or"
-     */
-    override fun toActivityName(): String = toWindowName()
+    override fun toWindowIdentifier() = "Window#${windowId.toString(16)}"
 
-    /**
-     * @return the name of the windows represented by all [components], separated by "or"
-     */
-    override fun toWindowName(): String = "Window#${windowId.toString(16)}"
-
-    /**
-     * @return the name of the layers represented by all [components], separated by "or"
-     */
-    override fun toLayerName(): String = "Layer#$layerId"
+    override fun toLayerIdentifier(): String = "Layer#$layerId"
 }

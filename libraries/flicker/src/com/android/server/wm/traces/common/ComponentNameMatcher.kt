@@ -22,35 +22,30 @@ import com.android.server.wm.traces.common.windowmanager.windows.WindowState
 import kotlin.js.JsName
 
 class ComponentNameMatcher(
-    private val _components: Array<ComponentName>
-) : IComponentMatcher {
-    val components get() = _components.toMutableList()
+    private val component: ComponentName
+) : IComponentNameMatcher {
 
-    val packageNames: Array<String> get() =
-        components.map { it.packageName }.toTypedArray()
-    val classNames: Array<String> get() =
-        components.map { it.className }.toTypedArray()
+    override val packageName: String get() = component.packageName
+    override val className: String get() = component.className
+    override fun toActivityName(): String = component.toActivityName()
+    override fun toWindowName(): String = component.toWindowName()
+    override fun toLayerName(): String = component.toLayerName()
 
-    init {
-        require(_components.isNotEmpty()) { "No component specified" }
-    }
+    constructor(packageName: String, className: String) :
+        this(ComponentName(packageName, className))
 
     @JsName("matchesAnyOf")
-    constructor(packageName: String, className: String) :
-        this(arrayOf(ComponentName(packageName, className)))
-
     private fun <T> matchesAnyOf(
         values: Array<T>,
         valueProducer: (T) -> String,
         regexProducer: (ComponentName) -> Regex,
-    ): Boolean = components
-        .map { regexProducer.invoke(it) }
-        .any { component ->
-            val targets = values.map { valueProducer.invoke(it) }
-            targets.any { value ->
-                component.matches(value)
-            }
+    ): Boolean {
+        val componentRegex = regexProducer.invoke(component)
+        val targets = values.map { valueProducer.invoke(it) }
+        return targets.any { value ->
+            componentRegex.matches(value)
         }
+    }
 
     /** {@inheritDoc} */
     override fun windowMatchesAnyOf(windows: Array<WindowState>): Boolean =
@@ -73,54 +68,55 @@ class ComponentNameMatcher(
         )
 
     /** {@inheritDoc} */
-    override fun toWindowIdentifier(): String =
-        components.joinToString(" or ") { it.toWindowName() }
+    override fun toActivityIdentifier(): String = component.toActivityName()
 
     /** {@inheritDoc} */
-    override fun toLayerIdentifier(): String =
-            components.joinToString(" or ") { it.toLayerName() }
+    override fun toWindowIdentifier(): String = component.toWindowName()
+
+    /** {@inheritDoc} */
+    override fun toLayerIdentifier(): String = component.toLayerName()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ComponentNameMatcher) return false
-        return components == other.components
+        return component == other.component
     }
 
-    override fun hashCode(): Int = components.hashCode()
+    override fun hashCode(): Int = component.hashCode()
 
-    override fun toString(): String = components.joinToString(" or ")
+    override fun toString(): String = component.toString()
 
     companion object {
         @JsName("NAV_BAR")
-        val NAV_BAR = ComponentMatcher("", "NavigationBar0")
+        val NAV_BAR = ComponentNameMatcher("", "NavigationBar0")
         @JsName("TASK_BAR")
-        val TASK_BAR = ComponentMatcher("", "Taskbar")
+        val TASK_BAR = ComponentNameMatcher("", "Taskbar")
         @JsName("STATUS_BAR")
-        val STATUS_BAR = ComponentMatcher("", "StatusBar")
+        val STATUS_BAR = ComponentNameMatcher("", "StatusBar")
         @JsName("ROTATION")
-        val ROTATION = ComponentMatcher("", "RotationLayer")
+        val ROTATION = ComponentNameMatcher("", "RotationLayer")
         @JsName("BACK_SURFACE")
-        val BACK_SURFACE = ComponentMatcher("", "BackColorSurface")
+        val BACK_SURFACE = ComponentNameMatcher("", "BackColorSurface")
         @JsName("IME")
-        val IME = ComponentMatcher("", "InputMethod")
+        val IME = ComponentNameMatcher("", "InputMethod")
         @JsName("IME_SNAPSHOT")
-        val IME_SNAPSHOT = ComponentMatcher("", "IME-snapshot-surface")
+        val IME_SNAPSHOT = ComponentNameMatcher("", "IME-snapshot-surface")
         @JsName("SPLASH_SCREEN")
-        val SPLASH_SCREEN = ComponentMatcher("", "Splash Screen")
+        val SPLASH_SCREEN = ComponentNameMatcher("", "Splash Screen")
         @JsName("SNAPSHOT")
-        val SNAPSHOT = ComponentMatcher("", "SnapshotStartingWindow")
+        val SNAPSHOT = ComponentNameMatcher("", "SnapshotStartingWindow")
         @JsName("LETTERBOX")
-        val LETTERBOX = ComponentMatcher("", "Letterbox")
+        val LETTERBOX = ComponentNameMatcher("", "Letterbox")
         @JsName("WALLPAPER_BBQ_WRAPPER")
         val WALLPAPER_BBQ_WRAPPER =
-                ComponentMatcher("", "Wallpaper BBQ wrapper")
+                ComponentNameMatcher("", "Wallpaper BBQ wrapper")
         @JsName("PIP_CONTENT_OVERLAY")
-        val PIP_CONTENT_OVERLAY = ComponentMatcher("", "PipContentOverlay")
+        val PIP_CONTENT_OVERLAY = ComponentNameMatcher("", "PipContentOverlay")
         @JsName("LAUNCHER")
-        val LAUNCHER = ComponentMatcher("com.google.android.apps.nexuslauncher",
+        val LAUNCHER = ComponentNameMatcher("com.google.android.apps.nexuslauncher",
                 "com.google.android.apps.nexuslauncher.NexusLauncherActivity")
         @JsName("SPLIT_DIVIDER")
-        val SPLIT_DIVIDER = ComponentMatcher("", "StageCoordinatorSplitDivider")
+        val SPLIT_DIVIDER = ComponentNameMatcher("", "StageCoordinatorSplitDivider")
 
         /**
          * Creates a component matcher from a window or layer name.
@@ -130,7 +126,7 @@ class ComponentNameMatcher(
          * @param str Value to parse
          */
         @JsName("unflattenFromString")
-        fun unflattenFromString(str: String): IComponentMatcher {
+        fun unflattenFromString(str: String): ComponentNameMatcher {
             val sep = str.indexOf('/')
             if (sep < 0 || sep + 1 >= str.length) {
                 error("Missing package/class separator")

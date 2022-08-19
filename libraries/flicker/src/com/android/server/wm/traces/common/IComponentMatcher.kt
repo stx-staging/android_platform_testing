@@ -43,6 +43,11 @@ interface IComponentMatcher {
     fun windowMatchesAnyOf(windows: Collection<WindowState>): Boolean =
             windowMatchesAnyOf(windows.toTypedArray())
 
+    /**
+     * @return if any of the [windows] fit the matching conditions of the matcher
+     *
+     * @param windows to search
+     */
     fun windowMatchesAnyOf(windows: Array<WindowState>): Boolean
 
     /**
@@ -61,6 +66,11 @@ interface IComponentMatcher {
     fun activityMatchesAnyOf(activities: Collection<Activity>): Boolean =
             activityMatchesAnyOf(activities.toTypedArray())
 
+    /**
+     * @return if any of the [components] matches any of [activities]
+     *
+     * @param activities to search
+     */
     fun activityMatchesAnyOf(activities: Array<Activity>): Boolean
 
     /**
@@ -80,6 +90,12 @@ interface IComponentMatcher {
             layerMatchesAnyOf(layers.toTypedArray())
 
     fun layerMatchesAnyOf(layers: Array<Layer>): Boolean
+
+    /**
+     * @return an identifier string that provides enough information to determine which activities
+     *         the matcher is looking to match. Mostly used for debugging purposes in error messages
+     */
+    fun toActivityIdentifier(): String
 
     /**
      * @return an identifier string that provides enough information to determine which windows the
