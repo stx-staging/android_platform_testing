@@ -86,7 +86,7 @@ class ImeDisappearProcessor(logger: (String) -> Unit) : TransitionProcessor(logg
         ): FSMState {
             logger.invoke("(${current.layerState.timestamp}) IME disappear started.")
             val inputMethodLayer = current.layerState.visibleLayers.first {
-                it.name.contains(ComponentNameMatcher.IME.toLayerName())
+                ComponentNameMatcher.IME.layerMatchesAnyOf(it)
             }
             addStartTransitionTag(current, scenario, layerId = inputMethodLayer.id)
             return WaitImeDisappearFinished(tags, inputMethodLayer.id)

@@ -239,13 +239,14 @@ open class WindowManagerStateHelper @JvmOverloads constructor(
          * @param activityState expected activity state
          */
         fun withActivityState(componentMatcher: IComponentMatcher, activityState: String) =
-            add(Condition("state of ${componentMatcher.toActivityName()} to be $activityState") {
+            add(Condition(
+                    "state of ${componentMatcher.toActivityIdentifier()} to be $activityState") {
                 it.wmState.hasActivityState(componentMatcher, activityState)
             })
 
         /**
-         * Waits until the [ComponentNameMatcher.NAV_BAR] or [ComponentNameMatcher.TASK_BAR] are visible
-         * (windows and layers)
+         * Waits until the [ComponentNameMatcher.NAV_BAR] or [ComponentNameMatcher.TASK_BAR] are
+         * visible (windows and layers)
          */
         fun withNavOrTaskBarVisible() = add(WindowManagerConditionsFactory.isNavOrTaskBarVisible())
 
@@ -429,16 +430,17 @@ open class WindowManagerStateHelper @JvmOverloads constructor(
             var tasksInCorrectStacks = true
             for (activityState in waitForActivitiesVisible) {
                 val matchingWindowStates = state.wmState.getMatchingVisibleWindowState(
-                    activityState.activityName ?: error("Activity name missing in $activityState")
+                    activityState.activityMatcher
+                            ?: error("Activity name missing in $activityState")
                 )
                 val activityWindowVisible = matchingWindowStates.isNotEmpty()
 
                 if (!activityWindowVisible) {
-                    Log.i(LOG_TAG, "Activity window not visible: ${activityState.windowName}")
+                    Log.i(LOG_TAG, "Activity window not visible: ${activityState.windowIdentifier}")
                     allActivityWindowsVisible = false
-                } else if (!state.wmState.isActivityVisible(activityState.activityName)
+                } else if (!state.wmState.isActivityVisible(activityState.activityMatcher)
                 ) {
-                    Log.i(LOG_TAG, "Activity not visible: ${activityState.activityName}")
+                    Log.i(LOG_TAG, "Activity not visible: ${activityState.activityMatcher}")
                     allActivityWindowsVisible = false
                 } else {
                     // Check if window is already the correct state requested by test.

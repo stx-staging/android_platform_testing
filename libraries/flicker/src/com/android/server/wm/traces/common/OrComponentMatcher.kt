@@ -70,6 +70,10 @@ class OrComponentMatcher(
     }
 
     /** {@inheritDoc} */
+    override fun toActivityIdentifier(): String =
+        componentMatchers.joinToString(" or ") { it.toActivityIdentifier() }
+
+    /** {@inheritDoc} */
     override fun toWindowIdentifier(): String =
         componentMatchers.joinToString(" or ") { it.toWindowIdentifier() }
 

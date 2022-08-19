@@ -212,25 +212,25 @@ object WindowManagerConditionsFactory {
     fun containsActivity(
         componentMatcher: IComponentMatcher
     ): Condition<DeviceStateDump> =
-        Condition("containsActivity[${componentMatcher.toActivityName()}]") {
+        Condition("containsActivity[${componentMatcher.toActivityIdentifier()}]") {
             it.wmState.containsActivity(componentMatcher)
         }
 
     @JsName("containsWindow")
     fun containsWindow(componentMatcher: IComponentMatcher): Condition<DeviceStateDump> =
-        Condition("containsWindow[${componentMatcher.toWindowName()}]") {
+        Condition("containsWindow[${componentMatcher.toWindowIdentifier()}]") {
             it.wmState.containsWindow(componentMatcher)
         }
 
     @JsName("isWindowSurfaceShown")
     fun isWindowSurfaceShown(componentMatcher: IComponentMatcher): Condition<DeviceStateDump> =
-        Condition("isWindowSurfaceShown[${componentMatcher.toWindowName()}]") {
+        Condition("isWindowSurfaceShown[${componentMatcher.toWindowIdentifier()}]") {
             it.wmState.isWindowSurfaceShown(componentMatcher)
         }
 
     @JsName("isActivityVisible")
     fun isActivityVisible(componentMatcher: IComponentMatcher): Condition<DeviceStateDump> =
-        Condition("isActivityVisible[${componentMatcher.toActivityName()}]") {
+        Condition("isActivityVisible[${componentMatcher.toActivityIdentifier()}]") {
             it.wmState.isActivityVisible(componentMatcher)
         }
 
@@ -274,7 +274,7 @@ object WindowManagerConditionsFactory {
 
     @JsName("isLayerVisible")
     fun isLayerVisible(componentMatcher: IComponentMatcher): Condition<DeviceStateDump> =
-        Condition("isLayerVisible[${componentMatcher.toLayerName()}]") {
+        Condition("isLayerVisible[${componentMatcher.toLayerIdentifier()}]") {
             it.layerState.isVisible(componentMatcher)
         }
 
@@ -286,7 +286,7 @@ object WindowManagerConditionsFactory {
 
     @JsName("isLayerColorAlphaOne")
     fun isLayerColorAlphaOne(componentMatcher: IComponentMatcher): Condition<DeviceStateDump> =
-        Condition("isLayerColorAlphaOne[${componentMatcher.toLayerName()}]") {
+        Condition("isLayerColorAlphaOne[${componentMatcher.toLayerIdentifier()}]") {
             it.layerState.visibleLayers
                 .filter { layer -> componentMatcher.layerMatchesAnyOf(layer) }
                 .any { layer -> layer.color.isOpaque }
@@ -305,7 +305,8 @@ object WindowManagerConditionsFactory {
         transform: Int
     ): Condition<DeviceStateDump> =
         Condition(
-            "isLayerTransformFlagSet[" + "${componentMatcher.toLayerName()},transform=$transform]"
+            "isLayerTransformFlagSet[" + "${componentMatcher.toLayerIdentifier()}," +
+                    "transform=$transform]"
         ) {
             it.layerState.visibleLayers
                 .filter { layer -> componentMatcher.layerMatchesAnyOf(layer) }

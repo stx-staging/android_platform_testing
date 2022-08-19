@@ -67,7 +67,7 @@ class ImeAppearProcessor(logger: (String) -> Unit) : TransitionProcessor(logger)
             logger.invoke("(${current.layerState.timestamp}) IME appear started.")
             // add factory method as well
             val inputMethodLayer = current.layerState.visibleLayers.first {
-                it.name.contains(ComponentNameMatcher.IME.toLayerName())
+                ComponentNameMatcher.IME.layerMatchesAnyOf(it)
             }
             addStartTransitionTag(current, scenario, layerId = inputMethodLayer.id)
             return WaitImeAppearFinished(tags, inputMethodLayer.id)
