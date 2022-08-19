@@ -68,7 +68,7 @@ class WindowManagerStateSubjectTest {
         }
         assertThatErrorContainsDebugInfo(error)
         Truth.assertThat(error).hasMessageThat()
-            .contains(TestComponents.IMAGINARY.classNames.first())
+            .contains(TestComponents.IMAGINARY.className)
         Truth.assertThat(error).hasMessageThat().contains(FlickerSubject.ASSERTION_TAG)
     }
 
@@ -281,7 +281,7 @@ class WindowManagerStateSubjectTest {
                 .containsNonAppWindow(TestComponents.IMAGINARY)
         }
         assertFailure(failure).hasMessageThat()
-            .contains(TestComponents.IMAGINARY.packageNames.first())
+            .contains(TestComponents.IMAGINARY.packageName)
     }
 
     @Test
@@ -293,7 +293,7 @@ class WindowManagerStateSubjectTest {
                 .isNonAppWindowVisible(ComponentNameMatcher.IME)
         }
         assertFailure(failure).factValue("Is Invisible")
-            .contains(ComponentNameMatcher.IME.packageNames.first())
+            .contains(ComponentNameMatcher.IME.packageName)
     }
 
     @Test
@@ -315,7 +315,7 @@ class WindowManagerStateSubjectTest {
         }
         assertFailure(failure)
             .factValue("Found")
-            .contains(TestComponents.LAUNCHER.packageNames.first())
+            .contains(TestComponents.LAUNCHER.packageName)
     }
 
     @Test

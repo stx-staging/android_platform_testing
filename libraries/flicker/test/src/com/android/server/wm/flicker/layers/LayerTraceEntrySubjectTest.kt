@@ -55,7 +55,7 @@ class LayerTraceEntrySubjectTest {
         assertThatErrorContainsDebugInfo(error)
         Truth.assertThat(error)
             .hasMessageThat()
-            .contains(TestComponents.IMAGINARY.classNames.first())
+            .contains(TestComponents.IMAGINARY.className)
         Truth.assertThat(error).hasMessageThat().contains(FlickerSubject.ASSERTION_TAG)
     }
 
@@ -107,7 +107,7 @@ class LayerTraceEntrySubjectTest {
         }
         assertFailure(error)
             .factValue("Could not find layers")
-                .contains(TestComponents.IMAGINARY.toWindowName())
+                .contains(TestComponents.IMAGINARY.toWindowIdentifier())
     }
 
     @Test
