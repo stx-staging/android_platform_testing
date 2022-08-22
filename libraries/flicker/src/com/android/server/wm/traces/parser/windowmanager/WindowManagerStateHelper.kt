@@ -23,12 +23,12 @@ import android.os.SystemClock
 import android.util.Log
 import android.view.Display
 import androidx.test.platform.app.InstrumentationRegistry
-import com.android.server.wm.traces.common.ComponentMatcher
-import com.android.server.wm.traces.common.ComponentMatcher.Companion.IME
-import com.android.server.wm.traces.common.ComponentMatcher.Companion.LAUNCHER
-import com.android.server.wm.traces.common.ComponentMatcher.Companion.SNAPSHOT
-import com.android.server.wm.traces.common.ComponentMatcher.Companion.SPLASH_SCREEN
-import com.android.server.wm.traces.common.ComponentMatcher.Companion.SPLIT_DIVIDER
+import com.android.server.wm.traces.common.ComponentNameMatcher
+import com.android.server.wm.traces.common.ComponentNameMatcher.Companion.IME
+import com.android.server.wm.traces.common.ComponentNameMatcher.Companion.LAUNCHER
+import com.android.server.wm.traces.common.ComponentNameMatcher.Companion.SNAPSHOT
+import com.android.server.wm.traces.common.ComponentNameMatcher.Companion.SPLASH_SCREEN
+import com.android.server.wm.traces.common.ComponentNameMatcher.Companion.SPLIT_DIVIDER
 import com.android.server.wm.traces.common.Condition
 import com.android.server.wm.traces.common.DeviceStateDump
 import com.android.server.wm.traces.common.IComponentMatcher
@@ -244,7 +244,7 @@ open class WindowManagerStateHelper @JvmOverloads constructor(
             })
 
         /**
-         * Waits until the [ComponentMatcher.NAV_BAR] or [ComponentMatcher.TASK_BAR] are visible
+         * Waits until the [ComponentNameMatcher.NAV_BAR] or [ComponentNameMatcher.TASK_BAR] are visible
          * (windows and layers)
          */
         fun withNavOrTaskBarVisible() = add(WindowManagerConditionsFactory.isNavOrTaskBarVisible())
@@ -341,7 +341,7 @@ open class WindowManagerStateHelper @JvmOverloads constructor(
          *
          * - wait until a window is pinned ([WindowManagerState.pinnedWindows])
          * - no layers animating
-         * - and [ComponentMatcher.PIP_CONTENT_OVERLAY] is no longer visible
+         * - and [ComponentNameMatcher.PIP_CONTENT_OVERLAY] is no longer visible
          *
          * @param displayId of the target display
          */
@@ -355,7 +355,7 @@ open class WindowManagerStateHelper @JvmOverloads constructor(
          *
          * - wait until there are no pinned ([WindowManagerState.pinnedWindows])
          * - no layers animating
-         * - and [ComponentMatcher.PIP_CONTENT_OVERLAY] is no longer visible
+         * - and [ComponentNameMatcher.PIP_CONTENT_OVERLAY] is no longer visible
          *
          * @param displayId of the target display
          */

@@ -20,7 +20,7 @@ import com.android.server.wm.flicker.assertions.Assertion
 import com.android.server.wm.flicker.traces.FlickerFailureStrategy
 import com.android.server.wm.flicker.traces.FlickerTraceSubject
 import com.android.server.wm.flicker.traces.region.RegionTraceSubject
-import com.android.server.wm.traces.common.ComponentMatcher
+import com.android.server.wm.traces.common.ComponentNameMatcher
 import com.android.server.wm.traces.common.IComponentMatcher
 import com.android.server.wm.traces.common.layers.Layer
 import com.android.server.wm.traces.common.layers.LayersTrace
@@ -118,9 +118,9 @@ class LayersTraceSubject private constructor(
      */
     @JvmOverloads
     fun visibleLayersShownMoreThanOneConsecutiveEntry(
-        ignoreLayers: List<ComponentMatcher> = listOf(
-            ComponentMatcher.SPLASH_SCREEN,
-            ComponentMatcher.SNAPSHOT
+        ignoreLayers: List<ComponentNameMatcher> = listOf(
+            ComponentNameMatcher.SPLASH_SCREEN,
+            ComponentNameMatcher.SNAPSHOT
         )
     ): LayersTraceSubject = apply {
         visibleEntriesShownMoreThanOneConsecutiveTime { subject ->
@@ -264,7 +264,7 @@ class LayersTraceSubject private constructor(
     fun hasFrameSequence(
         name: String,
         frameNumbers: Iterable<Long>
-    ): LayersTraceSubject = hasFrameSequence(ComponentMatcher("", name), frameNumbers)
+    ): LayersTraceSubject = hasFrameSequence(ComponentNameMatcher("", name), frameNumbers)
 
     fun hasFrameSequence(
         componentMatcher: IComponentMatcher,

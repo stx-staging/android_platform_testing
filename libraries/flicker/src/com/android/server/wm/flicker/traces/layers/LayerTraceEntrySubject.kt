@@ -219,8 +219,9 @@ class LayerTraceEntrySubject private constructor(
         var target: FlickerSubject? = null
         var reason: Fact? = null
         val layerActivityRecordFilter = componentMatcher.toActivityRecordFilter()
+
         val filteredLayers = subjects
-            .filter { layerActivityRecordFilter.containsMatchIn(it.name) }
+                .filter { it.layer?.let { layer -> layerActivityRecordFilter(layer) } ?: false }
 
         if (filteredLayers.isEmpty()) {
             fail(

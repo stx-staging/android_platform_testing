@@ -21,7 +21,7 @@ import com.android.server.wm.flicker.assertions.Assertion
 import com.android.server.wm.flicker.assertions.FlickerSubject
 import com.android.server.wm.flicker.traces.FlickerFailureStrategy
 import com.android.server.wm.flicker.traces.region.RegionSubject
-import com.android.server.wm.traces.common.ComponentMatcher
+import com.android.server.wm.traces.common.ComponentNameMatcher
 import com.android.server.wm.traces.common.IComponentMatcher
 import com.android.server.wm.traces.common.region.Region
 import com.android.server.wm.traces.common.windowmanager.WindowManagerState
@@ -495,7 +495,8 @@ class WindowManagerStateSubject private constructor(
         requireNotNull(activity) { "Activity for $componentMatcher not found" }
 
         // Check existence and visibility of SnapshotStartingWindow
-        val snapshotStartingWindow = activity.getWindows(ComponentMatcher.SNAPSHOT).firstOrNull()
+        val snapshotStartingWindow = activity.getWindows(ComponentNameMatcher.SNAPSHOT)
+                .firstOrNull()
         check("SnapshotStartingWindow exists for activity ${activity.name}")
             .that(snapshotStartingWindow != null)
             .isTrue()

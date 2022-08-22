@@ -28,7 +28,7 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.BySelector
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
-import com.android.server.wm.traces.common.ComponentMatcher
+import com.android.server.wm.traces.common.ComponentNameMatcher
 import com.android.server.wm.traces.common.Condition
 import com.android.server.wm.traces.common.DeviceStateDump
 import com.android.server.wm.traces.common.IComponentMatcher
@@ -43,7 +43,7 @@ import com.android.server.wm.traces.parser.windowmanager.WindowManagerStateHelpe
 open class StandardAppHelper @JvmOverloads constructor(
     instr: Instrumentation,
     @JvmField val appName: String,
-    @JvmField val componentMatcher: IComponentMatcher,
+    @JvmField val componentMatcher: ComponentNameMatcher,
     protected val launcherStrategy: ILauncherStrategy =
         LauncherStrategyFactory.getInstance(instr).launcherStrategy
 ) : AbstractStandardAppHelper(instr), IComponentMatcher by componentMatcher {
@@ -55,7 +55,7 @@ open class StandardAppHelper @JvmOverloads constructor(
         launcherStrategy: ILauncherStrategy =
             LauncherStrategyFactory.getInstance(instr).launcherStrategy
     ) : this(instr, appName,
-        ComponentMatcher(packageName, ".$activity"), launcherStrategy)
+        ComponentNameMatcher(packageName, ".$activity"), launcherStrategy)
 
     private val activityManager: ActivityManager?
         get() = mInstrumentation.context.getSystemService(ActivityManager::class.java)
@@ -195,7 +195,7 @@ open class StandardAppHelper @JvmOverloads constructor(
         launchAppViaIntent(action, stringExtras)
 
         val expectedWindow = if (expectedWindowName.isNotEmpty()) {
-            ComponentMatcher("", expectedWindowName)
+            ComponentNameMatcher("", expectedWindowName)
         } else {
             componentMatcher
         }

@@ -21,7 +21,7 @@ import com.android.server.wm.flicker.assertions.Assertion
 import com.android.server.wm.flicker.traces.FlickerFailureStrategy
 import com.android.server.wm.flicker.traces.FlickerTraceSubject
 import com.android.server.wm.flicker.traces.region.RegionTraceSubject
-import com.android.server.wm.traces.common.ComponentMatcher
+import com.android.server.wm.traces.common.ComponentNameMatcher
 import com.android.server.wm.traces.common.IComponentMatcher
 import com.android.server.wm.traces.common.region.RegionTrace
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
@@ -585,9 +585,9 @@ class WindowManagerTraceSubject private constructor(
      * Checks that all visible layers are shown for more than one consecutive entry
      */
     fun visibleWindowsShownMoreThanOneConsecutiveEntry(
-        ignoreWindows: List<ComponentMatcher> = listOf(
-            ComponentMatcher.SPLASH_SCREEN,
-            ComponentMatcher.SNAPSHOT
+        ignoreWindows: List<ComponentNameMatcher> = listOf(
+            ComponentNameMatcher.SPLASH_SCREEN,
+            ComponentNameMatcher.SNAPSHOT
         )
     ): WindowManagerTraceSubject = apply {
         visibleEntriesShownMoreThanOneConsecutiveTime { subject ->

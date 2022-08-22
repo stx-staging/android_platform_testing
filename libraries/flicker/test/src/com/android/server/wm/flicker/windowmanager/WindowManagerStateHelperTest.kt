@@ -25,7 +25,7 @@ import com.android.server.wm.flicker.traces.windowmanager.WindowManagerStateSubj
 import com.android.server.wm.traces.common.ActiveBuffer
 import com.android.server.wm.traces.common.Cache
 import com.android.server.wm.traces.common.Color
-import com.android.server.wm.traces.common.ComponentMatcher
+import com.android.server.wm.traces.common.ComponentNameMatcher
 import com.android.server.wm.traces.common.DeviceStateDump
 import com.android.server.wm.traces.common.IComponentMatcher
 import com.android.server.wm.traces.common.Matrix33
@@ -73,11 +73,11 @@ class WindowManagerStateHelperTest {
         }
     }
 
-    private val chromeComponent = ComponentMatcher.unflattenFromString(
+    private val chromeComponent = ComponentNameMatcher.unflattenFromString(
         "com.android.chrome/org.chromium.chrome.browser" +
             ".firstrun.FirstRunActivity"
     )
-    private val simpleAppComponentName = ComponentMatcher.unflattenFromString(
+    private val simpleAppComponentName = ComponentNameMatcher.unflattenFromString(
         "com.android.server.wm.flicker.testapp/.SimpleActivity"
     )
 
@@ -156,20 +156,20 @@ class WindowManagerStateHelperTest {
             if (iterator.hasNext()) {
                 val wmState = iterator.next()
                 val layerList: MutableList<IComponentMatcher> =
-                    mutableListOf(ComponentMatcher.STATUS_BAR, ComponentMatcher.NAV_BAR)
-                if (wmState.isWindowSurfaceShown(ComponentMatcher.SPLASH_SCREEN)) {
-                    layerList.add(ComponentMatcher.SPLASH_SCREEN)
+                    mutableListOf(ComponentNameMatcher.STATUS_BAR, ComponentNameMatcher.NAV_BAR)
+                if (wmState.isWindowSurfaceShown(ComponentNameMatcher.SPLASH_SCREEN)) {
+                    layerList.add(ComponentNameMatcher.SPLASH_SCREEN)
                 }
-                if (wmState.isWindowSurfaceShown(ComponentMatcher.SNAPSHOT)) {
-                    layerList.add(ComponentMatcher.SNAPSHOT)
+                if (wmState.isWindowSurfaceShown(ComponentNameMatcher.SNAPSHOT)) {
+                    layerList.add(ComponentNameMatcher.SNAPSHOT)
                 }
                 layerList.addAll(
                     wmState.visibleWindows
                         .filter { it.name.contains("/") }
-                        .map { ComponentMatcher.unflattenFromString(it.name) }
+                        .map { ComponentNameMatcher.unflattenFromString(it.name) }
                 )
                 if (wmState.inputMethodWindowState?.isSurfaceShown == true) {
-                    layerList.add(ComponentMatcher.IME)
+                    layerList.add(ComponentNameMatcher.IME)
                 }
                 val layerTraceEntry = LayerTraceEntryBuilder(
                     timestamp = 0,
@@ -195,13 +195,13 @@ class WindowManagerStateHelperTest {
         try {
             WindowManagerStateSubject
                 .assertThat(helper.wmState)
-                .isNonAppWindowVisible(ComponentMatcher.IME)
+                .isNonAppWindowVisible(ComponentNameMatcher.IME)
             error("IME state should not be available")
         } catch (e: AssertionError) {
             helper.StateSyncBuilder().withImeShown().waitFor()
             WindowManagerStateSubject
                 .assertThat(helper.wmState)
-                .isNonAppWindowVisible(ComponentMatcher.IME)
+                .isNonAppWindowVisible(ComponentNameMatcher.IME)
         }
     }
 
@@ -216,13 +216,13 @@ class WindowManagerStateHelperTest {
         try {
             WindowManagerStateSubject
                 .assertThat(helper.wmState)
-                .isNonAppWindowVisible(ComponentMatcher.IME)
+                .isNonAppWindowVisible(ComponentNameMatcher.IME)
             error("IME state should not be available")
         } catch (e: AssertionError) {
             helper.StateSyncBuilder().withImeShown().waitFor()
             WindowManagerStateSubject
                 .assertThat(helper.wmState)
-                .isNonAppWindowVisible(ComponentMatcher.IME)
+                .isNonAppWindowVisible(ComponentNameMatcher.IME)
         }
     }
 
