@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2021 The Android Open Source Project
+// Copyright (C) 2022 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,14 +19,8 @@ package {
 }
 
 java_library {
-    name: "automotive-vehiclehardkeys-app-helper",
-    static_libs: [
-          "spectatio-lib",
-          "app-helpers-auto-interfaces",
-      ],
-    libs: [
-        "android.car-system-stubs",
-    ],
+    name: "automotive-config-lib",
+    java_resource_dirs: ["resources"],
     srcs: ["src/**/*.java"],
     sdk_version: "test_current",
 }
