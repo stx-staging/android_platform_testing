@@ -17,6 +17,7 @@
 package com.android.server.wm.flicker
 
 import androidx.annotation.VisibleForTesting
+import com.android.server.wm.flicker.TransitionRunner.Companion.ExecutionError
 import com.android.server.wm.flicker.assertions.AssertionData
 import com.android.server.wm.flicker.assertions.FlickerAssertionError
 import com.android.server.wm.flicker.assertions.FlickerAssertionErrorBuilder
@@ -103,6 +104,14 @@ class FlickerRunResult(testName: String) {
         }
         // Other types of failures can only happen if the run has succeeded
         return status == RunStatus.RUN_FAILED
+    }
+
+    var executionError: ExecutionError? = null
+        private set
+
+    fun setExecutionError(executionError: ExecutionError) {
+        require(this.executionError == null) { "Execution error already set" }
+        this.executionError = executionError
     }
 
     fun getSubjects(tag: String): List<FlickerSubject> {

@@ -161,10 +161,12 @@ class FlickerDSLTest {
         }.withTestName { TEST_NAME }
         val flicker = builder.build()
         flicker.execute()
-        val executionErrors = flicker.result!!.executionErrors
-        Assert.assertTrue("Expected one execution error", executionErrors.size == 1)
+        val executionError = flicker.result!!.executionError
+        Truth.assertWithMessage("Expected an execution error")
+                .that( executionError)
+                .isNotNull()
         Truth.assertWithMessage("Did not validate tag name")
-            .that(executionErrors[0].cause?.message)
+            .that(executionError?.cause?.message)
             .contains("The test tag inv lid can not contain spaces")
     }
 
@@ -207,13 +209,15 @@ class FlickerDSLTest {
         builder.transitions { error("Crashed transition") }
         val flicker = builder.build()
         flicker.execute()
-        val executionErrors = flicker.result!!.executionErrors
-        Assert.assertTrue("Expected one execution error", executionErrors.size == 1)
+        val executionError = flicker.result!!.executionError
+        Truth.assertWithMessage("Expected an execution error")
+                .that( executionError)
+                .isNotNull()
         Truth.assertWithMessage("Incorrect exception type")
-                .that(executionErrors[0])
+                .that(executionError)
                 .isInstanceOf(TransitionExecutionFailure::class.java)
         Truth.assertWithMessage("Exception does not contain the original crash message")
-                .that(executionErrors[0].message)
+                .that(executionError?.message)
                 .contains(exceptionMessage)
     }
 
@@ -410,8 +414,9 @@ class FlickerDSLTest {
         }
         // Execution errors are reported in the FlickerBlockJUnit4ClassRunner after each test
         if (!expectExceptions) {
-            Assert.assertTrue("Expected no execution errors",
-                    flicker.result!!.executionErrors.isEmpty())
+            Truth.assertWithMessage("Expected no execution errors")
+                .that(flicker.result!!.executionError)
+                .isNull()
         }
         flicker.clear()
     }
@@ -449,10 +454,12 @@ class FlickerDSLTest {
             assertions: List<AssertionData> = listOf(PASS_ASSERTION)
     ) {
         runFlicker(flicker, assertions, expectExceptions = true)
-        val executionErrors = flicker.result!!.executionErrors
-        Assert.assertTrue("Expected one execution error", executionErrors.size == 1)
+        val executionError = flicker.result!!.executionError
+        Truth.assertWithMessage("Expected an execution error")
+                .that( executionError)
+                .isNotNull()
         Truth.assertWithMessage("Incorrect exception type")
-                .that(executionErrors[0])
+                .that(executionError)
                 .isInstanceOf(clazz)
     }
 

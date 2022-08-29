@@ -16,6 +16,7 @@
 
 package com.android.server.wm.flicker
 
+import com.android.server.wm.flicker.FlickerRunResult.Companion.RunStatus
 import com.android.server.wm.flicker.TransitionRunner.Companion.ExecutionError
 import com.android.server.wm.flicker.assertions.AssertionData
 import com.android.server.wm.flicker.assertions.FlickerAssertionError
@@ -29,16 +30,9 @@ data class FlickerResult(
      * Result of a transition run
      */
     private val runResult: FlickerRunResult,
-    /**
-     * List of test created during the execution
-     */
-    @JvmField val tags: Set<String> = setOf(),
-    /**
-     * Execution errors which happened during the execution of the Flicker test
-     */
-    @JvmField val executionErrors: List<ExecutionError> = listOf()
 ) {
-    val status: FlickerRunResult.Companion.RunStatus get() = runResult.status
+    val status: RunStatus get() = runResult.status
+    val executionError: ExecutionError? get() = runResult.executionError
     val ranSuccessfully: Boolean get() = runResult.isSuccessfulRun
 
     /**
@@ -55,10 +49,10 @@ data class FlickerResult(
         Truth.assertWithMessage("Transition was not executed successful. Can't check assertions")
                 .that(runResult.isSuccessfulRun).isTrue()
 
-        val currFailure = runResult.checkAssertion(assertion)?.also {
+        val assertionFailure = runResult.checkAssertion(assertion)?.also {
             failures.add(it)
         }
-        return currFailure
+        return assertionFailure
     }
 
     fun clearFromMemory() {

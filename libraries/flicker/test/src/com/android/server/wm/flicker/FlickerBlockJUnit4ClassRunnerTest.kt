@@ -187,12 +187,11 @@ class FlickerBlockJUnit4ClassRunnerTest {
         val runner = FlickerBlockJUnit4ClassRunner(test)
         runner.run(RunNotifier())
         Truth.assertThat(parameters[0].flicker.faasEnabled).isTrue()
-        val executionErrors = parameters[0].flicker.result!!.executionErrors
+        val executionError = parameters[0].flicker.result!!.executionError
         Truth.assertWithMessage(
             "No flicker execution errors were expected but got some ::" +
-                executionErrors.joinToString()
-        )
-            .that(executionErrors).isEmpty()
+                executionError
+        ).that(executionError).isNull()
 
         Assert.assertEquals(1, transitionRunCount)
         transitionRunCount = 0

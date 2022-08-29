@@ -89,9 +89,8 @@ open class TransitionRunner {
      */
     internal open fun run(flicker: Flicker): FlickerResult {
         val runResult = FlickerRunResult(flicker.testName)
-        val executionErrors = mutableListOf<ExecutionError>()
         _result = runResult
-        safeExecution(flicker, executionErrors) {
+        safeExecution(flicker) {
             Log.d(FLICKER_TAG, "${flicker.testName} - Running test setup")
             runTestSetup(flicker)
             val description = Description.createSuiteDescription(flicker.testName)
@@ -112,75 +111,62 @@ open class TransitionRunner {
                         "Notifying FaaS of finished transition")
                 flicker.faas.testFinished(description)
                 if (flicker.faas.executionErrors.isNotEmpty()) {
-                    executionErrors.addAll(flicker.faas.executionErrors)
+                    runResult.setExecutionError(flicker.faas.executionErrors[0])
+                    for (executionError in flicker.faas.executionErrors) {
+                        Log.e(FLICKER_TAG, "FaaS reported execution errors", executionError)
+                    }
                 }
             }
             Log.d(FLICKER_TAG, "${flicker.testName} - Running test teardown")
             runTestTeardown(flicker)
         }
 
-        val result = FlickerResult(
-            runResult,
-            tags.toSet(),
-            executionErrors
-        )
+        val result = FlickerResult(runResult)
         cleanUp()
         return result
     }
 
     private fun safeExecution(
         flicker: Flicker,
-        executionErrors: MutableList<ExecutionError>,
+        alreadyFailed: Boolean = false,
         execution: () -> Unit
     ) {
         try {
             execution()
-        } catch (e: TestSetupFailure) {
-            // If we fail on the test setup we can't run any of the transitions
-            executionErrors.add(e)
+        } catch (e: ExecutionError) {
+            Log.e(FLICKER_TAG, "A Flicker Execution Error occurred!", e)
+            if (alreadyFailed) {
+                // If we already failed don't try and handle failures since we are most likely
+                // failing because of the previous execution error
+                return
+            }
+
+            result.setExecutionError(e)
             result.setStatus(RunStatus.RUN_FAILED)
-        } catch (e: TransitionSetupFailure) {
-            // If we fail on the transition run setup then we don't want to run any further
-            // transitions nor save any results for this run. We simply want to run the test
-            // teardown.
-            executionErrors.add(e)
-            result.setStatus(RunStatus.RUN_FAILED)
-            safeExecution(flicker, executionErrors) {
-                runTestTeardown(flicker)
+
+            when (e) {
+                is TestSetupFailure, is TransitionSetupFailure -> {
+                    // If we fail on the setup we simply want to run the test teardown.
+                    safeExecution(flicker, true) {
+                        runTestTeardown(flicker)
+                    }
+                }
+                is TransitionExecutionFailure, is TransitionTeardownFailure -> {
+                    // If a transition fails to run we want to store the traces for the transition up to the
+                    // point the failure occurred and then try and run the test teardown.
+                    flicker.traceMonitors.forEach { it.tryStop() }
+                    safeExecution(flicker, true) {
+                        processRunTraces(flicker, RunStatus.RUN_FAILED)
+                        runTestTeardown(flicker)
+                    }
+                }
+                is TraceProcessingFailure, is TestTeardownFailure -> {
+                    // Nothing to do & considered handled
+                }
+                else -> {
+                    throw e
+                }
             }
-        } catch (e: TransitionExecutionFailure) {
-            // If a transition fails to run we don't want to run the following iterations as the
-            // device is likely in an unexpected state which would lead to further errors. We simply
-            // want to run the test teardown
-            executionErrors.add(e)
-            flicker.traceMonitors.forEach { it.tryStop() }
-            safeExecution(flicker, executionErrors) {
-                processRunTraces(flicker, RunStatus.RUN_FAILED)
-                runTestTeardown(flicker)
-            }
-        } catch (e: TransitionTeardownFailure) {
-            // If a transition teardown fails to run we don't want to run the following iterations
-            // as the device is likely in an unexpected state which would lead to further errors.
-            // But, we do want to run the test teardown.
-            executionErrors.add(e)
-            flicker.traceMonitors.forEach { it.tryStop() }
-            safeExecution(flicker, executionErrors) {
-                processRunTraces(flicker, RunStatus.RUN_FAILED)
-                runTestTeardown(flicker)
-            }
-        } catch (e: TraceProcessingFailure) {
-            // If we fail to process the run traces we still want to run the teardowns and report
-            // the execution error.
-            executionErrors.add(e)
-            safeExecution(flicker, executionErrors) {
-                runTransitionTeardown(flicker)
-                runTestTeardown(flicker)
-            }
-        } catch (e: TestTeardownFailure) {
-            // If we fail in the execution of the test teardown there is nothing else to do apart
-            // from reporting the execution error.
-            executionErrors.add(e)
-            result.setStatus(RunStatus.RUN_FAILED)
         }
     }
 
@@ -196,7 +182,6 @@ open class TransitionRunner {
         status: RunStatus
     ) {
         try {
-            val result = result
             result.setStatus(status)
             setMonitorResults(flicker, result)
             result.lock()
