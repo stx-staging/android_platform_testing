@@ -59,10 +59,6 @@ class Flicker(
      */
     @JvmField val testName: String,
     /**
-     * Number of times the test should be executed
-     */
-    @JvmField var repetitions: Int,
-    /**
      * Enabled tracing monitors
      */
     @JvmField val traceMonitors: List<ITransitionMonitor>,
@@ -135,7 +131,7 @@ class Flicker(
 
             requireNotNull(result)
 
-            if (result.successfulRuns.isEmpty()) {
+            if (!result.ranSuccessfully) {
                 // No successful transition runs so can't check assertions against anything
                 // Any execution errors that lead to having no successful runs will be reported
                 // appropriately by the FlickerBlockJUnit4ClassRunner.
@@ -148,10 +144,10 @@ class Flicker(
                 return
             }
 
-            val failures = result.checkAssertion(assertion)
+            val failure = result.checkAssertion(assertion)
             ranChecks = true
-            if (failures.isNotEmpty()) {
-                throw failures.first()
+            if (failure != null) {
+                throw failure
             }
         } finally {
             assertionsCheckedCallback?.invoke(ranChecks)

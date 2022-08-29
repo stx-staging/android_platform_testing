@@ -26,9 +26,9 @@ import com.google.common.truth.Truth
  */
 data class FlickerResult(
     /**
-     * Result of each transition run
+     * Result of a transition run
      */
-    @JvmField val runResults: Collection<FlickerRunResult>,
+    private val runResult: FlickerRunResult,
     /**
      * List of test created during the execution
      */
@@ -38,10 +38,8 @@ data class FlickerResult(
      */
     @JvmField val executionErrors: List<ExecutionError> = listOf()
 ) {
-    /** Successful runs on which we can run assertions */
-    val successfulRuns: List<FlickerRunResult> = runResults.filter { it.isSuccessfulRun }
-    /** Failed runs due to execution errors which we shouldn't run assertions on */
-    private val failedRuns: List<FlickerRunResult> = runResults.filter { it.isFailedRun }
+    val status: FlickerRunResult.Companion.RunStatus get() = runResult.status
+    val ranSuccessfully: Boolean get() = runResult.isSuccessfulRun
 
     /**
      * List of failures during assertion
@@ -53,26 +51,17 @@ data class FlickerResult(
      *
      * @throws AssertionError If the assertion fail or the transition crashed
      */
-    internal fun checkAssertion(assertion: AssertionData): List<FlickerAssertionError> {
-        Truth.assertWithMessage("Expected to have runResults but none were found")
-                .that(runResults).isNotEmpty()
-        Truth.assertWithMessage("No transitions were not executed successful")
-                .that(successfulRuns).isNotEmpty()
+    internal fun checkAssertion(assertion: AssertionData): FlickerAssertionError? {
+        Truth.assertWithMessage("Transition was not executed successful. Can't check assertions")
+                .that(runResult.isSuccessfulRun).isTrue()
 
-        val currFailures = successfulRuns.mapNotNull { run -> run.checkAssertion(assertion) }
-        failures.addAll(currFailures)
-        return currFailures
+        val currFailure = runResult.checkAssertion(assertion)?.also {
+            failures.add(it)
+        }
+        return currFailure
     }
-
-    fun isEmpty(): Boolean = executionErrors.isEmpty() && successfulRuns.isEmpty()
-
-    fun isNotEmpty(): Boolean = !isEmpty()
 
     fun clearFromMemory() {
-        runResults.forEach { it.clearFromMemory() }
-    }
-
-    fun lock() {
-        runResults.forEach { it.lock() }
+        runResult.clearFromMemory()
     }
 }

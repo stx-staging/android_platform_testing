@@ -48,7 +48,7 @@ val CHAR_POOL: List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
 /**
  * Defines the result of a flicker run
  */
-class FlickerRunResult(testName: String, iteration: Int) {
+class FlickerRunResult(testName: String) {
     /**
      * The object responsible for managing the trace file associated with this result.
      *
@@ -57,7 +57,7 @@ class FlickerRunResult(testName: String, iteration: Int) {
      * file manager.
      */
     private val artifacts: RunResultArtifacts = RunResultArtifacts(getDefaultFlickerOutputDir()
-            .resolve("${testName}_$iteration.zip"))
+            .resolve("${testName}.zip"))
     /**
      * Truth subject that corresponds to a [WindowManagerTrace]
      */
