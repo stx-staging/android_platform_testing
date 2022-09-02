@@ -22,14 +22,11 @@ java_library_host {
 
     srcs: [
         "src/**/*.java",
-        "proto/**/*.proto",
     ],
-    proto: {
-        type: "lite",
-    },
+
     static_libs: [
-        "libprotobuf-java-lite",
         "sts-common-util-hostsidelib",
+        "sts-libtombstone_proto-java",
         "truth-prebuilt",
     ],
 
@@ -38,5 +35,18 @@ java_library_host {
         "compatibility-tradefed",
         "guava",
         "tradefed",
+    ],
+}
+
+java_library_host {
+    name: "sts-libtombstone_proto-java",
+    srcs: [
+        "proto/tombstone.proto",
+    ],
+    proto: {
+        type: "lite",
+    },
+    static_libs: [
+        "libprotobuf-java-full",
     ],
 }
