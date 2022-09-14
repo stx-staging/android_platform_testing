@@ -24,7 +24,6 @@ import android.util.Log;
 
 import com.android.internal.jank.InteractionJankMonitor;
 import com.android.os.nano.AtomsProto;
-import com.android.os.nano.JankAtomsProto;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -87,7 +86,7 @@ public class UiInteractionFrameInfoHelper implements ICollectorHelper<StringBuil
                 mStatsdHelper.getEventMetrics()) {
             final AtomsProto.Atom atom = dataItem.atom;
             if (atom.hasUiInteractionFrameInfoReported()) {
-                final JankAtomsProto.UIInteractionFrameInfoReported uiInteractionFrameInfoReported =
+                final AtomsProto.UIInteractionFrameInfoReported uiInteractionFrameInfoReported =
                         atom.getUiInteractionFrameInfoReported();
 
                 final String interactionType =
