@@ -20,6 +20,7 @@ import android.util.Log;
 
 import com.android.internal.util.LatencyTracker;
 import com.android.os.nano.AtomsProto;
+import com.android.os.nano.JankAtomsProto;
 import com.android.os.nano.StatsLog;
 
 import java.util.ArrayList;
@@ -57,7 +58,7 @@ public class UiActionLatencyHelper implements ICollectorHelper<StringBuilder> {
         for (StatsLog.EventMetricData dataItem : mStatsdHelper.getEventMetrics()) {
             final AtomsProto.Atom atom = dataItem.atom;
             if (atom.hasUiActionLatencyReported()) {
-                final AtomsProto.UIActionLatencyReported uiActionLatencyReported =
+                final JankAtomsProto.UIActionLatencyReported uiActionLatencyReported =
                         atom.getUiActionLatencyReported();
                 final String action =
                         LatencyTracker.getNameOfAction(uiActionLatencyReported.action);
