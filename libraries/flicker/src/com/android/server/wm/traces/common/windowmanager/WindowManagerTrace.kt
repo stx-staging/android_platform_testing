@@ -63,12 +63,13 @@ data class WindowManagerTrace(
      * @return the subtrace trace(from, to)
      */
     @JsName("slice")
-    fun slice(from: Long, to: Long): WindowManagerTrace {
+    fun slice(from: Long, to: Long, addInitialEntry: Boolean = false): WindowManagerTrace {
+        val first = this.entries.indexOfFirst { it.timestamp >= from } -
+            (if (addInitialEntry) 1 else 0)
+        val last = this.entries.indexOfFirst { it.timestamp > to } - 1
+
         return WindowManagerTrace(
-            this.entries
-                .dropWhile { it.timestamp < from }
-                .dropLastWhile { it.timestamp > to }
-                .toTypedArray()
+            this.entries.slice(first..last).toTypedArray()
         )
     }
 }

@@ -40,6 +40,7 @@ import com.android.server.wm.traces.parser.transaction.TransactionsTraceParser
 import com.android.server.wm.traces.parser.transition.TransitionsTraceParser
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerTraceParser
 import java.io.File
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -50,6 +51,20 @@ val CHAR_POOL: List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
  * Defines the result of a flicker run
  */
 class FlickerRunResult(testName: String) {
+
+    data class TraceTime(
+        val elapsedRealtimeNanos: Long,
+        val systemTime: Long,
+        val unixTimeMillis: Long
+    )
+
+    /**
+     * Logs the start and end times of the transition, so we can crop the traces to exclude the
+     * setups and teardowns to only run the assertion on the transition.
+     */
+    lateinit var transitionStartTime: TraceTime
+    lateinit var transitionEndTime: TraceTime
+
     /**
      * The object responsible for managing the trace file associated with this result.
      *
@@ -58,7 +73,7 @@ class FlickerRunResult(testName: String) {
      * file manager.
      */
     private val artifacts: RunResultArtifacts = RunResultArtifacts(getDefaultFlickerOutputDir()
-            .resolve("${testName}.zip"))
+            .resolve("$testName.zip"))
     /**
      * Truth subject that corresponds to a [WindowManagerTrace]
      */
@@ -212,29 +227,66 @@ class FlickerRunResult(testName: String) {
         resultSetter.setResult(this)
     }
 
+    /**
+     * @return a Window Manager trace for the part of the trace we want to run the assertions on.
+     */
     internal fun buildWmTrace(): WindowManagerTrace? {
         val wmTraceFileName = this.wmTraceFileName ?: return null
         val traceData = this.artifacts.getFileBytes(wmTraceFileName)
-        return WindowManagerTraceParser.parseFromTrace(traceData, clearCacheAfterParsing = false)
+        val trace = WindowManagerTraceParser
+            .parseFromTrace(traceData, clearCacheAfterParsing = false)
+            .slice(
+                transitionStartTime.elapsedRealtimeNanos,
+                transitionEndTime.elapsedRealtimeNanos,
+                addInitialEntry = true
+            )
+        require(trace.entries.size >= 2) {
+            "WM trace contained ${trace.entries.size} entries, expected at least 2..."
+        }
+        return trace
     }
 
+    /**
+     * @return a layers trace for the part of the trace we want to run the assertions on.
+     */
     internal fun buildLayersTrace(): LayersTrace? {
         val wmTraceFileName = this.layersTraceFileName ?: return null
         val traceData = this.artifacts.getFileBytes(wmTraceFileName)
-        return LayersTraceParser.parseFromTrace(traceData, clearCacheAfterParsing = false)
+        val trace = LayersTraceParser.parseFromTrace(traceData, clearCacheAfterParsing = false)
+            .slice(
+                transitionStartTime.systemTime,
+                transitionEndTime.systemTime,
+                addInitialEntry = true
+            )
+        require(trace.entries.size >= 2) {
+            "Layers trace contained ${trace.entries.size} entries, expected at least 2..."
+        }
+        return trace
     }
 
+    /**
+     * @return a transactions trace for the part of the trace we want to run the assertions on.
+     */
     private fun buildTransactionsTrace(): TransactionsTrace? {
         val transactionsTrace = this.transactionsTraceFileName ?: return null
         val traceData = this.artifacts.getFileBytes(transactionsTrace)
-        return TransactionsTraceParser.parseFromTrace(traceData)
+        val trace = TransactionsTraceParser.parseFromTrace(traceData)
+            .slice(transitionStartTime.systemTime, transitionEndTime.systemTime)
+        require(trace.entries.isNotEmpty()) { "Transactions trace was empty..." }
+        return trace
     }
 
+    /**
+     * @return a transitions trace for the part of the trace we want to run the assertions on.
+     */
     internal fun buildTransitionsTrace(): TransitionsTrace? {
         val transactionsTrace = buildTransactionsTrace()
         val transitionsTrace = this.transitionsTraceFileName ?: return null
         val traceData = this.artifacts.getFileBytes(transitionsTrace)
-        return TransitionsTraceParser.parseFromTrace(traceData, transactionsTrace!!)
+        val trace =  TransitionsTraceParser.parseFromTrace(traceData, transactionsTrace!!)
+            .slice(transitionStartTime.elapsedRealtimeNanos, transitionEndTime.elapsedRealtimeNanos)
+        require(trace.entries.isNotEmpty()) { "Transitions trace was empty..." }
+        return trace
     }
 
     private fun buildTaggedStates(): Map<String, List<StateDump>> {
@@ -275,9 +327,17 @@ class FlickerRunResult(testName: String) {
         return StateDump(buildWmTraceSubject()?.last(), buildLayersTraceSubject()?.last())
     }
 
+    /**
+     * @return a transitions trace for the part of the trace we want to run the assertions on.
+     */
     private fun buildEventLog(): EventLogSubject? {
         val eventLog = eventLog ?: return null
         return EventLogSubject.assertThat(eventLog)
+            .split(
+                TimeUnit.NANOSECONDS.convert(
+                    transitionStartTime.unixTimeMillis, TimeUnit.MILLISECONDS),
+                TimeUnit.NANOSECONDS.convert(
+                        transitionEndTime.unixTimeMillis, TimeUnit.MILLISECONDS))
     }
 
     private fun buildWmTraceSubject(): WindowManagerTraceSubject? {

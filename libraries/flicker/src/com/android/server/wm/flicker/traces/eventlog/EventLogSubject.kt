@@ -100,4 +100,14 @@ class EventLogSubject private constructor(
      * Run the assertions.
      */
     fun forAllEntries(): Unit = assertionsChecker.test(subjects)
+
+    fun split(from: Long, to: Long): EventLogSubject {
+        val trace = this.trace
+                .dropWhile { it.timestamp < from }
+                .dropLastWhile { it.timestamp > to }
+        return EventLogSubject(
+            this.fm,
+            trace
+        )
+    }
 }

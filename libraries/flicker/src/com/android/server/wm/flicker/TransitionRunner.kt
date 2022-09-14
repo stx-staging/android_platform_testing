@@ -16,6 +16,7 @@
 
 package com.android.server.wm.flicker
 
+import android.os.SystemClock
 import android.util.Log
 import com.android.server.wm.flicker.FlickerRunResult.Companion.RunStatus
 import com.android.server.wm.flicker.monitor.IFileGeneratingMonitor
@@ -94,12 +95,20 @@ open class TransitionRunner {
                 Log.d(FLICKER_TAG, "${flicker.testName} - Setting up FaaS")
                 flicker.faas.testStarted(description)
             }
+
+            Log.d(FLICKER_TAG, "${flicker.testName} - Starting traces")
+            flicker.traceMonitors.forEach { it.start() }
+
             Log.d(FLICKER_TAG, "${flicker.testName} - Running transition setup")
             runTransitionSetup(flicker)
             Log.d(FLICKER_TAG, "${flicker.testName} - Running transition")
             runTransition(flicker)
             Log.d(FLICKER_TAG, "${flicker.testName} - Running transition teardown")
             runTransitionTeardown(flicker)
+
+            Log.d(FLICKER_TAG, "${flicker.testName} - Stopping traces")
+            flicker.traceMonitors.forEach { it.tryStop() }
+
             Log.d(FLICKER_TAG, "${flicker.testName} - Processing transition traces")
             processRunTraces(flicker, RunStatus.ASSERTION_SUCCESS)
             if (flicker.faasEnabled) {
@@ -132,6 +141,7 @@ open class TransitionRunner {
             if (alreadyFailed) {
                 // If we already failed don't try and handle failures since we are most likely
                 // failing because of the previous execution error.
+                Log.e(FLICKER_TAG, "FAILED HANDLING AN EXECUTION ERROR!")
                 return
             }
 
@@ -139,31 +149,34 @@ open class TransitionRunner {
             result.setStatus(RunStatus.RUN_FAILED)
 
             when (e) {
-                is TransitionSetupFailure -> {
-                    // If we fail on the setup we simply want to run the teardown.
-                    safeExecution(flicker, true) {
-                        runTransitionTeardown(flicker)
-                    }
-                }
-                is TransitionExecutionFailure -> {
-                    // If a transition fails to run we want to store the traces for the transition
-                    // up to the point the failure occurred and then try and run the teardown.
-                    flicker.traceMonitors.forEach { it.tryStop() }
-                    safeExecution(flicker, true) {
-                        runTransitionTeardown(flicker)
-                        processRunTraces(flicker, RunStatus.RUN_FAILED)
-                    }
-                }
+                is TransitionSetupFailure,
+                is TransitionExecutionFailure,
                 is TransitionTeardownFailure -> {
-                    // If the teardown failure we still want to try and process the traces
+                    // If we fail on the transition setup, the transition itself or the transition
+                    // teardown, then we want to try to stop the tracing and store the traces in the
+                    // trace archive.
                     safeExecution(flicker, true) {
+                        Log.d(FLICKER_TAG, "${flicker.testName} - Stopping traces")
+                        flicker.traceMonitors.forEach { it.tryStop() }
+
+                        Log.d(FLICKER_TAG, "${flicker.testName} - Processing transition traces")
                         processRunTraces(flicker, RunStatus.RUN_FAILED)
                     }
                 }
-                is TraceProcessingFailure -> {
+            }
+
+            when (e) {
+                is TransitionSetupFailure, is TransitionExecutionFailure -> {
+                    // If we fail on the setup or transition we simply want to run the teardown.
+                    safeExecution(flicker, true) {
+                        runTransitionTeardown(flicker)
+                    }
+                }
+                is TransitionTeardownFailure, is TraceProcessingFailure -> {
                     // Nothing to do & considered handled
                 }
                 else -> {
+                    // Throw any unhandled error
                     throw e
                 }
             }
@@ -226,12 +239,24 @@ open class TransitionRunner {
     @Throws(TransitionExecutionFailure::class)
     private fun runTransition(flicker: Flicker) {
         try {
-            flicker.traceMonitors.forEach { it.start() }
+            result.transitionStartTime = FlickerRunResult.TraceTime(
+                elapsedRealtimeNanos = SystemClock.elapsedRealtimeNanos(),
+                systemTime = SystemClock.uptimeNanos(),
+                unixTimeMillis = System.currentTimeMillis(),
+            )
+
+
             flicker.transitions.forEach { it.invoke(flicker) }
             flicker.wmHelper.StateSyncBuilder()
                     .add(UI_STABLE_CONDITIONS)
                     .waitFor()
-            flicker.traceMonitors.forEach { it.tryStop() }
+
+
+            result.transitionEndTime = FlickerRunResult.TraceTime(
+                elapsedRealtimeNanos = SystemClock.elapsedRealtimeNanos(),
+                systemTime = SystemClock.uptimeNanos(),
+                unixTimeMillis = System.currentTimeMillis(),
+            )
         } catch (e: Throwable) {
             throw TransitionExecutionFailure(e)
         }

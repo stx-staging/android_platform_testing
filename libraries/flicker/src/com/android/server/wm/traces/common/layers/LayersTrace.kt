@@ -59,11 +59,20 @@ data class LayersTrace(
      * @return the subtrace trace(from, to)
      */
     @JsName("slice")
-    fun slice(from: Long, to: Long): LayersTrace {
+    fun slice(from: Long, to: Long, addInitialEntry: Boolean = false): LayersTrace {
+        val first = this.entries.indexOfFirst { it.timestamp >= from } -
+                (if (addInitialEntry) 1 else 0)
+        val last = this.entries.indexOfFirst { it.timestamp > to } - 1
+
+        return LayersTrace(this.entries.slice(first..last).toTypedArray())
+    }
+
+    @JsName("vSyncSlice")
+    fun vSyncSlice(from: Int, to: Int): LayersTrace {
         return LayersTrace(
             this.entries
-                .dropWhile { it.timestamp < from }
-                .dropLastWhile { it.timestamp > to }
+                .dropWhile { it.vSyncId < from }
+                .dropLastWhile { it.vSyncId > to }
                 .toTypedArray()
         )
     }
