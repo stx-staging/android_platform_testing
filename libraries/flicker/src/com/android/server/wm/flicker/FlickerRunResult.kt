@@ -58,7 +58,7 @@ class FlickerRunResult(testName: String) {
      * file manager.
      */
     private val artifacts: RunResultArtifacts = RunResultArtifacts(getDefaultFlickerOutputDir()
-            .resolve("${testName}.zip"))
+            .resolve("$testName.zip"))
     /**
      * Truth subject that corresponds to a [WindowManagerTrace]
      */
@@ -106,12 +106,20 @@ class FlickerRunResult(testName: String) {
         return status == RunStatus.RUN_FAILED
     }
 
-    var executionError: ExecutionError? = null
+    var transitionExecutionError: ExecutionError? = null
         private set
 
-    fun setExecutionError(executionError: ExecutionError) {
-        require(this.executionError == null) { "Execution error already set" }
-        this.executionError = executionError
+    var faasExecutionError: ExecutionError? = null
+        private set
+
+    fun setTransitionExecutionError(executionError: ExecutionError) {
+        require(this.transitionExecutionError == null) { "Execution error already set" }
+        this.transitionExecutionError = executionError
+    }
+
+    fun setFaasExecutionError(executionError: ExecutionError) {
+        require(this.faasExecutionError == null) { "Execution error already set" }
+        this.faasExecutionError = executionError
     }
 
     fun getSubjects(tag: String): List<FlickerSubject> {

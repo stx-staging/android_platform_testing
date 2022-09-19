@@ -107,7 +107,7 @@ open class TransitionRunner {
                         "Notifying FaaS of finished transition")
                 flicker.faas.testFinished(description)
                 if (flicker.faas.executionErrors.isNotEmpty()) {
-                    runResult.setExecutionError(flicker.faas.executionErrors[0])
+                    runResult.setFaasExecutionError(flicker.faas.executionErrors[0])
                     for (executionError in flicker.faas.executionErrors) {
                         Log.e(FLICKER_TAG, "FaaS reported execution errors", executionError)
                     }
@@ -135,7 +135,7 @@ open class TransitionRunner {
                 return
             }
 
-            result.setExecutionError(e)
+            result.setTransitionExecutionError(e)
             result.setStatus(RunStatus.RUN_FAILED)
 
             when (e) {
