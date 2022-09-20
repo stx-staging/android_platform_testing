@@ -29,7 +29,7 @@ import com.google.common.truth.Truth
  */
 class EventLogSubject private constructor(
     failureMetadata: FailureMetadata,
-    private val trace: List<FocusEvent>
+    val trace: List<FocusEvent>
 ) : FlickerSubject(failureMetadata, trace) {
     override val timestamp: Long get() = 0
     override val parent: FlickerSubject? get() = null

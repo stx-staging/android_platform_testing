@@ -27,6 +27,7 @@ import com.android.server.wm.traces.common.WindowManagerConditionsFactory
 import com.android.server.wm.traces.parser.getCurrentState
 import java.io.IOException
 import java.nio.file.Files
+import java.util.concurrent.TimeUnit
 import org.junit.runner.Description
 
 /**
@@ -242,7 +243,8 @@ open class TransitionRunner {
             result.transitionStartTime = FlickerRunResult.TraceTime(
                 elapsedRealtimeNanos = SystemClock.elapsedRealtimeNanos(),
                 systemTime = SystemClock.uptimeNanos(),
-                unixTimeMillis = System.currentTimeMillis(),
+                unixTimeNanos = TimeUnit.NANOSECONDS.convert(
+                    System.currentTimeMillis(), TimeUnit.MILLISECONDS),
             )
 
 
@@ -255,7 +257,8 @@ open class TransitionRunner {
             result.transitionEndTime = FlickerRunResult.TraceTime(
                 elapsedRealtimeNanos = SystemClock.elapsedRealtimeNanos(),
                 systemTime = SystemClock.uptimeNanos(),
-                unixTimeMillis = System.currentTimeMillis(),
+                unixTimeNanos = TimeUnit.NANOSECONDS.convert(
+                    System.currentTimeMillis(), TimeUnit.MILLISECONDS),
             )
         } catch (e: Throwable) {
             throw TransitionExecutionFailure(e)
