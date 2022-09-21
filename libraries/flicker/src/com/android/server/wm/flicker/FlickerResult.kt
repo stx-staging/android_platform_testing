@@ -33,7 +33,8 @@ data class FlickerResult(
     private val runResult: FlickerRunResult,
 ) {
     val status: RunStatus get() = runResult.status
-    val executionError: ExecutionError? get() = runResult.executionError
+    val transitionExecutionError: ExecutionError? get() = runResult.transitionExecutionError
+    val faasExecutionError: ExecutionError? get() = runResult.faasExecutionError
     val ranSuccessfully: Boolean get() = runResult.isSuccessfulRun
 
     /**

@@ -132,7 +132,7 @@ class Flicker(
                 // No successful transition runs so can't check assertions against anything
                 // Any execution errors that lead to having no successful runs will be reported
                 // appropriately by the FlickerBlockJUnit4ClassRunner.
-                if (result.executionError == null) {
+                if (result.transitionExecutionError == null) {
                     // If there are no execution errors we want to throw an error here since we won't
                     // fail later in the FlickerBlockJUnit4ClassRunner.
                     throw Exception("No transition runs were executed! Can't check assertion.")

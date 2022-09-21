@@ -75,7 +75,7 @@ class TransitionRunnerTest {
         val result = runner.execute(flicker)
         runner.cleanUp()
         Truth.assertThat(executed).isTrue()
-        Truth.assertThat(result.executionError).isNull()
+        Truth.assertThat(result.transitionExecutionError).isNull()
         Truth.assertThat(result.ranSuccessfully).isTrue()
     }
 
@@ -91,7 +91,7 @@ class TransitionRunnerTest {
             }.build(runner)
         val result = runner.execute(flicker)
         runner.cleanUp()
-        Truth.assertThat(result.executionError).isNotNull()
+        Truth.assertThat(result.transitionExecutionError).isNotNull()
     }
 
     @Test
