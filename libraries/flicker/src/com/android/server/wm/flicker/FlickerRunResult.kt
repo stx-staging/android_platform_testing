@@ -261,7 +261,10 @@ class FlickerRunResult(
             )
         val minimumEntries = minimumTraceEntriesForConfig(traceConfig.wmTrace)
         require(trace.entries.size >= minimumEntries) {
-            "WM trace contained ${trace.entries.size} entries, expected at least $minimumEntries..."
+            "WM trace contained ${trace.entries.size} entries, " +
+                    "expected at least $minimumEntries... :: " +
+                    "transition starts at ${transitionStartTime.elapsedRealtimeNanos} and " +
+                    "ends at ${transitionEndTime.elapsedRealtimeNanos}."
         }
         return trace
     }
@@ -284,7 +287,9 @@ class FlickerRunResult(
         val minimumEntries = minimumTraceEntriesForConfig(traceConfig.layersTrace)
         require(trace.entries.size >= minimumEntries) {
             "Layers trace contained ${trace.entries.size} entries, " +
-                    "expected at least $minimumEntries..."
+                    "expected at least $minimumEntries... :: " +
+                    "transition starts at ${transitionStartTime.systemTime} and " +
+                    "ends at ${transitionEndTime.systemTime}."
         }
         return trace
     }
@@ -308,7 +313,7 @@ class FlickerRunResult(
         val transactionsTrace = buildTransactionsTrace()
         val transitionsTrace = this.transitionsTraceFileName ?: return null
         val traceData = this.artifacts.getFileBytes(transitionsTrace)
-        val trace =  TransitionsTraceParser.parseFromTrace(traceData, transactionsTrace!!)
+        val trace = TransitionsTraceParser.parseFromTrace(traceData, transactionsTrace!!)
             .slice(transitionStartTime.elapsedRealtimeNanos, transitionEndTime.elapsedRealtimeNanos)
         require(trace.entries.isNotEmpty()) { "Transitions trace was empty..." }
         return trace
