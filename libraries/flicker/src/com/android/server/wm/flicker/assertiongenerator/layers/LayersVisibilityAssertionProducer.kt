@@ -3,6 +3,7 @@ package com.android.server.wm.flicker.assertiongenerator.layers
 import com.android.server.wm.flicker.Utils
 import com.android.server.wm.flicker.assertiongenerator.common.Assertion
 import com.android.server.wm.flicker.assertiongenerator.common.ITraceLifecycle
+import com.android.server.wm.flicker.service.assertors.ComponentTypeMatcher
 import com.android.server.wm.flicker.traces.layers.LayerTraceEntrySubject
 
 class LayersVisibilityAssertionProducer(
@@ -39,28 +40,31 @@ class LayersVisibilityAssertionProducer(
                     name
                 )
             }
-            assertion
+            if (initializedAssertion) {
+                assertion
+            } else {
+                null
+            }
         }
-        return assertions.filter { it.assertionString != ""}
-    }
-
-    private fun addToAssertionString(assertionStrToAdd: String, componentMatcherStr: String) {
-        if (initializedAssertion) {
-            assertion.assertionString += ".then()"
-        }
-        assertion.assertionString += ".$assertionStrToAdd($componentMatcherStr)"
+        return assertions.filterNotNull()
     }
 
     private fun addAssertionFor(visibility: Boolean?, name: String) {
-        val componentMatcher = Utils.componentNameMatcherFromName(name) ?: return
-        val componentMatcherStr = Utils.componentNameMatcherToString(componentMatcher)
+        Utils.componentNameMatcherFromName(name) ?: return
+        val componentMatcher = ComponentTypeMatcher(name)
+        try {
+            componentMatcher.earlyInitialize()
+        } catch (err: RuntimeException) {
+            assertion.needsInitialization = true
+        }
+        assertion.componentMatchers.add(componentMatcher)
         val assertionPair = visibilityAssertions[visibility]
         val assertionStrToAdd = assertionPair!!.assertionStrToAdd
         val assertionFunction = assertionPair.assertionFunction
         assertion.assertionsChecker.add("$assertionStrToAdd($name)", isOptional = false) {
             assertionFunction(it, componentMatcher)
         }
-        addToAssertionString(assertionStrToAdd, componentMatcherStr)
+        assertion.assertionStringsToAdd.add(assertionStrToAdd)
     }
 
     private fun setPrevious(visibility: Boolean?) {

@@ -24,6 +24,7 @@ import com.android.server.wm.flicker.assertiongenerator.layers.LayersTraceLifecy
 import com.android.server.wm.flicker.assertiongenerator.layers.LayersVisibilityAssertionProducer
 import com.android.server.wm.traces.common.ComponentNameMatcher
 import com.android.server.wm.traces.common.layers.LayersTrace
+import com.android.server.wm.traces.common.transition.Transition
 import com.google.common.truth.Truth
 import org.junit.Before
 import org.junit.Test
@@ -36,9 +37,11 @@ import org.junit.Test
 class LayersVisibilityAssertionProducerTest {
     lateinit var assertions: List<Assertion>
     private lateinit var executeLayersTrace: LayersTrace
+    private var transition: Transition? = null
 
     lateinit var assertionsSameComponentMatcher: List<Assertion>
     private lateinit var executeSameComponentMatcherLayersTrace: LayersTrace
+    private var sameComponentMatcherTransition: Transition? = null
 
     lateinit var assertionFail: Assertion
 
@@ -82,28 +85,31 @@ class LayersVisibilityAssertionProducerTest {
 
     @Before
     fun setup() {
+
         createExecuteLayersTrace()
         createExecuteSameComponentMatcherLayersTrace()
         produceAssertionsFromTestTrace()
         produceAssertionsSameComponentMatcherFromTestTrace()
+
         produceAssertionFailFromTestTrace()
     }
 
-    @Test
     fun produceFromTestTrace_assertions_expected() {
+        Truth.assertThat(assertions.size)
+            .isEqualTo(AssertionProducerTestConst.expected_layer_visibility_assertions.size)
         assertions.forEachIndexed { index, assertion ->
-            Truth.assertThat(
-                AssertionProducerTestConst.expected_layer_visibility_assertions[index]
-                .isEqual(assertion)).isTrue()
-        }
-    }
-
-    @Test
-    fun produceFromTestTrace_assertionToString_expected() {
-        assertions.forEachIndexed { index, assertion ->
-            Truth.assertThat(assertion.toString("newTrace")).isEqualTo(
-            "assertThat(newTrace)" +
-            AssertionProducerTestConst.expected_layer_visibility_assertions[index].assertionString)
+            try {
+                Truth.assertThat(
+                    AssertionProducerTestConst.expected_layer_visibility_assertions[index]
+                        .isEqual(assertion)).isTrue()
+            } catch (err: AssertionError) {
+                throw RuntimeException(
+                    "$err\nExpected:\n" +
+                        "${AssertionProducerTestConst
+                            .expected_layer_visibility_assertions[index]}" +
+                        "\n\nActual:\n$assertion"
+                )
+            }
         }
     }
 
@@ -112,16 +118,18 @@ class LayersVisibilityAssertionProducerTest {
         assertions.forEachIndexed { index, assertion ->
             assertion.execute(executeLayersTrace)
         }
+        produceFromTestTrace_assertions_expected()
     }
 
-    @Test
     fun produceFromTestTrace_assertions_sameComponentMatcher_expected() {
+        Truth.assertThat(assertionsSameComponentMatcher.size)
+            .isEqualTo(AssertionProducerTestConst
+                .expected_layer_visibility_assertions_sameComponentMatcher.size)
         assertionsSameComponentMatcher.forEachIndexed { index, assertion ->
             try {
-                Truth.assertThat(
-                    AssertionProducerTestConst
-                        .expected_layer_visibility_assertions_sameComponentMatcher[index]
-                        .isEqual(assertion)).isTrue()
+                Truth.assertThat(assertion.isEqual(AssertionProducerTestConst
+                    .expected_layer_visibility_assertions_sameComponentMatcher[index])
+                ).isTrue()
             } catch (err: AssertionError) {
                 throw RuntimeException(
                     "$err\nExpected:\n" +
@@ -138,6 +146,7 @@ class LayersVisibilityAssertionProducerTest {
         assertionsSameComponentMatcher.forEachIndexed { index, assertion ->
             assertion.execute(executeSameComponentMatcherLayersTrace)
         }
+        produceFromTestTrace_assertions_sameComponentMatcher_expected()
     }
 
     @Test
