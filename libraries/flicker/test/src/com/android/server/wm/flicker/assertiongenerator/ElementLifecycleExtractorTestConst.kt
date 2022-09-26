@@ -55,6 +55,18 @@ class ElementLifecycleExtractorTestConst {
             5,
             0)
 
+        val layer_id6_t1 = null
+        val layer_id6_t2 = createTestLayerWithEmptyRegion(
+            "openPackage/openApp",
+            6,
+            6,
+            0)
+        val layer_id6_t3 = createTestLayer(
+            "openPackage/openApp",
+            8,
+            6,
+            0)
+
         val mapOfFlattenedLayers: Map<Int, Array<Layer>> = mapOf(
                 1 to arrayOf(layer_id1_t1, layer_id2_t1),
                 2 to arrayOf(layer_id1_t2, layer_id2_t2, layer_id3_t2),
@@ -95,6 +107,10 @@ class ElementLifecycleExtractorTestConst {
             mutableListOf(layer_id4_t1, layer_id4_t2, layer_id4_t3)
         )
 
+        val expectedElementLifecycle_id6 = LayersElementLifecycle(
+            mutableListOf(layer_id6_t1, layer_id6_t2, layer_id6_t3)
+        )
+
         val expectedElementLifecycle_id5_sameComponentMatcher = LayersElementLifecycle(
             mutableListOf(
                 layer_id5_sameComponentMatcher,
@@ -115,6 +131,10 @@ class ElementLifecycleExtractorTestConst {
             mutableMapOf(4 to expectedElementLifecycle_id4)
         )
 
+        val expectedComponentMatcherLifecycle_OpenApp = LayersComponentLifecycle(
+            mutableMapOf(6 to expectedElementLifecycle_id6)
+        )
+
         val expectedComponentMatcherLifecycle_Statusbar_sameComponentMatcher =
             LayersComponentLifecycle(
                 mutableMapOf(
@@ -132,6 +152,11 @@ class ElementLifecycleExtractorTestConst {
         val expectedElementLifecycles_SameComponentMatcher = mapOf(
             ComponentNameMatcher.STATUS_BAR to
                 expectedComponentMatcherLifecycle_Statusbar_sameComponentMatcher
+        )
+
+        val expectedElementLifecycles_OpenApp = mapOf(
+            ComponentNameMatcher("openPackage", "openApp") to
+                expectedComponentMatcherLifecycle_OpenApp
         )
 
         val expectedElementLifecycle_AllVisibilityAssertions_id2 = LayersElementLifecycle(
