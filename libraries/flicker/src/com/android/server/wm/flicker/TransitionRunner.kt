@@ -247,12 +247,10 @@ open class TransitionRunner {
                     System.currentTimeMillis(), TimeUnit.MILLISECONDS),
             )
 
-
             flicker.transitions.forEach { it.invoke(flicker) }
             flicker.wmHelper.StateSyncBuilder()
                     .add(UI_STABLE_CONDITIONS)
                     .waitFor()
-
 
             result.transitionEndTime = FlickerRunResult.TraceTime(
                 elapsedRealtimeNanos = SystemClock.elapsedRealtimeNanos(),

@@ -44,11 +44,6 @@ class AssertionEngineTest {
         val transitionsTrace = readTransitionsTraceFromFile(
                 "$path/transition_trace.winscope", transactionsTrace)
 
-        val transitionsHaveNoVSyncIdTransactions = transitionsTrace.entries.toList().any {
-            it.startTransaction.requestedVSyncId == -1L ||
-                it.finishTransaction.requestedVSyncId == -1L
-        }
-
         assertionEngine.analyze(wmTrace, layersTrace, transitionsTrace)
     }
 }
