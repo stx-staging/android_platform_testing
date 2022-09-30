@@ -14,21 +14,11 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.assertiongenerator.common
+package com.android.server.wm.flicker.assertiongenerator.windowmanager
 
-import com.android.server.wm.traces.common.IComponentMatcher
+import com.android.server.wm.flicker.assertiongenerator.common.TraceContent
 
-interface ITraceLifecycle {
-    // TO-DO: iterator
-
-    val size: Int
-
-    val elementIds: Set<IComponentMatcher>
-
-    operator fun get(elementId: Any): IComponentLifecycle?
-
-    operator fun set(elementId: Any, elementLifecycles: IComponentLifecycle)
-
-    fun getOrPut(elementId: Any, elementLifecycles: IComponentLifecycle):
-            IComponentLifecycle
-}
+class WmTraceContent (
+    override val traceLifecycle: WmTraceLifecycle,
+    override val traceConfiguration: WmTraceConfiguration?
+) : TraceContent(traceLifecycle, traceConfiguration)

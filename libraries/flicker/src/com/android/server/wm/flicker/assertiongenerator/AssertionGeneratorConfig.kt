@@ -14,21 +14,16 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.assertiongenerator.common
+package com.android.server.wm.flicker.assertiongenerator
 
-import com.android.server.wm.traces.common.IComponentMatcher
+import com.android.server.wm.traces.common.DeviceTraceDump
+import com.android.server.wm.traces.common.service.Scenario
 
-interface ITraceLifecycle {
-    // TO-DO: iterator
+data class ScenarioConfig(
+    val deviceTraceDumps: Array<DeviceTraceDump>,
+    val traceConfigurations: Array<DeviceTraceConfiguration>
+)
 
-    val size: Int
-
-    val elementIds: Set<IComponentMatcher>
-
-    operator fun get(elementId: Any): IComponentLifecycle?
-
-    operator fun set(elementId: Any, elementLifecycles: IComponentLifecycle)
-
-    fun getOrPut(elementId: Any, elementLifecycles: IComponentLifecycle):
-            IComponentLifecycle
-}
+data class AssertionGeneratorConfig(
+    val er: Map<Scenario, Array<DeviceTraceDump>?>?
+)
