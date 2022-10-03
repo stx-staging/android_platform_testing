@@ -31,7 +31,8 @@ import org.junit.runners.MethodSorters
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class AssertionEngineTest {
-    private val assertionEngine = AssertionEngine { m -> Log.d("AssertionEngineTest", m)}
+    private val assertionEngine = AssertionEngine(AssertionGeneratorConfigProducer())
+        { m -> Log.d("AssertionEngineTest", m)}
 
     @Test
     fun canHandleTransactionsWithNoVSync() {
