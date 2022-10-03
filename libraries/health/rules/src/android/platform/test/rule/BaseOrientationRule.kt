@@ -83,24 +83,18 @@ object RotationUtils {
     fun setOrientationOverride(expectedOrientation: Orientation) {
         device.pressHome()
         launcher.setEnableRotation(true)
-        if (launcherVisibleBounds?.orientation == expectedOrientation) {
-            return
+
+        when (expectedOrientation) {
+            PORTRAIT -> device.setOrientationNatural()
+            LANDSCAPE -> device.setOrientationLeft()
         }
-        changeOrientation()
+
         waitForNullDiag {
             when (launcherVisibleBounds?.orientation) {
                 expectedOrientation -> null // No error == success.
                 null -> "Launcher is not found"
                 else -> "Visible orientation is not ${expectedOrientation.name}"
             }
-        }
-    }
-
-    private fun changeOrientation() {
-        if (device.isNaturalOrientation) {
-            device.setOrientationLeft()
-        } else {
-            device.setOrientationNatural()
         }
     }
 
