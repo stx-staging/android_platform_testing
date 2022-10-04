@@ -122,6 +122,8 @@ open class ComponentNameMatcher(open var component: ComponentName) : IComponentN
             )
         @JsName("SPLIT_DIVIDER")
         val SPLIT_DIVIDER = ComponentNameMatcher("", "StageCoordinatorSplitDivider")
+        @JsName("DEFAULT_TASK_DISPLAY_AREA")
+        val DEFAULT_TASK_DISPLAY_AREA = ComponentNameMatcher("", "DefaultTaskDisplayArea")
 
         /**
          * Creates a component matcher from a window or layer name.
