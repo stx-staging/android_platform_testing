@@ -16,6 +16,7 @@
 
 package com.android.server.wm.flicker.service.config
 
+import androidx.annotation.VisibleForTesting
 import com.android.server.wm.flicker.assertiongenerator.common.AssertionFactory
 import com.android.server.wm.flicker.service.assertors.AssertionData
 import com.android.server.wm.flicker.service.assertors.BaseAssertionBuilder
@@ -133,7 +134,8 @@ object Assertions {
                 AppLayerIsVisibleAtEnd(Components.LAUNCHER) runAs NON_BLOCKING,
             )
 
-    private fun getLayersGeneratedAssertionsForScenario(
+    @VisibleForTesting
+    fun getLayersGeneratedAssertionsForScenario(
         scenarioInstance: ScenarioInstance,
         assertionFactory: AssertionFactory,
         logger: ((String) -> Unit)? = null

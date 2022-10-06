@@ -146,9 +146,15 @@ object Utils {
 
     fun componentNameMatcherToStringSimplified(componentNameMatcher: ComponentNameMatcher): String {
         if (componentNameMatcher is ComponentTypeMatcher) {
-            return "${componentNameMatcher.componentBuilder.name}"
+            return componentNameMatcher.componentBuilder.name
         }
-        return "${componentNameMatcher.className}"
+        var className = componentNameMatcher.className
+        val separatedByDots = className.split('.')
+        if (separatedByDots.isNotEmpty()) {
+            className = separatedByDots[separatedByDots.size - 1]
+        }
+        className = className.replace(' ', '_')
+        return className
     }
 
     fun componentNameMatcherAsStringFromName(str: String): String? {

@@ -338,9 +338,9 @@ class LayersVisibilityAssertionProducerTest {
         val transitionsTrace = traceDump.transitionsTrace!!
 
         val scenarioInstances = mutableListOf<ScenarioInstance>()
-        for (scenario in ScenarioType.values()) {
+        for (scenarioType in ScenarioType.values()) {
             scenarioInstances.addAll(
-                scenario.getInstances(transitionsTrace, wmTrace) { m ->
+                scenarioType.getInstances(transitionsTrace, wmTrace) { m ->
                     Log.d("AssertionEngineTest", m)
                 }
             )
@@ -348,9 +348,6 @@ class LayersVisibilityAssertionProducerTest {
 
         layersTrace?.run {
             val assertions = produceAssertionsFromTraceDump(traceDump, traceConfiguration)
-            // assert for expected nr of assertions too ->
-            // hard because not all element component matchers in traceLifecycle actually produce an
-            // assertion
             Truth.assertThat(assertions.isNotEmpty()).isTrue()
             for (scenarioInstance in scenarioInstances) {
                 assertions.forEachIndexed { index, assertion ->
