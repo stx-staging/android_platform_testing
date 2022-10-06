@@ -31,8 +31,10 @@ import com.android.server.wm.flicker.assertiongenerator.layers.LayersVisibilityA
 import com.android.server.wm.traces.common.ComponentNameMatcher
 import com.android.server.wm.traces.common.DeviceTraceDump
 import com.android.server.wm.traces.common.layers.LayersTrace
+import com.android.server.wm.traces.common.service.PlatformConsts
 import com.android.server.wm.traces.common.service.Scenario
 import com.android.server.wm.traces.common.service.ScenarioInstance
+import com.android.server.wm.traces.common.service.ScenarioType
 import com.android.server.wm.traces.common.transition.Transition
 import com.google.common.truth.Truth
 import org.junit.Before
@@ -328,15 +330,19 @@ class LayersVisibilityAssertionProducerTest {
     fun produceFromTraceFile_assertion_execute() {
         val configDir = "/assertiongenerator_config_test"
         val goldenTracesConfig = TraceFileReader.getGoldenTracesConfig(configDir)
-        val traceDump = goldenTracesConfig[Scenario.APP_LAUNCH]!!.deviceTraceDumps[0]
-        val traceConfiguration = goldenTracesConfig[Scenario.APP_LAUNCH]!!.traceConfigurations[0]
+        val scenario = Scenario(ScenarioType.APP_LAUNCH, PlatformConsts.Rotation.ROTATION_0)
+        val traceDump = goldenTracesConfig[scenario]!!.deviceTraceDumps[0]
+        val traceConfiguration = goldenTracesConfig[scenario]!!.traceConfigurations[0]
         val layersTrace = traceDump.layersTrace
+        val wmTrace = traceDump.wmTrace!!
         val transitionsTrace = traceDump.transitionsTrace!!
 
         val scenarioInstances = mutableListOf<ScenarioInstance>()
-        for (scenario in Scenario.values()) {
+        for (scenario in ScenarioType.values()) {
             scenarioInstances.addAll(
-                scenario.getInstances(transitionsTrace) { m -> Log.d("AssertionEngineTest", m) }
+                scenario.getInstances(transitionsTrace, wmTrace) { m ->
+                    Log.d("AssertionEngineTest", m)
+                }
             )
         }
 
@@ -350,7 +356,7 @@ class LayersVisibilityAssertionProducerTest {
                 assertions.forEachIndexed { index, assertion ->
                     assertion.execute(layersTrace, scenarioInstance.associatedTransition)
                 }
-                if (scenarioInstance.scenario == Scenario.APP_LAUNCH) {
+                if (scenarioInstance.scenario.scenarioType == ScenarioType.APP_LAUNCH) {
                     val assertionsStrings =
                         assertions.map { assertion -> assertion.assertionString }
                     Truth.assertThat(assertionsStrings).isEqualTo(expectedAssertionStringsFileTrace)

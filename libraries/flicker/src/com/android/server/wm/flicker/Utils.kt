@@ -111,15 +111,10 @@ object Utils {
         str: String,
         deviceTraceConfiguration: DeviceTraceConfiguration
     ): ComponentNameMatcher? {
-        val condition = true
-        val componentMatcher =
+        return try {
             componentNameMatcherHardcoded(str)
                 ?: componentNameMatcherConfig(str, deviceTraceConfiguration)
-        return try {
-            when (condition) {
-                (componentMatcher != null) -> componentMatcher
-                else -> ComponentNameMatcher.unflattenFromStringWithJunk(str)
-            }
+                    ?: ComponentNameMatcher.unflattenFromStringWithJunk(str)
         } catch (err: IllegalStateException) {
             null
         }
@@ -133,13 +128,9 @@ object Utils {
     fun componentNameMatcherFromName(
         str: String,
     ): ComponentNameMatcher? {
-        val condition = true
-        val componentMatcher = componentNameMatcherHardcoded(str)
         return try {
-            when (condition) {
-                (componentMatcher != null) -> componentMatcher
-                else -> ComponentNameMatcher.unflattenFromStringWithJunk(str)
-            }
+            componentNameMatcherHardcoded(str)
+                ?: ComponentNameMatcher.unflattenFromStringWithJunk(str)
         } catch (err: IllegalStateException) {
             null
         }
