@@ -40,8 +40,10 @@ import com.android.server.wm.flicker.service.assertors.assertions.StatusBarLayer
 import com.android.server.wm.flicker.service.assertors.assertions.VisibleLayersShownMoreThanOneConsecutiveEntry
 import com.android.server.wm.flicker.service.assertors.assertions.VisibleWindowsShownMoreThanOneConsecutiveEntry
 import com.android.server.wm.traces.common.service.AssertionInvocationGroup.NON_BLOCKING
+import com.android.server.wm.traces.common.service.PlatformConsts
 import com.android.server.wm.traces.common.service.Scenario
 import com.android.server.wm.traces.common.service.ScenarioInstance
+import com.android.server.wm.traces.common.service.ScenarioType
 import com.android.server.wm.traces.common.transition.Transition
 
 object Assertions {
@@ -77,11 +79,14 @@ object Assertions {
         }
     }
 
-    fun assertionsForTransition(transition: Transition): List<AssertionData> {
+    fun assertionsForTransition(
+        transition: Transition,
+        rotation: PlatformConsts.Rotation = PlatformConsts.Rotation.ROTATION_0
+    ): List<AssertionData> {
         val assertions: MutableList<AssertionData> = mutableListOf()
-        for (scenario in Scenario.values()) {
-            scenario.description
-            if (scenario.executionCondition.shouldExecute(transition)) {
+        for (scenarioType in ScenarioType.values()) {
+            val scenario = Scenario(scenarioType, rotation)
+            if (scenarioType.executionCondition.shouldExecute(transition)) {
                 for (assertion in assertionsForScenario(scenario)) {
                     assertions.add(AssertionData(scenario, assertion, assertion.invocationGroup))
                 }
@@ -160,33 +165,16 @@ object Assertions {
             getWMGeneratedAssertionsForScenario(scenarioInstance, assertionFactory, logger)
     }
 
-    private fun generatedAssertionsForScenario(
-        scenarioInstance: ScenarioInstance,
-        assertionFactory: AssertionFactory
-    ): List<BaseAssertionBuilder> {
-        return when (scenarioInstance.scenario) {
-            Scenario.COMMON -> listOf<BaseAssertionBuilder>()
-            Scenario.APP_LAUNCH ->
-                getAllAssertionsGeneratedForScenario(scenarioInstance, assertionFactory)
-            Scenario.APP_CLOSE -> listOf<BaseAssertionBuilder>()
-            Scenario.ROTATION -> listOf<BaseAssertionBuilder>()
-            Scenario.IME_APPEAR -> listOf<BaseAssertionBuilder>()
-            Scenario.IME_DISAPPEAR -> listOf<BaseAssertionBuilder>()
-            Scenario.PIP_ENTER -> listOf<BaseAssertionBuilder>()
-            Scenario.PIP_EXIT -> listOf<BaseAssertionBuilder>()
-        }
-    }
-
     private fun assertionsForScenario(scenario: Scenario): List<BaseAssertionBuilder> {
-        return when (scenario) {
-            Scenario.COMMON -> COMMON_ASSERTIONS
-            Scenario.APP_LAUNCH -> APP_LAUNCH_ASSERTIONS
-            Scenario.APP_CLOSE -> APP_CLOSE_ASSERTIONS
-            Scenario.ROTATION -> TODO()
-            Scenario.IME_APPEAR -> TODO()
-            Scenario.IME_DISAPPEAR -> TODO()
-            Scenario.PIP_ENTER -> TODO()
-            Scenario.PIP_EXIT -> TODO()
+        return when (scenario.scenarioType) {
+            ScenarioType.COMMON -> COMMON_ASSERTIONS
+            ScenarioType.APP_LAUNCH -> APP_LAUNCH_ASSERTIONS
+            ScenarioType.APP_CLOSE -> APP_CLOSE_ASSERTIONS
+            ScenarioType.ROTATION -> TODO()
+            ScenarioType.IME_APPEAR -> TODO()
+            ScenarioType.IME_DISAPPEAR -> TODO()
+            ScenarioType.PIP_ENTER -> TODO()
+            ScenarioType.PIP_EXIT -> TODO()
         }
     }
 }
