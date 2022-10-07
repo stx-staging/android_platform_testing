@@ -40,7 +40,7 @@ class TraceFileReaderTest {
             arrayOf(AssertionGenConfigTestConst.deviceTraceConfigurationTestFile)
         Truth.assertThat(config[scenario]?.traceConfigurations)
             .isEqualTo(expectedAppLaunchConfig_traceConfigurations)
-        Truth.assertThat(config[scenario]?.deviceTraceDumps?.get(0)?.isValid)
+        Truth.assertThat(config[scenario]?.deviceTraceDumps?.get(0)?.isValid).isTrue()
     }
 
     @Test
