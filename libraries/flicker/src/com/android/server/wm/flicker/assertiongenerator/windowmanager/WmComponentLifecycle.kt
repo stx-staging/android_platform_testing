@@ -14,34 +14,34 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.assertiongenerator.layers
+package com.android.server.wm.flicker.assertiongenerator.windowmanager
 
 import com.android.server.wm.flicker.assertiongenerator.common.IComponentLifecycle
 import com.android.server.wm.flicker.assertiongenerator.common.IElementLifecycle
 
-class LayersComponentLifecycle(
-    val lifecyclesMap: MutableMap<Int, LayersElementLifecycle> = mutableMapOf()
+class WmComponentLifecycle(
+    val lifecyclesMap: MutableMap<String, WmElementLifecycle> = mutableMapOf()
 ) : IComponentLifecycle {
     override val size: Int
         get() = lifecyclesMap.size
 
-    override val elementIds: MutableSet<Int>
+    override val elementIds: MutableSet<String>
         get() = lifecyclesMap.keys
 
     val traceLength: Int
         get() = getOneEntry().states.size
 
-    override fun get(elementId: Any): LayersElementLifecycle? {
-        return lifecyclesMap[elementId as Int]
+    override fun get(elementId: Any): WmElementLifecycle? {
+        return lifecyclesMap[elementId as String]
     }
 
     override fun set(elementId: Any, elementLifecycles: IElementLifecycle) {
-        lifecyclesMap[elementId as Int] = elementLifecycles as LayersElementLifecycle
+        lifecyclesMap[elementId as String] = elementLifecycles as WmElementLifecycle
     }
 
     override fun getOrPut(elementId: Any, elementLifecycles: IElementLifecycle): IElementLifecycle {
-        return lifecyclesMap.getOrPut(elementId as Int) {
-            elementLifecycles as LayersElementLifecycle
+        return lifecyclesMap.getOrPut(elementId as String) {
+            elementLifecycles as WmElementLifecycle
         }
     }
 
@@ -56,12 +56,12 @@ class LayersComponentLifecycle(
     }
 
     /** @inheritDoc */
-    override fun getOneEntry(): LayersElementLifecycle {
+    override fun getOneEntry(): WmElementLifecycle {
         return lifecyclesMap.values.first()
     }
 
     override fun equals(other: Any?): Boolean {
-        return other is LayersComponentLifecycle && this.lifecyclesMap == other.lifecyclesMap
+        return other is WmComponentLifecycle && this.lifecyclesMap == other.lifecyclesMap
     }
 
     override fun hashCode(): Int {
@@ -69,6 +69,6 @@ class LayersComponentLifecycle(
     }
 
     override fun toString(): String {
-        return "LayersComponentMatcherLifecycle:\n$lifecyclesMap\n\n"
+        return "WmComponentMatcherLifecycle:\n$lifecyclesMap\n\n"
     }
 }

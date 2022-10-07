@@ -18,6 +18,7 @@ package com.android.server.wm.flicker
 
 import com.android.compatibility.common.util.SystemUtil
 import com.android.server.wm.flicker.FlickerRunResult.Companion.RunStatus
+import com.android.server.wm.flicker.assertiongenerator.DeviceTraceConfiguration
 import com.android.server.wm.flicker.assertiongenerator.layers.LayersElementLifecycle
 import com.android.server.wm.flicker.service.assertors.ComponentTypeMatcher
 import com.android.server.wm.traces.common.ComponentNameMatcher
@@ -86,19 +87,50 @@ object Utils {
         }
     }
 
+    fun componentNameMatcherConfig(
+        str: String,
+        deviceTraceConfiguration: DeviceTraceConfiguration
+    ): ComponentNameMatcher? {
+        for ((compName, compBuilder) in deviceTraceConfiguration.componentToTypeMap) {
+            val compNameElements = compName.split('/')
+            val compPackage = compNameElements[0]
+            val compClass = compNameElements[1]
+            if (str.contains(compPackage) && str.contains(compClass)) {
+                return ComponentTypeMatcher(compName, compBuilder)
+            }
+        }
+        return null
+    }
+
+    /**
+     * Obtains the component name matcher corresponding to a name (str) Returns null if the name is
+     * not found in the hardcoded list or in the config, and it does not contain both the package
+     * and class name (with a / separator)
+     */
+    fun componentNameMatcherFromNameWithConfig(
+        str: String,
+        deviceTraceConfiguration: DeviceTraceConfiguration
+    ): ComponentNameMatcher? {
+        return try {
+            componentNameMatcherHardcoded(str)
+                ?: componentNameMatcherConfig(str, deviceTraceConfiguration)
+                    ?: ComponentNameMatcher.unflattenFromStringWithJunk(str)
+        } catch (err: IllegalStateException) {
+            null
+        }
+    }
+
     /**
      * Obtains the component name matcher corresponding to a name (str) Returns null if the name is
      * not found in the hardcoded list, and it does not contain both the package and class name
      * (with a / separator)
      */
-    fun componentNameMatcherFromName(str: String): ComponentNameMatcher? {
-        val condition = true
-        val componentMatcher = componentNameMatcherHardcoded(str)
+    fun componentNameMatcherFromName(
+        str: String,
+    ): ComponentNameMatcher? {
         return try {
-            when (condition) {
-                (componentMatcher != null) -> componentMatcher
-                else -> ComponentNameMatcher.unflattenFromString(str)
-            }
+            componentNameMatcherHardcoded(str)
+                ?: ComponentNameMatcher.unflattenFromStringWithJunk(str)
         } catch (err: IllegalStateException) {
             null
         }
