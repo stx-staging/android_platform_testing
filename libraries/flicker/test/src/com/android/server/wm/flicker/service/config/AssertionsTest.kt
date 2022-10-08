@@ -17,10 +17,13 @@
 package com.android.server.wm.flicker.service.config
 
 import android.util.Log
+import com.android.server.wm.flicker.TraceFileReader
 import com.android.server.wm.flicker.assertiongenerator.AssertionGenConfigTestConst.Companion.emptyDeviceTraceConfiguration
+import com.android.server.wm.flicker.assertiongenerator.AssertionProducerTestConst.Companion.expectedAssertionNamesFileTrace
 import com.android.server.wm.flicker.assertiongenerator.ElementLifecycleExtractorTestConst
 import com.android.server.wm.flicker.assertiongenerator.ScenarioConfig
 import com.android.server.wm.flicker.assertiongenerator.WindowManagerTestConst.Companion.wmTrace_ROTATION_0
+import com.android.server.wm.flicker.assertiongenerator.common.AssertionFactory
 import com.android.server.wm.flicker.service.AssertionEngine
 import com.android.server.wm.flicker.service.AssertionGeneratorConfigProducer
 import com.android.server.wm.flicker.service.assertors.AssertionResult
@@ -229,6 +232,46 @@ class AssertionsTest {
                     AssertionEngine.AssertionsToUse.GENERATED
                 )
             assertResultsPass(assertionResults)
+        }
+            ?: throw RuntimeException("LayersTrace is null")
+    }
+
+    @Test
+    fun AssertionEngine_analyze_assertionNames_traceFile() {
+        val configDir = "/assertiongenerator_config_test"
+        val goldenTracesConfig = TraceFileReader.getGoldenTracesConfig(configDir)
+        val scenario = Scenario(ScenarioType.APP_LAUNCH, PlatformConsts.Rotation.ROTATION_0)
+        val traceDump = goldenTracesConfig[scenario]!!.deviceTraceDumps[0]
+        val traceConfiguration = goldenTracesConfig[scenario]!!.traceConfigurations[0]
+
+        val config: Map<Scenario, ScenarioConfig> =
+            mapOf(scenario to ScenarioConfig(arrayOf(traceDump), arrayOf(traceConfiguration)))
+
+        val assertionFactory = AssertionFactory(goldenTracesConfig)
+        val layersTrace = traceDump.layersTrace
+        val wmTrace = traceDump.wmTrace!!
+        val transitionsTrace = traceDump.transitionsTrace!!
+
+        val scenarioInstances = mutableListOf<ScenarioInstance>()
+        val scenarioType = ScenarioType.APP_LAUNCH
+        scenarioInstances.addAll(
+            scenarioType.getInstances(transitionsTrace, wmTrace) { m ->
+                Log.d("AssertionEngineTest", m)
+            }
+        )
+
+        var assertionsStr = ""
+
+        layersTrace?.run {
+            for (scenarioInstance in scenarioInstances) {
+                val assertions =
+                    Assertions.getLayersGeneratedAssertionsForScenario(
+                        scenarioInstance,
+                        assertionFactory
+                    ) { Log.v("FLICKER-ASSERT", it) }
+                assertions.forEach { assertion -> assertionsStr += assertion.name + "\n" }
+            }
+            Truth.assertThat(assertionsStr).isEqualTo(expectedAssertionNamesFileTrace)
         }
             ?: throw RuntimeException("LayersTrace is null")
     }

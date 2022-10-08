@@ -18,7 +18,7 @@ package com.android.server.wm.traces.common.service
 
 class Scenario(val scenarioType: ScenarioType, var rotation: PlatformConsts.Rotation) {
     override fun toString(): String {
-        return "${scenarioType.description}, $rotation"
+        return "${scenarioType.description}_$rotation"
     }
 
     override fun equals(other: Any?): Boolean {
