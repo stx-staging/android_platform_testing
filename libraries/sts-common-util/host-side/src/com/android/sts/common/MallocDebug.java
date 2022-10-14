@@ -52,8 +52,11 @@ public class MallocDebug implements AutoCloseable {
         this.device = device;
         this.processName = processName;
 
-        // TODO(duytruong): Check value of MALLOC_DEBUG_OPTIONS_PROP for concurrent calls once/if
-        //                  fix for setProperty of empty value is merged
+        // It's an error if this is called while something else is also doing malloc debug.
+        String previousOptions = device.getProperty(MALLOC_DEBUG_OPTIONS_PROP);
+        if (previousOptions != null && !previousOptions.isEmpty()) {
+            fail(MALLOC_DEBUG_OPTIONS_PROP + " is already set! It was '" + previousOptions + "'");
+        }
 
         // The only known failure case of this was multiple logcat -c race, so it's fine to fail.
         device.executeShellV2Command("logcat -c");
