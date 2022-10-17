@@ -32,6 +32,25 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public final class ProcessUtil {
+    public static class KillException extends Exception {
+        public enum Reason {
+            UNKNOWN,
+            INVALID_SIGNAL,
+            INSUFFICIENT_PERMISSIONS,
+            NO_SUCH_PROCESS;
+        }
+
+        private Reason reason;
+
+        public KillException(String errorMessage, Reason r) {
+            super(errorMessage);
+            this.reason = r;
+        }
+
+        public Reason getReason() {
+            return this.reason;
+        }
+    }
 
     private static final String LOG_TAG = ProcessUtil.class.getSimpleName();
 
@@ -167,7 +186,8 @@ public final class ProcessUtil {
      * @param pid the id of the process to wait until exited
      */
     public static void waitPidExited(ITestDevice device, int pid)
-            throws TimeoutException, DeviceNotAvailableException {
+            throws TimeoutException, DeviceNotAvailableException,
+                KillException {
         waitPidExited(device, pid, PROCESS_WAIT_TIMEOUT_MS);
     }
 
@@ -180,7 +200,8 @@ public final class ProcessUtil {
      * @param timeoutMs how long to wait before throwing a TimeoutException
      */
     public static void waitPidExited(ITestDevice device, int pid, long timeoutMs)
-            throws TimeoutException, DeviceNotAvailableException {
+            throws TimeoutException, DeviceNotAvailableException,
+                KillException {
         long endTime = System.currentTimeMillis() + timeoutMs;
         CommandResult res = null;
         while (true) {
@@ -189,7 +210,9 @@ public final class ProcessUtil {
             if (res.getStatus() != CommandStatus.SUCCESS) {
                 String err = res.getStderr();
                 if (!err.contains("No such process")) {
-                    throw new RuntimeException("kill -0 returned stderr: " + err);
+                    throw new KillException(
+                            "kill -0 returned stderr: " + err,
+                            KillException.Reason.NO_SUCH_PROCESS);
                 }
                 // the process is most likely killed
                 return;
@@ -213,7 +236,8 @@ public final class ProcessUtil {
      * @param timeoutMs how long to wait before throwing a TimeoutException
      */
     public static void killPid(ITestDevice device, int pid, long timeoutMs)
-            throws DeviceNotAvailableException, TimeoutException {
+            throws DeviceNotAvailableException, TimeoutException,
+                KillException {
         killPid(device, pid, 9, timeoutMs);
     }
 
@@ -226,8 +250,22 @@ public final class ProcessUtil {
      * @param timeoutMs how long to wait before throwing a TimeoutException
      */
     public static void killPid(ITestDevice device, int pid, int signal, long timeoutMs)
-            throws DeviceNotAvailableException, TimeoutException {
-        CommandUtil.runAndCheck(device, String.format("kill -%d %d", signal, pid));
+            throws DeviceNotAvailableException, TimeoutException,
+                KillException {
+        CommandResult res =
+            device.executeShellV2Command(String.format("kill -%d %d", signal, pid));
+        if (res.getStatus() != CommandStatus.SUCCESS) {
+            String err = res.getStderr();
+            if (err.contains("invalid signal specification")) {
+                throw new KillException(err, KillException.Reason.INVALID_SIGNAL);
+            } else if (err.contains("Operation not permitted")) {
+                throw new KillException(err, KillException.Reason.INSUFFICIENT_PERMISSIONS);
+            } else if (err.contains("No such process")) {
+                throw new KillException(err, KillException.Reason.NO_SUCH_PROCESS);
+            } else {
+                throw new KillException(err, KillException.Reason.UNKNOWN);
+            }
+        }
         waitPidExited(device, pid, timeoutMs);
     }
 
@@ -240,7 +278,8 @@ public final class ProcessUtil {
      * @return whether any processes were killed
      */
     public static boolean killAll(ITestDevice device, String pgrepRegex, long timeoutMs)
-            throws DeviceNotAvailableException, TimeoutException {
+            throws DeviceNotAvailableException, TimeoutException,
+                KillException {
         return killAll(device, pgrepRegex, timeoutMs, true);
     }
 
@@ -256,7 +295,8 @@ public final class ProcessUtil {
      */
     public static boolean killAll(
             ITestDevice device, String pgrepRegex, long timeoutMs, boolean expectExist)
-            throws DeviceNotAvailableException, TimeoutException {
+            throws DeviceNotAvailableException, TimeoutException,
+                KillException {
         Optional<Map<Integer, String>> pids = pidsOf(device, pgrepRegex);
         if (!pids.isPresent()) {
             // no pids to kill
@@ -266,9 +306,18 @@ public final class ProcessUtil {
             }
             return false;
         }
+
         for (int pid : pids.get().keySet()) {
-            killPid(device, pid, timeoutMs);
+            try {
+                killPid(device, pid, timeoutMs);
+            } catch (KillException e) {
+                // ignore pids that do not exist
+                if (e.getReason() != KillException.Reason.NO_SUCH_PROCESS) {
+                    throw e;
+                }
+            }
         }
+
         return true;
     }
 
@@ -283,7 +332,7 @@ public final class ProcessUtil {
      */
     public static AutoCloseable withProcessKill(
             final ITestDevice device, final String pgrepRegex, final Runnable beforeCloseKill)
-            throws DeviceNotAvailableException, TimeoutException {
+            throws DeviceNotAvailableException, TimeoutException, KillException {
         return withProcessKill(device, pgrepRegex, beforeCloseKill, PROCESS_WAIT_TIMEOUT_MS);
     }
 
@@ -302,11 +351,17 @@ public final class ProcessUtil {
             final String pgrepRegex,
             final Runnable beforeCloseKill,
             final long timeoutMs)
-            throws DeviceNotAvailableException, TimeoutException {
+            throws DeviceNotAvailableException, TimeoutException,
+                KillException {
         return new AutoCloseable() {
             {
-                if (!killAll(device, pgrepRegex, timeoutMs, /*expectExist*/ false)) {
-                    Log.d(LOG_TAG, String.format("did not kill any processes for %s", pgrepRegex));
+                try {
+                    if (!killAll(device, pgrepRegex, timeoutMs, /*expectExist*/ false)) {
+                        Log.d(LOG_TAG,
+                            String.format("did not kill any processes for %s", pgrepRegex));
+                    }
+                } catch (KillException e) {
+                    Log.d(LOG_TAG, "failed to kill a process");
                 }
             }
 
@@ -315,7 +370,13 @@ public final class ProcessUtil {
                 if (beforeCloseKill != null) {
                     beforeCloseKill.run();
                 }
-                killAll(device, pgrepRegex, timeoutMs, /*expectExist*/ false);
+                try {
+                    killAll(device, pgrepRegex, timeoutMs, /*expectExist*/ false);
+                } catch (KillException e) {
+                    if (e.getReason() != KillException.Reason.NO_SUCH_PROCESS) {
+                        throw e;
+                    }
+                }
             }
         };
     }

@@ -48,7 +48,7 @@ public class MallocDebug implements AutoCloseable {
 
     private MallocDebug(
             ITestDevice device, String mallocDebugOption, String processName, boolean isService)
-            throws DeviceNotAvailableException, TimeoutException {
+            throws DeviceNotAvailableException, TimeoutException, ProcessUtil.KillException {
         this.device = device;
         this.processName = processName;
 
@@ -122,7 +122,8 @@ public class MallocDebug implements AutoCloseable {
      */
     public static AutoCloseable withLibcMallocDebugOnService(
             ITestDevice device, String mallocDebugOptions, String processName)
-            throws DeviceNotAvailableException, IllegalArgumentException, TimeoutException {
+            throws DeviceNotAvailableException, IllegalArgumentException, TimeoutException,
+                ProcessUtil.KillException {
         if (processName == null || processName.isEmpty()) {
             throw new IllegalArgumentException("Service processName can't be empty");
         }
@@ -141,7 +142,8 @@ public class MallocDebug implements AutoCloseable {
      */
     public static AutoCloseable withLibcMallocDebugOnNewProcess(
             ITestDevice device, String mallocDebugOptions, String processName)
-            throws DeviceNotAvailableException, IllegalArgumentException, TimeoutException {
+            throws DeviceNotAvailableException, IllegalArgumentException, TimeoutException,
+                ProcessUtil.KillException {
         if (processName == null || processName.isEmpty()) {
             throw new IllegalArgumentException("processName can't be empty");
         }
@@ -162,7 +164,7 @@ public class MallocDebug implements AutoCloseable {
      */
     public static AutoCloseable withLibcMallocDebugOnAllNewProcesses(
             ITestDevice device, String mallocDebugOptions)
-            throws DeviceNotAvailableException, TimeoutException {
+            throws DeviceNotAvailableException, TimeoutException, ProcessUtil.KillException {
         return new MallocDebug(device, mallocDebugOptions, null, false);
     }
 
