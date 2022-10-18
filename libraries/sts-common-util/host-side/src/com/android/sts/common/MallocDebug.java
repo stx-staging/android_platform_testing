@@ -93,6 +93,7 @@ public class MallocDebug implements AutoCloseable {
 
     @Override
     public void close() throws Exception {
+        device.waitForDeviceAvailable();
         setMallocDebugOptionsProperty.close();
         setAttachedProgramProperty.close();
         if (killProcess != null) {
