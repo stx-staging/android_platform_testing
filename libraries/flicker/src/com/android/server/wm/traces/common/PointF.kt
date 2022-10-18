@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The Android Open Source Project
+ * Copyright (C) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,18 +19,19 @@ package com.android.server.wm.traces.common
 import kotlin.js.JsName
 
 /**
- * Wrapper for PointProto (frameworks/base/core/proto/android/graphics/point.proto)
+ * Wrapper for PositionProto (frameworks/native/services/surfaceflinger/layerproto/layers.proto)
  *
  * This class is used by flicker and Winscope
  */
-class Point private constructor(val x: Int = 0, val y: Int = 0) {
-    @JsName("prettyPrint") fun prettyPrint(): String = "($x, $y)"
+class PointF private constructor(val x: Float = 0f, val y: Float = 0f) {
+    @JsName("prettyPrint")
+    fun prettyPrint(): String = "(${FloatFormatter.format(x)}, ${FloatFormatter.format(y)})"
 
     override fun toString(): String = prettyPrint()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is Point) return false
+        if (other !is PointF) return false
 
         if (x != other.x) return false
         if (y != other.y) return false
@@ -39,16 +40,16 @@ class Point private constructor(val x: Int = 0, val y: Int = 0) {
     }
 
     override fun hashCode(): Int {
-        var result = x
-        result = 31 * result + y
+        var result = x.hashCode()
+        result = 31 * result + y.hashCode()
         return result
     }
 
     companion object {
         @JsName("EMPTY")
-        val EMPTY: Point
-            get() = withCache { Point() }
+        val EMPTY: PointF
+            get() = withCache { PointF() }
 
-        @JsName("from") fun from(x: Int, y: Int): Point = withCache { Point(x, y) }
+        @JsName("from") fun from(x: Float, y: Float): PointF = withCache { PointF(x, y) }
     }
 }
