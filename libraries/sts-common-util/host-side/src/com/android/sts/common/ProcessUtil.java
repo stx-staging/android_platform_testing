@@ -239,7 +239,7 @@ public final class ProcessUtil {
      * @param timeoutMs how long to wait before throwing a TimeoutException
      * @return whether any processes were killed
      */
-    static boolean killAll(ITestDevice device, String pgrepRegex, long timeoutMs)
+    public static boolean killAll(ITestDevice device, String pgrepRegex, long timeoutMs)
             throws DeviceNotAvailableException, TimeoutException {
         return killAll(device, pgrepRegex, timeoutMs, true);
     }
@@ -254,7 +254,7 @@ public final class ProcessUtil {
      * @param expectExist whether an exception should be thrown when no processes were killed
      * @return whether any processes were killed
      */
-    static boolean killAll(
+    public static boolean killAll(
             ITestDevice device, String pgrepRegex, long timeoutMs, boolean expectExist)
             throws DeviceNotAvailableException, TimeoutException {
         Optional<Map<Integer, String>> pids = pidsOf(device, pgrepRegex);
