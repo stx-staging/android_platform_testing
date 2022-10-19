@@ -65,7 +65,10 @@ public final class ProcessUtil {
         CommandResult pgrepRes =
                 device.executeShellV2Command(String.format("pgrep -f -l %s", pgrepRegex));
         if (pgrepRes.getStatus() != CommandStatus.SUCCESS) {
-            Log.w(LOG_TAG, String.format("pgrep failed with stderr: %s", pgrepRes.getStderr()));
+            Log.d(
+                    LOG_TAG,
+                    String.format(
+                            "pgrep '%s' failed with stderr: %s", pgrepRegex, pgrepRes.getStderr()));
             return Optional.empty();
         }
         Map<Integer, String> pidToCommand = new HashMap<>();
