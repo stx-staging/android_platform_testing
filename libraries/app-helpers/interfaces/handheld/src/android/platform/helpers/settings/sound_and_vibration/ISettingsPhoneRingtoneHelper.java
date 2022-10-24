@@ -25,9 +25,6 @@ public interface ISettingsPhoneRingtoneHelper extends ISettingsSoundAndVibration
      */
     void flingPhoneRingtone(Direction direction);
 
-    /** This method opens Settings > Sound & vibration > Phone ringtone page */
-    void goToPhoneRingtone();
-
     /**
      * Setup expectations: Settings Phone ringtone page is open
      *
