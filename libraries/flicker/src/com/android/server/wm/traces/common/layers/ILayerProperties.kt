@@ -155,4 +155,14 @@ interface ILayerProperties {
         get() {
             return fillsColor || drawsShadows
         }
+
+    fun isAnimating(prevLayerState: ILayerProperties?): Boolean =
+        when (prevLayerState) {
+            // when there's no previous state, use a heuristic based on the transform
+            null -> !transform.isSimpleRotation
+            else ->
+                visibleRegion != prevLayerState.visibleRegion ||
+                    transform != prevLayerState.transform ||
+                    color != prevLayerState.color
+        }
 }
