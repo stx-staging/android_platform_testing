@@ -20,7 +20,6 @@ import com.android.server.wm.traces.common.ActiveBuffer
 import com.android.server.wm.traces.common.Color
 import com.android.server.wm.traces.common.Rect
 import com.android.server.wm.traces.common.RectF
-import com.android.server.wm.traces.common.layers.Transform.Companion.isFlagSet
 import com.android.server.wm.traces.common.region.Region
 import kotlin.js.JsName
 
@@ -61,13 +60,13 @@ interface ILayerProperties {
 
     @JsName("isScaling")
     val isScaling: Boolean
-        get() = isTransformFlagSet(Transform.SCALE_VAL)
+        get() = transform.isScaling
     @JsName("isTranslating")
     val isTranslating: Boolean
-        get() = isTransformFlagSet(Transform.TRANSLATE_VAL)
+        get() = transform.isTranslating
     @JsName("isRotating")
     val isRotating: Boolean
-        get() = isTransformFlagSet(Transform.ROTATE_VAL)
+        get() = transform.isRotating
 
     /**
      * Checks if the layer's active buffer is empty
@@ -156,8 +155,4 @@ interface ILayerProperties {
         get() {
             return fillsColor || drawsShadows
         }
-
-    @JsName("isTransformFlagSet")
-    private fun isTransformFlagSet(transform: Int): Boolean =
-        this.transform.type?.isFlagSet(transform) ?: false
 }
