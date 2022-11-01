@@ -22,6 +22,7 @@ import static org.junit.Assume.assumeNoException;
 
 import com.android.tradefed.device.DeviceNotAvailableException;
 import com.android.tradefed.device.ITestDevice;
+import com.android.tradefed.log.LogUtil.CLog;
 import com.google.common.collect.ImmutableList;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
@@ -82,6 +83,7 @@ public class MallocDebug implements AutoCloseable {
                     setAttachedProgramProperty.close();
                 }
             } catch (Exception e2) {
+                CLog.e(e2);
                 fail(
                         "Could not enable malloc debug. Additionally, there was an"
                                 + " exception while trying to reset device state. Tests after"
