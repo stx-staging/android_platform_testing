@@ -19,10 +19,8 @@ package com.android.server.wm.flicker.io
 import android.util.Log
 import androidx.annotation.VisibleForTesting
 import com.android.server.wm.flicker.AssertionTag
-import com.android.server.wm.flicker.RunStatus
 import com.android.server.wm.flicker.TraceConfig
 import com.android.server.wm.flicker.TraceConfigs
-import com.android.server.wm.flicker.Utils
 import com.android.server.wm.flicker.traces.eventlog.FocusEvent
 import com.android.server.wm.traces.common.layers.LayersTrace
 import com.android.server.wm.traces.common.transactions.TransactionsTrace

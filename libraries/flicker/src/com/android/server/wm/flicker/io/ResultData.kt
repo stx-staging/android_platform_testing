@@ -17,25 +17,52 @@
 package com.android.server.wm.flicker.io
 
 import com.android.server.wm.flicker.RunStatus
+import com.android.server.wm.flicker.Utils
 import com.android.server.wm.flicker.traces.eventlog.FocusEvent
 import java.nio.file.Path
 
-/** Contents of a flicker run (e.g. files, status, event log) */
-data class ResultData(
-    /** Path to the artifact file */
-    val artifactPath: Path,
-    /**
-     * Event log contents
-     *
-     * TODO: Move to a file in the future
-     */
-    val eventLog: List<FocusEvent>?,
-    /** Transition start and end time */
-    val transitionTimeRange: TransitionTimeRange,
-    /** Transition execution error (if any) */
-    val executionError: Throwable?,
-    val runStatus: RunStatus
+/**
+ * Contents of a flicker run (e.g. files, status, event log)
+ *
+ * @param _artifactPath Path to the artifact file
+ * @param _eventLog Event log contents // TODO: Move to a file in the future
+ * @param _transitionTimeRange Transition start and end time
+ * @param _executionError Transition execution error (if any)
+ * @param _runStatus Status of the run
+ */
+class ResultData(
+    _artifactPath: Path,
+    _eventLog: List<FocusEvent>?,
+    _transitionTimeRange: TransitionTimeRange,
+    _executionError: Throwable?,
+    _runStatus: RunStatus
 ) {
+    var artifactPath: Path = _artifactPath
+        private set
+    var eventLog: List<FocusEvent>? = _eventLog
+        private set
+    var transitionTimeRange: TransitionTimeRange = _transitionTimeRange
+        private set
+    var executionError: Throwable? = _executionError
+        private set
+    var runStatus: RunStatus = _runStatus
+        private set
+
+    /** updates the artifact status to [newStatus] */
+    internal fun updateStatus(newStatus: RunStatus) = apply {
+        val currFile = artifactPath
+        require(RunStatus.fromFile(currFile) != RunStatus.UNDEFINED) {
+            "File name should start with a value from `RunStatus`, instead it was $currFile"
+        }
+        val currTestName = currFile.fileName.toString().dropWhile { it != '_' }
+        val newFile = currFile.resolveSibling("${newStatus.prefix}_$currTestName")
+        if (currFile != newFile) {
+            Utils.moveFile(currFile, newFile)
+            artifactPath = newFile
+            runStatus = newStatus
+        }
+    }
+
     override fun toString(): String = buildString {
         append(artifactPath)
         append(" (status=")
