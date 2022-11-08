@@ -20,6 +20,7 @@ import android.surfaceflinger.Layers
 import android.surfaceflinger.Layerstrace
 import android.util.Log
 import com.android.server.wm.traces.common.Cache
+import com.android.server.wm.traces.common.Utils
 import com.android.server.wm.traces.common.layers.BaseLayerTraceEntry
 import com.android.server.wm.traces.common.layers.Layer
 import com.android.server.wm.traces.common.layers.LayerTraceEntryBuilder
@@ -47,6 +48,9 @@ class LayersTraceParser {
         @JvmStatic
         fun parseFromTrace(
             data: ByteArray,
+            from: Long = Long.MIN_VALUE,
+            to: Long = Long.MAX_VALUE,
+            addInitialEntry: Boolean = true,
             ignoreLayersStackMatchNoDisplay: Boolean = true,
             ignoreLayersInVirtualDisplay: Boolean = true,
             clearCacheAfterParsing: Boolean = true,
@@ -62,6 +66,9 @@ class LayersTraceParser {
             return fileProto?.let {
                 parseFromTrace(
                     it,
+                    from,
+                    to,
+                    addInitialEntry,
                     ignoreLayersStackMatchNoDisplay,
                     ignoreLayersInVirtualDisplay,
                     clearCacheAfterParsing,
@@ -82,20 +89,28 @@ class LayersTraceParser {
          *                               cleared or remain in memory
          * ```
          */
-        @JvmOverloads
         @JvmStatic
         fun parseFromTrace(
             proto: Layerstrace.LayersTraceFileProto,
-            ignoreLayersStackMatchNoDisplay: Boolean = true,
-            ignoreLayersInVirtualDisplay: Boolean = true,
-            clearCacheAfterParsing: Boolean = true,
-            orphanLayerCallback: ((Layer) -> Boolean)? = null
+            from: Long,
+            to: Long,
+            addInitialEntry: Boolean,
+            ignoreLayersStackMatchNoDisplay: Boolean,
+            ignoreLayersInVirtualDisplay: Boolean,
+            clearCacheAfterParsing: Boolean,
+            orphanLayerCallback: ((Layer) -> Boolean)?
         ): LayersTrace {
             try {
                 val entries: MutableList<BaseLayerTraceEntry> = ArrayList()
                 var traceParseTime = 0L
+                val allTimestamps = proto.entryList.map { it.elapsedRealtimeNanos }
+                val selectedTimestamps =
+                    Utils.getTimestampsInRange(allTimestamps, from, to, addInitialEntry)
                 val realToElapsedTimeOffsetNanos = proto.realToElapsedTimeOffsetNanos
                 for (traceProto: Layerstrace.LayersTraceProto in proto.entryList) {
+                    if (!selectedTimestamps.contains(traceProto.elapsedRealtimeNanos)) {
+                        continue
+                    }
                     val entryParseTime = measureTimeMillis {
                         val layers =
                             traceProto.layers.layersList

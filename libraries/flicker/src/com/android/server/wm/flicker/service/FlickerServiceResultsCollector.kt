@@ -26,10 +26,10 @@ import com.android.server.wm.flicker.FLICKER_TAG
 import com.android.server.wm.flicker.runner.ExecutionError
 import com.android.server.wm.flicker.service.assertors.AssertionResult
 import com.android.server.wm.traces.common.service.AssertionInvocationGroup
+import java.nio.file.Path
 import org.junit.runner.Description
 import org.junit.runner.Result
 import org.junit.runner.notification.Failure
-import java.nio.file.Path
 
 /**
  * Collects all the Flicker Service's metrics which are then uploaded for analysis and monitoring to

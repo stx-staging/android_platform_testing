@@ -41,6 +41,7 @@ import com.android.server.wm.nano.WindowTokenProto
 import com.android.server.wm.traces.common.Cache
 import com.android.server.wm.traces.common.Rect
 import com.android.server.wm.traces.common.Size
+import com.android.server.wm.traces.common.Utils
 import com.android.server.wm.traces.common.windowmanager.WindowManagerState
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTraceEntryBuilder
@@ -96,6 +97,9 @@ object WindowManagerTraceParser {
     @JvmStatic
     fun parseFromTrace(
         data: ByteArray?,
+        from: Long = Long.MIN_VALUE,
+        to: Long = Long.MAX_VALUE,
+        addInitialEntry: Boolean = true,
         clearCacheAfterParsing: Boolean = true
     ): WindowManagerTrace {
         var fileProto: WindowManagerTraceFileProto?
@@ -106,7 +110,9 @@ object WindowManagerTraceParser {
             throw RuntimeException(e)
         }
 
-        return fileProto?.let { parseFromTrace(it, clearCacheAfterParsing) }
+        return fileProto?.let {
+            parseFromTrace(it, from, to, addInitialEntry, clearCacheAfterParsing)
+        }
             ?: error("Unable to read trace file")
     }
 
@@ -118,13 +124,22 @@ object WindowManagerTraceParser {
     @JvmStatic
     fun parseFromTrace(
         proto: WindowManagerTraceFileProto,
+        from: Long,
+        to: Long,
+        addInitialEntry: Boolean,
         clearCache: Boolean = true
     ): WindowManagerTrace {
         try {
             val entries = mutableListOf<WindowManagerState>()
             var traceParseTime = 0L
+            val allTimestamps = proto.entry.map { it.elapsedRealtimeNanos }
+            val selectedTimestamps =
+                Utils.getTimestampsInRange(allTimestamps, from, to, addInitialEntry)
             val realToElapsedTimeOffsetNanos = proto.realToElapsedTimeOffsetNanos
             for (entryProto in proto.entry) {
+                if (!selectedTimestamps.contains(entryProto.elapsedRealtimeNanos)) {
+                    continue
+                }
                 val entryParseTime = measureTimeMillis {
                     val entry =
                         newTraceEntry(

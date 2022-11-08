@@ -22,6 +22,7 @@ import com.android.server.wm.flicker.AssertionTag
 import com.android.server.wm.flicker.TraceConfig
 import com.android.server.wm.flicker.TraceConfigs
 import com.android.server.wm.flicker.traces.eventlog.FocusEvent
+import com.android.server.wm.traces.common.Timestamp
 import com.android.server.wm.traces.common.layers.LayersTrace
 import com.android.server.wm.traces.common.transactions.TransactionsTrace
 import com.android.server.wm.traces.common.transition.TransitionsTrace
@@ -140,16 +141,13 @@ open class ResultReader(protected var result: ResultData, private val traceConfi
         val descriptor = ResultFileDescriptor(TraceType.WM)
         val traceData = readFromZip(descriptor)
         return traceData?.let {
-            val fullTrace =
-                WindowManagerTraceParser.parseFromTrace(it, clearCacheAfterParsing = true)
-            require(!traceConfig.wmTrace.required || fullTrace.entries.isNotEmpty()) {
-                "Full WM trace is empty..."
-            }
             val trace =
-                fullTrace.slice(
-                    transitionTimeRange.start.elapsedRealtimeNanos,
-                    transitionTimeRange.end.elapsedRealtimeNanos,
-                    addInitialEntry = true
+                WindowManagerTraceParser.parseFromTrace(
+                    it,
+                    from = transitionTimeRange.start.elapsedRealtimeNanos,
+                    to = transitionTimeRange.end.elapsedRealtimeNanos,
+                    addInitialEntry = true,
+                    clearCacheAfterParsing = true
                 )
             val minimumEntries = minimumTraceEntriesForConfig(traceConfig.wmTrace)
             require(trace.entries.size >= minimumEntries) {
@@ -172,15 +170,13 @@ open class ResultReader(protected var result: ResultData, private val traceConfi
         val descriptor = ResultFileDescriptor(TraceType.SF)
         val traceData = readFromZip(descriptor)
         return traceData?.let {
-            val fullTrace = LayersTraceParser.parseFromTrace(it, clearCacheAfterParsing = true)
-            require(!traceConfig.layersTrace.required || fullTrace.entries.isNotEmpty()) {
-                "Full layers trace cannot be empty"
-            }
             val trace =
-                fullTrace.slice(
+                LayersTraceParser.parseFromTrace(
+                    it,
                     transitionTimeRange.start.systemTime,
                     transitionTimeRange.end.systemTime,
-                    addInitialEntry = true
+                    addInitialEntry = true,
+                    clearCacheAfterParsing = true
                 )
             val minimumEntries = minimumTraceEntriesForConfig(traceConfig.layersTrace)
             require(trace.entries.size >= minimumEntries) {
@@ -279,8 +275,9 @@ open class ResultReader(protected var result: ResultData, private val traceConfi
         )
     }
 
-    private fun List<FocusEvent>.slice(from: Long, to: Long): List<FocusEvent> {
-        return dropWhile { it.timestamp < from }.dropLastWhile { it.timestamp > to }
+    private fun List<FocusEvent>.slice(from: Timestamp, to: Timestamp): List<FocusEvent> {
+        return dropWhile { it.timestamp.unixTimeNanos < from.unixTimeNanos }
+            .dropLastWhile { it.timestamp.unixTimeNanos > to.unixTimeNanos }
     }
 
     override fun toString(): String = "$result"

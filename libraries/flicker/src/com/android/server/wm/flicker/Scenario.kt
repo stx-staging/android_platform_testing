@@ -20,7 +20,6 @@ import android.view.Surface
 import android.view.WindowManagerPolicyConstants
 import androidx.annotation.VisibleForTesting
 import com.android.server.wm.traces.common.IScenario
-import com.android.server.wm.traces.common.service.PlatformConsts
 
 /**
  * Legacy flicker test scenario
@@ -50,10 +49,10 @@ internal constructor(
 
     /** If the initial screen rotation is 90 (landscape) or 180 (seascape) degrees */
     val isLandscapeOrSeascapeAtStart: Boolean =
-        startRotation == Surface.ROTATION_90 ||
-            startRotation == Surface.ROTATION_270
+        startRotation == Surface.ROTATION_90 || startRotation == Surface.ROTATION_270
 
-    val isGesturalNavigation = navBarMode == WindowManagerPolicyConstants.NAV_BAR_MODE_GESTURAL_OVERLAY
+    val isGesturalNavigation =
+        navBarMode == WindowManagerPolicyConstants.NAV_BAR_MODE_GESTURAL_OVERLAY
 
     val isTablet: Boolean
         get() =

@@ -25,7 +25,6 @@ import com.android.server.wm.traces.common.layers.LayersTrace
 import com.android.server.wm.traces.common.service.AssertionInvocationGroup
 import com.android.server.wm.traces.common.service.FlickerServiceScenario
 import com.android.server.wm.traces.common.service.PlatformConsts
-import com.android.server.wm.traces.common.service.Scenario
 import com.android.server.wm.traces.common.service.ScenarioType
 import com.android.server.wm.traces.common.transition.TransitionsTrace
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace

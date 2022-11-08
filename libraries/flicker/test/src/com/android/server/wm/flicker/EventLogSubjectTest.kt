@@ -21,7 +21,6 @@ import com.android.server.wm.flicker.datastore.CachedResultReader
 import com.android.server.wm.flicker.io.ResultReader
 import com.android.server.wm.flicker.traces.eventlog.EventLogSubject
 import com.android.server.wm.flicker.traces.eventlog.FocusEvent
-import com.android.server.wm.traces.common.Timestamp
 import java.nio.file.Files
 import org.junit.Test
 

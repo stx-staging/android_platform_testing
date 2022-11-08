@@ -18,7 +18,6 @@ package com.android.server.wm.flicker
 
 import android.view.Surface
 import android.view.WindowManagerPolicyConstants
-import com.android.server.wm.flicker.helpers.IS_FAAS_ENABLED
 
 /**
  * Factory for creating JUnit4 compatible tests based on the flicker DSL

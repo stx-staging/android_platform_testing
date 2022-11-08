@@ -29,8 +29,8 @@ import com.android.server.wm.flicker.service.AssertionEngine
 import com.android.server.wm.flicker.service.AssertionGeneratorConfigProducer
 import com.android.server.wm.flicker.service.assertors.AssertionResult
 import com.android.server.wm.traces.common.DeviceTraceDump
-import com.android.server.wm.traces.common.service.FlickerServiceScenario
 import com.android.server.wm.traces.common.Timestamp
+import com.android.server.wm.traces.common.service.FlickerServiceScenario
 import com.android.server.wm.traces.common.service.PlatformConsts
 import com.android.server.wm.traces.common.service.ScenarioInstance
 import com.android.server.wm.traces.common.service.ScenarioType
