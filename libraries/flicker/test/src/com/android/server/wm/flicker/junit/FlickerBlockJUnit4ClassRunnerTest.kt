@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker
+package com.android.server.wm.flicker.junit
 
+import android.annotation.SuppressLint
 import android.app.Instrumentation
-import android.platform.test.annotations.FlakyTest
+import androidx.test.filters.FlakyTest
 import androidx.test.platform.app.InstrumentationRegistry
+import com.android.server.wm.flicker.FlickerBuilder
+import com.android.server.wm.flicker.FlickerTest
+import com.android.server.wm.flicker.FlickerTestFactory
 import com.android.server.wm.flicker.annotation.FlickerServiceCompatible
-import com.android.server.wm.flicker.dsl.FlickerBuilder
+import com.android.server.wm.flicker.getScenarioTraces
 import com.android.server.wm.flicker.helpers.BrowserAppHelper
 import com.android.server.wm.flicker.helpers.IS_FAAS_ENABLED
 import com.android.server.wm.flicker.helpers.isShellTransitionsEnabled
 import com.google.common.truth.Truth
-import org.junit.Assert
 import org.junit.Assume
 import org.junit.FixMethodOrder
 import org.junit.Test
@@ -44,58 +47,60 @@ import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
 
 /**
- * Contains [FlickerBlockJUnit4ClassRunnerTest] tests.
+ * Contains [FlickerBlockJUnit4ClassRunner] tests.
  *
  * To run this test: `atest FlickerLibTest:FlickerBlockJUnit4ClassRunnerTest`
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@SuppressLint("VisibleForTests")
 class FlickerBlockJUnit4ClassRunnerTest {
-
     @Test
     fun doesNotRunWithEmptyTestParameter() {
         val testClass = TestClass(SimpleFaasTest::class.java)
         val test = TestWithParameters("[PARAMS]", testClass, listOf())
         try {
-            val runner = FlickerBlockJUnit4ClassRunner(test)
+            val runner = createRunner(test)
             runner.run(RunNotifier())
-            throw Throwable("Expected runner to fail but did not")
+            error("Expected runner to fail but did not")
         } catch (e: Throwable) {
-            Truth.assertThat(e)
+            Truth.assertWithMessage("Expected failure")
+                .that(e)
                 .hasMessageThat()
-                .contains("No FlickerTestParameter provided for FlickerRunner")
+                .contains(NO_SCENARIO_MESSAGE)
         }
     }
 
     @Test
-    fun doesNotRunWithoutValidFlickerTestParameter() {
+    fun doesNotRunWithoutValidFlickerTest() {
         val testClass = TestClass(SimpleFaasTest::class.java)
         val test = TestWithParameters("[PARAMS]", testClass, listOf("invalid param"))
         try {
-            val runner = FlickerBlockJUnit4ClassRunner(test)
+            val runner = createRunner(test)
             runner.run(RunNotifier())
-            throw Throwable("Expected runner to fail but did not")
+            error("Expected runner to fail but did not")
         } catch (e: Throwable) {
-            Truth.assertThat(e)
+            Truth.assertWithMessage("Expected failure")
+                .that(e)
                 .hasMessageThat()
-                .contains("No FlickerTestParameter provided for FlickerRunner")
+                .contains(NO_SCENARIO_MESSAGE)
         }
     }
 
     @Test
-    fun runsWithValidFlickerTestParameter() {
+    fun runsWithValidFlickerTest() {
         val testClass = TestClass(SimpleFaasTest::class.java)
-        val parameters = FlickerTestParameterFactory.getInstance().getConfigNonRotationTests()
+        val parameters = FlickerTestFactory.nonRotationTests()
         val test = TestWithParameters("[PARAMS]", testClass, listOf(parameters[0]))
-        val runner = FlickerBlockJUnit4ClassRunner(test)
+        val runner = createRunner(test)
         runner.run(RunNotifier())
     }
 
     @Test
     fun flakyTestsRunWithNoFilter() {
         val testClass = TestClass(SimpleTestWithFlakyTest::class.java)
-        val parameters = FlickerTestParameterFactory.getInstance().getConfigNonRotationTests()
+        val parameters = FlickerTestFactory.nonRotationTests()
         val test = TestWithParameters("[PARAMS]", testClass, listOf(parameters[0]))
-        val runner = FlickerBlockJUnit4ClassRunner(test)
+        val runner = createRunner(test)
         flakyTestRuns = 0
         runner.run(RunNotifier())
         Truth.assertThat(runner.testCount()).isEqualTo(2)
@@ -105,9 +110,9 @@ class FlickerBlockJUnit4ClassRunnerTest {
     @Test
     fun canFilterOutFlakyTests() {
         val testClass = TestClass(SimpleTestWithFlakyTest::class.java)
-        val parameters = FlickerTestParameterFactory.getInstance().getConfigNonRotationTests()
+        val parameters = FlickerTestFactory.nonRotationTests()
         val test = TestWithParameters("[PARAMS]", testClass, listOf(parameters[0]))
-        val runner = FlickerBlockJUnit4ClassRunner(test)
+        val runner = createRunner(test)
         runner.filter(FLAKY_TEST_FILTER)
         flakyTestRuns = 0
         val notifier = mock(RunNotifier::class.java)
@@ -120,15 +125,16 @@ class FlickerBlockJUnit4ClassRunnerTest {
             )
     }
 
+    @FlakyTest
     @Test
     fun injectsFlickerServiceTests() {
         Assume.assumeTrue(isShellTransitionsEnabled)
         Assume.assumeTrue(IS_FAAS_ENABLED)
 
         val testClass = TestClass(SimpleFaasTest::class.java)
-        val parameters = FlickerTestParameterFactory.getInstance().getConfigNonRotationTests()
+        val parameters = FlickerTestFactory.nonRotationTests()
         val test = TestWithParameters("[PARAMS]", testClass, listOf(parameters[0]))
-        val runner = FlickerBlockJUnit4ClassRunner(test)
+        val runner = createRunner(test)
         val notifier = mock(RunNotifier::class.java)
         runner.run(notifier)
         Truth.assertThat(runner.testCount()).isAtLeast(2)
@@ -138,13 +144,13 @@ class FlickerBlockJUnit4ClassRunnerTest {
         verify(notifier, atLeast(1)).fireTestFinished(argThat { it.methodName.contains("FaaS") })
     }
 
-    @Test
+    /*@Test
     fun injectedFlickerTestsAreNotExcludedByFilter() {
         Assume.assumeTrue(isShellTransitionsEnabled)
         Assume.assumeTrue(IS_FAAS_ENABLED)
 
         val testClass = TestClass(SimpleFaasTestWithFlakyTest::class.java)
-        val parameters = FlickerTestParameterFactory.getInstance().getConfigNonRotationTests()
+        val parameters = FlickerTestFactory.nonRotationTests()
         val test = TestWithParameters("[PARAMS]", testClass, listOf(parameters[0]))
         val runner = FlickerBlockJUnit4ClassRunner(test)
         runner.filter(FLAKY_TEST_FILTER)
@@ -172,7 +178,7 @@ class FlickerBlockJUnit4ClassRunnerTest {
 
         transitionRunCount = 0
         val testClass = TestClass(TransitionRunCounterWithFaasTest::class.java)
-        val parameters = FlickerTestParameterFactory.getInstance().getConfigNonRotationTests()
+        val parameters = FlickerTestFactory.nonRotationTests()
         val test = TestWithParameters("[PARAMS]", testClass, listOf(parameters[0]))
 
         val runner = FlickerBlockJUnit4ClassRunner(test)
@@ -180,14 +186,14 @@ class FlickerBlockJUnit4ClassRunnerTest {
         Truth.assertThat(parameters[0].flicker.faasEnabled).isTrue()
         val executionError = parameters[0].flicker.result!!.transitionExecutionError
         Truth.assertWithMessage(
-                "No flicker execution errors were expected but got some ::" + executionError
+                "No flicker execution errors were expected but got some ::$executionError"
             )
             .that(executionError)
             .isNull()
 
         Assert.assertEquals(1, transitionRunCount)
         transitionRunCount = 0
-    }
+    }*/
 
     @Test
     fun reportsExecutionErrors() {
@@ -196,10 +202,11 @@ class FlickerBlockJUnit4ClassRunnerTest {
 
     private fun checkTestRunReportsExecutionErrors(klass: Class<*>) {
         val testClass = TestClass(klass)
-        val parameters = FlickerTestParameterFactory.getInstance().getConfigNonRotationTests()
-        val test = TestWithParameters("[PARAMS]", testClass, listOf(parameters[0]))
+        val parameters = FlickerTestFactory.nonRotationTests()
+        val flickerTest = parameters.first()
+        val test = TestWithParameters("[PARAMS]", testClass, listOf(flickerTest))
 
-        val runner = FlickerBlockJUnit4ClassRunner(test)
+        val runner = createRunner(test)
         val notifier = mock(RunNotifier::class.java)
 
         runner.run(notifier)
@@ -208,7 +215,8 @@ class FlickerBlockJUnit4ClassRunnerTest {
                 argThat { failure ->
                     failure.message.contains(TRANSITION_FAILURE_MESSAGE) &&
                         failure.description.isTest &&
-                        failure.description.displayName == "test[PARAMS](${klass.name})"
+                        failure.description.displayName ==
+                            "test[${flickerTest.scenario.description}](${klass.name})"
                 }
             )
     }
@@ -216,7 +224,7 @@ class FlickerBlockJUnit4ClassRunnerTest {
     /** Below are all the mock test classes uses for testing purposes */
     @RunWith(Parameterized::class)
     @Parameterized.UseParametersRunnerFactory(FlickerParametersRunnerFactory::class)
-    open class SimpleTest(protected val testSpec: FlickerTestParameter) {
+    open class SimpleTest(protected val flicker: FlickerTest) {
         val instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation()
         private val testApp: BrowserAppHelper = BrowserAppHelper(instrumentation)
 
@@ -229,7 +237,7 @@ class FlickerBlockJUnit4ClassRunnerTest {
 
         @Test
         fun test() {
-            testSpec.assertWm {
+            flicker.assertWm {
                 // Random test to make sure flicker transition is executed
                 this.visibleWindowsShownMoreThanOneConsecutiveEntry()
             }
@@ -239,23 +247,24 @@ class FlickerBlockJUnit4ClassRunnerTest {
     @RunWith(Parameterized::class)
     @FlickerServiceCompatible
     @Parameterized.UseParametersRunnerFactory(FlickerParametersRunnerFactory::class)
-    open class SimpleFaasTest(testSpec: FlickerTestParameter) : SimpleTest(testSpec)
+    open class SimpleFaasTest(flicker: FlickerTest) : SimpleTest(flicker)
 
     @RunWith(Parameterized::class)
     @Parameterized.UseParametersRunnerFactory(FlickerParametersRunnerFactory::class)
-    class AlwaysFailExecutionTestClass(private val testSpec: FlickerTestParameter) {
+    class AlwaysFailExecutionTestClass(private val flicker: FlickerTest) {
         val instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation()
 
         @FlickerBuilderProvider
         fun buildFlicker(): FlickerBuilder {
             return FlickerBuilder(instrumentation).apply {
-                transitions { throw Exception(TRANSITION_FAILURE_MESSAGE) }
+                withoutScreenRecorder()
+                transitions { error(TRANSITION_FAILURE_MESSAGE) }
             }
         }
 
         @Test
         fun test() {
-            testSpec.assertWm {
+            flicker.assertWm {
                 // Random test to make sure flicker transition is executed
                 this.visibleWindowsShownMoreThanOneConsecutiveEntry()
             }
@@ -264,12 +273,12 @@ class FlickerBlockJUnit4ClassRunnerTest {
 
     @RunWith(Parameterized::class)
     @Parameterized.UseParametersRunnerFactory(FlickerParametersRunnerFactory::class)
-    open class SimpleTestWithFlakyTest(testSpec: FlickerTestParameter) : SimpleTest(testSpec) {
+    open class SimpleTestWithFlakyTest(flicker: FlickerTest) : SimpleTest(flicker) {
         @FlakyTest
         @Test
         fun flakyTest() {
             flakyTestRuns++
-            testSpec.assertWm {
+            flicker.assertWm {
                 // Random test to make sure flicker transition is executed
                 this.visibleWindowsShownMoreThanOneConsecutiveEntry()
             }
@@ -279,14 +288,12 @@ class FlickerBlockJUnit4ClassRunnerTest {
     @RunWith(Parameterized::class)
     @FlickerServiceCompatible
     @Parameterized.UseParametersRunnerFactory(FlickerParametersRunnerFactory::class)
-    class SimpleFaasTestWithFlakyTest(testSpec: FlickerTestParameter) :
-        SimpleTestWithFlakyTest(testSpec)
+    class SimpleFaasTestWithFlakyTest(flicker: FlickerTest) : SimpleTestWithFlakyTest(flicker)
 
     @RunWith(Parameterized::class)
     @FlickerServiceCompatible
     @Parameterized.UseParametersRunnerFactory(FlickerParametersRunnerFactory::class)
-    class TransitionRunCounterWithFaasTest(testSpec: FlickerTestParameter) :
-        SimpleFaasTest(testSpec) {
+    class TransitionRunCounterWithFaasTest(flicker: FlickerTest) : SimpleFaasTest(flicker) {
         @FlickerBuilderProvider
         override fun buildFlicker(): FlickerBuilder {
             return FlickerBuilder(instrumentation)
@@ -297,6 +304,7 @@ class FlickerBlockJUnit4ClassRunnerTest {
 
     companion object {
         const val TRANSITION_FAILURE_MESSAGE = "Transition execution failed"
+        private val NO_SCENARIO_MESSAGE = "Unable to extract ${FlickerTest::class.simpleName}"
 
         val FLAKY_TEST_FILTER =
             object : Filter() {
@@ -316,5 +324,9 @@ class FlickerBlockJUnit4ClassRunnerTest {
 
         var transitionRunCount = 0
         var flakyTestRuns = 0
+
+        private fun createRunner(baseTest: TestWithParameters) =
+            FlickerParametersRunnerFactory().createRunnerForTestWithParameters(baseTest)
+                as FlickerBlockJUnit4ClassRunner
     }
 }

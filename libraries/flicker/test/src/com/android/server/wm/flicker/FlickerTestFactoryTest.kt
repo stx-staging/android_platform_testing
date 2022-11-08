@@ -17,32 +17,30 @@
 package com.android.server.wm.flicker
 
 import android.view.Surface
-import com.google.common.truth.Truth.assertWithMessage
+import com.google.common.truth.Truth
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
 
 /**
- * Contains [FlickerTestParameterFactory] tests.
+ * Contains [FlickerTestFactory] tests.
  *
  * To run this test: `atest FlickerLibTest:FlickerTestFactoryRunnerTest`
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-class FlickerTestParameterFactoryTest {
-    private val testFactory = FlickerTestParameterFactory.getInstance()
-
+class FlickerTestFactoryTest {
     @Test
     fun checkBuildTest() {
-        val actual = testFactory.getConfigNonRotationTests()
-        assertWithMessage("Flicker should create tests for 0 and 90 degrees")
+        val actual = FlickerTestFactory.nonRotationTests()
+        Truth.assertWithMessage("Flicker should create tests for 0 and 90 degrees")
             .that(actual)
             .hasSize(4)
     }
 
     @Test
     fun checkBuildRotationTest() {
-        val actual = testFactory.getConfigRotationTests()
-        assertWithMessage("Flicker should create tests for 0 and 90 degrees")
+        val actual = FlickerTestFactory.rotationTests()
+        Truth.assertWithMessage("Flicker should create tests for 0 and 90 degrees")
             .that(actual)
             .hasSize(4)
     }
@@ -56,9 +54,9 @@ class FlickerTestParameterFactoryTest {
                 Surface.ROTATION_180,
                 Surface.ROTATION_270
             )
-        val actual = testFactory.getConfigRotationTests(supportedRotations = rotations)
+        val actual = FlickerTestFactory.rotationTests(supportedRotations = rotations)
         // Should have config for each rotation pair
-        assertWithMessage("Flicker should create tests for 0/90/180/270 degrees")
+        Truth.assertWithMessage("Flicker should create tests for 0/90/180/270 degrees")
             .that(actual)
             .hasSize(24)
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The Android Open Source Project
+ * Copyright (C) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,14 +25,15 @@ import com.android.server.wm.flicker.helpers.IS_FAAS_ENABLED
  *
  * This class recreates behavior from JUnit5 TestFactory that is not available on JUnit4
  */
-open class FlickerTestParameterFactory {
+object FlickerTestFactory {
     /**
      * Gets a list of test configurations.
      *
-     * Each configurations has a start orientation.
+     * Each configuration has only a start orientation.
      */
     @JvmOverloads
-    open fun getConfigNonRotationTests(
+    @JvmStatic
+    fun nonRotationTests(
         supportedRotations: List<Int> = listOf(Surface.ROTATION_0, Surface.ROTATION_90),
         supportedNavigationModes: List<String> =
             listOf(
@@ -40,7 +41,7 @@ open class FlickerTestParameterFactory {
                 WindowManagerPolicyConstants.NAV_BAR_MODE_GESTURAL_OVERLAY
             ),
         faasEnabled: Boolean = false
-    ): List<FlickerTestParameter> {
+    ): List<FlickerTest> {
         return supportedNavigationModes.flatMap { navBarMode ->
             supportedRotations.map { rotation ->
                 createParam(navBarMode, rotation, faasEnabled = faasEnabled)
@@ -51,10 +52,11 @@ open class FlickerTestParameterFactory {
     /**
      * Gets a list of test configurations.
      *
-     * Each configurations has a start and end orientation.
+     * Each configuration has a start and end orientation.
      */
     @JvmOverloads
-    open fun getConfigRotationTests(
+    @JvmStatic
+    fun rotationTests(
         supportedRotations: List<Int> = listOf(Surface.ROTATION_0, Surface.ROTATION_90),
         supportedNavigationModes: List<String> =
             listOf(
@@ -62,7 +64,7 @@ open class FlickerTestParameterFactory {
                 WindowManagerPolicyConstants.NAV_BAR_MODE_GESTURAL_OVERLAY
             ),
         faasEnabled: Boolean = false
-    ): List<FlickerTestParameter> {
+    ): List<FlickerTest> {
         return supportedNavigationModes.flatMap { navBarMode ->
             supportedRotations
                 .flatMap { start -> supportedRotations.map { end -> start to end } }
@@ -77,25 +79,12 @@ open class FlickerTestParameterFactory {
         endRotation: Int = startRotation,
         faasEnabled: Boolean = false
     ) =
-        FlickerTestParameter(
+        FlickerTest(
             mutableMapOf(
-                FlickerTestParameter.NAV_BAR_MODE to navBarMode,
-                FlickerTestParameter.START_ROTATION to startRotation,
-                FlickerTestParameter.END_ROTATION to endRotation,
-                FlickerTestParameter.FAAS_ENABLED to (faasEnabled && IS_FAAS_ENABLED)
+                Scenario.NAV_BAR_MODE to navBarMode,
+                Scenario.START_ROTATION to startRotation,
+                Scenario.END_ROTATION to endRotation,
+                Scenario.FAAS_ENABLED to (faasEnabled && IS_FAAS_ENABLED)
             )
         )
-
-    companion object {
-        private lateinit var instance: FlickerTestParameterFactory
-
-        @JvmStatic
-        fun getInstance(): FlickerTestParameterFactory {
-            if (!::instance.isInitialized) {
-                instance = FlickerTestParameterFactory()
-            }
-
-            return instance
-        }
-    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The Android Open Source Project
+ * Copyright (C) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker
+package com.android.server.wm.flicker.junit
 
+import com.android.server.wm.flicker.FlickerTest
 import org.junit.runner.Runner
 import org.junit.runners.parameterized.ParametersRunnerFactory
 import org.junit.runners.parameterized.TestWithParameters
@@ -26,6 +27,19 @@ import org.junit.runners.parameterized.TestWithParameters
  */
 class FlickerParametersRunnerFactory : ParametersRunnerFactory {
     override fun createRunnerForTestWithParameters(test: TestWithParameters): Runner {
-        return FlickerBlockJUnit4ClassRunner(test)
+        val simpleClassName = test.testClass.javaClass.simpleName
+        val flickerTest =
+            test.parameters.filterIsInstance<FlickerTest>().firstOrNull()
+                ?: error(
+                    "Unable to extract ${FlickerTest::class.simpleName} for class $simpleClassName"
+                )
+        val scenario = flickerTest.initialize(simpleClassName)
+        val newTest =
+            TestWithParameters(
+                /*name */ "[${scenario.description}]",
+                /* testClass */ test.testClass,
+                /* parameters */ test.parameters
+            )
+        return FlickerBlockJUnit4ClassRunner(newTest, scenario)
     }
 }
