@@ -51,8 +51,7 @@ data class FlickerResult(
             .that(runResult.isSuccessfulRun)
             .isTrue()
 
-        val assertionFailure = runResult.checkAssertion(assertion)?.also { failures.add(it) }
-        return assertionFailure
+        return runResult.checkAssertion(assertion)?.also { failures.add(it) }
     }
 
     fun clearFromMemory() {

@@ -18,11 +18,9 @@ package com.android.server.wm.flicker
 
 import com.android.server.wm.flicker.assertions.AssertionData
 import com.android.server.wm.flicker.assertions.AssertionDataFactory
-import com.android.server.wm.flicker.assertions.AssertionRunner
 import com.android.server.wm.flicker.assertions.AssertionStateDataFactory
 import com.android.server.wm.flicker.assertions.FlickerSubject
-import com.android.server.wm.flicker.datastore.CachedResultReader
-import com.android.server.wm.flicker.io.ResultReader
+import com.android.server.wm.flicker.datastore.CachedAssertionRunner
 import com.android.server.wm.flicker.traces.FlickerTraceSubject
 import com.android.server.wm.flicker.traces.eventlog.EventLogSubject
 import com.android.server.wm.flicker.traces.layers.LayerTraceEntrySubject
@@ -36,13 +34,7 @@ import com.android.server.wm.traces.common.IComponentMatcher
 data class FlickerTest(
     val config: MutableMap<String, Any?>,
     private val nameOverride: String? = null,
-    private val resultReaderProvider: (Scenario) -> ResultReader = {
-        CachedResultReader(it, DEFAULT_TRACE_CONFIG)
-    },
-    private val runnerProvider: (Scenario) -> AssertionRunner = {
-        val reader = resultReaderProvider.invoke(it)
-        AssertionRunner(reader)
-    }
+    private val runnerProvider: (Scenario) -> AssertionRunner = { CachedAssertionRunner(it) }
 ) {
     private val wmAssertionFactory =
         AssertionDataFactory(WindowManagerStateSubject::class, WindowManagerTraceSubject::class)
@@ -66,7 +58,7 @@ data class FlickerTest(
      */
     fun assertWmStart(assertion: WindowManagerStateSubject.() -> Unit): Throwable? {
         val assertionData =
-            wmAssertionFactory.startStateAssertion(assertion as FlickerSubject.() -> Unit)
+            wmAssertionFactory.createStartStateAssertion(assertion as FlickerSubject.() -> Unit)
         return doRunAssertion(assertionData)
     }
 
@@ -78,7 +70,7 @@ data class FlickerTest(
     fun assertWmEnd(assertion: WindowManagerStateSubject.() -> Unit): Throwable? {
         val wrappedAssertion: (WindowManagerStateSubject) -> Unit = { assertion(it) }
         val assertionData =
-            wmAssertionFactory.endStateAssertion(wrappedAssertion as (FlickerSubject) -> Unit)
+            wmAssertionFactory.createEndStateAssertion(wrappedAssertion as (FlickerSubject) -> Unit)
         return doRunAssertion(assertionData)
     }
 
@@ -89,7 +81,7 @@ data class FlickerTest(
      */
     fun assertWm(assertion: WindowManagerTraceSubject.() -> Unit): Throwable? {
         val assertionData =
-            wmAssertionFactory.traceAssertion(
+            wmAssertionFactory.createTraceAssertion(
                 assertion as (FlickerTraceSubject<FlickerSubject>) -> Unit
             )
         return doRunAssertion(assertionData)
@@ -102,7 +94,7 @@ data class FlickerTest(
      */
     fun assertWmTag(tag: String, assertion: WindowManagerStateSubject.() -> Unit): Throwable? {
         val assertionData =
-            wmAssertionFactory.tagAssertion(tag, assertion as FlickerSubject.() -> Unit)
+            wmAssertionFactory.createTagAssertion(tag, assertion as FlickerSubject.() -> Unit)
         return doRunAssertion(assertionData)
     }
 
@@ -127,7 +119,7 @@ data class FlickerTest(
      */
     fun assertLayersStart(assertion: LayerTraceEntrySubject.() -> Unit): Throwable? {
         val assertionData =
-            layersAssertionFactory.startStateAssertion(assertion as FlickerSubject.() -> Unit)
+            layersAssertionFactory.createStartStateAssertion(assertion as FlickerSubject.() -> Unit)
         return doRunAssertion(assertionData)
     }
 
@@ -138,7 +130,7 @@ data class FlickerTest(
      */
     fun assertLayersEnd(assertion: LayerTraceEntrySubject.() -> Unit): Throwable? {
         val assertionData =
-            layersAssertionFactory.endStateAssertion(assertion as FlickerSubject.() -> Unit)
+            layersAssertionFactory.createEndStateAssertion(assertion as FlickerSubject.() -> Unit)
         return doRunAssertion(assertionData)
     }
 
@@ -149,7 +141,7 @@ data class FlickerTest(
      */
     fun assertLayers(assertion: LayersTraceSubject.() -> Unit): Throwable? {
         val assertionData =
-            layersAssertionFactory.traceAssertion(
+            layersAssertionFactory.createTraceAssertion(
                 assertion as (FlickerTraceSubject<FlickerSubject>) -> Unit
             )
         return doRunAssertion(assertionData)
@@ -162,7 +154,7 @@ data class FlickerTest(
      */
     fun assertLayersTag(tag: String, assertion: LayerTraceEntrySubject.() -> Unit): Throwable? {
         val assertionData =
-            layersAssertionFactory.tagAssertion(tag, assertion as FlickerSubject.() -> Unit)
+            layersAssertionFactory.createTagAssertion(tag, assertion as FlickerSubject.() -> Unit)
         return doRunAssertion(assertionData)
     }
 
@@ -198,7 +190,7 @@ data class FlickerTest(
      */
     fun assertEventLog(assertion: EventLogSubject.() -> Unit): Throwable? {
         val assertionData =
-            eventLogAssertionFactory.tagAssertion(
+            eventLogAssertionFactory.createTagAssertion(
                 AssertionTag.ALL,
                 assertion as FlickerSubject.() -> Unit
             )
@@ -224,7 +216,7 @@ data class FlickerTest(
             regionTraceSubject.forAllEntries()
         }
 
-        return wmAssertionFactory.traceAssertion(
+        return wmAssertionFactory.createTraceAssertion(
             closedAssertion as (FlickerTraceSubject<FlickerSubject>) -> Unit
         )
     }
@@ -245,7 +237,7 @@ data class FlickerTest(
             regionTraceSubject.forAllEntries()
         }
 
-        return layersAssertionFactory.traceAssertion(
+        return layersAssertionFactory.createTraceAssertion(
             closedAssertion as (FlickerTraceSubject<*>) -> Unit
         )
     }

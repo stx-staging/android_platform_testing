@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The Android Open Source Project
+ * Copyright (C) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker
+package com.android.server.wm.flicker.assertions
 
-import com.android.server.wm.flicker.assertions.AssertionsChecker
-import com.android.server.wm.flicker.assertions.FlickerSubject
+import com.android.server.wm.flicker.assertFailure
 import com.android.server.wm.flicker.traces.FlickerFailureStrategy
 import com.android.server.wm.flicker.traces.FlickerSubjectException
 import com.android.server.wm.traces.common.ITraceEntry
@@ -52,7 +51,7 @@ class AssertionsCheckerTest {
     }
 
     @Test
-    fun canCheckChangingAssertions_IgnoreOptionalStart() {
+    fun canCheckChangingAssertionsIgnoreOptionalStart() {
         val checker = AssertionsChecker<SimpleEntrySubject>()
         checker.add("isData1", isOptional = true) { it.isData1() }
         checker.add("isData42") { it.isData42() }
@@ -61,7 +60,7 @@ class AssertionsCheckerTest {
     }
 
     @Test
-    fun canCheckChangingAssertions_IgnoreOptionalEnd() {
+    fun canCheckChangingAssertionsIgnoreOptionalEnd() {
         val checker = AssertionsChecker<SimpleEntrySubject>()
         checker.add("isData42") { it.isData42() }
         checker.add("isData0") { it.isData0() }
@@ -70,7 +69,7 @@ class AssertionsCheckerTest {
     }
 
     @Test
-    fun canCheckChangingAssertions_IgnoreOptionalMiddle() {
+    fun canCheckChangingAssertionsIgnoreOptionalMiddle() {
         val checker = AssertionsChecker<SimpleEntrySubject>()
         checker.add("isData42") { it.isData42() }
         checker.add("isData1", isOptional = true) { it.isData1() }
@@ -79,7 +78,7 @@ class AssertionsCheckerTest {
     }
 
     @Test
-    fun canCheckChangingAssertions_IgnoreOptionalMultiple() {
+    fun canCheckChangingAssertionsIgnoreOptionalMultiple() {
         val checker = AssertionsChecker<SimpleEntrySubject>()
         checker.add("isData1", isOptional = true) { it.isData1() }
         checker.add("isData1", isOptional = true) { it.isData1() }
@@ -93,20 +92,20 @@ class AssertionsCheckerTest {
     }
 
     @Test
-    fun canCheckChangingAssertions_withNoAssertions() {
+    fun canCheckChangingAssertionsWithNoAssertions() {
         val checker = AssertionsChecker<SimpleEntrySubject>()
         checker.test(getTestEntries(42, 0, 0, 0, 0))
     }
 
     @Test
-    fun canCheckChangingAssertions_withSingleAssertion() {
+    fun canCheckChangingAssertionsWithSingleAssertion() {
         val checker = AssertionsChecker<SimpleEntrySubject>()
         checker.add("isData42") { it.isData42() }
         checker.test(getTestEntries(42, 42, 42, 42, 42))
     }
 
     @Test
-    fun canFailCheckChangingAssertions_ifStartingAssertionFails() {
+    fun canFailCheckChangingAssertionsIfStartingAssertionFails() {
         val checker = AssertionsChecker<SimpleEntrySubject>()
         checker.add("isData42") { it.isData42() }
         checker.add("isData0") { it.isData0() }
@@ -120,7 +119,7 @@ class AssertionsCheckerTest {
     }
 
     @Test
-    fun canCheckChangingAssertions_skipUntilFirstSuccess() {
+    fun canCheckChangingAssertionsSkipUntilFirstSuccess() {
         val checker = AssertionsChecker<SimpleEntrySubject>()
         checker.skipUntilFirstAssertion()
         checker.add("isData42") { it.isData42() }
@@ -129,7 +128,7 @@ class AssertionsCheckerTest {
     }
 
     @Test
-    fun canFailCheckChangingAssertions_ifStartingAssertionAlwaysPasses() {
+    fun canFailCheckChangingAssertionsIfStartingAssertionAlwaysPasses() {
         val checker = AssertionsChecker<SimpleEntrySubject>()
         checker.add("isData42") { it.isData42() }
         checker.add("isData0") { it.isData0() }
@@ -144,7 +143,7 @@ class AssertionsCheckerTest {
     }
 
     @Test
-    fun canFailCheckChangingAssertions_ifUsingCompoundAssertion() {
+    fun canFailCheckChangingAssertionsIfUsingCompoundAssertion() {
         val checker = AssertionsChecker<SimpleEntrySubject>()
         checker.add("isData42/0") { it.isData42().isData0() }
         try {
