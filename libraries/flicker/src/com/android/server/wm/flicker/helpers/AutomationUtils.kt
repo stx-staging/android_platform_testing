@@ -94,10 +94,9 @@ fun UiDevice.reopenAppFromOverview(wmHelper: WindowManagerStateHelper) {
 fun UiDevice.openQuickstep(wmHelper: WindowManagerStateHelper) {
     if (this.isQuickstepEnabled()) {
         val navBar = this.findObject(By.res(SYSTEMUI_PACKAGE, "navigation_bar_frame"))
-        val navBarVisibleBounds: Rect
 
         // TODO(vishnun) investigate why this object cannot be found.
-        navBarVisibleBounds =
+        val navBarVisibleBounds: Rect =
             if (navBar != null) {
                 navBar.visibleBounds
             } else {
@@ -344,7 +343,7 @@ fun stopPackage(context: Context, packageName: String) {
     SystemUtil.runShellCommand("am force-stop $packageName")
     val packageUid =
         try {
-            context.packageManager.getPackageUid(packageName, /* flags= */ 0)
+            context.packageManager.getPackageUid(packageName, /* flags */ 0)
         } catch (e: PackageManager.NameNotFoundException) {
             return
         }

@@ -16,7 +16,7 @@
 
 package com.android.server.wm.flicker.windowmanager
 
-import com.android.server.wm.flicker.readTestFile
+import com.android.server.wm.flicker.readAsset
 import com.android.server.wm.flicker.readWmTraceFromFile
 import com.android.server.wm.flicker.utils.MockWindowManagerTraceBuilder
 import com.android.server.wm.flicker.utils.MockWindowStateBuilder
@@ -69,7 +69,7 @@ class WindowManagerTraceTest {
     fun canParseFromDump() {
         val trace =
             try {
-                WindowManagerTraceParser.parseFromDump(readTestFile("wm_trace_dump.pb"))
+                WindowManagerTraceParser.parseFromDump(readAsset("wm_trace_dump.pb"))
             } catch (e: Exception) {
                 throw RuntimeException(e)
             }
@@ -153,18 +153,18 @@ class WindowManagerTraceTest {
     @Test
     fun canSlice() {
         val trace = readWmTraceFromFile("wm_trace_openchrome2.pb")
-        val splitlayersTrace = trace.sliceUsingElapsedTimestamp(174686204723645, 174686640998584)
+        val splitTrace = trace.sliceUsingElapsedTimestamp(174686204723645, 174686640998584)
 
-        Truth.assertThat(splitlayersTrace).isNotEmpty()
+        Truth.assertThat(splitTrace).isNotEmpty()
 
-        Truth.assertThat(splitlayersTrace.entries.first().timestamp.elapsedNanos)
+        Truth.assertThat(splitTrace.entries.first().timestamp.elapsedNanos)
             .isEqualTo(174686204723645)
-        Truth.assertThat(splitlayersTrace.entries.last().timestamp.elapsedNanos)
+        Truth.assertThat(splitTrace.entries.last().timestamp.elapsedNanos)
             .isEqualTo(174686640998584)
     }
 
     @Test
-    fun canSlice_wrongTimestamps() {
+    fun canSliceWithWrongTimestamps() {
         val trace = readWmTraceFromFile("wm_trace_openchrome2.pb")
         val splitLayersTrace = trace.sliceUsingElapsedTimestamp(9213763541297, 9215895891561)
 
@@ -172,7 +172,7 @@ class WindowManagerTraceTest {
     }
 
     @Test
-    fun canSlice_allBefore() {
+    fun canSliceWithAllBefore() {
         testSliceUsingElapsedTimestamp(
             0L,
             mockTraceForSliceTests.first().timestamp.elapsedNanos - 1,
@@ -181,7 +181,7 @@ class WindowManagerTraceTest {
     }
 
     @Test
-    fun canSlice_allAfter() {
+    fun canSliceWithAllAfter() {
         val from = mockTraceForSliceTests.last().elapsedTimestamp + 5
         val to = mockTraceForSliceTests.last().elapsedTimestamp + 20
         val splitLayersTrace = mockTraceForSliceTests.sliceUsingElapsedTimestamp(from, to)
@@ -195,12 +195,12 @@ class WindowManagerTraceTest {
     }
 
     @Test
-    fun canSlice_inMiddle() {
+    fun canSliceInMiddle() {
         testSliceUsingElapsedTimestamp(15L, 25L, listOf(15L, 18L, 25L))
     }
 
     @Test
-    fun canSlice_fromBeforeFirstEntryToMiddle() {
+    fun canSliceFromBeforeFirstEntryToMiddle() {
         testSliceUsingElapsedTimestamp(
             mockTraceForSliceTests.first().timestamp.elapsedNanos - 1,
             27L,
@@ -209,7 +209,7 @@ class WindowManagerTraceTest {
     }
 
     @Test
-    fun canSlice_fromMiddleToAfterLastEntry() {
+    fun canSliceFromMiddleToAfterLastEntry() {
         testSliceUsingElapsedTimestamp(
             18L,
             mockTraceForSliceTests.last().timestamp.elapsedNanos + 5,
@@ -218,7 +218,7 @@ class WindowManagerTraceTest {
     }
 
     @Test
-    fun canSlice_fromBeforeToAfterLastEntry() {
+    fun canSliceFromBeforeToAfterLastEntry() {
         testSliceUsingElapsedTimestamp(
             mockTraceForSliceTests.first().timestamp.elapsedNanos - 1,
             mockTraceForSliceTests.last().timestamp.elapsedNanos + 1,
@@ -227,7 +227,7 @@ class WindowManagerTraceTest {
     }
 
     @Test
-    fun canSlice_fromExactStartToAfterLastEntry() {
+    fun canSliceFromExactStartToAfterLastEntry() {
         testSliceUsingElapsedTimestamp(
             mockTraceForSliceTests.first().timestamp,
             mockTraceForSliceTests.last().timestamp.elapsedNanos + 1,
@@ -236,7 +236,7 @@ class WindowManagerTraceTest {
     }
 
     @Test
-    fun canSlice_fromExactStartToExactEnd() {
+    fun canSliceFromExactStartToExactEnd() {
         testSliceUsingElapsedTimestamp(
             mockTraceForSliceTests.first().timestamp,
             mockTraceForSliceTests.last().timestamp,
@@ -245,7 +245,7 @@ class WindowManagerTraceTest {
     }
 
     @Test
-    fun canSlice_fromExactStartToMiddle() {
+    fun canSliceFromExactStartToMiddle() {
         testSliceUsingElapsedTimestamp(
             mockTraceForSliceTests.first().timestamp,
             18L,
@@ -254,7 +254,7 @@ class WindowManagerTraceTest {
     }
 
     @Test
-    fun canSlice_fromMiddleToExactEnd() {
+    fun canSliceFromMiddleToExactEnd() {
         testSliceUsingElapsedTimestamp(
             18L,
             mockTraceForSliceTests.last().timestamp,
@@ -263,7 +263,7 @@ class WindowManagerTraceTest {
     }
 
     @Test
-    fun canSlice_fromBeforeToExactEnd() {
+    fun canSliceFromBeforeToExactEnd() {
         testSliceUsingElapsedTimestamp(
             mockTraceForSliceTests.first().timestamp.elapsedNanos - 1,
             mockTraceForSliceTests.last().timestamp,
@@ -272,7 +272,7 @@ class WindowManagerTraceTest {
     }
 
     @Test
-    fun canSlice_sameStartAndEnd() {
+    fun canSliceSameStartAndEnd() {
         testSliceUsingElapsedTimestamp(15L, 15L, listOf(15L))
     }
 

@@ -16,6 +16,7 @@
 
 package com.android.server.wm.flicker.windowmanager
 
+import android.annotation.SuppressLint
 import android.view.Surface
 import androidx.test.filters.FlakyTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -49,6 +50,7 @@ import org.junit.runners.MethodSorters
  * Contains [WindowManagerStateHelper] tests. To run this test: `atest
  * FlickerLibTest:WindowManagerTraceHelperTest`
  */
+@SuppressLint("VisibleForTests")
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class WindowManagerStateHelperTest {
     class TestWindowManagerStateHelper(

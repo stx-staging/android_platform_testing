@@ -40,7 +40,7 @@ class AssertionDataFactory(
         assertion: (FlickerTraceSubject<FlickerSubject>) -> Unit
     ): AssertionData {
         val closedAssertion: FlickerTraceSubject<FlickerSubject>.() -> Unit = {
-            clear()
+            require(isAssertionsEmpty()) { "Subject was already used to execute assertions" }
             assertion(this)
             forAllEntries()
         }

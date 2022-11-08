@@ -63,6 +63,7 @@ java_library {
         "app-helpers-core",
         "launcher-helper-lib",
         "wm-proto-parsers",
+        "launcher-aosp-tapl",
     ],
 }
 

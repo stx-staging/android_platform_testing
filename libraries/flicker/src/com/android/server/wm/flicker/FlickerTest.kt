@@ -230,7 +230,7 @@ data class FlickerTest(
         assertion: RegionTraceSubject.() -> Unit
     ): AssertionData {
         val closedAssertion: LayersTraceSubject.() -> Unit = {
-            this.clear()
+            require(it.isAssertionsEmpty()) { "Subject was already used to execute assertions" }
             // convert LayersTraceSubject to RegionTraceSubject
             val regionTraceSubject = visibleRegion(componentMatcher, useCompositionEngineRegionOnly)
 
