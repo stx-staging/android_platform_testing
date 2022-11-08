@@ -24,7 +24,7 @@ import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubj
 import com.android.server.wm.flicker.traces.windowmanager.WindowStateSubject
 import com.android.server.wm.traces.common.layers.Layer
 import com.android.server.wm.traces.common.service.AssertionInvocationGroup
-import com.android.server.wm.traces.common.service.Scenario
+import com.android.server.wm.traces.common.service.FlickerServiceScenario
 import com.android.server.wm.traces.common.windowmanager.windows.WindowState
 
 typealias AssertionEvaluator =
@@ -33,7 +33,7 @@ typealias AssertionEvaluator =
 /** Base class for a FASS assertion */
 data class AssertionResult(
     val assertionName: String,
-    val scenario: Scenario,
+    val scenario: FlickerServiceScenario,
     val invocationGroup: AssertionInvocationGroup,
     val assertionError: Throwable?
 ) {
@@ -46,7 +46,6 @@ data class AssertionResult(
     /**
      * Returns the layer responsible for the failure, if any
      *
-     * @param tag a list with all [TransitionTag]s
      * @param wmSubject Window Manager trace subject
      * @param layerSubject Surface Flinger trace subject
      */
@@ -65,7 +64,6 @@ data class AssertionResult(
     /**
      * Returns the window responsible for the last failure, if any
      *
-     * @param tag a list with all [TransitionTag]s
      * @param wmSubject Window Manager trace subject
      * @param layerSubject Surface Flinger trace subject
      */

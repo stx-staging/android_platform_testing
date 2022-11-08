@@ -29,9 +29,9 @@ import com.android.server.wm.flicker.service.AssertionEngine
 import com.android.server.wm.flicker.service.AssertionGeneratorConfigProducer
 import com.android.server.wm.flicker.service.assertors.AssertionResult
 import com.android.server.wm.traces.common.DeviceTraceDump
+import com.android.server.wm.traces.common.service.FlickerServiceScenario
 import com.android.server.wm.traces.common.Timestamp
 import com.android.server.wm.traces.common.service.PlatformConsts
-import com.android.server.wm.traces.common.service.Scenario
 import com.android.server.wm.traces.common.service.ScenarioInstance
 import com.android.server.wm.traces.common.service.ScenarioType
 import com.android.server.wm.traces.common.transactions.Transaction
@@ -51,8 +51,8 @@ import org.junit.Test
 class AssertionsTest {
     class Setup(finishTransactionVSyncId: Long) {
         private lateinit var traceDump: DeviceTraceDump
-        lateinit var scenario: Scenario
-        lateinit var config: Map<Scenario, ScenarioConfig>
+        lateinit var scenario: FlickerServiceScenario
+        lateinit var config: Map<FlickerServiceScenario, ScenarioConfig>
         lateinit var transitionsTrace: TransitionsTrace
         lateinit var scenarioInstance: ScenarioInstance
         lateinit var transition: Transition
@@ -110,10 +110,10 @@ class AssertionsTest {
             return newTransaction
         }
 
-        fun setup(traceDump: DeviceTraceDump, scenario: Scenario) {
+        fun setup(traceDump: DeviceTraceDump, scenario: FlickerServiceScenario) {
             this.traceDump = traceDump
             this.scenario = scenario
-            val config = mutableMapOf<Scenario, ScenarioConfig>()
+            val config = mutableMapOf<FlickerServiceScenario, ScenarioConfig>()
             config[scenario] =
                 ScenarioConfig(arrayOf(traceDump), arrayOf(emptyDeviceTraceConfiguration))
             this.config = config
@@ -156,7 +156,7 @@ class AssertionsTest {
         val wmTrace = wmTrace_ROTATION_0
         val traceDump = DeviceTraceDump(null, layersTrace)
         val scenarioType = ScenarioType.APP_LAUNCH
-        val scenario = Scenario(scenarioType, PlatformConsts.Rotation.ROTATION_0)
+        val scenario = FlickerServiceScenario(scenarioType, PlatformConsts.Rotation.ROTATION_0)
         val testSetup = Setup(3)
         testSetup.setup(traceDump, scenario)
         val assertionEngine =
@@ -182,7 +182,7 @@ class AssertionsTest {
         val wmTrace = wmTrace_ROTATION_0
         val traceDump = DeviceTraceDump(null, layersTraceForGeneration)
         val scenarioType = ScenarioType.APP_LAUNCH
-        val scenario = Scenario(scenarioType, PlatformConsts.Rotation.ROTATION_0)
+        val scenario = FlickerServiceScenario(scenarioType, PlatformConsts.Rotation.ROTATION_0)
         val testSetup = Setup(3)
         testSetup.setup(traceDump, scenario)
         val assertionEngine =
@@ -216,7 +216,8 @@ class AssertionsTest {
             AssertionGeneratorConfigProducer(configDir = "/assertiongenerator_config_test")
         val assertionEngine = AssertionEngine(defaultConfigProducer) { Log.v("FLICKER-ASSERT", it) }
         val config = defaultConfigProducer.produce()
-        val scenario = Scenario(ScenarioType.APP_LAUNCH, PlatformConsts.Rotation.ROTATION_0)
+        val scenario =
+            FlickerServiceScenario(ScenarioType.APP_LAUNCH, PlatformConsts.Rotation.ROTATION_0)
         val traceDump = config[scenario]?.deviceTraceDumps?.get(0)
         traceDump ?: run { throw RuntimeException("No deviceTraceDump for scenario APP_LAUNCH") }
         val layersTrace = traceDump.layersTrace
@@ -242,7 +243,8 @@ class AssertionsTest {
     fun AssertionEngine_analyze_assertionNames_traceFile() {
         val configDir = "/assertiongenerator_config_test"
         val goldenTracesConfig = TraceFileReader.getGoldenTracesConfig(configDir)
-        val scenario = Scenario(ScenarioType.APP_LAUNCH, PlatformConsts.Rotation.ROTATION_0)
+        val scenario =
+            FlickerServiceScenario(ScenarioType.APP_LAUNCH, PlatformConsts.Rotation.ROTATION_0)
         val traceDump = goldenTracesConfig[scenario]!!.deviceTraceDumps[0]
         val traceConfiguration = goldenTracesConfig[scenario]!!.traceConfigurations[0]
 

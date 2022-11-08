@@ -28,7 +28,7 @@ import com.android.server.wm.flicker.service.config.Assertions.allAssertionsForS
 import com.android.server.wm.flicker.service.config.Assertions.assertionsForScenarioInstance
 import com.android.server.wm.flicker.service.config.Assertions.generatedAssertionsForScenarioInstance
 import com.android.server.wm.traces.common.layers.LayersTrace
-import com.android.server.wm.traces.common.service.Scenario
+import com.android.server.wm.traces.common.service.FlickerServiceScenario
 import com.android.server.wm.traces.common.service.ScenarioInstance
 import com.android.server.wm.traces.common.service.ScenarioType
 import com.android.server.wm.traces.common.transition.TransitionsTrace
@@ -51,7 +51,7 @@ class AssertionEngine(
     }
 
     private fun initializeAssertionFactory(): AssertionFactory {
-        val config: Map<Scenario, ScenarioConfig> =
+        val config: Map<FlickerServiceScenario, ScenarioConfig> =
             try {
                 configProducer.produce()
             } catch (err: FileNotFoundException) {

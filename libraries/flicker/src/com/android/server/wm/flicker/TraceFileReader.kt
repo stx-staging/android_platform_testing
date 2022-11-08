@@ -26,8 +26,8 @@ import com.android.server.wm.flicker.service.assertors.scenarioInstanceSlice
 import com.android.server.wm.traces.common.ComponentNameMatcher
 import com.android.server.wm.traces.common.DeviceTraceDump
 import com.android.server.wm.traces.common.layers.LayersTrace
+import com.android.server.wm.traces.common.service.FlickerServiceScenario
 import com.android.server.wm.traces.common.service.PlatformConsts
-import com.android.server.wm.traces.common.service.Scenario
 import com.android.server.wm.traces.common.service.ScenarioInstance
 import com.android.server.wm.traces.common.service.ScenarioType
 import com.android.server.wm.traces.common.windowmanager.WindowManagerState
@@ -269,7 +269,9 @@ class TraceFileReader {
          * src/com/android/server/wm/flicker/service/resources/ and follow a strict structure TODO:
          * detail the structure
          */
-        fun getGoldenTracesConfig(configDir: String? = null): Map<Scenario, ScenarioConfig> {
+        fun getGoldenTracesConfig(
+            configDir: String? = null
+        ): Map<FlickerServiceScenario, ScenarioConfig> {
             val configDir = configDir ?: getGoldenTracesConfigDir()
             return ScenarioType.scenariosByDescription
                 .flatMap { (scenarioDescription, scenarioType) ->
@@ -301,7 +303,7 @@ class TraceFileReader {
                             scenarioTraceConfigurationArray.add(deviceTraceConfiguration)
                             traceCount++
                         }
-                        val scenario = Scenario(scenarioType, rotation)
+                        val scenario = FlickerServiceScenario(scenarioType, rotation)
                         scenario to
                             ScenarioConfig(
                                 scenarioDeviceTraceDumpArray.toTypedArray(),

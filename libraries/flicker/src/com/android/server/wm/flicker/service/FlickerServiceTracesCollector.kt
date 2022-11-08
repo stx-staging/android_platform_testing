@@ -44,6 +44,8 @@ import kotlin.io.path.deleteIfExists
 
 class FlickerServiceTracesCollector(val outputDir: Path) : ITracesCollector {
 
+    private var result: ResultData? = null
+
     private val traceMonitors =
         listOf(
             ScreenRecorder(InstrumentationRegistry.getInstrumentation().targetContext, outputDir),
@@ -228,7 +230,6 @@ class FlickerServiceTracesCollector(val outputDir: Path) : ITracesCollector {
     }
 
     companion object {
-        private val LOG_TAG = "FlickerTracesCollector"
-        private const val BUFFER_SIZE = 2048
+        private const val LOG_TAG = "$FLICKER_TAG-Collector"
     }
 }

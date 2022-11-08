@@ -23,6 +23,7 @@ import com.android.server.wm.flicker.utils.MockLayersTraceBuilder
 import com.android.server.wm.flicker.utils.MockWindowManagerTraceBuilder
 import com.android.server.wm.traces.common.layers.LayersTrace
 import com.android.server.wm.traces.common.service.AssertionInvocationGroup
+import com.android.server.wm.traces.common.service.FlickerServiceScenario
 import com.android.server.wm.traces.common.service.PlatformConsts
 import com.android.server.wm.traces.common.service.Scenario
 import com.android.server.wm.traces.common.service.ScenarioType
@@ -65,7 +66,10 @@ class FlickerServiceResultsCollectorTest {
                 listOf(
                     AssertionResult(
                         "assertionName",
-                        Scenario(ScenarioType.APP_LAUNCH, PlatformConsts.Rotation.ROTATION_0),
+                        FlickerServiceScenario(
+                            ScenarioType.APP_LAUNCH,
+                            PlatformConsts.Rotation.ROTATION_0
+                        ),
                         AssertionInvocationGroup.BLOCKING,
                         null
                     )
@@ -118,7 +122,10 @@ class FlickerServiceResultsCollectorTest {
                 listOf(
                     AssertionResult(
                         "assertionName",
-                        Scenario(ScenarioType.APP_LAUNCH, PlatformConsts.Rotation.ROTATION_0),
+                        FlickerServiceScenario(
+                            ScenarioType.APP_LAUNCH,
+                            PlatformConsts.Rotation.ROTATION_0
+                        ),
                         AssertionInvocationGroup.BLOCKING,
                         null
                     )
@@ -170,7 +177,10 @@ class FlickerServiceResultsCollectorTest {
                 listOf(
                     AssertionResult(
                         "assertionName",
-                        Scenario(ScenarioType.APP_LAUNCH, PlatformConsts.Rotation.ROTATION_0),
+                        FlickerServiceScenario(
+                            ScenarioType.APP_LAUNCH,
+                            PlatformConsts.Rotation.ROTATION_0
+                        ),
                         AssertionInvocationGroup.BLOCKING,
                         null
                     )
@@ -221,7 +231,10 @@ class FlickerServiceResultsCollectorTest {
                 listOf(
                     AssertionResult(
                         "assertionName",
-                        Scenario(ScenarioType.APP_LAUNCH, PlatformConsts.Rotation.ROTATION_0),
+                        FlickerServiceScenario(
+                            ScenarioType.APP_LAUNCH,
+                            PlatformConsts.Rotation.ROTATION_0
+                        ),
                         AssertionInvocationGroup.BLOCKING,
                         null
                     )

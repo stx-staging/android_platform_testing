@@ -31,8 +31,8 @@ import com.android.server.wm.flicker.assertiongenerator.layers.LayersVisibilityA
 import com.android.server.wm.traces.common.ComponentNameMatcher
 import com.android.server.wm.traces.common.DeviceTraceDump
 import com.android.server.wm.traces.common.layers.LayersTrace
+import com.android.server.wm.traces.common.service.FlickerServiceScenario
 import com.android.server.wm.traces.common.service.PlatformConsts
-import com.android.server.wm.traces.common.service.Scenario
 import com.android.server.wm.traces.common.service.ScenarioInstance
 import com.android.server.wm.traces.common.service.ScenarioType
 import com.android.server.wm.traces.common.transition.Transition
@@ -330,7 +330,8 @@ class LayersVisibilityAssertionProducerTest {
     fun produceFromTraceFile_assertion_execute() {
         val configDir = "/assertiongenerator_config_test"
         val goldenTracesConfig = TraceFileReader.getGoldenTracesConfig(configDir)
-        val scenario = Scenario(ScenarioType.APP_LAUNCH, PlatformConsts.Rotation.ROTATION_0)
+        val scenario =
+            FlickerServiceScenario(ScenarioType.APP_LAUNCH, PlatformConsts.Rotation.ROTATION_0)
         val traceDump = goldenTracesConfig[scenario]!!.deviceTraceDumps[0]
         val traceConfiguration = goldenTracesConfig[scenario]!!.traceConfigurations[0]
         val layersTrace = traceDump.layersTrace

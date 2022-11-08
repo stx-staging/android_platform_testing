@@ -16,18 +16,35 @@
 
 package com.android.server.wm.traces.common.service
 
-class Scenario(val scenarioType: ScenarioType, var rotation: PlatformConsts.Rotation) {
-    override fun toString(): String {
-        return "${scenarioType.description}_$rotation"
-    }
+import com.android.server.wm.traces.common.IScenario
+
+class FlickerServiceScenario(
+    val scenarioType: ScenarioType,
+    override val startRotation: PlatformConsts.Rotation
+) : IScenario {
+    // b/227752705
+    override val navBarMode: PlatformConsts.NavBar
+        get() = error("Unsupported")
+
+    override val key: String
+        get() = "${scenarioType.description}_$startRotation"
+
+    override val description: String = key
+
+    override val isEmpty: Boolean
+        get() = false
+
+    override fun toString() = key
 
     override fun equals(other: Any?): Boolean {
-        return other is Scenario && scenarioType == other.scenarioType && rotation == other.rotation
+        return other is FlickerServiceScenario &&
+            scenarioType == other.scenarioType &&
+            startRotation == other.startRotation
     }
 
     override fun hashCode(): Int {
         var result = scenarioType.hashCode()
-        result = 31 * result + rotation.hashCode()
+        result = 31 * result + startRotation.hashCode()
         return result
     }
 }

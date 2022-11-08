@@ -16,12 +16,13 @@
 
 package com.android.server.wm.flicker.service
 
+import com.android.server.wm.flicker.junit.FlickerServiceCachedTestCase
 import java.lang.reflect.Method
 import org.junit.runners.model.FrameworkMethod
 
 class FlickerFrameworkMethod(
     method: Method?,
-    private val target: FlickerTestCase,
+    private val target: FlickerServiceCachedTestCase,
     private val name: String
 ) : FrameworkMethod(method) {
     /**
@@ -36,10 +37,6 @@ class FlickerFrameworkMethod(
     /** Returns the method's name. */
     override fun getName(): String {
         return name
-    }
-
-    fun isIgnored(): Boolean {
-        return this.target.shouldSkip
     }
 
     /**

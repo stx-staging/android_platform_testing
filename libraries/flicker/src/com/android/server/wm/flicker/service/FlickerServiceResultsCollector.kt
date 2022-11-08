@@ -23,27 +23,26 @@ import android.util.Log
 import androidx.test.platform.app.InstrumentationRegistry
 import com.android.internal.annotations.VisibleForTesting
 import com.android.server.wm.flicker.FLICKER_TAG
-import com.android.server.wm.flicker.TransitionRunner.Companion.ExecutionError
-import com.android.server.wm.flicker.getDefaultFlickerOutputDir
+import com.android.server.wm.flicker.runner.ExecutionError
 import com.android.server.wm.flicker.service.assertors.AssertionResult
 import com.android.server.wm.traces.common.service.AssertionInvocationGroup
 import org.junit.runner.Description
 import org.junit.runner.Result
 import org.junit.runner.notification.Failure
+import java.nio.file.Path
 
 /**
  * Collects all the Flicker Service's metrics which are then uploaded for analysis and monitoring to
  * the CrystalBall database.
  */
 class FlickerServiceResultsCollector(
-    private val tracesCollector: ITracesCollector =
-        FlickerServiceTracesCollector(getDefaultFlickerOutputDir()),
+    val outputDir: Path,
+    private val tracesCollector: ITracesCollector = FlickerServiceTracesCollector(outputDir),
     private val flickerService: IFlickerService = FlickerService(),
     instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation(),
     private val collectMetricsPerTest: Boolean = true,
-    private val reportOnlyForPassingTests: Boolean = true,
+    private val reportOnlyForPassingTests: Boolean = true
 ) : BaseMetricListener(), IFlickerServiceResultsCollector {
-    private val WINSCOPE_FILE_PATH_KEY = "winscope_file_path"
     private var hasFailedTest = false
     private var testSkipped = false
 
@@ -119,7 +118,6 @@ class FlickerServiceResultsCollector(
         Log.i(LOG_TAG, "Stopping trace collection")
         tracesCollector.stop()
         Log.i(LOG_TAG, "Stopped trace collection")
-
         if (reportOnlyForPassingTests && hasFailedTest) {
             return
         }
@@ -201,9 +199,10 @@ class FlickerServiceResultsCollector(
     }
 
     companion object {
-        // Unique prefix to add to all fass metrics to identify them
+        // Unique prefix to add to all FaaS metrics to identify them
         private const val FAAS_METRICS_PREFIX = "FAAS"
-        private val LOG_TAG = "FlickerResultsCollector"
+        private const val LOG_TAG = "$FLICKER_TAG-Collector"
+        private const val WINSCOPE_FILE_PATH_KEY = "winscope_file_path"
 
         class AggregatedFlickerResult {
             var failures = 0
