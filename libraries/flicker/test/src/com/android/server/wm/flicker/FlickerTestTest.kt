@@ -39,7 +39,7 @@ class FlickerTestTest {
 
     @Test
     fun failsWithoutScenario() {
-        val actual = FlickerTest(mutableMapOf())
+        val actual = FlickerTest()
         val failure =
             assertThrows(IllegalArgumentException::class.java) {
                 actual.assertLayers { executionCount++ }
@@ -171,8 +171,8 @@ class FlickerTestTest {
     fun executesEventLog() {
         val predicate: (FlickerTest) -> Unit = { it.assertEventLog { executionCount++ } }
         newTestCachedResultWriter().addEventLogResult(emptyList()).write()
-        val flickerWrapper = FlickerTest(mutableMapOf())
-        flickerWrapper.initialize(TEST_SCENARIO)
+        val flickerWrapper = FlickerTest()
+        flickerWrapper.initialize(TEST_SCENARIO.testClass)
         // Each assertion is executed independently and not cached, only Flicker as a Service
         // assertions are cached
         predicate.invoke(flickerWrapper)
@@ -185,8 +185,8 @@ class FlickerTestTest {
     fun doesNotExecuteEventLogWithoutEventLog() {
         val predicate: (FlickerTest) -> Unit = { it.assertEventLog { executionCount++ } }
         newTestCachedResultWriter().write()
-        val flickerWrapper = FlickerTest(mutableMapOf())
-        flickerWrapper.initialize(TEST_SCENARIO)
+        val flickerWrapper = FlickerTest()
+        flickerWrapper.initialize(TEST_SCENARIO.testClass)
         // Each assertion is executed independently and not cached, only Flicker as a Service
         // assertions are cached
         predicate.invoke(flickerWrapper)
@@ -217,8 +217,8 @@ class FlickerTestTest {
             writer.addTraceResult(traceType, file)
         }
         writer.write()
-        val flickerWrapper = FlickerTest(mutableMapOf())
-        flickerWrapper.initialize(TEST_SCENARIO)
+        val flickerWrapper = FlickerTest()
+        flickerWrapper.initialize(TEST_SCENARIO.testClass)
         // Each assertion is executed independently and not cached, only Flicker as a Service
         // assertions are cached
         predicate.invoke(flickerWrapper)

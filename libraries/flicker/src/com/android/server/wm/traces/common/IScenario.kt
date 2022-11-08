@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The Android Open Source Project
+ * Copyright (C) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.monitor
+package com.android.server.wm.traces.common
 
-import com.android.server.wm.flicker.FlickerRunResult
+interface IScenario {
+    val description: String
+    val key: String
+    val isEmpty: Boolean
 
-/** Collects test artifacts during a UI transition. */
-interface ITransitionMonitor : FlickerRunResult.IResultSetter {
-    /** Starts monitor. */
-    fun start()
-
-    /** Stops monitor. */
-    fun stop()
+    /** Initial screen rotation */
+    val startRotation: Int
+    val navBarMode: Int
 }

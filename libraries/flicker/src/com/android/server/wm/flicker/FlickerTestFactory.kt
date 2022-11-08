@@ -44,7 +44,7 @@ object FlickerTestFactory {
     ): List<FlickerTest> {
         return supportedNavigationModes.flatMap { navBarMode ->
             supportedRotations.map { rotation ->
-                createParam(navBarMode, rotation, faasEnabled = faasEnabled)
+                createFlickerTest(navBarMode, rotation, rotation, extraArgs)
             }
         }
     }
@@ -69,7 +69,7 @@ object FlickerTestFactory {
             supportedRotations
                 .flatMap { start -> supportedRotations.map { end -> start to end } }
                 .filter { (start, end) -> start != end }
-                .map { (start, end) -> createParam(navBarMode, start, end, faasEnabled) }
+                .map { (start, end) -> createFlickerTest(navBarMode, start, end, extraArgs) }
         }
     }
 
@@ -80,11 +80,10 @@ object FlickerTestFactory {
         faasEnabled: Boolean = false
     ) =
         FlickerTest(
-            mutableMapOf(
-                Scenario.NAV_BAR_MODE to navBarMode,
-                Scenario.START_ROTATION to startRotation,
-                Scenario.END_ROTATION to endRotation,
-                Scenario.FAAS_ENABLED to (faasEnabled && IS_FAAS_ENABLED)
-            )
+            ScenarioBuilder()
+                .withStartRotation(startRotation)
+                .withEndRotation(endRotation)
+                .withNavBarMode(navBarMode)
+                .withExtraConfigs(extraArgs)
         )
 }

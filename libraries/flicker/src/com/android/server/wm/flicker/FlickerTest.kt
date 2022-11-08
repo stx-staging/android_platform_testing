@@ -19,6 +19,7 @@ package com.android.server.wm.flicker
 import com.android.server.wm.flicker.assertions.AssertionData
 import com.android.server.wm.flicker.assertions.AssertionDataFactory
 import com.android.server.wm.flicker.assertions.AssertionStateDataFactory
+import com.android.server.wm.flicker.assertions.BaseAssertionRunner
 import com.android.server.wm.flicker.assertions.FlickerSubject
 import com.android.server.wm.flicker.datastore.CachedAssertionRunner
 import com.android.server.wm.flicker.traces.FlickerTraceSubject
@@ -32,9 +33,8 @@ import com.android.server.wm.traces.common.IComponentMatcher
 
 /** Specification of a flicker test for JUnit ParameterizedRunner class */
 data class FlickerTest(
-    val config: MutableMap<String, Any?>,
-    private val nameOverride: String? = null,
-    private val runnerProvider: (Scenario) -> AssertionRunner = { CachedAssertionRunner(it) }
+    private val scenarioBuilder: ScenarioBuilder = ScenarioBuilder(),
+    private val runnerProvider: (Scenario) -> BaseAssertionRunner = { CachedAssertionRunner(it) }
 ) {
     private val wmAssertionFactory =
         AssertionDataFactory(WindowManagerStateSubject::class, WindowManagerTraceSubject::class)
@@ -42,24 +42,27 @@ data class FlickerTest(
         AssertionDataFactory(LayerTraceEntrySubject::class, LayersTraceSubject::class)
     private val eventLogAssertionFactory = AssertionStateDataFactory(EventLogSubject::class)
 
-    var scenario: Scenario = Scenario.EMPTY
+    var scenario: Scenario = ScenarioBuilder().createEmptyScenario()
         private set
 
     override fun toString(): String = scenario.toString()
 
-    fun initialize(_scenario: Scenario) {
-        scenario = _scenario
+    fun initialize(testClass: String): Scenario {
+        scenario = scenarioBuilder.forClass(testClass).build()
+        return scenario
     }
+
+    fun <T> getConfigValue(key: String) = scenario.getConfigValue<T>(key)
 
     /**
      * Execute [assertion] on the initial state of a WM trace (before transition)
      *
      * @param assertion Assertion predicate
      */
-    fun assertWmStart(assertion: WindowManagerStateSubject.() -> Unit): Throwable? {
+    fun assertWmStart(assertion: WindowManagerStateSubject.() -> Unit) {
         val assertionData =
             wmAssertionFactory.createStartStateAssertion(assertion as FlickerSubject.() -> Unit)
-        return doRunAssertion(assertionData)
+        doRunAssertion(assertionData)
     }
 
     /**
@@ -67,11 +70,11 @@ data class FlickerTest(
      *
      * @param assertion Assertion predicate
      */
-    fun assertWmEnd(assertion: WindowManagerStateSubject.() -> Unit): Throwable? {
+    fun assertWmEnd(assertion: WindowManagerStateSubject.() -> Unit) {
         val wrappedAssertion: (WindowManagerStateSubject) -> Unit = { assertion(it) }
         val assertionData =
             wmAssertionFactory.createEndStateAssertion(wrappedAssertion as (FlickerSubject) -> Unit)
-        return doRunAssertion(assertionData)
+        doRunAssertion(assertionData)
     }
 
     /**
@@ -79,12 +82,12 @@ data class FlickerTest(
      *
      * @param assertion Assertion predicate
      */
-    fun assertWm(assertion: WindowManagerTraceSubject.() -> Unit): Throwable? {
+    fun assertWm(assertion: WindowManagerTraceSubject.() -> Unit) {
         val assertionData =
             wmAssertionFactory.createTraceAssertion(
                 assertion as (FlickerTraceSubject<FlickerSubject>) -> Unit
             )
-        return doRunAssertion(assertionData)
+        doRunAssertion(assertionData)
     }
 
     /**
@@ -92,10 +95,10 @@ data class FlickerTest(
      *
      * @param assertion Assertion predicate
      */
-    fun assertWmTag(tag: String, assertion: WindowManagerStateSubject.() -> Unit): Throwable? {
+    fun assertWmTag(tag: String, assertion: WindowManagerStateSubject.() -> Unit) {
         val assertionData =
             wmAssertionFactory.createTagAssertion(tag, assertion as FlickerSubject.() -> Unit)
-        return doRunAssertion(assertionData)
+        doRunAssertion(assertionData)
     }
 
     /**
@@ -107,9 +110,9 @@ data class FlickerTest(
     fun assertWmVisibleRegion(
         componentMatcher: IComponentMatcher,
         assertion: RegionTraceSubject.() -> Unit
-    ): Throwable? {
+    ) {
         val assertionData = buildWmVisibleRegionAssertion(componentMatcher, assertion)
-        return doRunAssertion(assertionData)
+        doRunAssertion(assertionData)
     }
 
     /**
@@ -117,10 +120,10 @@ data class FlickerTest(
      *
      * @param assertion Assertion predicate
      */
-    fun assertLayersStart(assertion: LayerTraceEntrySubject.() -> Unit): Throwable? {
+    fun assertLayersStart(assertion: LayerTraceEntrySubject.() -> Unit) {
         val assertionData =
             layersAssertionFactory.createStartStateAssertion(assertion as FlickerSubject.() -> Unit)
-        return doRunAssertion(assertionData)
+        doRunAssertion(assertionData)
     }
 
     /**
@@ -128,10 +131,10 @@ data class FlickerTest(
      *
      * @param assertion Assertion predicate
      */
-    fun assertLayersEnd(assertion: LayerTraceEntrySubject.() -> Unit): Throwable? {
+    fun assertLayersEnd(assertion: LayerTraceEntrySubject.() -> Unit) {
         val assertionData =
             layersAssertionFactory.createEndStateAssertion(assertion as FlickerSubject.() -> Unit)
-        return doRunAssertion(assertionData)
+        doRunAssertion(assertionData)
     }
 
     /**
@@ -139,12 +142,12 @@ data class FlickerTest(
      *
      * @param assertion Assertion predicate
      */
-    fun assertLayers(assertion: LayersTraceSubject.() -> Unit): Throwable? {
+    fun assertLayers(assertion: LayersTraceSubject.() -> Unit) {
         val assertionData =
             layersAssertionFactory.createTraceAssertion(
                 assertion as (FlickerTraceSubject<FlickerSubject>) -> Unit
             )
-        return doRunAssertion(assertionData)
+        doRunAssertion(assertionData)
     }
 
     /**
@@ -152,7 +155,7 @@ data class FlickerTest(
      *
      * @param assertion Assertion predicate
      */
-    fun assertLayersTag(tag: String, assertion: LayerTraceEntrySubject.() -> Unit): Throwable? {
+    fun assertLayersTag(tag: String, assertion: LayerTraceEntrySubject.() -> Unit) {
         val assertionData =
             layersAssertionFactory.createTagAssertion(tag, assertion as FlickerSubject.() -> Unit)
         return doRunAssertion(assertionData)
@@ -173,14 +176,14 @@ data class FlickerTest(
         componentMatcher: IComponentMatcher,
         useCompositionEngineRegionOnly: Boolean = true,
         assertion: RegionTraceSubject.() -> Unit
-    ): Throwable? {
+    ) {
         val assertionData =
             buildLayersVisibleRegionAssertion(
                 componentMatcher,
                 useCompositionEngineRegionOnly,
                 assertion
             )
-        return doRunAssertion(assertionData)
+        doRunAssertion(assertionData)
     }
 
     /**
@@ -188,18 +191,18 @@ data class FlickerTest(
      *
      * @param assertion Assertion predicate
      */
-    fun assertEventLog(assertion: EventLogSubject.() -> Unit): Throwable? {
+    fun assertEventLog(assertion: EventLogSubject.() -> Unit) {
         val assertionData =
             eventLogAssertionFactory.createTagAssertion(
                 AssertionTag.ALL,
                 assertion as FlickerSubject.() -> Unit
             )
-        return doRunAssertion(assertionData)
+        doRunAssertion(assertionData)
     }
 
-    private fun doRunAssertion(assertion: AssertionData): Throwable? {
+    private fun doRunAssertion(assertion: AssertionData) {
         require(!scenario.isEmpty) { "Scenario shouldn't be empty" }
-        return runnerProvider.invoke(scenario).runAssertion(assertion)
+        runnerProvider.invoke(scenario).runAssertion(assertion)?.let { throw it }
     }
 
     private fun buildWmVisibleRegionAssertion(

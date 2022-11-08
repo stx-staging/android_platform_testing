@@ -45,15 +45,15 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
 import java.nio.file.Files
+import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.zip.ZipInputStream
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createFile
 import kotlin.io.path.writeBytes
 import org.mockito.Mockito
-import java.nio.file.Path
 
-internal val TEST_SCENARIO = Scenario("test", mutableMapOf())
+internal val TEST_SCENARIO = ScenarioBuilder().forClass("test").build()
 
 internal fun outputFileName(status: RunStatus) =
     Paths.get("/sdcard/flicker/${status.prefix}_test_ROTATION_0_GESTURAL_NAV.zip")
@@ -279,14 +279,14 @@ fun assertExceptionMessageCause(error: Throwable?, expectedValue: String) {
 }
 
 fun createMockedFlicker(
-    setup: List<IFlicker.() -> Unit> = emptyList(),
-    teardown: List<IFlicker.() -> Unit> = emptyList(),
-    transitions: List<IFlicker.() -> Unit> = emptyList(),
+    setup: List<IFlickerTestData.() -> Unit> = emptyList(),
+    teardown: List<IFlickerTestData.() -> Unit> = emptyList(),
+    transitions: List<IFlickerTestData.() -> Unit> = emptyList(),
     extraMonitor: ITransitionMonitor? = null
-): IFlicker {
+): IFlickerTestData {
     val instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation()
     val uiDevice: UiDevice = UiDevice.getInstance(instrumentation)
-    val mockedFlicker = Mockito.mock(AbstractFlicker::class.java)
+    val mockedFlicker = Mockito.mock(AbstractFlickerTestData::class.java)
     val monitors: MutableList<ITransitionMonitor> =
         mutableListOf(WindowManagerTraceMonitor(), LayersTraceMonitor())
     extraMonitor?.let { monitors.add(it) }
