@@ -16,12 +16,16 @@
 
 package com.android.server.wm.flicker
 
+import android.app.Instrumentation
 import android.content.Context
 import androidx.test.platform.app.InstrumentationRegistry
-import com.android.server.wm.flicker.FlickerRunResult.Companion.RunStatus.ASSERTION_SUCCESS
-import com.android.server.wm.flicker.dsl.FlickerBuilder
+import androidx.test.uiautomator.UiDevice
+import com.android.server.wm.flicker.datastore.CachedResultWriter
 import com.android.server.wm.flicker.helpers.isShellTransitionsEnabled
-import com.android.server.wm.flicker.monitor.TraceMonitor
+import com.android.server.wm.flicker.io.ResultWriter
+import com.android.server.wm.flicker.io.WINSCOPE_EXT
+import com.android.server.wm.flicker.monitor.LayersTraceMonitor
+import com.android.server.wm.flicker.monitor.WindowManagerTraceMonitor
 import com.android.server.wm.flicker.traces.FlickerSubjectException
 import com.android.server.wm.traces.common.DeviceTraceDump
 import com.android.server.wm.traces.common.layers.LayersTrace
@@ -31,6 +35,7 @@ import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 import com.android.server.wm.traces.parser.layers.LayersTraceParser
 import com.android.server.wm.traces.parser.transaction.TransactionsTraceParser
 import com.android.server.wm.traces.parser.transition.TransitionsTraceParser
+import com.android.server.wm.traces.parser.windowmanager.WindowManagerStateHelper
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerTraceParser
 import com.google.common.io.ByteStreams
 import com.google.common.truth.ExpectFailure
@@ -38,17 +43,31 @@ import com.google.common.truth.Truth
 import com.google.common.truth.TruthFailureSubject
 import java.io.File
 import java.io.FileInputStream
+import java.io.IOException
 import java.nio.file.Files
-import java.nio.file.Path
+import java.nio.file.Paths
 import java.util.zip.ZipInputStream
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createFile
 import kotlin.io.path.writeBytes
+import org.mockito.Mockito
+import java.nio.file.Path
+
+internal val TEST_SCENARIO = Scenario("test", mutableMapOf())
+
+internal fun outputFileName(status: RunStatus) =
+    Paths.get("/sdcard/flicker/${status.prefix}_test_ROTATION_0_GESTURAL_NAV.zip")
+
+internal fun newTestResultWriter() =
+    ResultWriter().forScenario(TEST_SCENARIO).withOutputDir(getDefaultFlickerOutputDir())
+
+internal fun newTestCachedResultWriter() =
+    CachedResultWriter().forScenario(TEST_SCENARIO).withOutputDir(getDefaultFlickerOutputDir())
 
 internal fun readWmTraceFromFile(relativePath: String): WindowManagerTrace {
     return try {
         WindowManagerTraceParser.parseFromTrace(
-            readTestFile(relativePath),
+            readAsset(relativePath),
             clearCacheAfterParsing = false
         )
     } catch (e: Exception) {
@@ -59,7 +78,7 @@ internal fun readWmTraceFromFile(relativePath: String): WindowManagerTrace {
 internal fun readWmTraceFromDumpFile(relativePath: String): WindowManagerTrace {
     return try {
         WindowManagerTraceParser.parseFromDump(
-            readTestFile(relativePath),
+            readAsset(relativePath),
             clearCacheAfterParsing = false
         )
     } catch (e: Exception) {
@@ -73,7 +92,7 @@ internal fun readLayerTraceFromFile(
 ): LayersTrace {
     return try {
         LayersTraceParser.parseFromTrace(
-            readTestFile(relativePath),
+            readAsset(relativePath),
             ignoreLayersStackMatchNoDisplay = false,
             ignoreLayersInVirtualDisplay = false
         ) { ignoreOrphanLayers }
@@ -84,7 +103,7 @@ internal fun readLayerTraceFromFile(
 
 internal fun readTransactionsTraceFromFile(relativePath: String): TransactionsTrace {
     return try {
-        TransactionsTraceParser.parseFromTrace(readTestFile(relativePath))
+        TransactionsTraceParser.parseFromTrace(readAsset(relativePath))
     } catch (e: Exception) {
         throw RuntimeException(e)
     }
@@ -95,17 +114,31 @@ internal fun readTransitionsTraceFromFile(
     transactionsTrace: TransactionsTrace
 ): TransitionsTrace {
     return try {
-        TransitionsTraceParser.parseFromTrace(readTestFile(relativePath), transactionsTrace)
+        TransitionsTraceParser.parseFromTrace(readAsset(relativePath), transactionsTrace)
     } catch (e: Exception) {
         throw RuntimeException(e)
     }
 }
 
 @Throws(Exception::class)
-internal fun readTestFile(relativePath: String): ByteArray {
+internal fun readAsset(relativePath: String): ByteArray {
     val context: Context = InstrumentationRegistry.getInstrumentation().context
     val inputStream = context.resources.assets.open("testdata/$relativePath")
     return ByteStreams.toByteArray(inputStream)
+}
+
+@Throws(IOException::class)
+fun readAssetAsFile(relativePath: String): File {
+    val context: Context = InstrumentationRegistry.getInstrumentation().context
+    return File(context.cacheDir, relativePath).also {
+        if (!it.exists()) {
+            it.outputStream().use { cache ->
+                context.assets.open("testdata/$relativePath").use { inputStream ->
+                    inputStream.copyTo(cache)
+                }
+            }
+        }
+    }
 }
 
 /**
@@ -115,8 +148,7 @@ internal fun readTestFile(relativePath: String): ByteArray {
  * @throws AssertionError if `r` does not throw, or throws a runnable that is not an instance of
  * `expectedThrowable`.
  */
-// TODO: remove once Android migrates to JUnit 4.13, which provides assertThrows
-fun assertThrows(expectedThrowable: Class<out Throwable>, r: () -> Any): Throwable {
+fun assertThrows(expectedThrowable: Class<out Throwable>, r: () -> Unit): Throwable {
     try {
         r()
     } catch (t: Throwable) {
@@ -170,7 +202,7 @@ fun assertArchiveContainsFiles(archivePath: Path, expectedFiles: List<String>) {
 }
 
 fun assertArchiveContainsAllTraces(
-    runStatus: FlickerRunResult.Companion.RunStatus = ASSERTION_SUCCESS,
+    runStatus: RunStatus = RunStatus.ASSERTION_SUCCESS,
     testName: String
 ) {
     val archiveFileName = "${runStatus.prefix}_$testName.zip"
@@ -194,8 +226,8 @@ fun getTestTraceDump(
     wmTraceFilename: String = "wm_trace.winscope",
     layersTraceFilename: String = "layers_trace.winscope"
 ): DeviceTraceDump {
-    val wmTraceByteArray = readTestFile(traceFilesLocation + wmTraceFilename)
-    val layersTraceByteArray = readTestFile(traceFilesLocation + layersTraceFilename)
+    val wmTraceByteArray = readAsset(traceFilesLocation + wmTraceFilename)
+    val layersTraceByteArray = readAsset(traceFilesLocation + layersTraceFilename)
     return TraceFileReader.fromTraceByteArray(wmTraceByteArray, layersTraceByteArray)
 }
 
@@ -214,10 +246,9 @@ fun getScenarioTraces(scenario: String): FlickerBuilder.TraceFiles {
             "transition_trace" to { transitionsTrace = it }
         )
     for ((traceName, resultSetter) in traces.entries) {
-        val traceBytes = readTestFile("scenarios/$scenario/$traceName${TraceMonitor.WINSCOPE_EXT}")
+        val traceBytes = readAsset("scenarios/$scenario/$traceName$WINSCOPE_EXT")
         val traceFile =
-            getDefaultFlickerOutputDir()
-                .resolve("${traceName}_$randomString${TraceMonitor.WINSCOPE_EXT}")
+            getDefaultFlickerOutputDir().resolve("${traceName}_$randomString$WINSCOPE_EXT")
         traceFile.parent.createDirectories()
         traceFile.createFile()
         traceFile.writeBytes(traceBytes)
@@ -230,4 +261,41 @@ fun getScenarioTraces(scenario: String): FlickerBuilder.TraceFiles {
         transactionsTrace!!,
         transitionsTrace!!
     )
+}
+
+fun assertExceptionMessage(error: Throwable?, expectedValue: String) {
+    Truth.assertWithMessage("Expected exception")
+        .that(error)
+        .hasMessageThat()
+        .contains(expectedValue)
+}
+
+fun assertExceptionMessageCause(error: Throwable?, expectedValue: String) {
+    Truth.assertWithMessage("Expected cause")
+        .that(error)
+        .hasCauseThat()
+        .hasMessageThat()
+        .contains(expectedValue)
+}
+
+fun createMockedFlicker(
+    setup: List<IFlicker.() -> Unit> = emptyList(),
+    teardown: List<IFlicker.() -> Unit> = emptyList(),
+    transitions: List<IFlicker.() -> Unit> = emptyList(),
+    extraMonitor: ITransitionMonitor? = null
+): IFlicker {
+    val instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation()
+    val uiDevice: UiDevice = UiDevice.getInstance(instrumentation)
+    val mockedFlicker = Mockito.mock(AbstractFlicker::class.java)
+    val monitors: MutableList<ITransitionMonitor> =
+        mutableListOf(WindowManagerTraceMonitor(), LayersTraceMonitor())
+    extraMonitor?.let { monitors.add(it) }
+    Mockito.`when`(mockedFlicker.wmHelper).thenReturn(WindowManagerStateHelper())
+    Mockito.`when`(mockedFlicker.device).thenReturn(uiDevice)
+    Mockito.`when`(mockedFlicker.outputDir).thenReturn(getDefaultFlickerOutputDir())
+    Mockito.`when`(mockedFlicker.traceMonitors).thenReturn(monitors)
+    Mockito.`when`(mockedFlicker.transitionSetup).thenReturn(setup)
+    Mockito.`when`(mockedFlicker.transitionTeardown).thenReturn(teardown)
+    Mockito.`when`(mockedFlicker.transitions).thenReturn(transitions)
+    return mockedFlicker
 }
