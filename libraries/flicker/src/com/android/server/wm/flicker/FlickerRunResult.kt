@@ -249,7 +249,7 @@ class FlickerRunResult(
             "Full WM trace is empty..."
         }
         val trace =
-            fullTrace.slice(
+            fullTrace.sliceUsingElapsedTimestamp(
                 transitionStartTime.elapsedRealtimeNanos,
                 transitionEndTime.elapsedRealtimeNanos,
                 addInitialEntry = true
@@ -273,7 +273,7 @@ class FlickerRunResult(
             "Full layers trace is empty..."
         }
         val trace =
-            fullTrace.slice(
+            fullTrace.sliceUsingElapsedTimestamp(
                 transitionStartTime.systemTime,
                 transitionEndTime.systemTime,
                 addInitialEntry = true
@@ -395,7 +395,7 @@ class FlickerRunResult(
 
     fun notifyTransitionStarting() {
         this.transitionStartTime =
-            FlickerRunResult.TraceTime(
+            TraceTime(
                 elapsedRealtimeNanos = SystemClock.elapsedRealtimeNanos(),
                 systemTime = SystemClock.uptimeNanos(),
                 unixTimeNanos =
@@ -405,7 +405,7 @@ class FlickerRunResult(
 
     fun notifyTransitionEnded() {
         this.transitionEndTime =
-            FlickerRunResult.TraceTime(
+            TraceTime(
                 elapsedRealtimeNanos = SystemClock.elapsedRealtimeNanos(),
                 systemTime = SystemClock.uptimeNanos(),
                 unixTimeNanos =

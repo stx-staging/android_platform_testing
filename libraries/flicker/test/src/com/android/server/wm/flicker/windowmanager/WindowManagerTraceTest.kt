@@ -152,7 +152,7 @@ class WindowManagerTraceTest {
     @Test
     fun canSlice() {
         val trace = readLayerTraceFromFile("layers_trace_openchrome.pb")
-        val splitlayersTrace = trace.slice(71607477186189, 71607812120180)
+        val splitlayersTrace = trace.sliceUsingElapsedTimestamp(71607477186189, 71607812120180)
 
         Truth.assertThat(splitlayersTrace).isNotEmpty()
 
@@ -163,7 +163,7 @@ class WindowManagerTraceTest {
     @Test
     fun canSlice_wrongTimestamps() {
         val trace = readLayerTraceFromFile("layers_trace_openchrome.pb")
-        val splitLayersTrace = trace.slice(9213763541297, 9215895891561)
+        val splitLayersTrace = trace.sliceUsingElapsedTimestamp(9213763541297, 9215895891561)
 
         Truth.assertThat(splitLayersTrace).isEmpty()
     }
@@ -175,13 +175,13 @@ class WindowManagerTraceTest {
 
     @Test
     fun canSlice_allAfter() {
-        val from = mockTraceForSliceTests.last().timestamp + 5
-        val to = mockTraceForSliceTests.last().timestamp + 20
-        val splitLayersTrace = mockTraceForSliceTests.slice(from, to)
+        val from = mockTraceForSliceTests.last().elapsedTimestamp + 5
+        val to = mockTraceForSliceTests.last().elapsedTimestamp + 20
+        val splitLayersTrace = mockTraceForSliceTests.sliceUsingElapsedTimestamp(from, to)
         Truth.assertThat(splitLayersTrace).isEmpty()
 
         val splitLayersTraceWithInitialEntry =
-            mockTraceForSliceTests.slice(from, to, addInitialEntry = true)
+            mockTraceForSliceTests.sliceUsingElapsedTimestamp(from, to, addInitialEntry = true)
         Truth.assertThat(splitLayersTraceWithInitialEntry).hasSize(1)
         Truth.assertThat(splitLayersTraceWithInitialEntry.first().timestamp)
             .isEqualTo(mockTraceForSliceTests.last().timestamp)
@@ -294,13 +294,13 @@ class WindowManagerTraceTest {
     }
 
     private fun testSliceWithOutInitialEntry(from: Long, to: Long, expected: List<Long>) {
-        val splitLayersTrace = mockTraceForSliceTests.slice(from, to)
+        val splitLayersTrace = mockTraceForSliceTests.sliceUsingElapsedTimestamp(from, to)
         assertThat(splitLayersTrace.map { it.timestamp }).isEqualTo(expected)
     }
 
     private fun testSliceWithInitialEntry(from: Long, to: Long, expected: List<Long>) {
         val splitLayersTraceWithStartEntry =
-            mockTraceForSliceTests.slice(from, to, addInitialEntry = true)
+            mockTraceForSliceTests.sliceUsingElapsedTimestamp(from, to, addInitialEntry = true)
         assertThat(splitLayersTraceWithStartEntry.map { it.timestamp }).isEqualTo(expected)
     }
 

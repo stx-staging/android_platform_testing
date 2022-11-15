@@ -177,7 +177,7 @@ class WindowManagerStateHelperTest {
                 }
                 val layerTraceEntry =
                     LayerTraceEntryBuilder(
-                            timestamp = 0,
+                            _elapsedTimestamp = "0",
                             displays = emptyArray(),
                             layers = createImaginaryVisibleLayers(layerList),
                             vSyncId = -1

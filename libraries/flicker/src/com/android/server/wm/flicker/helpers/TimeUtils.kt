@@ -1,0 +1,80 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.android.server.wm.flicker.helpers
+
+import java.text.SimpleDateFormat
+import java.util.Date
+
+const val MILLISECOND_AS_NANOSECONDS: Long = 1000000
+private const val SECOND_AS_NANOSECONDS: Long = 1000000000
+private const val MINUTE_AS_NANOSECONDS: Long = 60000000000
+private const val HOUR_AS_NANOSECONDS: Long = 3600000000000
+private const val DAY_AS_NANOSECONDS: Long = 86400000000000
+
+fun formatElapsedTimestamp(timestampNs: Long): String {
+    var remainingNs = timestampNs
+    val prettyTimestamp = StringBuilder()
+
+    val timeUnitToNanoSeconds =
+        mapOf(
+            "d" to DAY_AS_NANOSECONDS,
+            "h" to HOUR_AS_NANOSECONDS,
+            "m" to MINUTE_AS_NANOSECONDS,
+            "s" to SECOND_AS_NANOSECONDS,
+            "ms" to MILLISECOND_AS_NANOSECONDS,
+            "ns" to 1,
+        )
+
+    for ((timeUnit, ns) in timeUnitToNanoSeconds) {
+        val convertedTime = remainingNs / ns
+        remainingNs %= ns
+        if (prettyTimestamp.isEmpty() && convertedTime == 0L) {
+            // Trailing 0 unit
+            continue
+        }
+        prettyTimestamp.append("$convertedTime$timeUnit")
+    }
+
+    if (prettyTimestamp.isEmpty()) {
+        return "0ns"
+    }
+
+    return prettyTimestamp.toString()
+}
+
+fun formatRealTimestamp(timestampNs: Long): String {
+    val timestampMs = timestampNs / MILLISECOND_AS_NANOSECONDS
+    val remainderNs = timestampNs % MILLISECOND_AS_NANOSECONDS
+    val timeFormatter = SimpleDateFormat("HH'h'mm'm'ss's'SSS'ms'")
+    val dateFormatter = SimpleDateFormat("d MMM yyyy zz")
+    val date = Date(timestampMs)
+    return "${timeFormatter.format(date)}${remainderNs}ns, ${dateFormatter.format(date)}"
+}
+
+class TimeFormatter {
+    companion object {
+        fun format(timestampNs: Long): String {
+            // We assume that any timestamp greater than about 30 years since epoch (i.e. year 2000)
+            // should be interpreted as a real timestamp and anything below is an elapsed timestamp.
+            return if (timestampNs > DAY_AS_NANOSECONDS * 365 * 30) {
+                formatRealTimestamp(timestampNs)
+            } else {
+                formatElapsedTimestamp(timestampNs)
+            }
+        }
+    }
+}

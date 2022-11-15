@@ -26,13 +26,15 @@ import kotlin.js.JsName
  * Java/Android functionality
  */
 class LayerTraceEntry(
-    override val timestamp: Long,
+    override val elapsedTimestamp: Long,
+    override val clockTimestamp: Long?,
     override val hwcBlob: String,
     override val where: String,
     override val displays: Array<Display>,
     override val vSyncId: Long,
-    _rootLayers: Array<Layer>
+    _rootLayers: Array<Layer>,
 ) : BaseLayerTraceEntry() {
+    override val timestamp: Long = clockTimestamp ?: elapsedTimestamp
     override val flattenedLayers: Array<Layer> = fillFlattenedLayers(_rootLayers)
 
     @JsName("fillFlattenedLayers")

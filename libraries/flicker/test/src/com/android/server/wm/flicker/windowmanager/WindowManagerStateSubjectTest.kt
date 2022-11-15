@@ -48,12 +48,16 @@ import org.junit.runners.MethodSorters
 class WindowManagerStateSubjectTest {
     private val trace
         get() = readWmTraceFromFile("wm_trace_openchrome.pb")
+
     // Launcher is visible in fullscreen in the first frame of the trace
     private val traceFirstFrameTimestamp = 9213763541297
+
     // The first frame where the chrome splash screen is shown
     private val traceFirstChromeFlashScreenTimestamp = 9215551505798
+
     // The bounds of the display used to generate the trace [trace]
     private val displayBounds = Region.from(0, 0, 1440, 2960)
+
     // The region covered by the status bar in the trace
     private val statusBarRegion = Region.from(0, 0, 1440, 171)
 
@@ -358,6 +362,8 @@ class WindowManagerStateSubjectTest {
             )
         val noWindowsState =
             WindowManagerState(
+                elapsedTimestamp = 0,
+                clockTimestamp = null,
                 where = "",
                 policy = null,
                 focusedApp = "",

@@ -16,8 +16,8 @@
 
 package com.android.server.wm.flicker.service.assertors
 
+import com.android.server.wm.flicker.helpers.TimeFormatter
 import com.android.server.wm.traces.common.layers.LayersTrace
-import com.android.server.wm.traces.common.prettyTimestamp
 import com.android.server.wm.traces.common.service.ScenarioInstance
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 import com.google.common.truth.Fact
@@ -31,9 +31,11 @@ data class FaasData(
         val unclippedFirstTimestamp = entireWmTrace.firstOrNull()?.timestamp ?: 0L
         val unclippedLastTimestamp = entireWmTrace.lastOrNull()?.timestamp ?: 0L
         val unclippedTraceFirst =
-            "${prettyTimestamp(unclippedFirstTimestamp)} " + "(timestamp=$unclippedFirstTimestamp)"
+            "${TimeFormatter.format(unclippedFirstTimestamp)} " +
+                "(timestamp=$unclippedFirstTimestamp)"
         val unclippedTraceLast =
-            "${prettyTimestamp(unclippedLastTimestamp)} " + "(timestamp=$unclippedLastTimestamp)"
+            "${TimeFormatter.format(unclippedLastTimestamp)} " +
+                "(timestamp=$unclippedLastTimestamp)"
 
         return listOf(
             Fact.fact("Extracted from trace start", unclippedTraceFirst),
@@ -42,12 +44,12 @@ data class FaasData(
             Fact.fact("Scenario rotation", scenarioInstance.scenario.rotation),
             Fact.fact(
                 "Scenario start",
-                "${prettyTimestamp(scenarioInstance.startTimestamp)} " +
+                "${TimeFormatter.format(scenarioInstance.startTimestamp)} " +
                     "(timestamp=${scenarioInstance.startTimestamp})"
             ),
             Fact.fact(
                 "Scenario end",
-                "${prettyTimestamp(scenarioInstance.endTimestamp)} " +
+                "${TimeFormatter.format(scenarioInstance.endTimestamp)} " +
                     "(timestamp=${scenarioInstance.endTimestamp})"
             ),
             Fact.fact("Associated transition type", scenarioInstance.associatedTransition.type),

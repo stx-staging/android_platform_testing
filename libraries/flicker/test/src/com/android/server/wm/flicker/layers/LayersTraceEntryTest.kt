@@ -166,7 +166,7 @@ class LayersTraceEntryTest {
     @Test
     fun canDetectInvisibleLayerOutOfScreen() {
         val layersTrace = readLayerTraceFromFile("layers_trace_visible_outside_bounds.winscope")
-        val subject = assertThat(layersTrace).entry(1253267561044)
+        val subject = assertThat(layersTrace).entry(1253267561044, byElapsedTimestamp = true)
         val region = subject.visibleRegion(ComponentNameMatcher.IME_SNAPSHOT)
         region.isEmpty()
         subject.isInvisible(ComponentNameMatcher.IME_SNAPSHOT)
@@ -177,5 +177,32 @@ class LayersTraceEntryTest {
         val layersTrace = readLayerTraceFromFile("layers_trace_visible_outside_bounds.winscope")
         val subject = assertThat(layersTrace)
         subject.visibleLayersShownMoreThanOneConsecutiveEntry()
+    }
+
+    @Test
+    fun usesRealTimestampWhenAvailableAndFallsbackOnElapsedTimestamp() {
+        var entry =
+            LayerTraceEntry(
+                elapsedTimestamp = 100,
+                clockTimestamp = 600,
+                hwcBlob = "",
+                where = "",
+                displays = emptyArray(),
+                vSyncId = 123,
+                _rootLayers = emptyArray()
+            )
+        Truth.assertThat(entry.timestamp).isEqualTo(600)
+
+        entry =
+            LayerTraceEntry(
+                elapsedTimestamp = 100,
+                clockTimestamp = null,
+                hwcBlob = "",
+                where = "",
+                displays = emptyArray(),
+                vSyncId = 123,
+                _rootLayers = emptyArray()
+            )
+        Truth.assertThat(entry.timestamp).isEqualTo(100)
     }
 }

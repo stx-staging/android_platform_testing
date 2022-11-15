@@ -217,7 +217,7 @@ class LayersTraceSubjectTest {
     @Test
     fun canTestLayerOccludedByAppLayerIsNotVisible() {
         val trace = readLayerTraceFromFile("layers_trace_occluded.pb")
-        val entry = assertThat(trace).entry(1700382131522L)
+        val entry = assertThat(trace).entry(1700382131522L, byElapsedTimestamp = true)
         entry.isVisible(TestComponents.SIMPLE_APP)
     }
 

@@ -158,7 +158,7 @@ class AssertionsTest {
         val scenario = Scenario(scenarioType, PlatformConsts.Rotation.ROTATION_0)
         val testSetup = Setup(3)
         testSetup.setup(traceDump, scenario)
-        var assertionEngine =
+        val assertionEngine =
             AssertionEngine(AssertionGeneratorConfigProducer(testSetup.config)) {
                 Log.v("FLICKER-ASSERT", it)
             }
@@ -184,7 +184,7 @@ class AssertionsTest {
         val scenario = Scenario(scenarioType, PlatformConsts.Rotation.ROTATION_0)
         val testSetup = Setup(3)
         testSetup.setup(traceDump, scenario)
-        var assertionEngine =
+        val assertionEngine =
             AssertionEngine(AssertionGeneratorConfigProducer(testSetup.config)) {
                 Log.v("FLICKER-ASSERT", it)
             }

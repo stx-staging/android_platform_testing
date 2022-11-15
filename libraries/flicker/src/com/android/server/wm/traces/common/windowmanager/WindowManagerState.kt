@@ -18,7 +18,6 @@ package com.android.server.wm.traces.common.windowmanager
 
 import com.android.server.wm.traces.common.IComponentMatcher
 import com.android.server.wm.traces.common.ITraceEntry
-import com.android.server.wm.traces.common.prettyTimestamp
 import com.android.server.wm.traces.common.windowmanager.windows.Activity
 import com.android.server.wm.traces.common.windowmanager.windows.DisplayContent
 import com.android.server.wm.traces.common.windowmanager.windows.KeyguardControllerState
@@ -39,6 +38,8 @@ import kotlin.js.JsName
  * The timestamp constructor must be a string due to lack of Kotlin/KotlinJS Long compatibility
  */
 class WindowManagerState(
+    @JsName("elapsedTimestamp") val elapsedTimestamp: Long,
+    @JsName("clockTimestamp") val clockTimestamp: Long?,
     @JsName("where") val where: String,
     @JsName("policy") val policy: WindowManagerPolicy?,
     @JsName("focusedApp") val focusedApp: String,
@@ -49,17 +50,13 @@ class WindowManagerState(
     @JsName("isDisplayFrozen") val isDisplayFrozen: Boolean,
     @JsName("_pendingActivities") private val _pendingActivities: Array<String>,
     @JsName("root") val root: RootWindowContainer,
-    @JsName("keyguardControllerState") val keyguardControllerState: KeyguardControllerState,
-    _timestamp: String = "0"
+    @JsName("keyguardControllerState") val keyguardControllerState: KeyguardControllerState
 ) : ITraceEntry {
-    override val timestamp: Long = _timestamp.toLong()
+    override val timestamp: Long = clockTimestamp ?: elapsedTimestamp
     @JsName("isVisible") val isVisible: Boolean = true
     @JsName("stableId")
     val stableId: String
         get() = this::class.simpleName ?: error("Unable to determine class")
-    @JsName("name")
-    val name: String
-        get() = prettyTimestamp(timestamp)
     @JsName("isTablet")
     val isTablet: Boolean
         get() = displays.any { it.isTablet }
@@ -464,7 +461,7 @@ class WindowManagerState(
     @JsName("asTrace") fun asTrace(): WindowManagerTrace = WindowManagerTrace(arrayOf(this))
 
     override fun toString(): String {
-        return "${prettyTimestamp(timestamp)} (timestamp=$timestamp)"
+        return "${timestamp}ns"
     }
 
     companion object {

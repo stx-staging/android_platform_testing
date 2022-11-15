@@ -18,7 +18,7 @@ package com.android.server.wm.flicker.traces.eventlog
 
 import com.android.server.wm.flicker.assertions.AssertionsChecker
 import com.android.server.wm.flicker.assertions.FlickerSubject
-import com.android.server.wm.traces.common.prettyTimestamp
+import com.android.server.wm.flicker.helpers.TimeFormatter
 import com.google.common.truth.Fact
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.Subject.Factory
@@ -35,8 +35,8 @@ private constructor(failureMetadata: FailureMetadata, val trace: List<FocusEvent
     override val selfFacts by lazy {
         val firstTimestamp = subjects.firstOrNull()?.timestamp ?: 0L
         val lastTimestamp = subjects.lastOrNull()?.timestamp ?: 0L
-        val first = "${prettyTimestamp(firstTimestamp)} (timestamp=$firstTimestamp)"
-        val last = "${prettyTimestamp(lastTimestamp)} (timestamp=$lastTimestamp)"
+        val first = "${TimeFormatter.format(firstTimestamp)} (timestamp=$firstTimestamp)"
+        val last = "${TimeFormatter.format(lastTimestamp)} (timestamp=$lastTimestamp)"
         listOf(Fact.fact("Trace start", first), Fact.fact("Trace end", last))
     }
 

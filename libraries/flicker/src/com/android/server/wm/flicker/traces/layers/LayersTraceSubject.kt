@@ -280,8 +280,13 @@ private constructor(
      *
      * @param timestamp of the entry
      */
-    fun entry(timestamp: Long): LayerTraceEntrySubject =
-        subjects.first { it.entry.timestamp == timestamp }
+    fun entry(timestamp: Long, byElapsedTimestamp: Boolean = false): LayerTraceEntrySubject {
+        return if (byElapsedTimestamp) {
+            subjects.first { it.entry.elapsedTimestamp == timestamp }
+        } else {
+            subjects.first { it.entry.timestamp == timestamp }
+        }
+    }
 
     companion object {
         /** Boilerplate Subject.Factory for LayersTraceSubject */
