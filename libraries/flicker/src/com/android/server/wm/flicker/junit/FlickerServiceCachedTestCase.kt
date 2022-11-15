@@ -17,26 +17,58 @@
 package com.android.server.wm.flicker.junit
 
 import com.android.server.wm.flicker.datastore.DataStore
+import com.android.server.wm.flicker.service.FlickerServiceResultsCollector
 import com.android.server.wm.flicker.service.assertors.AssertionResult
+import com.android.server.wm.traces.common.Cache
 import com.android.server.wm.traces.common.IScenario
 import com.android.server.wm.traces.common.service.AssertionInvocationGroup
+import java.lang.reflect.Method
 import org.junit.Assume
+import org.junit.runner.Description
+import org.junit.runner.notification.Failure
+import org.junit.runners.model.FrameworkMethod
 
 class FlickerServiceCachedTestCase(
-    private val scenario: IScenario,
-    private val assertionName: String,
-    private val isBlockingTest: Boolean
-) {
+    method: Method,
+    scenario: IScenario,
+    internal val assertionName: String,
+    private val onlyBlocking: Boolean,
+    private val metricsCollector: FlickerServiceResultsCollector?,
+    private val isLast: Boolean
+) : FrameworkMethod(method) {
+    private val fullResults =
+        DataStore.getFlickerServiceResultsForAssertion(scenario, assertionName)
     private val results: List<AssertionResult>
         get() =
-            DataStore.getFassResults(scenario, assertionName).filter {
-                !isBlockingTest || it.invocationGroup == AssertionInvocationGroup.BLOCKING
+            fullResults.filter {
+                !onlyBlocking || it.invocationGroup == AssertionInvocationGroup.BLOCKING
             }
 
-    fun execute() {
-        val results = results
-        Assume.assumeFalse(results.isEmpty())
+    private val faasScenario = fullResults.firstOrNull()?.scenario
 
-        results.firstOrNull { it.assertionError != null }?.assertionError?.let { throw it }
+    override fun invokeExplosively(target: Any?, vararg params: Any?): Any {
+        error("Shouldn't have reached here")
+    }
+
+    override fun getName(): String = "FaaS_${faasScenario}_$assertionName"
+
+    fun execute(description: Description) {
+        val results = results
+
+        if (isLast) {
+            metricsCollector?.testStarted(description)
+        }
+        try {
+            Assume.assumeFalse(results.isEmpty())
+            results.firstOrNull { it.assertionError != null }?.assertionError?.let { throw it }
+        } catch (e: Throwable) {
+            metricsCollector?.testFailure(Failure(description, e))
+            throw e
+        } finally {
+            if (isLast) {
+                Cache.clear()
+                metricsCollector?.testFinished(description)
+            }
+        }
     }
 }

@@ -25,7 +25,7 @@ import com.android.server.wm.traces.common.service.ScenarioInstance
 import com.android.server.wm.traces.common.transition.Transition
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 
-/** Class that runs FASS assertions. */
+/** Class that runs FaaS assertions. */
 class TransitionAsserter(
     internal val assertions: List<AssertionData>,
     private val logger: (String) -> Unit

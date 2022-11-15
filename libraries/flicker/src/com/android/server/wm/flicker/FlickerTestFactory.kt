@@ -16,7 +16,6 @@
 
 package com.android.server.wm.flicker
 
-import com.android.server.wm.flicker.helpers.IS_FAAS_ENABLED
 import com.android.server.wm.traces.common.service.PlatformConsts
 
 /**
@@ -37,7 +36,7 @@ object FlickerTestFactory {
             listOf(PlatformConsts.Rotation.ROTATION_0, PlatformConsts.Rotation.ROTATION_90),
         supportedNavigationModes: List<PlatformConsts.NavBar> =
             listOf(PlatformConsts.NavBar.MODE_3BUTTON, PlatformConsts.NavBar.MODE_GESTURAL),
-        faasEnabled: Boolean = false
+        extraArgs: Map<String, Any> = emptyMap()
     ): List<FlickerTest> {
         return supportedNavigationModes.flatMap { navBarMode ->
             supportedRotations.map { rotation ->
@@ -58,7 +57,7 @@ object FlickerTestFactory {
             listOf(PlatformConsts.Rotation.ROTATION_0, PlatformConsts.Rotation.ROTATION_90),
         supportedNavigationModes: List<PlatformConsts.NavBar> =
             listOf(PlatformConsts.NavBar.MODE_3BUTTON, PlatformConsts.NavBar.MODE_GESTURAL),
-        faasEnabled: Boolean = false
+        extraArgs: Map<String, Any> = emptyMap()
     ): List<FlickerTest> {
         return supportedNavigationModes.flatMap { navBarMode ->
             supportedRotations
@@ -68,11 +67,11 @@ object FlickerTestFactory {
         }
     }
 
-    private fun createParam(
+    private fun createFlickerTest(
         navBarMode: PlatformConsts.NavBar,
         startRotation: PlatformConsts.Rotation,
-        endRotation: PlatformConsts.Rotation = startRotation,
-        faasEnabled: Boolean = false
+        endRotation: PlatformConsts.Rotation,
+        extraArgs: Map<String, Any>
     ) =
         FlickerTest(
             ScenarioBuilder()

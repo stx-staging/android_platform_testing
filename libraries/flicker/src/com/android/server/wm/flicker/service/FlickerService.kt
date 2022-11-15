@@ -62,13 +62,13 @@ class FlickerService : IFlickerService {
 
     companion object {
         /**
-         * Returns the computed path for the Fass files.
+         * Returns the computed path for the FaaS files.
          *
          * @param outputDir the output directory for the trace file
          * @param file the name of the trace file
          * @return the path to the trace file
          */
-        internal fun getFassFilePath(outputDir: Path, file: String): Path =
+        internal fun getFaasFilePath(outputDir: Path, file: String): Path =
             outputDir.resolve("$file$WINSCOPE_EXT")
     }
 }

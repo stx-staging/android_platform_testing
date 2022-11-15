@@ -76,11 +76,11 @@ class FlickerServiceTracesCollector(val outputDir: Path) : ITracesCollector {
             Log.v(LOG_TAG, "Stopping trace monitors")
             traceMonitors.asReversed().forEach { it.stop() }
 
-            val wmTraceFilePath = FlickerService.getFassFilePath(outputDir, "wm_trace")
-            val layersTraceFilePath = FlickerService.getFassFilePath(outputDir, "layers_trace")
-            val transitionsTracePath = FlickerService.getFassFilePath(outputDir, "transition_trace")
+            val wmTraceFilePath = FlickerService.getFaasFilePath(outputDir, "wm_trace")
+            val layersTraceFilePath = FlickerService.getFaasFilePath(outputDir, "layers_trace")
+            val transitionsTracePath = FlickerService.getFaasFilePath(outputDir, "transition_trace")
             val transactionsTracePath =
-                FlickerService.getFassFilePath(outputDir, "transactions_trace")
+                FlickerService.getFaasFilePath(outputDir, "transactions_trace")
             val screenRecordingPath = outputDir.resolve("transition.mp4")
 
             Log.v(LOG_TAG, "Processing wmTrace from file")

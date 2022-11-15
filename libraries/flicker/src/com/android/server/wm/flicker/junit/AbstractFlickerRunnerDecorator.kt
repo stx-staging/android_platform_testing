@@ -17,20 +17,43 @@
 package com.android.server.wm.flicker.junit
 
 import android.app.Instrumentation
-import androidx.annotation.VisibleForTesting
+import android.util.Log
 import androidx.test.platform.app.InstrumentationRegistry
+import com.android.server.wm.flicker.FLICKER_TAG
 import com.android.server.wm.flicker.FlickerBuilder
 import com.android.server.wm.flicker.FlickerTest
 import com.android.server.wm.flicker.Scenario
+import com.android.server.wm.flicker.datastore.DataStore
+import com.android.server.wm.flicker.runner.TransitionRunner
 import java.lang.reflect.Modifier
 import org.junit.runner.Description
 import org.junit.runners.model.FrameworkMethod
 import org.junit.runners.model.TestClass
 
-object FlickerJUnitWrapper {
-    private val instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation()
+abstract class AbstractFlickerRunnerDecorator(
+    protected val testClass: TestClass,
+    protected val scenario: Scenario?,
+    protected val inner: IFlickerJUnitDecorator?
+) : IFlickerJUnitDecorator {
+    protected val instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation()
 
-    internal fun validateConstructor(testClass: TestClass): List<Throwable> {
+    final override fun doValidateConstructor(): List<Throwable> {
+        val errors = internalDoValidateConstructor().toMutableList()
+        if (errors.isEmpty()) {
+            inner?.doValidateConstructor()?.let { errors.addAll(it) }
+        }
+        return errors
+    }
+
+    final override fun doValidateInstanceMethods(): List<Throwable> {
+        val errors = internalDoValidateInstanceMethods().toMutableList()
+        if (errors.isEmpty()) {
+            inner?.doValidateInstanceMethods()?.let { errors.addAll(it) }
+        }
+        return errors
+    }
+
+    private fun internalDoValidateConstructor(): List<Throwable> {
         val errors = mutableListOf<Throwable>()
         val ctor = testClass.javaClass.constructors.firstOrNull()
         if (ctor?.parameterTypes?.none { it == FlickerTest::class.java } != false) {
@@ -45,7 +68,7 @@ object FlickerJUnitWrapper {
     }
 
     /** Validate that the test has one method annotated with [FlickerBuilderProvider] */
-    internal fun validateInstanceMethods(testClass: TestClass): List<Throwable> {
+    private fun internalDoValidateInstanceMethods(): List<Throwable> {
         val errors = mutableListOf<Throwable>()
         val methods = Utils.getCandidateProviderMethods(testClass)
 
@@ -83,33 +106,28 @@ object FlickerJUnitWrapper {
         return errors
     }
 
-    internal fun computeTestMethods(
-        testClass: TestClass,
-        scenario: Scenario
-    ): List<FrameworkMethod> =
-        createHelpers(testClass, scenario).flatMap { it.computeTestMethods() }
-
-    internal fun processTest(
-        testClass: TestClass,
-        scenario: Scenario,
-        test: Any,
-        description: Description?
-    ) {
-        createHelpers(testClass, scenario).forEach { it.processTest(test, description) }
+    protected fun doRunTransition(test: Any, description: Description?) {
+        Log.d(FLICKER_TAG, "$scenario - Setting up FaaS")
+        val scenario = scenario
+        requireNotNull(scenario) { "Expected to have a scenario to run" }
+        if (!DataStore.containsResult(scenario)) {
+            Log.v(FLICKER_TAG, "Creating flicker object for $scenario")
+            val builder = getFlickerBuilder(test)
+            Log.v(FLICKER_TAG, "Creating flicker object for $scenario")
+            val flicker = builder.build()
+            val runner = TransitionRunner(scenario, instrumentation)
+            Log.v(FLICKER_TAG, "Running transition for $scenario")
+            runner.execute(flicker, description)
+        }
     }
 
-    private fun createHelpers(
-        testClass: TestClass,
-        scenario: Scenario
-    ): List<LegacyFlickerJUnitHelper> =
-        listOf(
-            LegacyFlickerJUnitHelper(testClass, scenario, instrumentation),
-            // FlickerServiceJUnitHelper(testClass, scenario, arguments, instrumentation)
-            )
+    private val providerMethod: FrameworkMethod
+        get() =
+            Utils.getCandidateProviderMethods(testClass).firstOrNull()
+                ?: error("Provider method not found")
 
-    @VisibleForTesting
-    fun validateInstanceMethodsForTests(testClass: TestClass) = validateInstanceMethods(testClass)
-
-    @VisibleForTesting
-    fun validateConstructorForTests(testClass: TestClass) = validateConstructor(testClass)
+    private fun getFlickerBuilder(test: Any): FlickerBuilder {
+        Log.v(FLICKER_TAG, "Obtaining flicker builder for $testClass")
+        return providerMethod.invokeExplosively(test) as FlickerBuilder
+    }
 }

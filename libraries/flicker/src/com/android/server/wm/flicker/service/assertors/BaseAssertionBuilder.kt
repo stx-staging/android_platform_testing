@@ -24,7 +24,7 @@ import com.android.server.wm.traces.common.service.FlickerServiceScenario
 import com.android.server.wm.traces.common.service.ScenarioInstance
 import com.android.server.wm.traces.common.transition.Transition
 
-/** Base class for a FASS assertion */
+/** Base class for a FaaS assertion */
 abstract class BaseAssertionBuilder {
     internal var invocationGroup: AssertionInvocationGroup = NON_BLOCKING
 

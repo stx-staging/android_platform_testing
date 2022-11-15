@@ -18,7 +18,6 @@ package com.android.server.wm.flicker
 
 import android.app.Instrumentation
 import androidx.test.uiautomator.UiDevice
-import com.android.server.wm.flicker.service.FlickerServiceResultsCollector
 import com.android.server.wm.traces.common.layers.LayersTrace
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerStateHelper
@@ -61,9 +60,4 @@ open class FlickerTestData(
      * traces without needing to run anything on device.
      */
     val usingExistingTraces: Boolean = false
-) : AbstractFlickerTestData() {
-    internal val faasTracesCollector = LegacyFlickerTraceCollector()
-    internal val faas by lazy {
-        FlickerServiceResultsCollector(outputDir, tracesCollector = faasTracesCollector)
-    }
-}
+) : AbstractFlickerTestData()

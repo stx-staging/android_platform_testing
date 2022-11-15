@@ -24,12 +24,12 @@ import com.android.server.wm.traces.common.IScenario
 /** In memory data store for flicker transitions, assertions and results */
 object DataStore {
     private val cachedResults = mutableMapOf<IScenario, ResultData>()
-    private val cachedFassAssertions = mutableMapOf<IScenario, FassScenarioResultStore>()
+    private val cachedFlickerServiceAssertions = mutableMapOf<IScenario, List<AssertionResult>>()
 
     @VisibleForTesting
     fun clear() {
         cachedResults.clear()
-        cachedFassAssertions.clear()
+        cachedFlickerServiceAssertions.clear()
     }
 
     /** @return if the store has results for [scenario] */
@@ -70,19 +70,29 @@ object DataStore {
     fun getResult(scenario: IScenario): ResultData =
         cachedResults[scenario] ?: error("No value for $scenario")
 
-    fun getFassAssertions(scenario: IScenario): List<AssertionResult> =
-        cachedFassAssertions[scenario]?.getAssertions() ?: emptyList()
+    /** @return if the store has results for [scenario] */
+    fun containsFlickerServiceResult(scenario: IScenario): Boolean =
+        cachedFlickerServiceAssertions.containsKey(scenario)
 
-    fun addFassResults(results: MutableList<AssertionResult>) {
-        results.forEach { result ->
-            val scenario = result.scenario
-            cachedFassAssertions.putIfAbsent(scenario, FassScenarioResultStore(scenario))
-            cachedFassAssertions[scenario]?.addResult(result)
+    fun addFlickerServiceResults(scenario: IScenario, results: List<AssertionResult>) {
+        if (containsFlickerServiceResult(scenario)) {
+            error("Result for $scenario already in data store")
         }
+        cachedFlickerServiceAssertions[scenario] = results
     }
 
-    fun getFassResults(scenario: IScenario, assertionName: String): List<AssertionResult> {
-        return cachedFassAssertions[scenario]?.getResults(assertionName)
+    fun getFlickerServiceResults(scenario: IScenario): List<AssertionResult> {
+        return cachedFlickerServiceAssertions[scenario]
+            ?: error("No flicker service results for $scenario")
+    }
+
+    fun getFlickerServiceResultsForAssertion(
+        scenario: IScenario,
+        assertionName: String
+    ): List<AssertionResult> {
+        return cachedFlickerServiceAssertions[scenario]?.filter {
+            it.assertionName == assertionName
+        }
             ?: error("Assertion with name $assertionName not found for scenario $scenario")
     }
 }

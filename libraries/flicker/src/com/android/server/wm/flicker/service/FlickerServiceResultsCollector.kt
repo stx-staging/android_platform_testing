@@ -36,8 +36,7 @@ import org.junit.runner.notification.Failure
  * the CrystalBall database.
  */
 class FlickerServiceResultsCollector(
-    val outputDir: Path,
-    private val tracesCollector: ITracesCollector = FlickerServiceTracesCollector(outputDir),
+    private val tracesCollector: ITracesCollector,
     private val flickerService: IFlickerService = FlickerService(),
     instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation(),
     private val collectMetricsPerTest: Boolean = true,
@@ -127,6 +126,7 @@ class FlickerServiceResultsCollector(
         if (traceArchivePath != null) {
             dataRecord.addStringMetric(WINSCOPE_FILE_PATH_KEY, traceArchivePath.toString())
         }
+        val flickerService = FlickerService()
         Log.i(LOG_TAG, "Processing traces")
         val results =
             flickerService.process(

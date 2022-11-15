@@ -257,7 +257,6 @@ private constructor(
                 teardownCommands.toMutableList(),
                 device,
                 traceMonitors.toMutableList(),
-                faasEnabled
             )
             .apply(block)
 

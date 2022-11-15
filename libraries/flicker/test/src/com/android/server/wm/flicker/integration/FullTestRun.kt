@@ -23,8 +23,10 @@ import com.android.launcher3.tapl.LauncherInstrumentation
 import com.android.server.wm.flicker.FlickerBuilder
 import com.android.server.wm.flicker.FlickerTest
 import com.android.server.wm.flicker.FlickerTestFactory
+import com.android.server.wm.flicker.Scenario
+import com.android.server.wm.flicker.annotation.FlickerServiceCompatible
 import com.android.server.wm.flicker.assertions.FlickerSubject
-import com.android.server.wm.flicker.helpers.BrowserAppHelper
+import com.android.server.wm.flicker.helpers.CalculatorAppHelper
 import com.android.server.wm.flicker.junit.FlickerBuilderProvider
 import com.android.server.wm.flicker.junit.FlickerParametersRunnerFactory
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
@@ -37,11 +39,12 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
+@FlickerServiceCompatible
 @RunWith(Parameterized::class)
 @Parameterized.UseParametersRunnerFactory(FlickerParametersRunnerFactory::class)
 class FullTestRun(private val flicker: FlickerTest) {
     private val instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation()
-    private val testApp: BrowserAppHelper = BrowserAppHelper(instrumentation)
+    private val testApp: CalculatorAppHelper = CalculatorAppHelper(instrumentation)
     private val tapl: LauncherInstrumentation = LauncherInstrumentation()
 
     init {
@@ -169,7 +172,9 @@ class FullTestRun(private val flicker: FlickerTest) {
         @Parameterized.Parameters(name = "{0}")
         @JvmStatic
         fun getParams(): List<FlickerTest> {
-            return FlickerTestFactory.nonRotationTests()
+            return FlickerTestFactory.nonRotationTests(
+                extraArgs = mapOf(Scenario.FAAS_BLOCKING to true)
+            )
         }
     }
 }

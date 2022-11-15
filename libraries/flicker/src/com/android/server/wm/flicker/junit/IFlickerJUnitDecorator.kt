@@ -14,11 +14,22 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.service
+package com.android.server.wm.flicker.junit
 
-import com.android.server.wm.flicker.io.IReader
-import com.android.server.wm.flicker.service.assertors.AssertionResult
+import org.junit.runner.Description
+import org.junit.runners.model.FrameworkMethod
+import org.junit.runners.model.Statement
 
-interface IFlickerService {
-    fun process(reader: IReader): List<AssertionResult>
+interface IFlickerJUnitDecorator {
+    fun getChildDescription(method: FrameworkMethod?): Description?
+
+    /** Returns the methods that run tests. */
+    fun getTestMethods(test: Any): List<FrameworkMethod>
+
+    fun doValidateInstanceMethods(): List<Throwable>
+
+    fun doValidateConstructor(): List<Throwable>
+
+    /** @return a [Statement] to execute a flicker service assertion */
+    fun getMethodInvoker(method: FrameworkMethod, test: Any): Statement
 }

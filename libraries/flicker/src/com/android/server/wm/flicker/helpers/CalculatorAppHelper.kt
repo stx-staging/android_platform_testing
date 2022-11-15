@@ -14,9 +14,22 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker
+package com.android.server.wm.flicker.helpers
 
-import com.android.server.wm.flicker.assertions.AssertionData
-import com.android.server.wm.traces.common.IScenario
+import android.app.Instrumentation
+import com.android.server.wm.traces.common.ComponentNameMatcher
 
-data class ScenarioAssertion(private val scenario: IScenario, private val assertion: AssertionData)
+/**
+ * Helper to launch the default messaging app (not compatible with AOSP)
+ *
+ * This helper has no other functionality but the app launch.
+ */
+class CalculatorAppHelper(instrumentation: Instrumentation) :
+    StandardAppHelper(
+        instrumentation,
+        "Calculator",
+        ComponentNameMatcher(
+            packageName = "com.google.android.calculator",
+            className = "com.android.calculator2.Calculator"
+        )
+    )

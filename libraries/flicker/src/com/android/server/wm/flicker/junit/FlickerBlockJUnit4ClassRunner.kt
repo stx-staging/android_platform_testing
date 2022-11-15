@@ -20,8 +20,6 @@ import android.os.Bundle
 import android.platform.test.util.TestFilter
 import androidx.test.platform.app.InstrumentationRegistry
 import com.android.server.wm.flicker.Scenario
-import com.android.server.wm.flicker.service.FlickerFrameworkMethod
-import com.android.server.wm.traces.common.Cache
 import java.util.Collections
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
@@ -29,7 +27,6 @@ import org.junit.FixMethodOrder
 import org.junit.Ignore
 import org.junit.internal.AssumptionViolatedException
 import org.junit.internal.runners.model.EachTestNotifier
-import org.junit.internal.runners.statements.RunAfters
 import org.junit.runner.Description
 import org.junit.runner.manipulation.Filter
 import org.junit.runner.manipulation.InvalidOrderingException
@@ -63,9 +60,17 @@ import org.junit.runners.parameterized.TestWithParameters
  * ```
  */
 class FlickerBlockJUnit4ClassRunner(test: TestWithParameters?, private val scenario: Scenario?) :
-    BlockJUnit4ClassRunnerWithParameters(test) {
+    BlockJUnit4ClassRunnerWithParameters(test), IFlickerJUnitDecorator {
 
     private val arguments: Bundle = InstrumentationRegistry.getArguments()
+    private val flickerDecorator =
+        test?.let {
+            FlickerServiceDecorator(
+                test.testClass,
+                scenario,
+                inner = LegacyFlickerDecorator(test.testClass, scenario, inner = this)
+            )
+        }
 
     override fun run(notifier: RunNotifier) {
         val testNotifier = EachTestNotifier(notifier, description)
@@ -120,34 +125,29 @@ class FlickerBlockJUnit4ClassRunner(test: TestWithParameters?, private val scena
     }
 
     private fun isInjectedFaasTest(method: FrameworkMethod): Boolean {
-        return method is FlickerFrameworkMethod
+        return method is FlickerServiceCachedTestCase
     }
 
     override fun isIgnored(child: FrameworkMethod): Boolean {
-        /*if (child is FlickerFrameworkMethod) {
-            return child.isIgnored()
-        }*/
         return child.getAnnotation(Ignore::class.java) != null
-    }
-
-    /** {@inheritDoc} */
-    @Deprecated("Deprecated in Java")
-    override fun validateInstanceMethods(errors: MutableList<Throwable>?) {
-        super.validateInstanceMethods(errors)
-        errors?.addAll(FlickerJUnitWrapper.validateInstanceMethods(testClass))
     }
 
     /**
      * Returns the methods that run tests. Is ran after validateInstanceMethods, so
      * flickerBuilderProviderMethod should be set.
      */
-    override fun computeTestMethods(): List<FrameworkMethod> {
-        val tests = mutableListOf<FrameworkMethod>()
-        tests.addAll(super.computeTestMethods())
+    public override fun computeTestMethods(): List<FrameworkMethod> {
+        val result = mutableListOf<FrameworkMethod>()
         if (scenario != null) {
-            tests.addAll(FlickerJUnitWrapper.computeTestMethods(testClass, scenario))
+            val testInstance = createTest()
+            result.addAll(flickerDecorator?.getTestMethods(testInstance) ?: emptyList())
         }
-        return tests
+        return result
+    }
+
+    override fun describeChild(method: FrameworkMethod?): Description {
+        return flickerDecorator?.getChildDescription(method)
+            ?: error("There are no children to describe")
     }
 
     /** {@inheritDoc} */
@@ -160,26 +160,49 @@ class FlickerBlockJUnit4ClassRunner(test: TestWithParameters?, private val scena
         return validChildren.toMutableList()
     }
 
-    /** {@inheritDoc} */
-    override fun classBlock(notifier: RunNotifier): Statement {
-        val statement = childrenInvoker(notifier)
-        val cacheCleanUp = FrameworkMethod(Cache::class.java.getMethod("clear"))
-        return RunAfters(statement, listOf(cacheCleanUp), Cache)
-    }
-
     override fun methodInvoker(method: FrameworkMethod, test: Any): Statement {
-        requireNotNull(scenario) { "Expected to have a scenario to run" }
-        FlickerJUnitWrapper.processTest(testClass, scenario, test, describeChild(method))
-        return super.methodInvoker(method, test)
+        return flickerDecorator?.getMethodInvoker(method, test)
+            ?: error("No statements to invoke for $method in $test")
     }
 
-    /** {@inheritDoc} */
     override fun validateConstructor(errors: MutableList<Throwable>) {
         super.validateConstructor(errors)
 
         if (errors.isEmpty()) {
-            FlickerJUnitWrapper.validateConstructor(testClass)
+            flickerDecorator?.doValidateConstructor()?.let { errors.addAll(it) }
         }
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun validateInstanceMethods(errors: MutableList<Throwable>?) {
+        flickerDecorator?.doValidateInstanceMethods()?.let { errors?.addAll(it) }
+    }
+
+    /** IFlickerJunitDecorator implementation */
+    override fun getTestMethods(test: Any): List<FrameworkMethod> {
+        val tests = mutableListOf<FrameworkMethod>()
+        tests.addAll(super.computeTestMethods())
+        return tests
+    }
+
+    override fun getChildDescription(method: FrameworkMethod?): Description? {
+        return super.describeChild(method)
+    }
+
+    override fun doValidateInstanceMethods(): List<Throwable> {
+        val errors = mutableListOf<Throwable>()
+        super.validateInstanceMethods(errors)
+        return errors
+    }
+
+    override fun doValidateConstructor(): List<Throwable> {
+        val result = mutableListOf<Throwable>()
+        super.validateConstructor(result)
+        return result
+    }
+
+    override fun getMethodInvoker(method: FrameworkMethod, test: Any): Statement {
+        return super.methodInvoker(method, test)
     }
 
     /**
