@@ -24,6 +24,7 @@ import com.android.server.wm.flicker.traces.region.RegionTraceSubject
 import com.android.server.wm.traces.common.ComponentNameMatcher
 import com.android.server.wm.traces.common.IComponentMatcher
 import com.android.server.wm.traces.common.region.RegionTrace
+import com.android.server.wm.traces.common.service.PlatformConsts
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 import com.android.server.wm.traces.common.windowmanager.windows.WindowState
 import com.google.common.truth.Fact
@@ -455,16 +456,21 @@ private constructor(
     }
 
     /** {@inheritDoc} */
-    override fun hasRotation(rotation: Int, displayId: Int): WindowManagerTraceSubject =
-        hasRotation(rotation, displayId, isOptional = false)
+    override fun hasRotation(
+        rotation: PlatformConsts.Rotation,
+        displayId: Int
+    ): WindowManagerTraceSubject = hasRotation(rotation, displayId, isOptional = false)
 
     /** See [hasRotation] */
-    fun hasRotation(rotation: Int, displayId: Int, isOptional: Boolean): WindowManagerTraceSubject =
-        apply {
-            addAssertion("hasRotation($rotation, display=$displayId)", isOptional) {
-                it.hasRotation(rotation, displayId)
-            }
+    fun hasRotation(
+        rotation: PlatformConsts.Rotation,
+        displayId: Int,
+        isOptional: Boolean
+    ): WindowManagerTraceSubject = apply {
+        addAssertion("hasRotation($rotation, display=$displayId)", isOptional) {
+            it.hasRotation(rotation, displayId)
         }
+    }
 
     /** {@inheritDoc} */
     override fun isNotPinned(componentMatcher: IComponentMatcher): WindowManagerTraceSubject =

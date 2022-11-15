@@ -16,12 +16,13 @@
 
 package com.android.server.wm.traces.common
 
+import com.android.server.wm.traces.common.service.PlatformConsts
+
 interface IScenario {
     val description: String
     val key: String
     val isEmpty: Boolean
 
-    /** Initial screen rotation */
-    val startRotation: Int
-    val navBarMode: Int
+    val startRotation: PlatformConsts.Rotation
+    val navBarMode: String
 }

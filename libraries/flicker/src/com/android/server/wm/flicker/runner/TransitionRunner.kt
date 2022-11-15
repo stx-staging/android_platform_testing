@@ -21,7 +21,6 @@ import android.platform.test.rule.NavigationModeRule
 import android.platform.test.rule.PressHomeRule
 import android.platform.test.rule.UnlockScreenRule
 import com.android.server.wm.flicker.IFlickerTestData
-import com.android.server.wm.flicker.Scenario
 import com.android.server.wm.flicker.datastore.CachedResultWriter
 import com.android.server.wm.flicker.helpers.MessagingAppHelper
 import com.android.server.wm.flicker.io.ResultData
@@ -29,6 +28,7 @@ import com.android.server.wm.flicker.io.ResultWriter
 import com.android.server.wm.flicker.rules.ChangeDisplayOrientationRule
 import com.android.server.wm.flicker.rules.LaunchAppRule
 import com.android.server.wm.flicker.rules.RemoveAllTasksButHomeRule
+import com.android.server.wm.traces.common.IScenario
 import org.junit.rules.RuleChain
 import org.junit.runner.Description
 
@@ -37,7 +37,7 @@ import org.junit.runner.Description
  * flicker setup/transition/teardown
  */
 class TransitionRunner(
-    private val scenario: Scenario,
+    private val scenario: IScenario,
     private val instrumentation: Instrumentation,
     private val resultWriter: ResultWriter = CachedResultWriter()
 ) {

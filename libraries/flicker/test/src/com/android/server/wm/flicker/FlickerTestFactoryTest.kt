@@ -16,7 +16,7 @@
 
 package com.android.server.wm.flicker
 
-import android.view.Surface
+import com.android.server.wm.traces.common.service.PlatformConsts
 import com.google.common.truth.Truth
 import org.junit.FixMethodOrder
 import org.junit.Test
@@ -49,10 +49,10 @@ class FlickerTestFactoryTest {
     fun checkBuildCustomRotationsTest() {
         val rotations =
             listOf(
-                Surface.ROTATION_0,
-                Surface.ROTATION_90,
-                Surface.ROTATION_180,
-                Surface.ROTATION_270
+                PlatformConsts.Rotation.ROTATION_0,
+                PlatformConsts.Rotation.ROTATION_90,
+                PlatformConsts.Rotation.ROTATION_180,
+                PlatformConsts.Rotation.ROTATION_270
             )
         val actual = FlickerTestFactory.rotationTests(supportedRotations = rotations)
         // Should have config for each rotation pair

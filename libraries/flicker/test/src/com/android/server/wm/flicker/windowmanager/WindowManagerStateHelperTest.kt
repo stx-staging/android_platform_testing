@@ -17,7 +17,6 @@
 package com.android.server.wm.flicker.windowmanager
 
 import android.annotation.SuppressLint
-import android.view.Surface
 import androidx.test.filters.FlakyTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.android.server.wm.flicker.readWmTraceFromDumpFile
@@ -37,6 +36,7 @@ import com.android.server.wm.traces.common.layers.Layer
 import com.android.server.wm.traces.common.layers.LayerTraceEntryBuilder
 import com.android.server.wm.traces.common.layers.Transform
 import com.android.server.wm.traces.common.region.Region
+import com.android.server.wm.traces.common.service.PlatformConsts
 import com.android.server.wm.traces.common.windowmanager.WindowManagerState
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerStateHelper
@@ -359,11 +359,14 @@ class WindowManagerStateHelperTest {
                 numRetries = trace.entries.size,
                 retryIntervalMs = 1
             )
-        WindowManagerStateSubject.assertThat(helper.wmState).hasRotation(Surface.ROTATION_0)
-        helper.StateSyncBuilder().withRotation(Surface.ROTATION_270).waitFor()
-        WindowManagerStateSubject.assertThat(helper.wmState).hasRotation(Surface.ROTATION_270)
-        helper.StateSyncBuilder().withRotation(Surface.ROTATION_0).waitFor()
-        WindowManagerStateSubject.assertThat(helper.wmState).hasRotation(Surface.ROTATION_0)
+        WindowManagerStateSubject.assertThat(helper.wmState)
+            .hasRotation(PlatformConsts.Rotation.ROTATION_0)
+        helper.StateSyncBuilder().withRotation(PlatformConsts.Rotation.ROTATION_270).waitFor()
+        WindowManagerStateSubject.assertThat(helper.wmState)
+            .hasRotation(PlatformConsts.Rotation.ROTATION_270)
+        helper.StateSyncBuilder().withRotation(PlatformConsts.Rotation.ROTATION_0).waitFor()
+        WindowManagerStateSubject.assertThat(helper.wmState)
+            .hasRotation(PlatformConsts.Rotation.ROTATION_0)
     }
 
     @Test

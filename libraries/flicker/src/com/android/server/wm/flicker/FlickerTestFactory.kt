@@ -16,8 +16,9 @@
 
 package com.android.server.wm.flicker
 
-import android.view.Surface
 import android.view.WindowManagerPolicyConstants
+import com.android.server.wm.flicker.helpers.IS_FAAS_ENABLED
+import com.android.server.wm.traces.common.service.PlatformConsts
 
 /**
  * Factory for creating JUnit4 compatible tests based on the flicker DSL
@@ -33,7 +34,8 @@ object FlickerTestFactory {
     @JvmOverloads
     @JvmStatic
     fun nonRotationTests(
-        supportedRotations: List<Int> = listOf(Surface.ROTATION_0, Surface.ROTATION_90),
+        supportedRotations: List<PlatformConsts.Rotation> =
+            listOf(PlatformConsts.Rotation.ROTATION_0, PlatformConsts.Rotation.ROTATION_90),
         supportedNavigationModes: List<String> =
             listOf(
                 WindowManagerPolicyConstants.NAV_BAR_MODE_3BUTTON_OVERLAY,
@@ -56,7 +58,8 @@ object FlickerTestFactory {
     @JvmOverloads
     @JvmStatic
     fun rotationTests(
-        supportedRotations: List<Int> = listOf(Surface.ROTATION_0, Surface.ROTATION_90),
+        supportedRotations: List<PlatformConsts.Rotation> =
+            listOf(PlatformConsts.Rotation.ROTATION_0, PlatformConsts.Rotation.ROTATION_90),
         supportedNavigationModes: List<String> =
             listOf(
                 WindowManagerPolicyConstants.NAV_BAR_MODE_3BUTTON_OVERLAY,
@@ -74,8 +77,8 @@ object FlickerTestFactory {
 
     private fun createParam(
         navBarMode: String,
-        startRotation: Int,
-        endRotation: Int = startRotation,
+        startRotation: PlatformConsts.Rotation,
+        endRotation: PlatformConsts.Rotation = startRotation,
         faasEnabled: Boolean = false
     ) =
         FlickerTest(
