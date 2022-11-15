@@ -70,7 +70,7 @@ class TransitionRunner(
      */
     private fun buildTestRuleChain(flicker: IFlickerTestData): RuleChain {
         return RuleChain.outerRule(UnlockScreenRule())
-            .around(NavigationModeRule(scenario.navBarMode))
+            .around(NavigationModeRule(scenario.navBarMode.value))
             .around(
                 LaunchAppRule(MessagingAppHelper(instrumentation), clearCacheAfterParsing = false)
             )

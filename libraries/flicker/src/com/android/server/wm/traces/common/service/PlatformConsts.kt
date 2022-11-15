@@ -71,6 +71,24 @@ object PlatformConsts {
      */
     @JsName("ROTATION_270") const val ROTATION_270 = 3
 
+    /**
+     * Navigation bar mode constant: 3 button navigation.
+     *
+     * Duplicated from [WindowManagerPolicyConstants.NAV_BAR_MODE_GESTURAL_OVERLAY] because this
+     * class is used by JVM and KotlinJS
+     */
+    @JsName("MODE_GESTURAL")
+    const val MODE_GESTURAL = "com.android.internal.systemui.navbar.gestural"
+
+    /**
+     * Navigation bar mode : gestural navigation.
+     *
+     * Duplicated from [WindowManagerPolicyConstants.NAV_BAR_MODE_3BUTTON_OVERLAY] because this
+     * class is used by JVM and KotlinJS
+     */
+    @JsName("MODE_3BUTTON")
+    const val MODE_3BUTTON = "com.android.internal.systemui.navbar.threebutton"
+
     enum class Rotation(val description: String, val value: Int) {
         ROTATION_0("ROTATION_0", PlatformConsts.ROTATION_0),
         ROTATION_90("ROTATION_90", PlatformConsts.ROTATION_90),
@@ -82,6 +100,21 @@ object PlatformConsts {
         companion object {
             private val VALUES = values()
             fun getByValue(value: Int) = VALUES[value]
+        }
+    }
+
+    enum class NavBar(val description: String, val value: String) {
+        MODE_3BUTTON("3_BUTTON_NAV", PlatformConsts.MODE_3BUTTON),
+        MODE_GESTURAL("GESTURAL_NAV", PlatformConsts.MODE_GESTURAL);
+
+        companion object {
+            fun getByValue(value: String) {
+                when (value) {
+                    PlatformConsts.MODE_3BUTTON -> MODE_3BUTTON
+                    PlatformConsts.MODE_GESTURAL -> MODE_GESTURAL
+                    else -> error("Unknown nav bar mode $value")
+                }
+            }
         }
     }
 }

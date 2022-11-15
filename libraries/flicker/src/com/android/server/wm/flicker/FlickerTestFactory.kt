@@ -16,7 +16,6 @@
 
 package com.android.server.wm.flicker
 
-import android.view.WindowManagerPolicyConstants
 import com.android.server.wm.flicker.helpers.IS_FAAS_ENABLED
 import com.android.server.wm.traces.common.service.PlatformConsts
 
@@ -36,11 +35,8 @@ object FlickerTestFactory {
     fun nonRotationTests(
         supportedRotations: List<PlatformConsts.Rotation> =
             listOf(PlatformConsts.Rotation.ROTATION_0, PlatformConsts.Rotation.ROTATION_90),
-        supportedNavigationModes: List<String> =
-            listOf(
-                WindowManagerPolicyConstants.NAV_BAR_MODE_3BUTTON_OVERLAY,
-                WindowManagerPolicyConstants.NAV_BAR_MODE_GESTURAL_OVERLAY
-            ),
+        supportedNavigationModes: List<PlatformConsts.NavBar> =
+            listOf(PlatformConsts.NavBar.MODE_3BUTTON, PlatformConsts.NavBar.MODE_GESTURAL),
         faasEnabled: Boolean = false
     ): List<FlickerTest> {
         return supportedNavigationModes.flatMap { navBarMode ->
@@ -60,11 +56,8 @@ object FlickerTestFactory {
     fun rotationTests(
         supportedRotations: List<PlatformConsts.Rotation> =
             listOf(PlatformConsts.Rotation.ROTATION_0, PlatformConsts.Rotation.ROTATION_90),
-        supportedNavigationModes: List<String> =
-            listOf(
-                WindowManagerPolicyConstants.NAV_BAR_MODE_3BUTTON_OVERLAY,
-                WindowManagerPolicyConstants.NAV_BAR_MODE_GESTURAL_OVERLAY
-            ),
+        supportedNavigationModes: List<PlatformConsts.NavBar> =
+            listOf(PlatformConsts.NavBar.MODE_3BUTTON, PlatformConsts.NavBar.MODE_GESTURAL),
         faasEnabled: Boolean = false
     ): List<FlickerTest> {
         return supportedNavigationModes.flatMap { navBarMode ->
@@ -76,7 +69,7 @@ object FlickerTestFactory {
     }
 
     private fun createParam(
-        navBarMode: String,
+        navBarMode: PlatformConsts.NavBar,
         startRotation: PlatformConsts.Rotation,
         endRotation: PlatformConsts.Rotation = startRotation,
         faasEnabled: Boolean = false

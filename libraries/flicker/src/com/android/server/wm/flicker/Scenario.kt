@@ -16,7 +16,6 @@
 
 package com.android.server.wm.flicker
 
-import android.view.WindowManagerPolicyConstants
 import androidx.annotation.VisibleForTesting
 import com.android.server.wm.traces.common.IScenario
 import com.android.server.wm.traces.common.service.PlatformConsts
@@ -37,7 +36,7 @@ internal constructor(
     @VisibleForTesting val testClass: String,
     override val startRotation: PlatformConsts.Rotation,
     val endRotation: PlatformConsts.Rotation,
-    override val navBarMode: String,
+    override val navBarMode: PlatformConsts.NavBar,
     _extraConfig: Map<String, Any?>,
     override val description: String
 ) : IScenario {
@@ -52,8 +51,7 @@ internal constructor(
         startRotation == PlatformConsts.Rotation.ROTATION_90 ||
             startRotation == PlatformConsts.Rotation.ROTATION_270
 
-    val isGesturalNavigation =
-        navBarMode == WindowManagerPolicyConstants.NAV_BAR_MODE_GESTURAL_OVERLAY
+    val isGesturalNavigation = navBarMode == PlatformConsts.NavBar.MODE_GESTURAL
 
     val isTablet: Boolean
         get() =

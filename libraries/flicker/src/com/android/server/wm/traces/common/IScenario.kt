@@ -24,5 +24,5 @@ interface IScenario {
     val isEmpty: Boolean
 
     val startRotation: PlatformConsts.Rotation
-    val navBarMode: String
+    val navBarMode: PlatformConsts.NavBar
 }
