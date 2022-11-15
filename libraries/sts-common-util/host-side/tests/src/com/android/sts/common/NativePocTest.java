@@ -30,6 +30,8 @@ import static org.mockito.Mockito.when;
 
 import com.android.tradefed.build.BuildInfo;
 import com.android.tradefed.device.ITestDevice;
+import com.android.tradefed.invoker.InvocationContext;
+import com.android.tradefed.invoker.TestInformation;
 import com.android.tradefed.testtype.Abi;
 import com.android.tradefed.testtype.DeviceJUnit4ClassRunner;
 import com.android.tradefed.testtype.IAbi;
@@ -102,9 +104,13 @@ public class NativePocTest extends BaseHostJUnit4Test {
         buildInfo.addBuildAttribute("ROOT_DIR", tmpDir);
         buildInfo.addBuildAttribute("SUITE_NAME", "sts-host-util-test");
 
+        InvocationContext iContext = new InvocationContext();
+        iContext.addAllocatedDevice("device1", device);
+        iContext.addDeviceBuildInfo("device1", buildInfo);
+
         testCase = new BaseHostJUnit4Test() {};
-        testCase.setDevice(device);
-        testCase.setBuild(buildInfo);
+        testCase.setTestInformation(
+                TestInformation.newBuilder().setInvocationContext(iContext).build());
         testCase.setAbi(ABI_ARM32); // Default to 32bit machine. Re-set this if testing 64
 
         when(device.executeShellV2Command(startsWith("chmod "))).thenReturn(SUCCESS_RESULT);
