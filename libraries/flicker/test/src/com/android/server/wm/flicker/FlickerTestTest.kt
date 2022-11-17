@@ -33,7 +33,7 @@ class FlickerTestTest {
     @Before
     fun setup() {
         executionCount = 0
-        Files.deleteIfExists(outputFileName(RunStatus.UNDEFINED))
+        Files.deleteIfExists(outputFileName(RunStatus.RUN_EXECUTED))
         DataStore.clear()
     }
 

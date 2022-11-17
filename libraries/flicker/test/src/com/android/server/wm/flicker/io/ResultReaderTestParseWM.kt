@@ -17,33 +17,19 @@
 package com.android.server.wm.flicker.io
 
 import com.android.server.wm.flicker.TestTraces
-import com.android.server.wm.traces.common.ITrace
-import java.io.File
+import com.android.server.wm.traces.common.Timestamp
 
 /** Tests for [ResultReader] parsing [TraceType.WM] */
 class ResultReaderTestParseWM : BaseResultReaderTestParseTrace() {
-    override val assetFile: File
-        get() = TestTraces.WMTrace.FILE
-    override val traceName: String
-        get() = "WM trace"
-    override val startTimeTrace: TraceTime
-        get() = TraceTime(TestTraces.WMTrace.START_TIME, 0, 0)
-    override val endTimeTrace: TraceTime
-        get() = TraceTime(TestTraces.WMTrace.END_TIME, 0, 0)
-    override val validSliceTime: TraceTime
-        get() = TraceTime(TestTraces.WMTrace.SLICE_TIME, 0, 0)
-    override val invalidSliceTime: TraceTime
-        get() = startTimeTrace
-    override val traceType: TraceType
-        get() = TraceType.WM
-    override val expectedSlicedTraceSize: Int
-        get() = 2
+    override val assetFile = TestTraces.WMTrace.FILE
+    override val traceName = "WM trace"
+    override val startTimeTrace = TestTraces.WMTrace.START_TIME
+    override val endTimeTrace = TestTraces.WMTrace.END_TIME
+    override val validSliceTime = TestTraces.WMTrace.SLICE_TIME
+    override val invalidSliceTime = startTimeTrace
+    override val traceType = TraceType.WM
+    override val expectedSlicedTraceSize: Int = 2
 
-    override fun doParse(reader: ResultReader): ITrace<*>? {
-        return reader.readWmTrace()
-    }
-
-    override fun getTime(traceTime: TraceTime): Long {
-        return traceTime.elapsedRealtimeNanos
-    }
+    override fun doParse(reader: ResultReader) = reader.readWmTrace()
+    override fun getTime(traceTime: Timestamp) = traceTime.elapsedNanos
 }

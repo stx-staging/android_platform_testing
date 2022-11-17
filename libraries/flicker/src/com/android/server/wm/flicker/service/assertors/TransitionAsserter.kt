@@ -20,6 +20,7 @@ import android.util.Log
 import com.android.server.wm.flicker.FLICKER_TAG
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
+import com.android.server.wm.traces.common.Utils
 import com.android.server.wm.traces.common.layers.LayersTrace
 import com.android.server.wm.traces.common.service.ScenarioInstance
 import com.android.server.wm.traces.common.transition.Transition
@@ -137,10 +138,17 @@ data class TraceIndices(val startIndex: Int, val endIndex: Int)
 public fun WindowManagerTrace.scenarioInstanceSlice(
     scenarioInstance: ScenarioInstance
 ): WindowManagerTrace {
-    return sliceUsingElapsedTimestamp(
-        scenarioInstance.startTimestamp,
-        scenarioInstance.endTimestamp
-    )
+    val allTimestamps = entries.map { it.elapsedTimestamp }
+    val selectedTimestamps =
+        Utils.getTimestampsInRange(
+            allTimestamps,
+            scenarioInstance.startTimestamp,
+            scenarioInstance.endTimestamp,
+            addInitialEntry = true
+        )
+    val selectedEntries =
+        entries.filter { selectedTimestamps.contains(it.elapsedTimestamp) }.toTypedArray()
+    return WindowManagerTrace(selectedEntries)
 }
 
 /**

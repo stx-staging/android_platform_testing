@@ -23,10 +23,10 @@ import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
 
-/** Tests for [ResultFileDescriptor] */
+/** Tests for [ResultArtifactDescriptor] */
 @SuppressLint("VisibleForTests")
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-class ResultFileDescriptorTest {
+class ResultArtifactDescriptorTest {
     @Test
     fun generateDescriptorFromTrace() {
         createDescriptorAndValidateFileName(TraceType.SF)
@@ -95,14 +95,14 @@ class ResultFileDescriptorTest {
     }
 
     private fun buildTaggedName(traceType: TraceType): String =
-        ResultFileDescriptor.newTestInstance(traceType, TEST_TAG).fileNameInArtifact
+        ResultArtifactDescriptor.newTestInstance(traceType, TEST_TAG).fileNameInArtifact
 
     private fun parseDescriptorAndValidateType(
         fileNameInArtifact: String,
         expectedTraceType: TraceType,
         expectedTag: String = AssertionTag.ALL
-    ): ResultFileDescriptor {
-        val descriptor = ResultFileDescriptor.fromFileName(fileNameInArtifact)
+    ): ResultArtifactDescriptor {
+        val descriptor = ResultArtifactDescriptor.fromFileName(fileNameInArtifact)
         Truth.assertWithMessage("Descriptor type")
             .that(descriptor.traceType)
             .isEqualTo(expectedTraceType)
@@ -111,7 +111,7 @@ class ResultFileDescriptorTest {
     }
 
     private fun createDescriptorAndValidateFileName(traceType: TraceType) {
-        val descriptor = ResultFileDescriptor.newTestInstance(traceType)
+        val descriptor = ResultArtifactDescriptor.newTestInstance(traceType)
         Truth.assertWithMessage("Result file name")
             .that(descriptor.fileNameInArtifact)
             .isEqualTo(traceType.fileName)
@@ -119,7 +119,7 @@ class ResultFileDescriptorTest {
 
     private fun createDescriptorAndValidateFileNameWithTag(traceType: TraceType) {
         val tag = "testTag"
-        val descriptor = ResultFileDescriptor.newTestInstance(traceType, TEST_TAG)
+        val descriptor = ResultArtifactDescriptor.newTestInstance(traceType, TEST_TAG)
         val subject =
             Truth.assertWithMessage("Result file name").that(descriptor.fileNameInArtifact)
         subject.startsWith(tag)

@@ -45,7 +45,7 @@ import com.google.common.truth.Subject.Factory
  *
  * Example:
  * ```
- *    val trace = WindowManagerTraceParser.parseFromTrace(myTraceFile)
+ *    val trace = WindowManagerTraceParser().parse(myTraceFile)
  *    val subject = WindowManagerTraceSubject.assertThat(trace)
  *        .contains("ValidWindow")
  *        .notContains("ImaginaryWindow")
@@ -54,7 +54,7 @@ import com.google.common.truth.Subject.Factory
  * ```
  * Example2:
  * ```
- *    val trace = WindowManagerTraceParser.parseFromTrace(myTraceFile)
+ *    val trace = WindowManagerTraceParser().parse(myTraceFile)
  *    val subject = WindowManagerTraceSubject.assertThat(trace) {
  *        check("Custom check") { myCustomAssertion(this) }
  *    }

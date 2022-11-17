@@ -17,46 +17,46 @@
 package com.android.server.wm.flicker.runner
 
 import com.android.server.wm.flicker.io.ResultData
-import com.android.server.wm.flicker.io.TraceTime
+import com.android.server.wm.traces.common.Timestamp
 import com.google.common.truth.Truth
 
 object TestUtils {
     internal fun validateTransitionTime(result: ResultData) {
         val startTime = result.transitionTimeRange.start
         val endTime = result.transitionTimeRange.end
-        validateTimeGreaterThan(startTime, "Start time", TraceTime.MIN)
-        validateTimeGreaterThan(endTime, "End time", TraceTime.MIN)
-        validateTimeGreaterThan(TraceTime.MAX, "End time", endTime)
+        validateTimeGreaterThan(startTime, "Start time", Timestamp.MIN)
+        validateTimeGreaterThan(endTime, "End time", Timestamp.MIN)
+        validateTimeGreaterThan(Timestamp.MAX, "End time", endTime)
     }
 
     internal fun validateTransitionTimeIsEmpty(result: ResultData) {
         val startTime = result.transitionTimeRange.start
         val endTime = result.transitionTimeRange.end
-        validateEqualTo(startTime, "Start time", TraceTime.MIN)
-        validateEqualTo(endTime, "End time", TraceTime.MAX)
+        validateEqualTo(startTime, "Start time", Timestamp.MIN)
+        validateEqualTo(endTime, "End time", Timestamp.MAX)
     }
 
-    private fun validateEqualTo(time: TraceTime, name: String, expectedValue: TraceTime) {
-        Truth.assertWithMessage("$name - systemTime")
-            .that(time.systemTime)
-            .isEqualTo(expectedValue.systemTime)
-        Truth.assertWithMessage("$name - unixTimeNanos")
-            .that(time.unixTimeNanos)
-            .isEqualTo(expectedValue.unixTimeNanos)
-        Truth.assertWithMessage("$name - elapsedRealtimeNanos")
-            .that(time.elapsedRealtimeNanos)
-            .isEqualTo(expectedValue.elapsedRealtimeNanos)
+    private fun validateEqualTo(time: Timestamp, name: String, expectedValue: Timestamp) {
+        Truth.assertWithMessage("$name - systemUptimeNanos")
+            .that(time.systemUptimeNanos)
+            .isEqualTo(expectedValue.systemUptimeNanos)
+        Truth.assertWithMessage("$name - unixNanos")
+            .that(time.unixNanos)
+            .isEqualTo(expectedValue.unixNanos)
+        Truth.assertWithMessage("$name - elapsedNanos")
+            .that(time.elapsedNanos)
+            .isEqualTo(expectedValue.elapsedNanos)
     }
 
-    private fun validateTimeGreaterThan(time: TraceTime, name: String, minValue: TraceTime) {
-        Truth.assertWithMessage("$name - systemTime")
-            .that(time.systemTime)
-            .isGreaterThan(minValue.systemTime)
-        Truth.assertWithMessage("$name - unixTimeNanos")
-            .that(time.unixTimeNanos)
-            .isGreaterThan(minValue.unixTimeNanos)
-        Truth.assertWithMessage("$name - elapsedRealtimeNanos")
-            .that(time.elapsedRealtimeNanos)
-            .isGreaterThan(minValue.elapsedRealtimeNanos)
+    private fun validateTimeGreaterThan(time: Timestamp, name: String, minValue: Timestamp) {
+        Truth.assertWithMessage("$name - systemUptimeNanos")
+            .that(time.systemUptimeNanos)
+            .isGreaterThan(minValue.systemUptimeNanos)
+        Truth.assertWithMessage("$name - unixNanos")
+            .that(time.unixNanos)
+            .isGreaterThan(minValue.unixNanos)
+        Truth.assertWithMessage("$name - elapsedNanos")
+            .that(time.elapsedNanos)
+            .isGreaterThan(minValue.elapsedNanos)
     }
 }

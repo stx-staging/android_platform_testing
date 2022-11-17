@@ -18,58 +18,26 @@ package com.android.server.wm.flicker.io
 
 import com.android.server.wm.flicker.TestTraces
 import com.android.server.wm.flicker.readAssetAsFile
-import com.android.server.wm.traces.common.ITrace
-import java.io.File
+import com.android.server.wm.traces.common.Timestamp
 
 /** Tests for [ResultReader] parsing [TraceType.TRANSITION] */
 class ResultReaderTestParseTransitions : BaseResultReaderTestParseTrace() {
-    override val assetFile: File
-        get() = TestTraces.TransitionTrace.FILE
-    override val traceName: String
-        get() = "Transitions trace"
-    override val startTimeTrace: TraceTime
-        get() =
-            TraceTime(
-                TestTraces.TransitionTrace.START_TIME,
-                TestTraces.TransactionTrace.START_TIME,
-                0
-            )
-    override val endTimeTrace: TraceTime
-        get() =
-            TraceTime(TestTraces.TransitionTrace.END_TIME, TestTraces.TransactionTrace.END_TIME, 0)
-    override val validSliceTime: TraceTime
-        get() =
-            TraceTime(
-                TestTraces.TransitionTrace.VALID_SLICE_TIME,
-                TestTraces.TransactionTrace.VALID_SLICE_TIME,
-                0
-            )
-    override val invalidSliceTime: TraceTime
-        get() =
-            TraceTime(
-                TestTraces.TransitionTrace.INVALID_SLICE_TIME,
-                TestTraces.TransactionTrace.INVALID_SLICE_TIME,
-                0
-            )
-    override val traceType: TraceType
-        get() = TraceType.TRANSITION
-    override val invalidSizeMessage: String
-        get() = "Transitions trace cannot be empty"
-    override val expectedSlicedTraceSize: Int
-        get() = 1
+    override val assetFile = TestTraces.TransitionTrace.FILE
+    override val traceName = "Transitions trace"
+    override val startTimeTrace = TestTraces.TransitionTrace.START_TIME
+    override val endTimeTrace = TestTraces.TransitionTrace.END_TIME
+    override val validSliceTime = TestTraces.TransitionTrace.VALID_SLICE_TIME
+    override val invalidSliceTime = TestTraces.TransitionTrace.INVALID_SLICE_TIME
+    override val traceType = TraceType.TRANSITION
+    override val invalidSizeMessage = "Transitions trace cannot be empty"
+    override val expectedSlicedTraceSize = 1
 
-    override fun writeTrace(writer: ResultWriter): ResultWriter {
-        return super.writeTrace(writer).also {
+    override fun doParse(reader: ResultReader) = reader.readTransitionsTrace()
+    override fun getTime(traceTime: Timestamp) = traceTime.elapsedNanos
+    override fun setupWriter(writer: ResultWriter): ResultWriter {
+        return super.setupWriter(writer).also {
             val trace = readAssetAsFile("transactions_trace.winscope")
             it.addTraceResult(TraceType.TRANSACTION, trace)
         }
-    }
-
-    override fun doParse(reader: ResultReader): ITrace<*>? {
-        return reader.readTransitionsTrace()
-    }
-
-    override fun getTime(traceTime: TraceTime): Long {
-        return traceTime.elapsedRealtimeNanos
     }
 }

@@ -26,7 +26,6 @@ import com.android.server.wm.flicker.FLICKER_TAG
 import com.android.server.wm.flicker.runner.ExecutionError
 import com.android.server.wm.flicker.service.assertors.AssertionResult
 import com.android.server.wm.traces.common.service.AssertionInvocationGroup
-import java.nio.file.Path
 import org.junit.runner.Description
 import org.junit.runner.Result
 import org.junit.runner.notification.Failure
@@ -121,19 +120,10 @@ class FlickerServiceResultsCollector(
             return
         }
 
-        val collectedTraces = tracesCollector.getCollectedTraces()
-        val traceArchivePath = tracesCollector.getCollectedTracesPath()
-        if (traceArchivePath != null) {
-            dataRecord.addStringMetric(WINSCOPE_FILE_PATH_KEY, traceArchivePath.toString())
-        }
-        val flickerService = FlickerService()
+        val reader = tracesCollector.getResultReader()
+        dataRecord.addStringMetric(WINSCOPE_FILE_PATH_KEY, reader.artifactPath.toString())
         Log.i(LOG_TAG, "Processing traces")
-        val results =
-            flickerService.process(
-                collectedTraces.wmTrace,
-                collectedTraces.layersTrace,
-                collectedTraces.transitionsTrace
-            )
+        val results = flickerService.process(reader)
         Log.i(LOG_TAG, "Got ${results.size} results")
         assertionResults.addAll(results)
         if (description != null) {

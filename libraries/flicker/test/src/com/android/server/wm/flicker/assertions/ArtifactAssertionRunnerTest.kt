@@ -42,7 +42,7 @@ class ArtifactAssertionRunnerTest {
     @Before
     fun setup() {
         executionCount = 0
-        Files.deleteIfExists(outputFileName(RunStatus.UNDEFINED))
+        Files.deleteIfExists(outputFileName(RunStatus.RUN_EXECUTED))
         Files.deleteIfExists(outputFileName(RunStatus.ASSERTION_FAILED))
         Files.deleteIfExists(outputFileName(RunStatus.ASSERTION_SUCCESS))
     }

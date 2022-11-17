@@ -17,7 +17,7 @@
 package com.android.server.wm.flicker.assertions
 
 import com.android.server.wm.flicker.RunStatus
-import com.android.server.wm.flicker.io.ResultReader
+import com.android.server.wm.flicker.io.IReader
 
 /**
  * Helper class to run an assertions
@@ -26,7 +26,7 @@ import com.android.server.wm.flicker.io.ResultReader
  * @param subjectsParser helper class to convert a result into flicker subjects
  */
 abstract class BaseAssertionRunner(
-    private val resultReader: ResultReader,
+    private val resultReader: IReader,
     private val subjectsParser: SubjectsParser = SubjectsParser(resultReader)
 ) {
     /**

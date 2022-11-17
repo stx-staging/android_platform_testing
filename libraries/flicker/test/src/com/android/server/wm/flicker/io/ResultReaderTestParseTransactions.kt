@@ -17,35 +17,20 @@
 package com.android.server.wm.flicker.io
 
 import com.android.server.wm.flicker.TestTraces
-import com.android.server.wm.traces.common.ITrace
-import java.io.File
+import com.android.server.wm.traces.common.Timestamp
 
 /** Tests for [ResultReader] parsing [TraceType.TRANSACTION] */
 class ResultReaderTestParseTransactions : BaseResultReaderTestParseTrace() {
-    override val assetFile: File
-        get() = TestTraces.TransactionTrace.FILE
-    override val traceName: String
-        get() = "Transactions trace"
-    override val startTimeTrace: TraceTime
-        get() = TraceTime(0, TestTraces.TransactionTrace.START_TIME, 0)
-    override val endTimeTrace: TraceTime
-        get() = TraceTime(0, TestTraces.TransactionTrace.END_TIME, 0)
-    override val validSliceTime: TraceTime
-        get() = TraceTime(0, TestTraces.TransactionTrace.VALID_SLICE_TIME, 0)
-    override val invalidSliceTime: TraceTime
-        get() = TraceTime(0, TestTraces.TransactionTrace.INVALID_SLICE_TIME, 0)
-    override val traceType: TraceType
-        get() = TraceType.TRANSACTION
-    override val invalidSizeMessage: String
-        get() = "Trimmed transactions trace cannot be empty"
-    override val expectedSlicedTraceSize: Int
-        get() = 2
+    override val assetFile = TestTraces.TransactionTrace.FILE
+    override val traceName = "Transactions trace"
+    override val startTimeTrace = TestTraces.TransactionTrace.START_TIME
+    override val endTimeTrace = TestTraces.TransactionTrace.END_TIME
+    override val validSliceTime = TestTraces.TransactionTrace.VALID_SLICE_TIME
+    override val invalidSliceTime = TestTraces.TransactionTrace.INVALID_SLICE_TIME
+    override val traceType = TraceType.TRANSACTION
+    override val invalidSizeMessage = "Transactions trace cannot be empty"
+    override val expectedSlicedTraceSize = 2
 
-    override fun doParse(reader: ResultReader): ITrace<*>? {
-        return reader.readTransactionsTrace()
-    }
-
-    override fun getTime(traceTime: TraceTime): Long {
-        return traceTime.systemTime
-    }
+    override fun doParse(reader: ResultReader) = reader.readTransactionsTrace()
+    override fun getTime(traceTime: Timestamp) = traceTime.elapsedNanos
 }

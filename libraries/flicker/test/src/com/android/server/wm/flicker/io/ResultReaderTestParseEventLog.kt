@@ -33,7 +33,7 @@ import org.junit.runners.MethodSorters
 class ResultReaderTestParseEventLog {
     @Before
     fun setup() {
-        Files.deleteIfExists(outputFileName(RunStatus.UNDEFINED))
+        Files.deleteIfExists(outputFileName(RunStatus.RUN_EXECUTED))
     }
 
     @Test

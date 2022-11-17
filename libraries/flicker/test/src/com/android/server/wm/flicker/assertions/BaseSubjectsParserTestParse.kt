@@ -25,6 +25,7 @@ import com.android.server.wm.flicker.io.TraceType
 import com.android.server.wm.flicker.newTestResultWriter
 import com.android.server.wm.flicker.outputFileName
 import com.android.server.wm.flicker.traces.FlickerTraceSubject
+import com.android.server.wm.traces.common.Timestamp
 import com.google.common.truth.Truth
 import java.io.File
 import java.nio.file.Files
@@ -34,9 +35,11 @@ import org.junit.Test
 abstract class BaseSubjectsParserTestParse {
     protected abstract val assetFile: File
     protected abstract val subjectName: String
-    protected abstract val expectedStartTime: Long
-    protected abstract val expectedEndTime: Long
+    protected abstract val expectedStartTime: Timestamp
+    protected abstract val expectedEndTime: Timestamp
     protected abstract val traceType: TraceType
+
+    protected abstract fun getTime(timestamp: Timestamp): Long
 
     protected abstract fun doParseTrace(parser: TestSubjectsParser): FlickerTraceSubject<*>?
 
@@ -49,7 +52,7 @@ abstract class BaseSubjectsParserTestParse {
 
     @Before
     fun setup() {
-        Files.deleteIfExists(outputFileName(RunStatus.UNDEFINED))
+        Files.deleteIfExists(outputFileName(RunStatus.RUN_EXECUTED))
     }
 
     @Test
@@ -62,11 +65,11 @@ abstract class BaseSubjectsParserTestParse {
 
         Truth.assertWithMessage(subjectName).that(subject.subjects).isNotEmpty()
         Truth.assertWithMessage("$subjectName start")
-            .that(subject.subjects.first().timestamp)
-            .isEqualTo(expectedStartTime)
+            .that(getTime(subject.subjects.first().timestamp))
+            .isEqualTo(getTime(expectedStartTime))
         Truth.assertWithMessage("$subjectName end")
-            .that(subject.subjects.last().timestamp)
-            .isEqualTo(expectedEndTime)
+            .that(getTime(subject.subjects.last().timestamp))
+            .isEqualTo(getTime(expectedEndTime))
     }
 
     @Test
@@ -90,7 +93,7 @@ abstract class BaseSubjectsParserTestParse {
         Truth.assertWithMessage(subjectName).that(subject).isNull()
     }
 
-    private fun doParseStateSubjectAndValidate(tag: String, expectedTime: Long) {
+    private fun doParseStateSubjectAndValidate(tag: String, expectedTime: Timestamp) {
         val writer = writeTrace(newTestResultWriter())
         val result = writer.write()
         val reader = ResultReader(result, DEFAULT_TRACE_CONFIG)
@@ -98,7 +101,7 @@ abstract class BaseSubjectsParserTestParse {
         val subject = doParseState(parser, tag) ?: error("$subjectName tag=$tag not built")
 
         Truth.assertWithMessage("$subjectName - $tag")
-            .that(subject.timestamp)
-            .isEqualTo(expectedTime)
+            .that(getTime(subject.timestamp))
+            .isEqualTo(getTime(expectedTime))
     }
 }

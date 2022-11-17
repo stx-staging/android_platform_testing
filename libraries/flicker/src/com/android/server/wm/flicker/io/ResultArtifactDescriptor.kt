@@ -20,7 +20,7 @@ import androidx.annotation.VisibleForTesting
 import com.android.server.wm.flicker.AssertionTag
 
 /** Descriptor for files inside flicker result artifacts */
-class ResultFileDescriptor
+class ResultArtifactDescriptor
 internal constructor(
     /** Trace or dump type */
     @VisibleForTesting val traceType: TraceType,
@@ -41,7 +41,7 @@ internal constructor(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is ResultFileDescriptor) return false
+        if (other !is ResultArtifactDescriptor) return false
 
         if (traceType != other.traceType) return false
         if (tag != other.tag) return false
@@ -59,22 +59,22 @@ internal constructor(
 
     companion object {
         /**
-         * Creates a [ResultFileDescriptor] based on the [fileNameInArtifact]
+         * Creates a [ResultArtifactDescriptor] based on the [fileNameInArtifact]
          *
          * @param fileNameInArtifact Name of the trace file in the result artifact (e.g. zip)
          */
-        fun fromFileName(fileNameInArtifact: String): ResultFileDescriptor {
+        fun fromFileName(fileNameInArtifact: String): ResultArtifactDescriptor {
             val tagSplit = fileNameInArtifact.split("__")
             require(tagSplit.size <= 2) {
                 "File name format should match '{tag}__{filename}' but was $fileNameInArtifact"
             }
             val tag = if (tagSplit.size > 1) tagSplit.first() else AssertionTag.ALL
             val fileName = tagSplit.last()
-            return ResultFileDescriptor(TraceType.fromFileName(fileName), tag)
+            return ResultArtifactDescriptor(TraceType.fromFileName(fileName), tag)
         }
 
         @VisibleForTesting
         fun newTestInstance(traceType: TraceType, tag: String = AssertionTag.ALL) =
-            ResultFileDescriptor(traceType, tag)
+            ResultArtifactDescriptor(traceType, tag)
     }
 }

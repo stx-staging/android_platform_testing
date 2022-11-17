@@ -16,8 +16,6 @@
 
 package com.android.server.wm.flicker
 
-import android.view.Surface
-import android.view.WindowManagerPolicyConstants
 import com.android.server.wm.traces.common.service.PlatformConsts
 
 /** Helper class to create [Scenario]s */
@@ -79,13 +77,13 @@ class ScenarioBuilder {
 
     companion object {
         const val FAAS_BLOCKING = "faas:blocking"
-        val DEFAULT_ROTATION = Surface.ROTATION_0
-        val DEFAULT_NAVBAR_MODE = WindowManagerPolicyConstants.NAV_BAR_MODE_GESTURAL_OVERLAY
+        val DEFAULT_ROTATION = PlatformConsts.Rotation.ROTATION_0
+        val DEFAULT_NAVBAR_MODE = PlatformConsts.NavBar.MODE_GESTURAL
 
         private fun defaultDescription(
-            startOrientation: Int,
-            endOrientation: Int,
-            navBarMode: String
+            startOrientation: PlatformConsts.Rotation,
+            endOrientation: PlatformConsts.Rotation,
+            navBarMode: PlatformConsts.NavBar
         ): String = buildString {
             append(startOrientation.description)
             if (endOrientation != startOrientation) {

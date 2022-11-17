@@ -25,6 +25,7 @@ import com.android.server.wm.flicker.assertiongenerator.ElementLifecycleExtracto
 import com.android.server.wm.flicker.assertiongenerator.ScenarioConfig
 import com.android.server.wm.flicker.assertiongenerator.WindowManagerTestConst.Companion.wmTrace_ROTATION_0
 import com.android.server.wm.flicker.assertiongenerator.common.AssertionFactory
+import com.android.server.wm.flicker.io.ParsedTracesReader
 import com.android.server.wm.flicker.service.AssertionEngine
 import com.android.server.wm.flicker.service.AssertionGeneratorConfigProducer
 import com.android.server.wm.flicker.service.assertors.AssertionResult
@@ -48,6 +49,7 @@ import org.junit.Test
  *
  * To run this test: `atest FlickerLibTest:AssertionsTest`
  */
+@SuppressLint("VisibleForTests")
 class AssertionsTest {
     class Setup(finishTransactionVSyncId: Long) {
         private lateinit var traceDump: DeviceTraceDump
@@ -57,6 +59,7 @@ class AssertionsTest {
         lateinit var scenarioInstance: ScenarioInstance
         lateinit var transition: Transition
         private var startTransaction = Transaction(1, 0, 0, 0, 1)
+
         // vSyncId should be the last vSyncId in the entries list
         private var finishTransaction = Transaction(2, 0, finishTransactionVSyncId, 0, 2)
 
@@ -88,7 +91,9 @@ class AssertionsTest {
                 )
         }
 
-        fun createAppliedInEntryForTransaction(transaction: Transaction): TransactionsTraceEntry {
+        private fun createAppliedInEntryForTransaction(
+            transaction: Transaction
+        ): TransactionsTraceEntry {
             return TransactionsTraceEntry(
                 Timestamp(elapsedNanos = 10),
                 transaction.requestedVSyncId,
@@ -96,18 +101,16 @@ class AssertionsTest {
             )
         }
 
-        fun createTransactionWithAppliedEntry(transaction: Transaction): Transaction {
+        private fun createTransactionWithAppliedEntry(transaction: Transaction): Transaction {
             val appliedInEntry = createAppliedInEntryForTransaction(transaction)
-            val newTransaction =
-                Transaction(
-                    transaction.pid,
-                    transaction.uid,
-                    transaction.requestedVSyncId,
-                    appliedInEntry,
-                    transaction.postTime,
-                    transaction.id
-                )
-            return newTransaction
+            return Transaction(
+                transaction.pid,
+                transaction.uid,
+                transaction.requestedVSyncId,
+                appliedInEntry,
+                transaction.postTime,
+                transaction.id
+            )
         }
 
         fun setup(traceDump: DeviceTraceDump, scenario: FlickerServiceScenario) {
@@ -124,7 +127,7 @@ class AssertionsTest {
         }
     }
 
-    fun assertResultsPass(assertionResults: List<AssertionResult>) {
+    private fun assertResultsPass(assertionResults: List<AssertionResult>) {
         var failed = 0
         val failInfo: MutableList<String> = mutableListOf()
         assertionResults.forEach { assertionResult ->
@@ -140,17 +143,13 @@ class AssertionsTest {
                 }
             }
         }
-        try {
-            Truth.assertThat(failed).isEqualTo(0)
-        } catch (err: AssertionError) {
-            throw RuntimeException("$failed assertions failed:\n" + failInfo.toString())
-        }
+        Truth.assertThat(failed).isEqualTo(0)
     }
 
     @Test
-    fun AssertionEngine_analyzeGeneratedAssertions_pass() {
+    fun analyzeGeneratedAssertionsPass() {
         val layersTrace =
-            ElementLifecycleExtractorTestConst.createTrace_arg(
+            ElementLifecycleExtractorTestConst.createTraceArg(
                 ElementLifecycleExtractorTestConst.mapOfFlattenedLayersAssertionProducer
             )
         val wmTrace = wmTrace_ROTATION_0
@@ -163,20 +162,23 @@ class AssertionsTest {
             AssertionEngine(AssertionGeneratorConfigProducer(testSetup.config)) {
                 Log.v("FLICKER-ASSERT", it)
             }
-        val assertionResults =
-            assertionEngine.analyze(
+
+        val reader =
+            ParsedTracesReader(
                 wmTrace,
                 layersTrace,
                 testSetup.transitionsTrace,
-                AssertionEngine.AssertionsToUse.GENERATED
+                transactionsTrace = null
             )
+        val assertionResults =
+            assertionEngine.analyze(reader, AssertionEngine.AssertionsToUse.GENERATED)
         assertResultsPass(assertionResults)
     }
 
     @Test
-    fun AssertionEngine_analyzeGeneratedAssertions_fail() {
+    fun analyzeGeneratedAssertionsFail() {
         val layersTraceForGeneration =
-            ElementLifecycleExtractorTestConst.createTrace_arg(
+            ElementLifecycleExtractorTestConst.createTraceArg(
                 ElementLifecycleExtractorTestConst.mapOfFlattenedLayersAllVisibilityAssertions
             )
         val wmTrace = wmTrace_ROTATION_0
@@ -190,18 +192,20 @@ class AssertionsTest {
                 Log.v("FLICKER-ASSERT", it)
             }
         val layersTraceForTest =
-            ElementLifecycleExtractorTestConst.createTrace_arg(
+            ElementLifecycleExtractorTestConst.createTraceArg(
                 ElementLifecycleExtractorTestConst.mapOfFlattenedLayersAllVisibilityAssertions_fail1
             )
         val failSetup = Setup(2)
         failSetup.setup(DeviceTraceDump(null, layersTraceForTest), scenario)
-        val assertionResults =
-            assertionEngine.analyze(
+        val reader =
+            ParsedTracesReader(
                 wmTrace,
                 layersTraceForTest,
                 failSetup.transitionsTrace,
-                AssertionEngine.AssertionsToUse.GENERATED
+                transactionsTrace = null
             )
+        val assertionResults =
+            assertionEngine.analyze(reader, AssertionEngine.AssertionsToUse.GENERATED)
         val assertionError = assertionResults[0].assertionError.toString()
         Truth.assertThat(
             assertionError.contains(
@@ -211,42 +215,34 @@ class AssertionsTest {
     }
 
     @Test
-    fun AssertionEngine_analyze_pass_traceFile() {
+    fun analyzePassTraceFile() {
         val defaultConfigProducer =
             AssertionGeneratorConfigProducer(configDir = "/assertiongenerator_config_test")
         val assertionEngine = AssertionEngine(defaultConfigProducer) { Log.v("FLICKER-ASSERT", it) }
         val config = defaultConfigProducer.produce()
         val scenario =
             FlickerServiceScenario(ScenarioType.APP_LAUNCH, PlatformConsts.Rotation.ROTATION_0)
-        val traceDump = config[scenario]?.deviceTraceDumps?.get(0)
-        traceDump ?: run { throw RuntimeException("No deviceTraceDump for scenario APP_LAUNCH") }
-        val layersTrace = traceDump.layersTrace
-        val transitionsTrace = traceDump.transitionsTrace
-        val wmTrace = traceDump.wmTrace
+        val traceDump =
+            config[scenario]?.deviceTraceDumps?.get(0)
+                ?: error("No deviceTraceDump for scenario APP_LAUNCH")
+        val layersTrace = traceDump.layersTrace ?: error("Null layersTrace")
+        val transitionsTrace = traceDump.transitionsTrace ?: error("Null transitionsTrace")
+        val wmTrace = traceDump.wmTrace ?: error("Null wmTrace")
 
-        transitionsTrace ?: run { throw RuntimeException("Null transitionsTrace") }
-        wmTrace ?: run { throw RuntimeException("Null wmTrace") }
-        layersTrace ?: run { throw RuntimeException("Null layersTrace") }
-
+        val reader =
+            ParsedTracesReader(wmTrace, layersTrace, transitionsTrace, transactionsTrace = null)
         val assertionResults =
-            assertionEngine.analyze(
-                wmTrace,
-                layersTrace,
-                transitionsTrace,
-                AssertionEngine.AssertionsToUse.GENERATED
-            )
+            assertionEngine.analyze(reader, AssertionEngine.AssertionsToUse.GENERATED)
         assertResultsPass(assertionResults)
     }
 
-    @SuppressLint("VisibleForTests")
     @Test
-    fun AssertionEngine_analyze_assertionNames_traceFile() {
+    fun analyzeAssertionNamesTraceFile() {
         val configDir = "/assertiongenerator_config_test"
         val goldenTracesConfig = TraceFileReader.getGoldenTracesConfig(configDir)
         val scenario =
             FlickerServiceScenario(ScenarioType.APP_LAUNCH, PlatformConsts.Rotation.ROTATION_0)
         val traceDump = goldenTracesConfig[scenario]!!.deviceTraceDumps[0]
-        val traceConfiguration = goldenTracesConfig[scenario]!!.traceConfigurations[0]
 
         val assertionFactory = AssertionFactory(goldenTracesConfig)
         val layersTrace = traceDump.layersTrace

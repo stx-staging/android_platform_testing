@@ -56,11 +56,9 @@ class TraceFileReader {
             layersTraceByteArray: ByteArray?
         ): DeviceTraceDump {
             val wmTrace =
-                wmTraceByteArray?.let { WindowManagerTraceParser.parseFromTrace(wmTraceByteArray) }
+                wmTraceByteArray?.let { WindowManagerTraceParser().parse(wmTraceByteArray) }
             val layersTrace =
-                layersTraceByteArray?.let {
-                    LayersTraceParser.parseFromTrace(data = layersTraceByteArray)
-                }
+                layersTraceByteArray?.let { LayersTraceParser().parse(layersTraceByteArray) }
             return DeviceTraceDump(wmTrace, layersTrace)
         }
 
@@ -118,7 +116,7 @@ class TraceFileReader {
                     wmTracePath?.let {
                         readBytesFromResource(wmTracePath)?.let {
                             try {
-                                WindowManagerTraceParser.parseFromTrace(it)
+                                WindowManagerTraceParser().parse(it)
                             } catch (err: Exception) {
                                 // invalid file
                                 null
@@ -130,7 +128,7 @@ class TraceFileReader {
                     layersTracePath?.let {
                         readBytesFromResource(layersTracePath)?.let {
                             try {
-                                LayersTraceParser.parseFromTrace(data = it)
+                                LayersTraceParser().parse(it)
                             } catch (err: Exception) {
                                 // invalid file
                                 null
@@ -142,7 +140,7 @@ class TraceFileReader {
                     transactionsTracePath?.let {
                         readBytesFromResource(transactionsTracePath)?.let {
                             try {
-                                TransactionsTraceParser.parseFromTrace(data = it)
+                                TransactionsTraceParser().parse(it)
                             } catch (err: Exception) {
                                 // invalid file
                                 null
@@ -154,7 +152,7 @@ class TraceFileReader {
                     if (transitionsTracePath != null && transactionsTrace != null) {
                         readBytesFromResource(transitionsTracePath)?.let {
                             try {
-                                TransitionsTraceParser.parseFromTrace(it, transactionsTrace)
+                                TransitionsTraceParser(transactionsTrace).parse(it)
                             } catch (err: Exception) {
                                 // invalid file
                                 null

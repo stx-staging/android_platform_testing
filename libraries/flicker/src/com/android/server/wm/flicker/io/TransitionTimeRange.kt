@@ -16,8 +16,10 @@
 
 package com.android.server.wm.flicker.io
 
-data class TransitionTimeRange(val start: TraceTime, val end: TraceTime) {
+import com.android.server.wm.traces.common.Timestamp
+
+data class TransitionTimeRange(val start: Timestamp, val end: Timestamp) {
     companion object {
-        val EMPTY = TransitionTimeRange(TraceTime.MIN, TraceTime.MAX)
+        val EMPTY = TransitionTimeRange(Timestamp.MIN, Timestamp.MAX)
     }
 }

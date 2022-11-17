@@ -24,6 +24,7 @@ import com.android.server.wm.flicker.assertThrows
 import com.android.server.wm.flicker.newTestResultWriter
 import com.android.server.wm.flicker.outputFileName
 import com.android.server.wm.traces.common.ITrace
+import com.android.server.wm.traces.common.Timestamp
 import com.google.common.truth.Truth
 import java.io.File
 import java.nio.file.Files
@@ -34,31 +35,31 @@ import org.junit.Test
 abstract class BaseResultReaderTestParseTrace {
     protected abstract val assetFile: File
     protected abstract val traceName: String
-    protected abstract val startTimeTrace: TraceTime
-    protected abstract val endTimeTrace: TraceTime
-    protected abstract val validSliceTime: TraceTime
-    protected abstract val invalidSliceTime: TraceTime
+    protected abstract val startTimeTrace: Timestamp
+    protected abstract val endTimeTrace: Timestamp
+    protected abstract val validSliceTime: Timestamp
+    protected abstract val invalidSliceTime: Timestamp
     protected abstract val traceType: TraceType
     protected abstract val expectedSlicedTraceSize: Int
     protected open val invalidSizeMessage: String
-        get() = "$traceName contained 1 entries, expected at least 2"
+        get() = "$traceName contained 0 entries, expected at least 2"
 
     protected abstract fun doParse(reader: ResultReader): ITrace<*>?
-    protected abstract fun getTime(traceTime: TraceTime): Long
+    protected abstract fun getTime(traceTime: Timestamp): Long
 
-    protected open fun writeTrace(writer: ResultWriter): ResultWriter {
+    protected open fun setupWriter(writer: ResultWriter): ResultWriter {
         writer.addTraceResult(traceType, assetFile)
         return writer
     }
 
     @Before
     fun setup() {
-        Files.deleteIfExists(outputFileName(RunStatus.UNDEFINED))
+        Files.deleteIfExists(outputFileName(RunStatus.RUN_EXECUTED))
     }
 
     @Test
     fun readTrace() {
-        val writer = writeTrace(newTestResultWriter())
+        val writer = setupWriter(newTestResultWriter())
         val result = writer.write()
 
         val reader = ResultReader(result, DEFAULT_TRACE_CONFIG)
@@ -66,10 +67,10 @@ abstract class BaseResultReaderTestParseTrace {
 
         Truth.assertWithMessage(traceName).that(trace.entries).asList().isNotEmpty()
         Truth.assertWithMessage("$traceName start")
-            .that(trace.entries.first().timestamp)
+            .that(getTime(trace.entries.first().timestamp))
             .isEqualTo(getTime(startTimeTrace))
         Truth.assertWithMessage("$traceName end")
-            .that(trace.entries.last().timestamp)
+            .that(getTime(trace.entries.last().timestamp))
             .isEqualTo(getTime(endTimeTrace))
     }
 
@@ -85,7 +86,11 @@ abstract class BaseResultReaderTestParseTrace {
 
     @Test
     fun readTraceAndSliceTraceByTimestamp() {
-        val result = doWriteTraceWithTransitionTime(validSliceTime)
+        val result =
+            setupWriter(newTestResultWriter())
+                .setTransitionStartTime(startTimeTrace)
+                .setTransitionEndTime(validSliceTime)
+                .write()
         val reader = ResultReader(result, TestTraces.TEST_TRACE_CONFIG)
         val trace = doParse(reader) ?: error("$traceName not built")
 
@@ -94,25 +99,19 @@ abstract class BaseResultReaderTestParseTrace {
             .asList()
             .hasSize(expectedSlicedTraceSize)
         Truth.assertWithMessage("$traceName start")
-            .that(trace.entries.first().timestamp)
+            .that(getTime(trace.entries.first().timestamp))
             .isEqualTo(getTime(startTimeTrace))
     }
 
     @Test
     fun readTraceAndSliceTraceByTimestampAndFailInvalidSize() {
-        val result = doWriteTraceWithTransitionTime(invalidSliceTime)
+        val result =
+            setupWriter(newTestResultWriter()).setTransitionEndTime(Timestamp.EMPTY).write()
         val reader = ResultReader(result, DEFAULT_TRACE_CONFIG)
         val exception =
             assertThrows(IllegalArgumentException::class.java) {
                 doParse(reader) ?: error("$traceName not built")
             }
         assertExceptionMessage(exception, invalidSizeMessage)
-    }
-
-    private fun doWriteTraceWithTransitionTime(endTime: TraceTime): ResultData {
-        return writeTrace(newTestResultWriter())
-            .setTransitionStartTime(startTimeTrace)
-            .setTransitionEndTime(endTime)
-            .write()
     }
 }

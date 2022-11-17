@@ -20,20 +20,17 @@ import android.annotation.SuppressLint
 import com.android.server.wm.flicker.TestTraces
 import com.android.server.wm.flicker.io.TraceType
 import com.android.server.wm.flicker.traces.FlickerTraceSubject
-import java.io.File
+import com.android.server.wm.traces.common.Timestamp
 
 @SuppressLint("VisibleForTests")
 class SubjectsParserTestParseLayers : BaseSubjectsParserTestParse() {
-    override val assetFile: File
-        get() = TestTraces.LayerTrace.FILE
-    override val expectedStartTime: Long
-        get() = TestTraces.LayerTrace.START_TIME
-    override val expectedEndTime: Long
-        get() = TestTraces.LayerTrace.END_TIME
-    override val subjectName: String
-        get() = "SF Trace"
-    override val traceType: TraceType
-        get() = TraceType.SF
+    override val assetFile = TestTraces.LayerTrace.FILE
+    override val expectedStartTime = TestTraces.LayerTrace.START_TIME
+    override val expectedEndTime = TestTraces.LayerTrace.END_TIME
+    override val subjectName = "SF Trace"
+    override val traceType = TraceType.SF
+
+    override fun getTime(timestamp: Timestamp) = timestamp.systemUptimeNanos
 
     override fun doParseTrace(parser: TestSubjectsParser): FlickerTraceSubject<*>? =
         parser.doGetLayersTraceSubject()

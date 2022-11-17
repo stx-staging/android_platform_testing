@@ -119,8 +119,7 @@ abstract class TraceMonitorTest<T : TransitionMonitor> {
             device.pressRecentApps()
         }
 
-        val dump =
-            DeviceDumpParser.fromTrace(trace.first, trace.second, clearCacheAfterParsing = true)
+        val dump = DeviceDumpParser.fromTrace(trace.first, trace.second, clearCache = true)
         this.validateTrace(dump)
     }
 }

@@ -20,20 +20,17 @@ import android.annotation.SuppressLint
 import com.android.server.wm.flicker.TestTraces
 import com.android.server.wm.flicker.io.TraceType
 import com.android.server.wm.flicker.traces.FlickerTraceSubject
-import java.io.File
+import com.android.server.wm.traces.common.Timestamp
 
 @SuppressLint("VisibleForTests")
 class SubjectsParserTestParseWM : BaseSubjectsParserTestParse() {
-    override val assetFile: File
-        get() = TestTraces.WMTrace.FILE
-    override val expectedStartTime: Long
-        get() = TestTraces.WMTrace.START_TIME
-    override val expectedEndTime: Long
-        get() = TestTraces.WMTrace.END_TIME
-    override val subjectName: String
-        get() = "WM Trace"
-    override val traceType: TraceType
-        get() = TraceType.WM
+    override val assetFile = TestTraces.WMTrace.FILE
+    override val expectedStartTime = TestTraces.WMTrace.START_TIME
+    override val expectedEndTime = TestTraces.WMTrace.END_TIME
+    override val subjectName = "WM Trace"
+    override val traceType = TraceType.WM
+
+    override fun getTime(timestamp: Timestamp) = timestamp.elapsedNanos
 
     override fun doParseTrace(parser: TestSubjectsParser): FlickerTraceSubject<*>? =
         parser.doGetWmTraceSubject()

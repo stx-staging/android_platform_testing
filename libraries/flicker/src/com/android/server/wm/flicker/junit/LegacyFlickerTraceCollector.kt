@@ -19,8 +19,8 @@ package com.android.server.wm.flicker.junit
 import android.util.Log
 import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
 import com.android.server.wm.flicker.datastore.CachedResultReader
+import com.android.server.wm.flicker.io.IReader
 import com.android.server.wm.flicker.service.ITracesCollector
-import com.android.server.wm.flicker.service.ITracesCollector.Companion.Traces
 import com.android.server.wm.traces.common.IScenario
 
 class LegacyFlickerTraceCollector(private val scenario: IScenario) : ITracesCollector {
@@ -28,14 +28,8 @@ class LegacyFlickerTraceCollector(private val scenario: IScenario) : ITracesColl
 
     override fun stop() {}
 
-    override fun getCollectedTraces(): Traces {
+    override fun getResultReader(): IReader {
         Log.d("FAAS", "LegacyFlickerTraceCollector#getCollectedTraces")
-        val reader = CachedResultReader(scenario, DEFAULT_TRACE_CONFIG)
-
-        return Traces(
-            reader.readWmTrace() ?: error("wmTrace not found"),
-            reader.readLayersTrace() ?: error("layersTrace not found"),
-            reader.readTransitionsTrace() ?: error("transitionsTrace not found")
-        )
+        return CachedResultReader(scenario, DEFAULT_TRACE_CONFIG)
     }
 }

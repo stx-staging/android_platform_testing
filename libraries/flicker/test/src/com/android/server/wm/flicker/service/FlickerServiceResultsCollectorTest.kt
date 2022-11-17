@@ -17,17 +17,17 @@
 package com.android.server.wm.flicker.service
 
 import android.device.collectors.DataRecord
+import com.android.server.wm.flicker.io.IReader
+import com.android.server.wm.flicker.io.ParsedTracesReader
 import com.android.server.wm.flicker.service.assertors.AssertionResult
 import com.android.server.wm.flicker.utils.KotlinMockito
 import com.android.server.wm.flicker.utils.MockLayersTraceBuilder
 import com.android.server.wm.flicker.utils.MockWindowManagerTraceBuilder
-import com.android.server.wm.traces.common.layers.LayersTrace
 import com.android.server.wm.traces.common.service.AssertionInvocationGroup
 import com.android.server.wm.traces.common.service.FlickerServiceScenario
 import com.android.server.wm.traces.common.service.PlatformConsts
 import com.android.server.wm.traces.common.service.ScenarioType
 import com.android.server.wm.traces.common.transition.TransitionsTrace
-import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 import com.google.common.truth.Truth
 import org.junit.FixMethodOrder
 import org.junit.Test
@@ -45,22 +45,17 @@ class FlickerServiceResultsCollectorTest {
     @Test
     fun reportsMetricsOnlyForPassingTestsIfRequested() {
         val mockTraceCollector = Mockito.mock(ITracesCollector::class.java)
-        Mockito.`when`(mockTraceCollector.getCollectedTraces())
+        Mockito.`when`(mockTraceCollector.getResultReader())
             .thenReturn(
-                ITracesCollector.Companion.Traces(
+                ParsedTracesReader(
                     wmTrace = MockWindowManagerTraceBuilder().build(),
                     layersTrace = MockLayersTraceBuilder().build(),
                     transitionsTrace = TransitionsTrace(emptyArray()),
+                    transactionsTrace = null
                 )
             )
         val mockFlickerService = Mockito.mock(IFlickerService::class.java)
-        Mockito.`when`(
-                mockFlickerService.process(
-                    KotlinMockito.any(WindowManagerTrace::class.java),
-                    KotlinMockito.any(LayersTrace::class.java),
-                    KotlinMockito.any(TransitionsTrace::class.java)
-                )
-            )
+        Mockito.`when`(mockFlickerService.process(KotlinMockito.any(IReader::class.java)))
             .thenReturn(
                 listOf(
                     AssertionResult(
@@ -101,22 +96,17 @@ class FlickerServiceResultsCollectorTest {
     @Test
     fun reportsMetricsForFailingTestsIfRequested() {
         val mockTraceCollector = Mockito.mock(ITracesCollector::class.java)
-        Mockito.`when`(mockTraceCollector.getCollectedTraces())
+        Mockito.`when`(mockTraceCollector.getResultReader())
             .thenReturn(
-                ITracesCollector.Companion.Traces(
+                ParsedTracesReader(
                     wmTrace = MockWindowManagerTraceBuilder().build(),
                     layersTrace = MockLayersTraceBuilder().build(),
                     transitionsTrace = TransitionsTrace(emptyArray()),
+                    transactionsTrace = null
                 )
             )
         val mockFlickerService = Mockito.mock(IFlickerService::class.java)
-        Mockito.`when`(
-                mockFlickerService.process(
-                    KotlinMockito.any(WindowManagerTrace::class.java),
-                    KotlinMockito.any(LayersTrace::class.java),
-                    KotlinMockito.any(TransitionsTrace::class.java)
-                )
-            )
+        Mockito.`when`(mockFlickerService.process(KotlinMockito.any(IReader::class.java)))
             .thenReturn(
                 listOf(
                     AssertionResult(
@@ -156,22 +146,17 @@ class FlickerServiceResultsCollectorTest {
     @Test
     fun collectsMetricsForEachTestIfRequested() {
         val mockTraceCollector = Mockito.mock(ITracesCollector::class.java)
-        Mockito.`when`(mockTraceCollector.getCollectedTraces())
+        Mockito.`when`(mockTraceCollector.getResultReader())
             .thenReturn(
-                ITracesCollector.Companion.Traces(
+                ParsedTracesReader(
                     wmTrace = MockWindowManagerTraceBuilder().build(),
                     layersTrace = MockLayersTraceBuilder().build(),
                     transitionsTrace = TransitionsTrace(emptyArray()),
+                    transactionsTrace = null
                 )
             )
         val mockFlickerService = Mockito.mock(IFlickerService::class.java)
-        Mockito.`when`(
-                mockFlickerService.process(
-                    KotlinMockito.any(WindowManagerTrace::class.java),
-                    KotlinMockito.any(LayersTrace::class.java),
-                    KotlinMockito.any(TransitionsTrace::class.java)
-                )
-            )
+        Mockito.`when`(mockFlickerService.process(KotlinMockito.any(IReader::class.java)))
             .thenReturn(
                 listOf(
                     AssertionResult(
@@ -210,22 +195,17 @@ class FlickerServiceResultsCollectorTest {
     @Test
     fun collectsMetricsForEntireTestRunIfRequested() {
         val mockTraceCollector = Mockito.mock(ITracesCollector::class.java)
-        Mockito.`when`(mockTraceCollector.getCollectedTraces())
+        Mockito.`when`(mockTraceCollector.getResultReader())
             .thenReturn(
-                ITracesCollector.Companion.Traces(
+                ParsedTracesReader(
                     wmTrace = MockWindowManagerTraceBuilder().build(),
                     layersTrace = MockLayersTraceBuilder().build(),
                     transitionsTrace = TransitionsTrace(emptyArray()),
+                    transactionsTrace = null
                 )
             )
         val mockFlickerService = Mockito.mock(IFlickerService::class.java)
-        Mockito.`when`(
-                mockFlickerService.process(
-                    KotlinMockito.any(WindowManagerTrace::class.java),
-                    KotlinMockito.any(LayersTrace::class.java),
-                    KotlinMockito.any(TransitionsTrace::class.java)
-                )
-            )
+        Mockito.`when`(mockFlickerService.process(KotlinMockito.any(IReader::class.java)))
             .thenReturn(
                 listOf(
                     AssertionResult(

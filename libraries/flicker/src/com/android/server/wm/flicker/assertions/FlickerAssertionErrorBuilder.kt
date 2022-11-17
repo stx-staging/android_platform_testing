@@ -17,7 +17,7 @@
 package com.android.server.wm.flicker.assertions
 
 import com.android.server.wm.flicker.AssertionTag
-import com.android.server.wm.flicker.io.ResultReader
+import com.android.server.wm.flicker.io.IReader
 import com.android.server.wm.flicker.traces.FlickerSubjectException
 import com.google.common.truth.Fact
 import java.io.ByteArrayOutputStream
@@ -31,7 +31,7 @@ class FlickerAssertionErrorBuilder {
 
     fun fromError(error: Throwable): FlickerAssertionErrorBuilder = apply { this.error = error }
 
-    fun withReader(reader: ResultReader): FlickerAssertionErrorBuilder = apply {
+    fun withReader(reader: IReader): FlickerAssertionErrorBuilder = apply {
         artifactPath = reader.artifactPath
     }
 

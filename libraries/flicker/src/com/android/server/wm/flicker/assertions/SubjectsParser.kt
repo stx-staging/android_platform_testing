@@ -18,7 +18,7 @@ package com.android.server.wm.flicker.assertions
 
 import androidx.annotation.VisibleForTesting
 import com.android.server.wm.flicker.AssertionTag
-import com.android.server.wm.flicker.io.ResultReader
+import com.android.server.wm.flicker.io.IReader
 import com.android.server.wm.flicker.traces.eventlog.EventLogSubject
 import com.android.server.wm.flicker.traces.eventlog.FocusEvent
 import com.android.server.wm.flicker.traces.layers.LayerTraceEntrySubject
@@ -36,7 +36,7 @@ import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
  *
  * @param resultReader to read the result artifacts
  */
-open class SubjectsParser(private val resultReader: ResultReader) {
+open class SubjectsParser(private val resultReader: IReader) {
     fun getSubjects(tag: String): List<FlickerSubject> {
         val result = mutableListOf<FlickerSubject>()
 

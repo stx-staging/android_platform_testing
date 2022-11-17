@@ -29,6 +29,7 @@ enum class RunStatus(val prefix: String, val isFailure: Boolean) {
     companion object {
         fun fromFile(file: Path): RunStatus =
             when (file.fileName.toString().takeWhile { it != '_' }) {
+                RUN_EXECUTED.prefix -> RUN_EXECUTED
                 ASSERTION_SUCCESS.prefix -> ASSERTION_SUCCESS
                 RUN_FAILED.prefix -> RUN_FAILED
                 PARSING_FAILURE.prefix -> PARSING_FAILURE

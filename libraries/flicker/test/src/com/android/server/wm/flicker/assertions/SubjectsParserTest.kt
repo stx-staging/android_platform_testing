@@ -34,13 +34,13 @@ import org.junit.Test
 class SubjectsParserTest {
     @Before
     fun setup() {
-        Files.deleteIfExists(outputFileName(RunStatus.UNDEFINED))
+        Files.deleteIfExists(outputFileName(RunStatus.RUN_EXECUTED))
     }
 
     @Test
     fun failFileNotFound() {
         val data = newTestResultWriter().write()
-        Files.deleteIfExists(outputFileName(RunStatus.UNDEFINED))
+        Files.deleteIfExists(outputFileName(RunStatus.RUN_EXECUTED))
         val parser = SubjectsParser(ResultReader(data, DEFAULT_TRACE_CONFIG))
         val exception =
             assertThrows(IOException::class.java) {

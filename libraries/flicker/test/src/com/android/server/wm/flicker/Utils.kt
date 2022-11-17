@@ -35,6 +35,7 @@ import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 import com.android.server.wm.traces.parser.layers.LayersTraceParser
 import com.android.server.wm.traces.parser.transaction.TransactionsTraceParser
 import com.android.server.wm.traces.parser.transition.TransitionsTraceParser
+import com.android.server.wm.traces.parser.windowmanager.WindowManagerDumpParser
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerStateHelper
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerTraceParser
 import com.google.common.io.ByteStreams
@@ -59,17 +60,26 @@ internal fun outputFileName(status: RunStatus) =
     Paths.get("/sdcard/flicker/${status.prefix}_test_ROTATION_0_GESTURAL_NAV.zip")
 
 internal fun newTestResultWriter() =
-    ResultWriter().forScenario(TEST_SCENARIO).withOutputDir(getDefaultFlickerOutputDir())
+    ResultWriter()
+        .forScenario(TEST_SCENARIO)
+        .withOutputDir(getDefaultFlickerOutputDir())
+        .setRunComplete()
 
 internal fun newTestCachedResultWriter() =
-    CachedResultWriter().forScenario(TEST_SCENARIO).withOutputDir(getDefaultFlickerOutputDir())
+    CachedResultWriter()
+        .forScenario(TEST_SCENARIO)
+        .withOutputDir(getDefaultFlickerOutputDir())
+        .setRunComplete()
 
-internal fun readWmTraceFromFile(relativePath: String): WindowManagerTrace {
+internal fun readWmTraceFromFile(
+    relativePath: String,
+    from: Long = Long.MIN_VALUE,
+    to: Long = Long.MAX_VALUE,
+    addInitialEntry: Boolean = true
+): WindowManagerTrace {
     return try {
-        WindowManagerTraceParser.parseFromTrace(
-            readAsset(relativePath),
-            clearCacheAfterParsing = false
-        )
+        WindowManagerTraceParser()
+            .parse(readAsset(relativePath), from, to, addInitialEntry, clearCache = false)
     } catch (e: Exception) {
         throw RuntimeException(e)
     }
@@ -77,10 +87,7 @@ internal fun readWmTraceFromFile(relativePath: String): WindowManagerTrace {
 
 internal fun readWmTraceFromDumpFile(relativePath: String): WindowManagerTrace {
     return try {
-        WindowManagerTraceParser.parseFromDump(
-            readAsset(relativePath),
-            clearCacheAfterParsing = false
-        )
+        WindowManagerDumpParser().parse(readAsset(relativePath), clearCache = false)
     } catch (e: Exception) {
         throw RuntimeException(e)
     }
@@ -91,11 +98,11 @@ internal fun readLayerTraceFromFile(
     ignoreOrphanLayers: Boolean = true
 ): LayersTrace {
     return try {
-        LayersTraceParser.parseFromTrace(
-            readAsset(relativePath),
-            ignoreLayersStackMatchNoDisplay = false,
-            ignoreLayersInVirtualDisplay = false
-        ) { ignoreOrphanLayers }
+        LayersTraceParser(
+                ignoreLayersStackMatchNoDisplay = false,
+                ignoreLayersInVirtualDisplay = false
+            ) { ignoreOrphanLayers }
+            .parse(readAsset(relativePath))
     } catch (e: Exception) {
         throw RuntimeException(e)
     }
@@ -103,7 +110,7 @@ internal fun readLayerTraceFromFile(
 
 internal fun readTransactionsTraceFromFile(relativePath: String): TransactionsTrace {
     return try {
-        TransactionsTraceParser.parseFromTrace(readAsset(relativePath))
+        TransactionsTraceParser().parse(readAsset(relativePath))
     } catch (e: Exception) {
         throw RuntimeException(e)
     }
@@ -114,7 +121,7 @@ internal fun readTransitionsTraceFromFile(
     transactionsTrace: TransactionsTrace
 ): TransitionsTrace {
     return try {
-        TransitionsTraceParser.parseFromTrace(readAsset(relativePath), transactionsTrace)
+        TransitionsTraceParser(transactionsTrace).parse(readAsset(relativePath))
     } catch (e: Exception) {
         throw RuntimeException(e)
     }

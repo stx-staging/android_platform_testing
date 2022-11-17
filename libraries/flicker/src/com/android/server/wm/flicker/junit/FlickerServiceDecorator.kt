@@ -65,7 +65,7 @@ class FlickerServiceDecorator(
         return if (method is FlickerServiceCachedTestCase) {
             Description.createTestDescription(
                 testClass.javaClass,
-                "${method.name}[${scenario.configString}]",
+                "${method.name}[${scenario.description}]",
                 *method.getAnnotations()
             )
         } else {
@@ -152,12 +152,7 @@ class FlickerServiceDecorator(
         this.doRunTransition(test, description)
 
         val reader = CachedResultReader(scenario, DEFAULT_TRACE_CONFIG)
-        val results =
-            flickerService.process(
-                reader.readWmTrace() ?: error("WM trace not found"),
-                reader.readLayersTrace() ?: error("Layers trace not found"),
-                reader.readTransitionsTrace() ?: error("Transitions trace not found")
-            )
+        val results = flickerService.process(reader)
 
         DataStore.addFlickerServiceResults(scenario, results)
         return results

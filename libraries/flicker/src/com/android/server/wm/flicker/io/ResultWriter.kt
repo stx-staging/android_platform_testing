@@ -20,8 +20,10 @@ import android.util.Log
 import com.android.server.wm.flicker.AssertionTag
 import com.android.server.wm.flicker.RunStatus
 import com.android.server.wm.flicker.ScenarioBuilder
+import com.android.server.wm.flicker.now
 import com.android.server.wm.flicker.traces.eventlog.FocusEvent
 import com.android.server.wm.traces.common.IScenario
+import com.android.server.wm.traces.common.Timestamp
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
 import java.io.File
@@ -35,10 +37,10 @@ import java.util.zip.ZipOutputStream
 open class ResultWriter {
     protected var scenario: IScenario = ScenarioBuilder().createEmptyScenario()
     private var runStatus: RunStatus = RunStatus.UNDEFINED
-    private val files = mutableMapOf<ResultFileDescriptor, File>()
+    private val files = mutableMapOf<ResultArtifactDescriptor, File>()
     private var eventLog: List<FocusEvent>? = null
-    private var transitionStartTime = TraceTime.MIN
-    private var transitionEndTime = TraceTime.MAX
+    private var transitionStartTime = Timestamp.MIN
+    private var transitionEndTime = Timestamp.MAX
     private var executionError: Throwable? = null
     private var outputDir: Path? = null
 
@@ -46,12 +48,10 @@ open class ResultWriter {
     fun forScenario(_scenario: IScenario) = apply { scenario = _scenario }
 
     /** Sets the artifact transition start time to [time] */
-    fun setTransitionStartTime(time: TraceTime = TraceTime.now()) = apply {
-        transitionStartTime = time
-    }
+    fun setTransitionStartTime(time: Timestamp = now()) = apply { transitionStartTime = time }
 
     /** Sets the artifact transition end time to [time] */
-    fun setTransitionEndTime(time: TraceTime = TraceTime.now()) = apply { transitionEndTime = time }
+    fun setTransitionEndTime(time: Timestamp = now()) = apply { transitionEndTime = time }
 
     /** Sets the artifact status as successfully executed transition ([RunStatus.RUN_EXECUTED]) */
     fun setRunComplete() = apply { runStatus = RunStatus.RUN_EXECUTED }
@@ -86,7 +86,7 @@ open class ResultWriter {
             FLICKER_IO_TAG,
             "Add trace result file=$file type=$traceType tag=$tag scenario=$scenario"
         )
-        val fileDescriptor = ResultFileDescriptor(traceType, tag)
+        val fileDescriptor = ResultArtifactDescriptor(traceType, tag)
         files[fileDescriptor] = file
     }
 

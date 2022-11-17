@@ -20,11 +20,14 @@ import android.annotation.SuppressLint
 import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
 import com.android.server.wm.flicker.RunStatus
 import com.android.server.wm.flicker.ScenarioBuilder
+import com.android.server.wm.flicker.TEST_SCENARIO
 import com.android.server.wm.flicker.TestTraces
 import com.android.server.wm.flicker.assertExceptionMessage
 import com.android.server.wm.flicker.assertThrows
+import com.android.server.wm.flicker.getDefaultFlickerOutputDir
 import com.android.server.wm.flicker.newTestResultWriter
 import com.android.server.wm.flicker.outputFileName
+import com.android.server.wm.traces.common.Timestamp
 import com.google.common.truth.Truth
 import java.nio.file.Files
 import java.nio.file.Path
@@ -50,17 +53,17 @@ class ResultWriterTest {
 
     @Test
     fun writesEmptyFile() {
-        Files.deleteIfExists(outputFileName(RunStatus.UNDEFINED))
+        Files.deleteIfExists(outputFileName(RunStatus.RUN_EXECUTED))
         val writer = newTestResultWriter()
         val result = writer.write()
         val path = result.artifactPath
         Truth.assertWithMessage("File exists").that(Files.exists(path)).isTrue()
         Truth.assertWithMessage("Transition start time")
             .that(result.transitionTimeRange.start)
-            .isEqualTo(TraceTime.MIN)
+            .isEqualTo(Timestamp.MIN)
         Truth.assertWithMessage("Transition end time")
             .that(result.transitionTimeRange.end)
-            .isEqualTo(TraceTime.MAX)
+            .isEqualTo(Timestamp.MAX)
         Truth.assertWithMessage("Event log").that(result.eventLog).isNull()
         val reader = ResultReader(result, DEFAULT_TRACE_CONFIG)
         Truth.assertWithMessage("File count").that(reader.countFiles()).isEqualTo(0)
@@ -68,8 +71,10 @@ class ResultWriterTest {
 
     @Test
     fun writesUndefinedFile() {
-        Files.deleteIfExists(outputFileName(RunStatus.UNDEFINED))
-        val writer = newTestResultWriter()
+        Files.deleteIfExists(outputFileName(RunStatus.RUN_EXECUTED))
+        val writer = ResultWriter()
+            .forScenario(TEST_SCENARIO)
+            .withOutputDir(getDefaultFlickerOutputDir())
         val result = writer.write()
         val path = result.artifactPath
         validateFileName(path, RunStatus.UNDEFINED)

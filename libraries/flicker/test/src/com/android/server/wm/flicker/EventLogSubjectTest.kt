@@ -21,6 +21,7 @@ import com.android.server.wm.flicker.datastore.CachedResultReader
 import com.android.server.wm.flicker.io.ResultReader
 import com.android.server.wm.flicker.traces.eventlog.EventLogSubject
 import com.android.server.wm.flicker.traces.eventlog.FocusEvent
+import com.android.server.wm.traces.common.Timestamp
 import java.nio.file.Files
 import org.junit.Test
 
@@ -30,15 +31,30 @@ import org.junit.Test
 class EventLogSubjectTest {
     @Test
     fun canDetectFocusChanges() {
-        Files.deleteIfExists(outputFileName(RunStatus.UNDEFINED))
+        Files.deleteIfExists(outputFileName(RunStatus.RUN_EXECUTED))
         val writer =
             newTestCachedResultWriter()
                 .addEventLogResult(
                     listOf(
-                        FocusEvent(0, "WinB", FocusEvent.Focus.GAINED, "test"),
-                        FocusEvent(0, "test WinA window", FocusEvent.Focus.LOST, "test"),
-                        FocusEvent(0, "WinB", FocusEvent.Focus.LOST, "test"),
-                        FocusEvent(0, "test WinC", FocusEvent.Focus.GAINED, "test")
+                        FocusEvent(
+                            Timestamp(unixNanos = 0),
+                            "WinB",
+                            FocusEvent.Focus.GAINED,
+                            "test"
+                        ),
+                        FocusEvent(
+                            Timestamp(unixNanos = 0),
+                            "test WinA window",
+                            FocusEvent.Focus.LOST,
+                            "test"
+                        ),
+                        FocusEvent(Timestamp(unixNanos = 0), "WinB", FocusEvent.Focus.LOST, "test"),
+                        FocusEvent(
+                            Timestamp(unixNanos = 0),
+                            "test WinC",
+                            FocusEvent.Focus.GAINED,
+                            "test"
+                        )
                     )
                 )
         writer.write()
@@ -55,7 +71,7 @@ class EventLogSubjectTest {
 
     @Test
     fun canDetectFocusDoesNotChange() {
-        Files.deleteIfExists(outputFileName(RunStatus.UNDEFINED))
+        Files.deleteIfExists(outputFileName(RunStatus.RUN_EXECUTED))
         val writer = newTestResultWriter().addEventLogResult(emptyList())
         val result = writer.write()
 

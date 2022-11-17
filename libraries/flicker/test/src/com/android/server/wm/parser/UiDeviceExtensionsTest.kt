@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker
+package com.android.server.wm.parser
 
 import androidx.test.platform.app.InstrumentationRegistry
 import com.android.server.wm.traces.common.NullableDeviceStateDump

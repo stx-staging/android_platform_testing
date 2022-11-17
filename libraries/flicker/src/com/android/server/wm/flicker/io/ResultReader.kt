@@ -30,6 +30,7 @@ import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 import com.android.server.wm.traces.parser.layers.LayersTraceParser
 import com.android.server.wm.traces.parser.transaction.TransactionsTraceParser
 import com.android.server.wm.traces.parser.transition.TransitionsTraceParser
+import com.android.server.wm.traces.parser.windowmanager.WindowManagerDumpParser
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerTraceParser
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
@@ -45,18 +46,17 @@ import java.util.zip.ZipInputStream
  * @param result to read from
  * @param traceConfig
  */
-open class ResultReader(protected var result: ResultData, private val traceConfig: TraceConfigs) {
-    @VisibleForTesting
-    val artifactPath
+open class ResultReader(protected var result: ResultData, private val traceConfig: TraceConfigs) :
+    IReader {
+    override val artifactPath
         get() = result.artifactPath
-    @VisibleForTesting
-    val runStatus
+    override val runStatus
         get() = result.runStatus
     private val transitionTimeRange
         get() = result.transitionTimeRange
-    internal val isFailure
+    override val isFailure
         get() = runStatus.isFailure
-    internal val executionError
+    override val executionError
         get() = result.executionError
 
     private fun withZipFile(predicate: (ZipInputStream) -> Unit) {
@@ -83,7 +83,7 @@ open class ResultReader(protected var result: ResultData, private val traceConfi
     }
 
     @Throws(IOException::class)
-    private fun readFromZip(descriptor: ResultFileDescriptor): ByteArray? {
+    private fun readFromZip(descriptor: ResultArtifactDescriptor): ByteArray? {
         Log.d(FLICKER_IO_TAG, "Reading descriptor=$descriptor from $result")
 
         var foundFile = false
@@ -120,41 +120,37 @@ open class ResultReader(protected var result: ResultData, private val traceConfi
      * @throws IOException if the artifact file doesn't exist or can't be read
      */
     @Throws(IOException::class)
-    internal fun readWmState(tag: String): WindowManagerTrace? = doReadWmState(tag)
-
-    protected open fun doReadWmState(tag: String): WindowManagerTrace? {
-        val descriptor = ResultFileDescriptor(TraceType.WM_DUMP, tag)
+    override fun readWmState(tag: String): WindowManagerTrace? {
+        val descriptor = ResultArtifactDescriptor(TraceType.WM_DUMP, tag)
         Log.d(FLICKER_IO_TAG, "Reading WM trace descriptor=$descriptor from $result")
         val traceData = readFromZip(descriptor)
-        return traceData?.let {
-            WindowManagerTraceParser.parseFromDump(it, clearCacheAfterParsing = true)
-        }
+        return traceData?.let { WindowManagerDumpParser().parse(it, clearCache = true) }
     }
 
     /**
      * @return a [WindowManagerTrace] for the part of the trace we want to run the assertions on
      * @throws IOException if the artifact file doesn't exist or can't be read
      */
-    @Throws(IOException::class) internal fun readWmTrace(): WindowManagerTrace? = doReadWmTrace()
-
-    protected open fun doReadWmTrace(): WindowManagerTrace? {
-        val descriptor = ResultFileDescriptor(TraceType.WM)
+    @Throws(IOException::class)
+    override fun readWmTrace(): WindowManagerTrace? {
+        val descriptor = ResultArtifactDescriptor(TraceType.WM)
         val traceData = readFromZip(descriptor)
         return traceData?.let {
             val trace =
-                WindowManagerTraceParser.parseFromTrace(
-                    it,
-                    from = transitionTimeRange.start.elapsedRealtimeNanos,
-                    to = transitionTimeRange.end.elapsedRealtimeNanos,
-                    addInitialEntry = true,
-                    clearCacheAfterParsing = true
-                )
+                WindowManagerTraceParser()
+                    .parse(
+                        it,
+                        from = transitionTimeRange.start.elapsedNanos,
+                        to = transitionTimeRange.end.elapsedNanos,
+                        addInitialEntry = true,
+                        clearCache = true
+                    )
             val minimumEntries = minimumTraceEntriesForConfig(traceConfig.wmTrace)
             require(trace.entries.size >= minimumEntries) {
                 "WM trace contained ${trace.entries.size} entries, " +
                     "expected at least $minimumEntries... :: " +
-                    "transition starts at ${transitionTimeRange.start.elapsedRealtimeNanos} and " +
-                    "ends at ${transitionTimeRange.end.elapsedRealtimeNanos}."
+                    "transition starts at ${transitionTimeRange.start.elapsedNanos} and " +
+                    "ends at ${transitionTimeRange.end.elapsedNanos}."
             }
             trace
         }
@@ -164,26 +160,26 @@ open class ResultReader(protected var result: ResultData, private val traceConfi
      * @return a [LayersTrace] for the part of the trace we want to run the assertions on
      * @throws IOException if the artifact file doesn't exist or can't be read
      */
-    @Throws(IOException::class) internal fun readLayersTrace(): LayersTrace? = doReadLayersTrace()
-
-    protected open fun doReadLayersTrace(): LayersTrace? {
-        val descriptor = ResultFileDescriptor(TraceType.SF)
+    @Throws(IOException::class)
+    override fun readLayersTrace(): LayersTrace? {
+        val descriptor = ResultArtifactDescriptor(TraceType.SF)
         val traceData = readFromZip(descriptor)
         return traceData?.let {
             val trace =
-                LayersTraceParser.parseFromTrace(
-                    it,
-                    transitionTimeRange.start.systemTime,
-                    transitionTimeRange.end.systemTime,
-                    addInitialEntry = true,
-                    clearCacheAfterParsing = true
-                )
+                LayersTraceParser()
+                    .parse(
+                        it,
+                        transitionTimeRange.start.systemUptimeNanos,
+                        transitionTimeRange.end.systemUptimeNanos,
+                        addInitialEntry = true,
+                        clearCache = true
+                    )
             val minimumEntries = minimumTraceEntriesForConfig(traceConfig.layersTrace)
             require(trace.entries.size >= minimumEntries) {
                 "Layers trace contained ${trace.entries.size} entries, " +
                     "expected at least $minimumEntries... :: " +
-                    "transition starts at ${transitionTimeRange.start.systemTime} and " +
-                    "ends at ${transitionTimeRange.end.systemTime}."
+                    "transition starts at ${transitionTimeRange.start.systemUptimeNanos} and " +
+                    "ends at ${transitionTimeRange.end.systemUptimeNanos}."
             }
             trace
         }
@@ -194,24 +190,10 @@ open class ResultReader(protected var result: ResultData, private val traceConfi
      * @throws IOException if the artifact file doesn't exist or can't be read
      */
     @Throws(IOException::class)
-    internal fun readLayersDump(tag: String): LayersTrace? = doReadLayersDump(tag)
-
-    protected open fun doReadLayersDump(tag: String): LayersTrace? {
-        val descriptor = ResultFileDescriptor(TraceType.SF_DUMP, tag)
+    override fun readLayersDump(tag: String): LayersTrace? {
+        val descriptor = ResultArtifactDescriptor(TraceType.SF_DUMP, tag)
         val traceData = readFromZip(descriptor)
-        return traceData?.let {
-            LayersTraceParser.parseFromTrace(it, clearCacheAfterParsing = true)
-        }
-    }
-
-    @Throws(IOException::class)
-    private fun readFullTransactionsTrace(): TransactionsTrace? {
-        val traceData = readFromZip(ResultFileDescriptor(TraceType.TRANSACTION))
-        return traceData?.let {
-            val fullTrace = TransactionsTraceParser.parseFromTrace(it)
-            require(fullTrace.entries.isNotEmpty()) { "Transactions trace cannot be empty" }
-            fullTrace
-        }
+        return traceData?.let { LayersTraceParser().parse(it, clearCache = true) }
     }
 
     /**
@@ -219,17 +201,19 @@ open class ResultReader(protected var result: ResultData, private val traceConfi
      * @throws IOException if the artifact file doesn't exist or can't be read
      */
     @Throws(IOException::class)
-    internal fun readTransactionsTrace(): TransactionsTrace? = doReadTransactionsTrace()
+    override fun readTransactionsTrace(): TransactionsTrace? =
+        doReadTransactionsTrace(
+            from = transitionTimeRange.start.systemUptimeNanos,
+            to = transitionTimeRange.end.systemUptimeNanos
+        )
 
-    protected open fun doReadTransactionsTrace(): TransactionsTrace? {
-        val fullTrace = readFullTransactionsTrace() ?: return null
-        val trace =
-            fullTrace.slice(
-                transitionTimeRange.start.systemTime,
-                transitionTimeRange.end.systemTime
-            )
-        require(trace.entries.isNotEmpty()) { "Trimmed transactions trace cannot be empty" }
-        return trace
+    private fun doReadTransactionsTrace(from: Long, to: Long): TransactionsTrace? {
+        val traceData = readFromZip(ResultArtifactDescriptor(TraceType.TRANSACTION))
+        return traceData?.let {
+            val trace = TransactionsTraceParser().parse(it, from, to, addInitialEntry = true)
+            require(trace.entries.isNotEmpty()) { "Transactions trace cannot be empty" }
+            trace
+        }
     }
 
     /**
@@ -237,20 +221,18 @@ open class ResultReader(protected var result: ResultData, private val traceConfi
      * @throws IOException if the artifact file doesn't exist or can't be read
      */
     @Throws(IOException::class)
-    internal fun readTransitionsTrace(): TransitionsTrace? = doReadTransitionsTrace()
-
-    protected open fun doReadTransitionsTrace(): TransitionsTrace? {
-        val transactionsTrace = readFullTransactionsTrace()
-        val traceData = readFromZip(ResultFileDescriptor(TraceType.TRANSITION))
+    override fun readTransitionsTrace(): TransitionsTrace? {
+        val transactionsTrace = doReadTransactionsTrace(Long.MIN_VALUE, Long.MAX_VALUE)
+        val traceData = readFromZip(ResultArtifactDescriptor(TraceType.TRANSITION))
         if (transactionsTrace == null || traceData == null) {
             return null
         }
 
-        val fullTrace = TransitionsTraceParser.parseFromTrace(traceData, transactionsTrace)
+        val fullTrace = TransitionsTraceParser(transactionsTrace).parse(traceData)
         val trace =
             fullTrace.slice(
-                transitionTimeRange.start.elapsedRealtimeNanos,
-                transitionTimeRange.end.elapsedRealtimeNanos
+                transitionTimeRange.start.elapsedNanos,
+                transitionTimeRange.end.elapsedNanos
             )
         if (!traceConfig.transitionsTrace.allowNoChange) {
             require(trace.entries.isNotEmpty()) { "Transitions trace cannot be empty" }
@@ -266,18 +248,13 @@ open class ResultReader(protected var result: ResultData, private val traceConfi
      * @return a List<[FocusEvent]> for the part of the trace we want to run the assertions on
      * @throws IOException if the artifact file doesn't exist or can't be read
      */
-    internal fun readEventLogTrace(): List<FocusEvent>? = doReadEventLogTrace()
-
-    protected open fun doReadEventLogTrace(): List<FocusEvent>? {
-        return result.eventLog?.slice(
-            transitionTimeRange.start.unixTimeNanos,
-            transitionTimeRange.end.unixTimeNanos
-        )
+    override fun readEventLogTrace(): List<FocusEvent>? {
+        return result.eventLog?.slice(transitionTimeRange.start, transitionTimeRange.end)
     }
 
     private fun List<FocusEvent>.slice(from: Timestamp, to: Timestamp): List<FocusEvent> {
-        return dropWhile { it.timestamp.unixTimeNanos < from.unixTimeNanos }
-            .dropLastWhile { it.timestamp.unixTimeNanos > to.unixTimeNanos }
+        return dropWhile { it.timestamp.unixNanos < from.unixNanos }
+            .dropLastWhile { it.timestamp.unixNanos > to.unixNanos }
     }
 
     override fun toString(): String = "$result"
@@ -293,7 +270,7 @@ open class ResultReader(protected var result: ResultData, private val traceConfi
     /** @return if a file with type [traceType] linked to a [tag] exists in the artifact */
     @VisibleForTesting
     fun hasTraceFile(traceType: TraceType, tag: String = AssertionTag.ALL): Boolean {
-        val descriptor = ResultFileDescriptor(traceType, tag)
+        val descriptor = ResultArtifactDescriptor(traceType, tag)
         var found = false
         forEachFileInZip { found = found || (it.name == descriptor.fileNameInArtifact) }
         return found
