@@ -166,7 +166,8 @@ class LayersTraceEntryTest {
     @Test
     fun canDetectInvisibleLayerOutOfScreen() {
         val layersTrace = readLayerTraceFromFile("layers_trace_visible_outside_bounds.winscope")
-        val subject = assertThat(layersTrace).entry(1253267561044, byElapsedTimestamp = true)
+        val subject =
+            assertThat(layersTrace).getEntryBySystemUpTime(1253267561044, byElapsedTimestamp = true)
         val region = subject.visibleRegion(ComponentNameMatcher.IME_SNAPSHOT)
         region.isEmpty()
         subject.isInvisible(ComponentNameMatcher.IME_SNAPSHOT)

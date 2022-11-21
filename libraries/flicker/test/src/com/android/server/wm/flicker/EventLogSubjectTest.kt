@@ -18,6 +18,7 @@ package com.android.server.wm.flicker
 
 import com.android.server.wm.flicker.traces.eventlog.EventLogSubject
 import com.android.server.wm.flicker.traces.eventlog.FocusEvent
+import com.android.server.wm.traces.common.Timestamp
 import com.google.common.truth.Truth
 import org.junit.Test
 
@@ -28,8 +29,8 @@ class EventLogSubjectTest {
     @Test
     fun canDetectFocusChanges() {
         val runResult = FlickerRunResult("testName")
-        runResult.transitionStartTime = FlickerRunResult.TraceTime.MIN
-        runResult.transitionEndTime = FlickerRunResult.TraceTime.MAX
+        runResult.transitionStartTime = Timestamp.MIN
+        runResult.transitionEndTime = Timestamp.MAX
         runResult.eventLog =
             listOf(
                 FocusEvent(0, "WinB", FocusEvent.Focus.GAINED, "test"),
@@ -50,8 +51,8 @@ class EventLogSubjectTest {
     @Test
     fun canDetectFocusDoesNotChange() {
         val runResult = FlickerRunResult("testName")
-        runResult.transitionStartTime = FlickerRunResult.TraceTime.MIN
-        runResult.transitionEndTime = FlickerRunResult.TraceTime.MAX
+        runResult.transitionStartTime = Timestamp.MIN
+        runResult.transitionEndTime = Timestamp.MAX
         runResult.eventLog = emptyList()
         val result = runResult.eventLogSubject
         requireNotNull(result) { "Event log subject was not built" }
@@ -61,8 +62,8 @@ class EventLogSubjectTest {
     @Test
     fun canExcludeSetupAndTeardownChanges() {
         val runResult = FlickerRunResult("testName")
-        runResult.transitionStartTime = FlickerRunResult.TraceTime(5, 5, 5)
-        runResult.transitionEndTime = FlickerRunResult.TraceTime(10, 10, 10)
+        runResult.transitionStartTime = Timestamp(5, 5, 5)
+        runResult.transitionEndTime = Timestamp(10, 10, 10)
         runResult.eventLog =
             listOf(
                 FocusEvent(0, "WinB", FocusEvent.Focus.GAINED, "test"),

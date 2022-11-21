@@ -16,6 +16,8 @@
 
 package com.android.server.wm.flicker.helpers
 
+import com.android.server.wm.traces.common.Timestamp
+import com.android.server.wm.traces.common.Timestamp.Companion.NULL_TIMESTAMP
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -24,6 +26,27 @@ private const val SECOND_AS_NANOSECONDS: Long = 1000000000
 private const val MINUTE_AS_NANOSECONDS: Long = 60000000000
 private const val HOUR_AS_NANOSECONDS: Long = 3600000000000
 private const val DAY_AS_NANOSECONDS: Long = 86400000000000
+
+fun Timestamp.format(): String {
+    if (this == Timestamp.EMPTY) {
+        return "<NO TIMESTAMP>"
+    }
+
+    val unixNanos = this.unixNanos
+    if (unixNanos != NULL_TIMESTAMP) {
+        return "${formatRealTimestamp(unixNanos)} (${unixNanos}ns)"
+    }
+    val systemUptimeNanos = this.systemUptimeNanos
+    if (systemUptimeNanos != NULL_TIMESTAMP) {
+        return "${formatElapsedTimestamp(systemUptimeNanos)} (${systemUptimeNanos}ns)"
+    }
+    val elapsedNanos = this.elapsedNanos
+    if (elapsedNanos != NULL_TIMESTAMP) {
+        return "${formatElapsedTimestamp(elapsedNanos)} (${elapsedNanos}ns)"
+    }
+
+    throw Throwable("Timestamp had no valid timestamps sets")
+}
 
 fun formatElapsedTimestamp(timestampNs: Long): String {
     var remainingNs = timestampNs

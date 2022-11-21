@@ -23,7 +23,7 @@ class Utils {
             from: Long,
             to: Long,
             addInitialEntry: Boolean = false,
-            timestampGetter: ((entry: Entry) -> Long) = { it.timestamp },
+            timestampGetter: ((entry: Entry) -> Long),
         ): Array<Entry> {
             require(from <= to) { "`from` must be smaller or equal to `to` but was $from and $to" }
 

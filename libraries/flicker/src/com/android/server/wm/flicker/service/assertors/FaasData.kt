@@ -17,6 +17,7 @@
 package com.android.server.wm.flicker.service.assertors
 
 import com.android.server.wm.flicker.helpers.TimeFormatter
+import com.android.server.wm.flicker.helpers.format
 import com.android.server.wm.traces.common.layers.LayersTrace
 import com.android.server.wm.traces.common.service.ScenarioInstance
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
@@ -28,18 +29,14 @@ data class FaasData(
     val entireLayersTrace: LayersTrace
 ) {
     fun toFacts(): Collection<Fact> {
-        val unclippedFirstTimestamp = entireWmTrace.firstOrNull()?.timestamp ?: 0L
-        val unclippedLastTimestamp = entireWmTrace.lastOrNull()?.timestamp ?: 0L
-        val unclippedTraceFirst =
-            "${TimeFormatter.format(unclippedFirstTimestamp)} " +
-                "(timestamp=$unclippedFirstTimestamp)"
-        val unclippedTraceLast =
-            "${TimeFormatter.format(unclippedLastTimestamp)} " +
-                "(timestamp=$unclippedLastTimestamp)"
-
         return listOf(
-            Fact.fact("Extracted from trace start", unclippedTraceFirst),
-            Fact.fact("Extracted from trace end", unclippedTraceLast),
+            Fact.fact("Extracted from WM trace start", entireWmTrace.first().timestamp.format()),
+            Fact.fact("Extracted from WM trace end", entireWmTrace.first().timestamp.format()),
+            Fact.fact(
+                "Extracted from SF trace start",
+                entireLayersTrace.first().timestamp.format()
+            ),
+            Fact.fact("Extracted from SF trace end", entireLayersTrace.first().timestamp.format()),
             Fact.fact("Scenario type", scenarioInstance.scenario.scenarioType),
             Fact.fact("Scenario rotation", scenarioInstance.scenario.rotation),
             Fact.fact(

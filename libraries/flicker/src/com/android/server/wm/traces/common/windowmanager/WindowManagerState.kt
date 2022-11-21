@@ -18,6 +18,8 @@ package com.android.server.wm.traces.common.windowmanager
 
 import com.android.server.wm.traces.common.IComponentMatcher
 import com.android.server.wm.traces.common.ITraceEntry
+import com.android.server.wm.traces.common.Timestamp
+import com.android.server.wm.traces.common.Timestamp.Companion.NULL_TIMESTAMP
 import com.android.server.wm.traces.common.windowmanager.windows.Activity
 import com.android.server.wm.traces.common.windowmanager.windows.DisplayContent
 import com.android.server.wm.traces.common.windowmanager.windows.KeyguardControllerState
@@ -52,7 +54,8 @@ class WindowManagerState(
     @JsName("root") val root: RootWindowContainer,
     @JsName("keyguardControllerState") val keyguardControllerState: KeyguardControllerState
 ) : ITraceEntry {
-    override val timestamp: Long = clockTimestamp ?: elapsedTimestamp
+    override val timestamp =
+        Timestamp(elapsedNanos = elapsedTimestamp, unixNanos = clockTimestamp ?: NULL_TIMESTAMP)
     @JsName("isVisible") val isVisible: Boolean = true
     @JsName("stableId")
     val stableId: String
