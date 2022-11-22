@@ -33,10 +33,15 @@ class EventLogSubjectTest {
         runResult.transitionEndTime = Timestamp.MAX
         runResult.eventLog =
             listOf(
-                FocusEvent(0, "WinB", FocusEvent.Focus.GAINED, "test"),
-                FocusEvent(0, "test WinA window", FocusEvent.Focus.LOST, "test"),
-                FocusEvent(0, "WinB", FocusEvent.Focus.LOST, "test"),
-                FocusEvent(0, "test WinC", FocusEvent.Focus.GAINED, "test")
+                FocusEvent(Timestamp(unixNanos = 0), "WinB", FocusEvent.Focus.GAINED, "test"),
+                FocusEvent(
+                    Timestamp(unixNanos = 0),
+                    "test WinA window",
+                    FocusEvent.Focus.LOST,
+                    "test"
+                ),
+                FocusEvent(Timestamp(unixNanos = 0), "WinB", FocusEvent.Focus.LOST, "test"),
+                FocusEvent(Timestamp(unixNanos = 0), "test WinC", FocusEvent.Focus.GAINED, "test")
             )
         val result = runResult.eventLogSubject
         requireNotNull(result) { "Event log subject was not built" }
@@ -66,11 +71,16 @@ class EventLogSubjectTest {
         runResult.transitionEndTime = Timestamp(10, 10, 10)
         runResult.eventLog =
             listOf(
-                FocusEvent(0, "WinB", FocusEvent.Focus.GAINED, "test"),
-                FocusEvent(5, "test WinA window", FocusEvent.Focus.LOST, "test"),
-                FocusEvent(6, "WinB", FocusEvent.Focus.LOST, "test"),
-                FocusEvent(10, "test WinC", FocusEvent.Focus.GAINED, "test"),
-                FocusEvent(12, "test WinD", FocusEvent.Focus.GAINED, "test")
+                FocusEvent(Timestamp(unixNanos = 0), "WinB", FocusEvent.Focus.GAINED, "test"),
+                FocusEvent(
+                    Timestamp(unixNanos = 5),
+                    "test WinA window",
+                    FocusEvent.Focus.LOST,
+                    "test"
+                ),
+                FocusEvent(Timestamp(unixNanos = 6), "WinB", FocusEvent.Focus.LOST, "test"),
+                FocusEvent(Timestamp(unixNanos = 10), "test WinC", FocusEvent.Focus.GAINED, "test"),
+                FocusEvent(Timestamp(unixNanos = 12), "test WinD", FocusEvent.Focus.GAINED, "test")
             )
         val result = runResult.eventLogSubject
         requireNotNull(result) { "Event log subject was not built" }

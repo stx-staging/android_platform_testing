@@ -76,7 +76,7 @@ class LayersTraceTest {
     @Test
     fun canTestLayerOccludedByAppLayerHasVisibleRegion() {
         val trace = readLayerTraceFromFile("layers_trace_occluded.pb")
-        val entry = trace.getEntry(1700382131522L)
+        val entry = trace.getEntryBySystemUptime(1700382131522L)
         val component =
             ComponentNameMatcher("", "com.android.server.wm.flicker.testapp.SimpleActivity#0")
         val layer = entry.getLayerWithBuffer(component)
@@ -103,7 +103,7 @@ class LayersTraceTest {
         val layerName = "com.android.server.wm.flicker.testapp.SimpleActivity#0"
         val component = ComponentNameMatcher("", layerName)
         val trace = readLayerTraceFromFile("layers_trace_occluded.pb")
-        val entry = trace.getEntry(1700382131522L)
+        val entry = trace.getEntryBySystemUptime(1700382131522L)
         val layer = entry.getLayerWithBuffer(component)
         val occludedBy = layer?.occludedBy ?: emptyArray()
         val partiallyOccludedBy = layer?.partiallyOccludedBy ?: emptyArray()

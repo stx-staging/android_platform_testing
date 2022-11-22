@@ -29,6 +29,7 @@ import com.android.server.wm.flicker.service.AssertionEngine
 import com.android.server.wm.flicker.service.AssertionGeneratorConfigProducer
 import com.android.server.wm.flicker.service.assertors.AssertionResult
 import com.android.server.wm.traces.common.DeviceTraceDump
+import com.android.server.wm.traces.common.Timestamp
 import com.android.server.wm.traces.common.service.PlatformConsts
 import com.android.server.wm.traces.common.service.Scenario
 import com.android.server.wm.traces.common.service.ScenarioInstance
@@ -89,7 +90,7 @@ class AssertionsTest {
 
         fun createAppliedInEntryForTransaction(transaction: Transaction): TransactionsTraceEntry {
             return TransactionsTraceEntry(
-                transaction.requestedVSyncId,
+                Timestamp(elapsedNanos = 10),
                 transaction.requestedVSyncId,
                 arrayOf(transaction)
             )

@@ -16,6 +16,7 @@
 
 package com.android.server.wm.flicker.windowmanager
 
+import com.android.server.wm.traces.common.Timestamp
 import com.android.server.wm.traces.common.windowmanager.WindowManagerState
 import com.android.server.wm.traces.common.windowmanager.windows.ConfigurationContainer
 import com.android.server.wm.traces.common.windowmanager.windows.KeyguardControllerState
@@ -70,7 +71,8 @@ class WindowManagerStateTest {
                         keyguardOccludedStates = mapOf()
                     )
             )
-        Truth.assertThat(entry.timestamp).isEqualTo(600)
+        Truth.assertThat(entry.timestamp.elapsedNanos).isEqualTo(100)
+        Truth.assertThat(entry.timestamp.unixNanos).isEqualTo(600)
 
         entry =
             WindowManagerState(
@@ -93,6 +95,7 @@ class WindowManagerStateTest {
                         keyguardOccludedStates = mapOf()
                     )
             )
-        Truth.assertThat(entry.timestamp).isEqualTo(100)
+        Truth.assertThat(entry.timestamp.elapsedNanos).isEqualTo(100)
+        Truth.assertThat(entry.timestamp.unixNanos).isEqualTo(Timestamp.EMPTY.unixNanos)
     }
 }

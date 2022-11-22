@@ -30,7 +30,7 @@ class TimeUtilsTest {
     private val HOUR = 60 * MINUTE
     private val DAY = 24 * HOUR
 
-    @Test()
+    @Test
     fun canFormatElapsedTime() {
         Truth.assertThat(formatElapsedTimestamp(0)).isEqualTo("0ns")
         Truth.assertThat(formatElapsedTimestamp(1000)).isEqualTo("1000ns")
@@ -60,7 +60,7 @@ class TimeUtilsTest {
             .isEqualTo("1d1h1m1s1ms0ns")
     }
 
-    @Test()
+    @Test
     fun canFormatRealTime() {
         val NOV_10_2022 = 1668038400000 * MILLISECOND
 

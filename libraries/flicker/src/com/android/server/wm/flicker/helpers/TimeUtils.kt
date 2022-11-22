@@ -20,6 +20,8 @@ import com.android.server.wm.traces.common.Timestamp
 import com.android.server.wm.traces.common.Timestamp.Companion.NULL_TIMESTAMP
 import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 const val MILLISECOND_AS_NANOSECONDS: Long = 1000000
 private const val SECOND_AS_NANOSECONDS: Long = 1000000000
@@ -82,8 +84,10 @@ fun formatElapsedTimestamp(timestampNs: Long): String {
 fun formatRealTimestamp(timestampNs: Long): String {
     val timestampMs = timestampNs / MILLISECOND_AS_NANOSECONDS
     val remainderNs = timestampNs % MILLISECOND_AS_NANOSECONDS
-    val timeFormatter = SimpleDateFormat("HH'h'mm'm'ss's'SSS'ms'")
-    val dateFormatter = SimpleDateFormat("d MMM yyyy zz")
+    val timeFormatter = SimpleDateFormat("HH'h'mm'm'ss's'SSS'ms'", Locale.ENGLISH)
+    timeFormatter.timeZone = TimeZone.getTimeZone("UTC")
+    val dateFormatter = SimpleDateFormat("d MMM yyyy zz", Locale.ENGLISH)
+    dateFormatter.timeZone = TimeZone.getTimeZone("UTC")
     val date = Date(timestampMs)
     return "${timeFormatter.format(date)}${remainderNs}ns, ${dateFormatter.format(date)}"
 }
