@@ -212,7 +212,6 @@ public class NativePoc {
 
         Builder() {}
 
-        /** Name of executable to be uploaded and run. Do not include "_sts??" suffix. */
         public Builder pocName(String pocName) {
             this.pocName = pocName;
             return this;
@@ -222,19 +221,16 @@ public class NativePoc {
             return pocName;
         }
 
-        /** List of arguments to be passed to the executable PoC */
         public Builder args(List<String> args) {
             this.args = ImmutableList.copyOf(args);
             return this;
         }
 
-        /** List of arguments to be passed to the executable PoC */
         public Builder args(String... args) {
             this.args = ImmutableList.copyOf(args);
             return this;
         }
 
-        /** Map of environment variables to be set before running the PoC */
         public Builder envVars(Map<String, String> envVars) {
             this.envVars = ImmutableMap.copyOf(envVars);
             return this;
@@ -244,7 +240,6 @@ public class NativePoc {
             return envVars;
         }
 
-        /** Whether to include /system/lib64 and /system/lib in LD_LIBRARY_PATH */
         public Builder useDefaultLdLibraryPath(boolean useDefaultLdLibraryPath) {
             this.useDefaultLdLibraryPath = useDefaultLdLibraryPath;
             return this;
@@ -259,32 +254,20 @@ public class NativePoc {
             return this;
         }
 
-        /**
-         * How long to let the PoC run before terminating
-         *
-         * @param value how many seconds to let the native PoC run before it's terminated
-         * @param reason explain why a different timeout amount is needed instead of the default
-         *     {@link #DEFAULT_POC_TIMEOUT_SECONDS}. Generally used for PoCs that tries to exploit
-         *     race conditions.
-         * @return this Builder instance
-         */
         public Builder timeoutSeconds(long value, String reason) {
             return timeoutSeconds(value);
         }
 
-        /** List of java resources to extract and upload to the device */
         public Builder resources(List<String> resources) {
             this.resources = ImmutableList.copyOf(resources);
             return this;
         }
 
-        /** List of java resources to extract and upload to the device */
         public Builder resources(String... resources) {
             this.resources = ImmutableList.copyOf(resources);
             return this;
         }
 
-        /** Where to upload extracted Java resources to. Defaults to where the PoC is uploaded */
         public Builder resourcePushLocation(String resourcePushLocation) {
             this.resourcePushLocation = resourcePushLocation;
             return this;
@@ -294,7 +277,6 @@ public class NativePoc {
             return resourcePushLocation;
         }
 
-        /** Force using 32-bit version of the PoC executable */
         Builder only32(boolean only32) {
             this.only32 = only32;
             return this;
@@ -309,36 +291,25 @@ public class NativePoc {
             return this;
         }
 
-        /** Force using 64-bit version of the PoC executable */
         public Builder only64() {
             return only64(true);
         }
 
-        /**
-         * Function to run after the PoC finishes executing but before assertion or cleanups.
-         *
-         * <p>This is typically used to wait for side effects of the PoC that may happen after the
-         * PoC process itself finished, e.g. waiting for a crashdump to be written to file or for a
-         * service to crash.
-         */
         public Builder after(NativePoc.AfterFunction after) {
             this.after = after;
             return this;
         }
 
-        /** A {@link NativePocAsserter} to check PoC execution results or side-effect */
         public Builder asserter(NativePocAsserter asserter) {
             this.asserter = asserter;
             return this;
         }
 
-        /** Whether to throw an assumption failure when PoC does not return 0. Defaults true */
         public Builder assumePocExitSuccess(boolean assumePocExitSuccess) {
             this.assumePocExitSuccess = assumePocExitSuccess;
             return this;
         }
 
-        /** Build an immutable NativePoc object */
         public NativePoc build() {
             if (useDefaultLdLibraryPath()) {
                 updateLdLibraryPath();
@@ -387,8 +358,7 @@ public class NativePoc {
     /**
      * Execute the PoC with the given parameters and assertions.
      *
-     * @param test the instance of BaseHostJUnit4Test this is running in. Usually called with "this"
-     *     if called from an STS test.
+     * @param test the instance of BaseHostJUnit4Test this is running in
      */
     public void run(final BaseHostJUnit4Test test) throws Exception {
         CLog.d("Trying to start NativePoc: %s", this.toString());
@@ -502,7 +472,6 @@ public class NativePoc {
         }
     }
 
-    /** Lambda construct to run after PoC finished executing but before assertion and cleanup. */
     public static interface AfterFunction {
         void run(CommandResult res) throws Exception;
     }
