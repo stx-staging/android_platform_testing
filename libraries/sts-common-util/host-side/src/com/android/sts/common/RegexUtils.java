@@ -16,15 +16,13 @@
 
 package com.android.sts.common;
 
-import static org.junit.Assert.*;
-
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 import com.android.ddmlib.Log.LogLevel;
 import com.android.tradefed.log.LogUtil.CLog;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import static org.junit.Assert.*;
 
-/** Contains wrappers around JUnit assertions with regex matching in strings */
 public class RegexUtils {
     private static final int TIMEOUT_DURATION = 20 * 60_000; // 20 minutes
     private static final int WARNING_THRESHOLD = 1000; // 1 second
