@@ -68,17 +68,17 @@ class EventLogParser : AbstractParser<Array<String>, EventLog>() {
         eventData.split(",")
 
         return when (tag) {
-            "input_focus" -> {
+            INPUT_FOCUS_TAG -> {
                 FocusEvent(timestamp, pid, uid, tid, parseDataArray(eventData))
             }
-            "jank_cuj_events_begin_request" -> {
-                CujEvent(timestamp, pid, uid, tid, tag)
+            JANK_CUJ_BEGIN_TAG -> {
+                CujEvent(timestamp, pid, uid, tid, tag, eventData)
             }
-            "jank_cuj_events_cancel_request" -> {
-                CujEvent(timestamp, pid, uid, tid, tag)
+            JANK_CUJ_END_TAG -> {
+                CujEvent(timestamp, pid, uid, tid, tag, eventData)
             }
-            "jank_cuj_events_end_request" -> {
-                CujEvent(timestamp, pid, uid, tid, tag)
+            JANK_CUJ_CANCEL_TAG -> {
+                CujEvent(timestamp, pid, uid, tid, tag, eventData)
             }
             else -> {
                 Event(timestamp, pid, uid, tid, tag)
@@ -108,13 +108,16 @@ class EventLogParser : AbstractParser<Array<String>, EventLog>() {
         return Timestamp(unixNanos = rawTimestamp.replace(".", "").toLong())
     }
 
-
-
     companion object {
         const val EVENT_LOG_INPUT_FOCUS_TAG = 62001
 
         const val WM_JANK_CUJ_EVENTS_BEGIN_REQUEST = 37001
         const val WM_JANK_CUJ_EVENTS_END_REQUEST = 37002
         const val WM_JANK_CUJ_EVENTS_CANCEL_REQUEST = 37003
+
+        const val INPUT_FOCUS_TAG = "input_focus"
+        const val JANK_CUJ_BEGIN_TAG = "jank_cuj_events_begin_request"
+        const val JANK_CUJ_END_TAG = "jank_cuj_events_end_request"
+        const val JANK_CUJ_CANCEL_TAG = "jank_cuj_events_cancel_request"
     }
 }

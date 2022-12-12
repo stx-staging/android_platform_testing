@@ -17,7 +17,6 @@
 package com.android.server.wm.traces.common.events
 
 import com.android.server.wm.traces.common.Timestamp
-import com.android.server.wm.traces.parser.events.EventLogParser.Companion.INPUT_FOCUS_TAG
 
 /**
  * An Event from the [EventLog] representing a window focus change or request.

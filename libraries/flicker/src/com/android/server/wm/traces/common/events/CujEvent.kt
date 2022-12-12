@@ -18,5 +18,47 @@ package com.android.server.wm.traces.common.events
 
 import com.android.server.wm.traces.common.Timestamp
 
-class CujEvent(timestamp: Timestamp, processId: Int, uid: String, threadId: Int, tag: String) :
-    Event(timestamp, processId, uid, threadId, tag)
+class CujEvent(
+    timestamp: Timestamp,
+    val cuj: CujType,
+    processId: Int,
+    uid: String,
+    threadId: Int,
+    tag: String
+) : Event(timestamp, processId, uid, threadId, tag) {
+
+    val type: Type =
+        when (tag) {
+            JANK_CUJ_BEGIN_TAG -> Type.START
+            JANK_CUJ_END_TAG -> Type.END
+            JANK_CUJ_CANCEL_TAG -> Type.CANCEL
+            else -> error("Unhandled tag type")
+        }
+
+    constructor(
+        timestamp: Timestamp,
+        processId: Int,
+        uid: String,
+        threadId: Int,
+        tag: String,
+        data: String
+    ) : this(timestamp, getCujMarkerFromData(data), processId, uid, threadId, tag)
+
+    companion object {
+        private fun getCujMarkerFromData(data: String): CujType {
+            val evenId = data.toIntOrNull()
+            requireNotNull(evenId) { "Data expected to be an integer" }
+            return CujType.values()[evenId]
+        }
+
+        enum class Type {
+            START,
+            END,
+            CANCEL
+        }
+
+        const val JANK_CUJ_BEGIN_TAG = "jank_cuj_events_begin_request"
+        const val JANK_CUJ_END_TAG = "jank_cuj_events_end_request"
+        const val JANK_CUJ_CANCEL_TAG = "jank_cuj_events_cancel_request"
+    }
+}
