@@ -17,6 +17,7 @@ package android.platform.uiautomator_helpers
 import android.os.SystemClock.sleep
 import android.os.SystemClock.uptimeMillis
 import android.os.Trace
+import android.platform.uiautomator_helpers.TracingUtils.trace
 import android.platform.uiautomator_helpers.WaitUtils.LoggerImpl.Companion.withEventualLogging
 import android.util.Log
 import java.io.Closeable
@@ -46,6 +47,8 @@ object WaitUtils {
      * ensureThat("screen is on") { uiDevice.isScreenOn }
      * ```
      */
+    @JvmStatic
+    @JvmOverloads
     fun ensureThat(
         description: String? = null,
         timeout: Duration = DEFAULT_DEADLINE,
@@ -108,6 +111,8 @@ object WaitUtils {
      *
      * @return the settled value. Throws if it doesn't settle.
      */
+    @JvmStatic
+    @JvmOverloads
     fun <T> waitForValueToSettle(
         description: String? = null,
         minimumSettleTime: Duration = DEFAULT_SETTLE_TIME,
@@ -204,15 +209,6 @@ object WaitUtils {
             if (VERBOSE) {
                 Log.d(TAG, logs.joinToString("\n"))
             }
-        }
-    }
-
-    private inline fun <T> trace(sectionName: String, block: () -> T): T {
-        Trace.beginSection(sectionName)
-        try {
-            return block()
-        } finally {
-            Trace.endSection()
         }
     }
 }
