@@ -5,7 +5,7 @@ import android.app.Instrumentation
 import android.content.Context
 import android.graphics.PointF
 import android.os.Bundle
-import android.platform.test.util.HealthTestingUtils.waitForValueToSettle
+import android.platform.uiautomator_helpers.WaitUtils.waitForValueToSettle
 import android.util.Log
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.BySelector
@@ -212,5 +212,5 @@ object DeviceHelpers {
      * As this uses [waitForValueToSettle], it is resilient to fast screen on/off happening.
      */
     val UiDevice.isScreenOnSettled: Boolean
-        get() = waitForValueToSettle({ "Screen on didn't settle" }, { isScreenOn })
+        get() = waitForValueToSettle("Screen on") { isScreenOn }
 }
