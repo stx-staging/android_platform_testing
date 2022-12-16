@@ -46,9 +46,9 @@ class CujEvent(
 
     companion object {
         private fun getCujMarkerFromData(data: String): CujType {
-            val evenId = data.toIntOrNull()
-            requireNotNull(evenId) { "Data expected to be an integer" }
-            return CujType.values()[evenId]
+            val eventId = data.toIntOrNull()
+            requireNotNull(eventId) { "Data expected to be an integer" }
+            return CujType.from(eventId)
         }
 
         enum class Type {

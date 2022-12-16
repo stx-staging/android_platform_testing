@@ -84,5 +84,19 @@ enum class CujType {
     CUJ_USER_DIALOG_OPEN,
     CUJ_TASKBAR_EXPAND,
     CUJ_TASKBAR_COLLAPSE,
-    CUJ_SHADE_CLEAR_ALL
+    CUJ_SHADE_CLEAR_ALL,
+
+    // KEEP AS LAST TYPE
+    // used to handle new types that haven't been added here yet but might be dumped by the platform
+    UNKNOWN;
+
+    companion object {
+        fun from(eventId: Int): CujType {
+            // -1 to account for unknown event type
+            if (eventId >= values().size - 1) {
+                return UNKNOWN
+            }
+            return values()[eventId]
+        }
+    }
 }

@@ -355,6 +355,29 @@ class EventLogMonitorTest : TraceMonitorTest<EventLogMonitor>() {
         Truth.assertThat(eventLog.cujEvents[2].cuj).isEqualTo(CujType.CUJ_LOCKSCREEN_LAUNCH_CAMERA)
     }
 
+    @Test
+    fun canParseHandleUnknownCujTypes() {
+        val unknownCujId = Int.MAX_VALUE
+        val monitor = EventLogMonitor()
+        val writer = newTestResultWriter()
+        monitor.start()
+        EventLog.writeEvent(WM_JANK_CUJ_EVENTS_BEGIN_REQUEST, unknownCujId)
+        EventLog.writeEvent(WM_JANK_CUJ_EVENTS_END_REQUEST, unknownCujId)
+        EventLog.writeEvent(WM_JANK_CUJ_EVENTS_CANCEL_REQUEST, unknownCujId)
+        monitor.stop()
+        monitor.setResult(writer)
+        val result = writer.write()
+
+        val reader = ResultReader(result, DEFAULT_TRACE_CONFIG)
+        val eventLog = reader.readEventLogTrace()
+        requireNotNull(eventLog) { "EventLog should have been created" }
+
+        assertEquals(3, eventLog.cujEvents.size)
+        Truth.assertThat(eventLog.cujEvents[0].cuj).isEqualTo(CujType.UNKNOWN)
+        Truth.assertThat(eventLog.cujEvents[1].cuj).isEqualTo(CujType.UNKNOWN)
+        Truth.assertThat(eventLog.cujEvents[2].cuj).isEqualTo(CujType.UNKNOWN)
+    }
+
     private companion object {
         const val INPUT_FOCUS_TAG = 62001
     }
