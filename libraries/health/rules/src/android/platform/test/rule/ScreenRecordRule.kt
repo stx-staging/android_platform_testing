@@ -28,6 +28,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import java.lang.annotation.Retention
 import java.lang.annotation.RetentionPolicy
 import java.nio.file.Files
+import kotlin.annotation.AnnotationTarget.CLASS
 import kotlin.annotation.AnnotationTarget.FUNCTION
 import kotlin.annotation.AnnotationTarget.PROPERTY_GETTER
 import kotlin.annotation.AnnotationTarget.PROPERTY_SETTER
@@ -40,7 +41,7 @@ import org.junit.runners.model.Statement
  *
  * After adding this rule to the test class either:
  *
- * - apply the annotation [@ScreenRecord] to individual tests or
+ * - apply the annotation [ScreenRecord] to individual tests or classes
  * - pass the [SCREEN_RECORDING_ALWAYS_ENABLED_KEY] instrumentation argument. e.g. `adb shell am
  * instrument -w -e screen-recording-always-enabled true <test>`).
  */
@@ -62,6 +63,7 @@ class ScreenRecordRule : TestRule {
 
     private fun shouldRecordScreen(description: Description): Boolean {
         return description.getAnnotation(ScreenRecord::class.java) != null ||
+            description.testClass.hasAnnotation(ScreenRecord::class.java) ||
             screenRecordOverrideEnabled()
     }
 
@@ -82,7 +84,9 @@ class ScreenRecordRule : TestRule {
         val outputFile = ArtifactSaver.artifactFile(description, "ScreenRecord", "mp4")
         log("Executing test with screen recording. Output file=$outputFile")
 
-        uiDevice.shell("killall screenrecord")
+        if (screenRecordingInProgress()) {
+            Log.w(TAG, "Multiple screen recording in progress. This might cause performance issues")
+        }
         // --bugreport adds the timestamp as overlay
         val screenRecordingFileDescriptor =
             automation.executeShellCommand("screenrecord --verbose --bugreport $outputFile")
@@ -104,12 +108,14 @@ class ScreenRecordRule : TestRule {
                     screenRecordOutput.prependIndent("   ")
             )
         }
-        // automation.executeShellCommand("rm $outputFile")
+        uiDevice.shell("rm $outputFile")
     }
+
+    private fun screenRecordingInProgress() = uiDevice.shell("pidof screenrecord").isNotBlank()
 
     /** Interface to indicate that the test should capture screenrecord */
     @Retention(RetentionPolicy.RUNTIME)
-    @Target(FUNCTION, PROPERTY_GETTER, PROPERTY_SETTER)
+    @Target(FUNCTION, CLASS, PROPERTY_GETTER, PROPERTY_SETTER)
     annotation class ScreenRecord
 
     private fun log(s: String) = Log.d(TAG, s)
