@@ -18,7 +18,7 @@ package android.platform.test.rule
 import android.app.UiAutomation
 import android.os.ParcelFileDescriptor
 import android.os.ParcelFileDescriptor.AutoCloseInputStream
-import android.platform.test.rule.ScreenRecordRule.Companion.SCREEN_RECORDING_ALWAYS_ENABLED_KEY
+import android.platform.test.rule.ScreenRecordRule.Companion.SCREEN_RECORDING_TEST_LEVEL_OVERRIDE_KEY
 import android.platform.uiautomator_helpers.DeviceHelpers.shell
 import android.platform.uiautomator_helpers.DeviceHelpers.uiDevice
 import android.platform.uiautomator_helpers.WaitUtils.ensureThat
@@ -40,10 +40,10 @@ import org.junit.runners.model.Statement
  * Rule which captures a screen record for a test.
  *
  * After adding this rule to the test class either:
- *
  * - apply the annotation [ScreenRecord] to individual tests or classes
- * - pass the [SCREEN_RECORDING_ALWAYS_ENABLED_KEY] instrumentation argument. e.g. `adb shell am
- * instrument -w -e screen-recording-always-enabled true <test>`).
+ * - pass the [SCREEN_RECORDING_TEST_LEVEL_OVERRIDE_KEY] or
+ * [SCREEN_RECORDING_CLASS_LEVEL_OVERRIDE_KEY] instrumentation argument. e.g. `adb shell am
+ * instrument -w -e <key> true <test>`).
  */
 class ScreenRecordRule : TestRule {
 
@@ -62,20 +62,28 @@ class ScreenRecordRule : TestRule {
     }
 
     private fun shouldRecordScreen(description: Description): Boolean {
-        return description.getAnnotation(ScreenRecord::class.java) != null ||
+        return if (description.isTest) {
+            description.getAnnotation(ScreenRecord::class.java) != null ||
+                testLevelOverrideEnabled()
+        } else { // class level
             description.testClass.hasAnnotation(ScreenRecord::class.java) ||
-            screenRecordOverrideEnabled()
+                classLevelOverrideEnabled()
+        }
     }
 
+    private fun classLevelOverrideEnabled() =
+        screenRecordOverrideEnabled(SCREEN_RECORDING_CLASS_LEVEL_OVERRIDE_KEY)
+    private fun testLevelOverrideEnabled() =
+        screenRecordOverrideEnabled(SCREEN_RECORDING_TEST_LEVEL_OVERRIDE_KEY)
     /**
      * This is needed to enable screen recording when a parameter is passed to the instrumentation,
      * avoid having to recompile the test.
      */
-    private fun screenRecordOverrideEnabled(): Boolean {
+    private fun screenRecordOverrideEnabled(key: String): Boolean {
         val args = InstrumentationRegistry.getArguments()
-        val override = args.getString(SCREEN_RECORDING_ALWAYS_ENABLED_KEY, "false").toBoolean()
+        val override = args.getString(key, "false").toBoolean()
         if (override) {
-            log("Screen recording enabled due to $SCREEN_RECORDING_ALWAYS_ENABLED_KEY param.")
+            log("Screen recording enabled due to $key param.")
         }
         return override
     }
@@ -85,12 +93,17 @@ class ScreenRecordRule : TestRule {
         log("Executing test with screen recording. Output file=$outputFile")
 
         if (screenRecordingInProgress()) {
-            Log.w(TAG, "Multiple screen recording in progress. This might cause performance issues")
+            Log.w(
+                TAG,
+                "Multiple screen recording in progress (pids=\"$screenrecordPids\". " +
+                    "This might cause performance issues"
+            )
         }
         // --bugreport adds the timestamp as overlay
         val screenRecordingFileDescriptor =
             automation.executeShellCommand("screenrecord --verbose --bugreport $outputFile")
-        val screenRecordPid = uiDevice.shell("pidof screenrecord")
+        // Getting latest PID as there might be multiple screenrecording in progress.
+        val screenRecordPid = screenrecordPids.max()
         try {
             runnable()
         } finally {
@@ -111,7 +124,10 @@ class ScreenRecordRule : TestRule {
         uiDevice.shell("rm $outputFile")
     }
 
-    private fun screenRecordingInProgress() = uiDevice.shell("pidof screenrecord").isNotBlank()
+    private fun screenRecordingInProgress() = screenrecordPids.isNotEmpty()
+
+    private val screenrecordPids: List<String>
+        get() = uiDevice.shell("pidof screenrecord").split(" ")
 
     /** Interface to indicate that the test should capture screenrecord */
     @Retention(RetentionPolicy.RUNTIME)
@@ -128,6 +144,9 @@ class ScreenRecordRule : TestRule {
 
     companion object {
         private const val TAG = "ScreenRecordRule"
-        private const val SCREEN_RECORDING_ALWAYS_ENABLED_KEY = "screen-recording-always-enabled"
+        private const val SCREEN_RECORDING_TEST_LEVEL_OVERRIDE_KEY =
+            "screen-recording-always-enabled-test-level"
+        private const val SCREEN_RECORDING_CLASS_LEVEL_OVERRIDE_KEY =
+            "screen-recording-always-enabled-class-level"
     }
 }
