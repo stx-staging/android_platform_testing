@@ -422,7 +422,7 @@ public class NativePoc {
             pocPusher.only64();
         }
         final String remoteFile = TMP_PATH + pocName();
-        pocPusher.pushFile(pocName(), remoteFile);
+        pocPusher.pushFile(pocName() + "_sts", remoteFile);
         device.executeShellV2Command(String.format("chmod 777 '%s'", remoteFile));
         CommandUtil.runAndCheck(device, String.format("test -r '%s'", remoteFile));
         CommandUtil.runAndCheck(device, String.format("test -w '%s'", remoteFile));
