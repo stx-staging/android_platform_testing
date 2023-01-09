@@ -95,9 +95,9 @@ public class NativePocTest extends BaseHostJUnit4Test {
         tmpDir = Files.createTempDirectory("").toFile().getAbsolutePath();
         testCasesDir = Paths.get(tmpDir, "android-sts-host-util-test", "testcases");
         Files.createDirectories(testCasesDir);
-        localPocFile32 = new File(testCasesDir.toFile(), POC_NAME + "32");
+        localPocFile32 = new File(testCasesDir.toFile(), POC_NAME + "_sts32");
         localPocFile32.createNewFile();
-        localPocFile64 = new File(testCasesDir.toFile(), POC_NAME + "64");
+        localPocFile64 = new File(testCasesDir.toFile(), POC_NAME + "_sts64");
         localPocFile64.createNewFile();
 
         buildInfo = new BuildInfo("0", "");
