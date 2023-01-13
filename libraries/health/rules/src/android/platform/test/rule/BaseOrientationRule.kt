@@ -52,7 +52,7 @@ private val Rect.orientation: Orientation
         }
 
 /** Uses launcher rect to decide which rotation to apply to match [expectedOrientation]. */
-sealed class BaseOrientationRule private constructor(private val expectedOrientation: Orientation) :
+sealed class BaseOrientationRule constructor(private val expectedOrientation: Orientation) :
     TestWatcher() {
 
     override fun starting(description: Description) {
