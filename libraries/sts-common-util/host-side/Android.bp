@@ -50,3 +50,31 @@ java_library_host {
         "libprotobuf-java-full",
     ],
 }
+
+cc_defaults {
+    name: "sts_defaults",
+    compile_multilib: "both",
+    multilib: {
+        lib32: {
+            suffix: "_sts32",
+        },
+        lib64: {
+            suffix: "_sts64",
+        },
+        // build/soong/common/arch.go default returns nil; no default possible
+    },
+    arch: {
+        arm: {
+            instruction_set: "arm",
+        },
+    },
+    auto_gen_config: false,
+    test_suites: [
+        "sts",
+    ],
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+}
+
