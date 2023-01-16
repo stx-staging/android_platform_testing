@@ -19,17 +19,13 @@ package com.android.server.wm.flicker.helpers
 import android.app.Instrumentation
 import com.android.server.wm.traces.common.ComponentNameMatcher
 
-/**
- * Helper to launch the calculator app (not compatible with AOSP)
- *
- * This helper has no other functionality but the app launch.
- */
-class CalculatorAppHelper(instrumentation: Instrumentation) :
+/** Helper to launch the Gmail app (not compatible with AOSP) */
+class GmailAppHelper(instrumentation: Instrumentation) :
     StandardAppHelper(
         instrumentation,
-        "Calculator",
+        "Gmail",
         ComponentNameMatcher(
-            packageName = "com.google.android.calculator",
-            className = "com.android.calculator2.Calculator"
+            packageName = "com.google.android.gm",
+            className = "com.google.android.gm.ConversationListActivityGmail"
         )
     )

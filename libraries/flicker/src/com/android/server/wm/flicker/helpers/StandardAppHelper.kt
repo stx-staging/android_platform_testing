@@ -21,6 +21,7 @@ import android.app.Instrumentation
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.platform.helpers.AbstractStandardAppHelper
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.BySelector
@@ -51,6 +52,8 @@ open class StandardAppHelper(
         packageName: String,
         activity: String
     ) : this(instr, appName, ComponentNameMatcher(packageName, ".$activity"))
+
+    protected val pkgManager: PackageManager = instr.context.packageManager
 
     protected val tapl: LauncherInstrumentation = LauncherInstrumentation()
 
@@ -230,6 +233,16 @@ open class StandardAppHelper(
                     .waitForAndVerify()
             }
         }
+    }
+
+    fun isAvailable(): Boolean {
+        return try {
+            pkgManager.getPackageInfo(packageName, PackageManager.PackageInfoFlags.of(0))
+            true
+        } catch (e: PackageManager.NameNotFoundException) {
+            false
+        }
+
     }
 
     companion object {

@@ -32,7 +32,7 @@ import com.android.server.wm.traces.common.ComponentNameMatcher
  */
 class BrowserAppHelper(
     instrumentation: Instrumentation,
-    private val pkgManager: PackageManager = instrumentation.context.packageManager
+    pkgManager: PackageManager = instrumentation.context.packageManager
 ) :
     StandardAppHelper(
         instrumentation,
