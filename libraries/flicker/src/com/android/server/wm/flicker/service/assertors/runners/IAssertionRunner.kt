@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 The Android Open Source Project
+ * Copyright (C) 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,11 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.service
+package com.android.server.wm.flicker.service.assertors.runners
 
-import com.android.server.wm.flicker.runner.ExecutionError
 import com.android.server.wm.flicker.service.assertors.IAssertionResult
-import org.junit.runner.Description
-import org.junit.runner.notification.Failure
+import com.android.server.wm.flicker.service.assertors.IFaasAssertion
 
-interface IFlickerServiceResultsCollector {
-    val executionErrors: List<ExecutionError>
-    fun testStarted(description: Description)
-    fun testFailure(failure: Failure)
-    fun testSkipped(description: Description)
-    fun testFinished(description: Description)
-    fun testContainsFlicker(description: Description): Boolean
-    fun resultsForTest(description: Description): List<IAssertionResult>
+interface IAssertionRunner {
+    fun execute(assertions: List<IFaasAssertion>): List<IAssertionResult>
 }

@@ -242,7 +242,6 @@ open class StandardAppHelper(
         } catch (e: PackageManager.NameNotFoundException) {
             false
         }
-
     }
 
     companion object {

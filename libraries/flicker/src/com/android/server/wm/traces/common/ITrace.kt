@@ -38,4 +38,10 @@ interface ITrace<Entry : ITraceEntry> {
         return entries.firstOrNull { it.timestamp.unixNanos == timestamp }
             ?: throw RuntimeException("Entry does not exist for timestamp $timestamp")
     }
+
+    @JsName("getLastEntryByUnixTimestamp")
+    fun getLastEntryByUnixTimestamp(timestamp: Long): Entry {
+        return entries.asList().asReversed().firstOrNull { it.timestamp.unixNanos <= timestamp }
+            ?: throw RuntimeException("No entry at or before timestamp $timestamp")
+    }
 }

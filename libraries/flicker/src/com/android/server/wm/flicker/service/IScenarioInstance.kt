@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 The Android Open Source Project
+ * Copyright (C) 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,14 @@
 package com.android.server.wm.flicker.service
 
 import com.android.server.wm.flicker.io.IReader
-import com.android.server.wm.flicker.service.assertors.IAssertionResult
+import com.android.server.wm.flicker.service.config.FlickerServiceConfig
+import com.android.server.wm.traces.common.IScenario
+import com.android.server.wm.traces.common.transition.Transition
 
-interface IFlickerService {
-    fun process(reader: IReader): List<IAssertionResult>
+interface IScenarioInstance : IScenario {
+    val type: FlickerServiceConfig.FaasScenarioType
+    // A reader to read the part of the trace associated with the scenario instance
+    val reader: IReader
+
+    val associatedTransition: Transition?
 }

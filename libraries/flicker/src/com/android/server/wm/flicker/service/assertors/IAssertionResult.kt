@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 The Android Open Source Project
+ * Copyright (C) 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.service
+package com.android.server.wm.flicker.service.assertors
 
-import com.android.server.wm.flicker.io.IReader
-import com.android.server.wm.flicker.service.assertors.IAssertionResult
-
-interface IFlickerService {
-    fun process(reader: IReader): List<IAssertionResult>
+interface IAssertionResult {
+    val assertion: IFaasAssertion
+    val passed: Boolean
+    val failed: Boolean
+        get() = !passed
+    val assertionError: Throwable?
 }
