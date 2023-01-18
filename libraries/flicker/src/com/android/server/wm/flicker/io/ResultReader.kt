@@ -35,8 +35,8 @@ import com.android.server.wm.traces.parser.windowmanager.WindowManagerDumpParser
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerTraceParser
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
+import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import java.io.FileInputStream
 import java.io.IOException
 import java.nio.file.Path
 import java.util.zip.ZipEntry
@@ -64,7 +64,7 @@ open class ResultReader(protected var result: ResultData, private val traceConfi
     private fun withZipFile(predicate: (ZipInputStream) -> Unit) {
         val zipInputStream =
             ZipInputStream(
-                BufferedInputStream(FileInputStream(result.artifactPath.toFile()), BUFFER_SIZE)
+                BufferedInputStream(ByteArrayInputStream(result.getArtifactBytes()), BUFFER_SIZE)
             )
         try {
             predicate(zipInputStream)
