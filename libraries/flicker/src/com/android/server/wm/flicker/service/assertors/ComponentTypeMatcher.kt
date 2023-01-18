@@ -17,10 +17,8 @@
 package com.android.server.wm.flicker.service.assertors
 
 import com.android.server.wm.flicker.Utils
-import com.android.server.wm.flicker.assertiongenerator.DeviceTraceConfiguration
 import com.android.server.wm.traces.common.ComponentName
 import com.android.server.wm.traces.common.ComponentNameMatcher
-import com.android.server.wm.traces.common.transition.Transition
 
 /**
  * ComponentMatcher based on type (e.g. open/close app) It is initialized late based on the
@@ -69,27 +67,6 @@ class ComponentTypeMatcher(val name: String) : ComponentNameMatcher(ComponentNam
         var result = name.hashCode()
         result = 31 * result + componentBuilder.hashCode()
         return result
-    }
-
-    companion object {
-        fun componentMatcherFromName(
-            name: String,
-            traceConfiguration: DeviceTraceConfiguration
-        ): ComponentNameMatcher? {
-            Utils.componentNameMatcherHardcoded(name)?.run {
-                return ComponentNameMatcher(this.component)
-            }
-                ?: run {
-                    val componentMatcher = ComponentTypeMatcher(name)
-                    if (traceConfiguration.componentToTypeMap[name] != null) {
-                        componentMatcher.componentBuilder =
-                            traceConfiguration.componentToTypeMap[name]!!
-                        return componentMatcher
-                    } else {
-                        return null
-                    }
-                }
-        }
     }
 }
 
