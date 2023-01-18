@@ -17,6 +17,7 @@
 package com.android.server.wm.flicker.service.assertors
 
 import com.android.server.wm.flicker.Utils
+import com.android.server.wm.flicker.service.ScenarioInstance
 import com.android.server.wm.traces.common.ComponentName
 import com.android.server.wm.traces.common.ComponentNameMatcher
 
@@ -40,14 +41,15 @@ class ComponentTypeMatcher(val name: String) : ComponentNameMatcher(ComponentNam
 
     var componentBuilder: ComponentBuilder = Components.EMPTY
 
-    fun initialize(transition: Transition) {
+    fun initialize(scenarioInstance: ScenarioInstance) {
         Utils.componentNameMatcherHardcoded(name)?.run {
             this@ComponentTypeMatcher.component = this.component
         }
             ?: run {
                 // safe cast because both openingAppFrom and closingAppFrom
                 // in Components return ComponentNameMatcher
-                val componentMatcher = componentBuilder.build(transition) as ComponentNameMatcher
+                val componentMatcher =
+                    componentBuilder.build(scenarioInstance) as ComponentNameMatcher
                 this.component = componentMatcher.component
             }
         this.initialized = true

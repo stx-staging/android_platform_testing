@@ -16,10 +16,10 @@
 
 package com.android.server.wm.flicker.service.assertors.assertions
 
+import com.android.server.wm.flicker.service.IScenarioInstance
 import com.android.server.wm.flicker.service.assertors.ComponentBuilder
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 import com.android.server.wm.traces.common.ComponentNameMatcher
-import com.android.server.wm.traces.common.transition.Transition
 
 /**
  * Asserts that:
@@ -32,9 +32,9 @@ import com.android.server.wm.traces.common.transition.Transition
 class LauncherReplacesAppLayer(component: ComponentBuilder) :
     BaseAssertionBuilderWithComponent(component) {
     /** {@inheritDoc} */
-    override fun doEvaluate(transition: Transition, layerSubject: LayersTraceSubject) {
+    override fun doEvaluate(scenarioInstance: IScenarioInstance, layerSubject: LayersTraceSubject) {
         layerSubject
-            .isVisible(component.build(transition))
+            .isVisible(component.build(scenarioInstance))
             .then()
             .isVisible(ComponentNameMatcher.LAUNCHER)
             .forAllEntries()

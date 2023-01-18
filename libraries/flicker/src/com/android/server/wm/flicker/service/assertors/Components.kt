@@ -17,20 +17,25 @@
 package com.android.server.wm.flicker.service.assertors
 
 import android.content.ComponentName
+import com.android.server.wm.flicker.service.IScenarioInstance
 import com.android.server.wm.traces.common.ComponentNameMatcher
 import com.android.server.wm.traces.common.IComponentMatcher
 import com.android.server.wm.traces.common.transition.Transition
 import com.android.server.wm.traces.common.transition.Transition.Companion.Type.CLOSE
 import com.android.server.wm.traces.common.transition.Transition.Companion.Type.OPEN
+import com.android.server.wm.traces.common.transition.Transition.Companion.Type.TO_BACK
+import com.android.server.wm.traces.common.transition.Transition.Companion.Type.TO_FRONT
 
-data class ComponentBuilder(val name: String, val build: (t: Transition) -> IComponentMatcher) {
+data class ComponentBuilder(
+    val name: String,
+    val build: (scenarioInstance: IScenarioInstance) -> IComponentMatcher
+) {
     override fun equals(other: Any?): Boolean {
-        return other is ComponentBuilder && name == other.name
+        return other is ComponentBuilder && name == other.name && build == other.build
     }
 
     override fun hashCode(): Int {
-        var result = name.hashCode()
-        return result
+        return name.hashCode() * 39 + build.hashCode()
     }
 }
 
@@ -40,14 +45,29 @@ object Components {
     val STATUS_BAR = ComponentBuilder("StatusBar") { ComponentNameMatcher.STATUS_BAR }
     val LAUNCHER = ComponentBuilder("Launcher") { ComponentNameMatcher.LAUNCHER }
 
-    val OPENING_APP = ComponentBuilder("OPENING_APP") { t: Transition -> openingAppFrom(t) }
-    val CLOSING_APP = ComponentBuilder("CLOSING_APP") { t: Transition -> closingAppFrom(t) }
+    val OPENING_APP =
+        ComponentBuilder("OPENING_APP") { scenarioInstance: IScenarioInstance ->
+            openingAppFrom(
+                scenarioInstance.associatedTransition ?: error("Missing associated transition")
+            )
+        }
+    val CLOSING_APP =
+        ComponentBuilder("CLOSING_APP") { scenarioInstance: IScenarioInstance ->
+            closingAppFrom(
+                scenarioInstance.associatedTransition ?: error("Missing associated transition")
+            )
+        }
 
     val EMPTY = ComponentBuilder("") { ComponentNameMatcher("", "") }
 
     // TODO: Extract out common code between two functions below
     private fun openingAppFrom(transition: Transition): IComponentMatcher {
-        val openingWindows = transition.changes.filter { it.transitMode == OPEN }
+        val openingWindows =
+            transition.changes.filter {
+                it.transitMode == OPEN ||
+                    it.transitMode == TO_FRONT &&
+                        !it.windowName.matches("Splash Screen ([a-z]|\\.)+".toRegex())
+            }
 
         val windowNames = openingWindows.map { it.windowName }.distinct()
         if (windowNames.size > 1) {
@@ -68,7 +88,8 @@ object Components {
     }
 
     private fun closingAppFrom(transition: Transition): IComponentMatcher {
-        val closingWindows = transition.changes.filter { it.transitMode == CLOSE }
+        val closingWindows =
+            transition.changes.filter { it.transitMode == CLOSE || it.transitMode == TO_BACK }
 
         val windowNames = closingWindows.map { it.windowName }.distinct()
         if (windowNames.size > 1) {
