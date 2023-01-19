@@ -31,6 +31,8 @@ import com.android.server.wm.flicker.monitor.TransactionsTraceMonitor
 import com.android.server.wm.flicker.monitor.TransitionsTraceMonitor
 import com.android.server.wm.flicker.monitor.WindowManagerTraceMonitor
 import com.android.server.wm.flicker.traces.FlickerSubjectException
+import com.android.server.wm.traces.common.IScenario
+import com.android.server.wm.traces.common.Timestamp
 import com.android.server.wm.traces.common.layers.LayersTrace
 import com.android.server.wm.traces.common.transactions.TransactionsTrace
 import com.android.server.wm.traces.common.transition.TransitionsTrace
@@ -81,7 +83,13 @@ internal fun readWmTraceFromFile(
 ): WindowManagerTrace {
     return try {
         WindowManagerTraceParser()
-            .parse(readAsset(relativePath), from, to, addInitialEntry, clearCache = false)
+            .parse(
+                readAsset(relativePath),
+                Timestamp(elapsedNanos = from),
+                Timestamp(elapsedNanos = to),
+                addInitialEntry,
+                clearCache = false
+            )
     } catch (e: Exception) {
         throw RuntimeException(e)
     }
@@ -290,11 +298,14 @@ fun createMockedFlicker(
     return mockedFlicker
 }
 
-fun captureTrace(actions: () -> Unit): ResultReader {
+fun captureTrace(scenario: IScenario, actions: () -> Unit): ResultReader {
+    if (scenario == null) {
+        ScenarioBuilder().forClass("UNNAMED_CAPTURE").build()
+    }
     val instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation()
     val writer =
         ResultWriter()
-            .forScenario(TEST_SCENARIO)
+            .forScenario(scenario)
             .withOutputDir(getDefaultFlickerOutputDir())
             .setRunComplete()
     val monitors =

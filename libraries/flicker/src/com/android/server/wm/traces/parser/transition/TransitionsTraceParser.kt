@@ -19,6 +19,7 @@ package com.android.server.wm.traces.parser.transition
 import android.util.Log
 import com.android.server.wm.shell.nano.ChangeInfo
 import com.android.server.wm.shell.nano.TransitionTraceProto
+import com.android.server.wm.traces.common.Timestamp
 import com.android.server.wm.traces.common.transactions.TransactionsTrace
 import com.android.server.wm.traces.common.transition.Transition
 import com.android.server.wm.traces.common.transition.Transition.Companion.Type
@@ -58,8 +59,9 @@ class TransitionsTraceParser(private val transactions: TransactionsTrace) :
         input: TransitionTraceProto
     ): List<com.android.server.wm.shell.nano.Transition> = input.transition.toList()
 
-    override fun getTimestamp(entry: com.android.server.wm.shell.nano.Transition): Long =
-        entry.timestamp
+    override fun getTimestamp(entry: com.android.server.wm.shell.nano.Transition): Timestamp {
+        return Timestamp(elapsedNanos = entry.elapsedRealtimeNanos, unixNanos = entry.unixNanos)
+    }
 
     override fun onBeforeParse(input: TransitionTraceProto) {}
 
@@ -68,7 +70,7 @@ class TransitionsTraceParser(private val transactions: TransactionsTrace) :
         return TransitionState(
             entry.id,
             Type.fromInt(entry.transitionType),
-            entry.timestamp,
+            Timestamp(elapsedNanos = entry.elapsedRealtimeNanos, unixNanos = entry.unixNanos),
             State.fromInt(entry.state),
             entry.flags,
             changes,
@@ -100,6 +102,10 @@ class TransitionsTraceParser(private val transactions: TransactionsTrace) :
         val windowName = proto.windowIdentifier.title
         val windowId = proto.windowIdentifier.hashCode.toString(16)
 
-        return TransitionChange(windowName, Type.fromInt(proto.transitMode))
+        return TransitionChange(
+            windowName,
+            Type.fromInt(proto.transitMode),
+            TransitionChange.Companion.WindowingMode.fromInt(proto.windowingMode)
+        )
     }
 }

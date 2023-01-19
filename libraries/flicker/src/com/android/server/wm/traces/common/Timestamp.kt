@@ -29,6 +29,10 @@ data class Timestamp(
     val unixNanos: Long = 0
 ) : Comparable<Timestamp> {
 
+    val hasUnixTimestamp: Boolean = unixNanos != NULL_TIMESTAMP
+
+    // TODO: Might also make sense to try and compare with elapsed and system first and fallback on
+    // unix
     override fun compareTo(other: Timestamp): Int {
         // Comparing UNIX timestamp is more accurate
         if (this.unixNanos != NULL_TIMESTAMP && other.unixNanos != NULL_TIMESTAMP) {
@@ -69,7 +73,7 @@ data class Timestamp(
 
         const val NULL_TIMESTAMP = 0L
         val EMPTY = Timestamp(NULL_TIMESTAMP, NULL_TIMESTAMP, NULL_TIMESTAMP)
-        val MIN = EMPTY
+        val MIN = Timestamp(1, 1, 1)
         val MAX = Timestamp(Long.MAX_VALUE, Long.MAX_VALUE, Long.MAX_VALUE)
     }
 }

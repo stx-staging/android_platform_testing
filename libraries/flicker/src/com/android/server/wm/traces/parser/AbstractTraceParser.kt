@@ -17,6 +17,7 @@
 package com.android.server.wm.traces.parser
 
 import com.android.server.wm.traces.common.Cache
+import com.android.server.wm.traces.common.Timestamp
 import com.android.server.wm.traces.common.Utils
 import com.android.server.wm.traces.common.parser.AbstractParser
 
@@ -26,7 +27,7 @@ abstract class AbstractTraceParser<
     AbstractParser<InputTypeTrace, OutputTypeTrace>() {
     protected abstract fun onBeforeParse(input: InputTypeTrace)
     protected abstract fun getEntries(input: InputTypeTrace): List<InputTypeEntry>
-    protected abstract fun getTimestamp(entry: InputTypeEntry): Long
+    protected abstract fun getTimestamp(entry: InputTypeEntry): Timestamp
     protected abstract fun doParseEntry(entry: InputTypeEntry): OutputTypeEntry
     protected abstract fun createTrace(entries: List<OutputTypeEntry>): OutputTypeTrace
 
@@ -35,8 +36,8 @@ abstract class AbstractTraceParser<
     override fun parse(bytes: ByteArray, clearCache: Boolean): OutputTypeTrace {
         return parse(
             bytes,
-            from = Long.MIN_VALUE,
-            to = Long.MAX_VALUE,
+            from = Timestamp.MIN,
+            to = Timestamp.MAX,
             addInitialEntry = true,
             clearCache = clearCache
         )
@@ -45,15 +46,15 @@ abstract class AbstractTraceParser<
     override fun parse(input: InputTypeTrace, clearCache: Boolean): OutputTypeTrace {
         return parse(
             input,
-            from = Long.MIN_VALUE,
-            to = Long.MAX_VALUE,
+            from = Timestamp.MIN,
+            to = Timestamp.MAX,
             addInitialEntry = true,
             clearCache = clearCache
         )
     }
 
     override fun doParse(input: InputTypeTrace): OutputTypeTrace {
-        return doParse(input, from = Long.MIN_VALUE, to = Long.MAX_VALUE, addInitialEntry = true)
+        return doParse(input, from = Timestamp.MIN, to = Timestamp.MAX, addInitialEntry = true)
     }
 
     /**
@@ -66,16 +67,16 @@ abstract class AbstractTraceParser<
      */
     private fun doParse(
         input: InputTypeTrace,
-        from: Long,
-        to: Long,
+        from: Timestamp,
+        to: Timestamp,
         addInitialEntry: Boolean
     ): OutputTypeTrace {
+        onBeforeParse(input)
         val parsedEntries = mutableListOf<OutputTypeEntry>()
         val rawEntries = getEntries(input)
         val allInputTimestamps = rawEntries.map { getTimestamp(it) }
         val selectedInputTimestamps =
             Utils.getTimestampsInRange(allInputTimestamps, from, to, addInitialEntry)
-        onBeforeParse(input)
         for (rawEntry in rawEntries) {
             val currTimestamp = getTimestamp(rawEntry)
             if (!selectedInputTimestamps.contains(currTimestamp) || !shouldParseEntry(rawEntry)) {
@@ -98,8 +99,8 @@ abstract class AbstractTraceParser<
      */
     fun parse(
         input: InputTypeTrace,
-        from: Long,
-        to: Long,
+        from: Timestamp,
+        to: Timestamp,
         addInitialEntry: Boolean = true,
         clearCache: Boolean = true
     ): OutputTypeTrace {
@@ -125,8 +126,8 @@ abstract class AbstractTraceParser<
      */
     fun parse(
         bytes: ByteArray,
-        from: Long,
-        to: Long,
+        from: Timestamp,
+        to: Timestamp,
         addInitialEntry: Boolean = true,
         clearCache: Boolean = true
     ): OutputTypeTrace {

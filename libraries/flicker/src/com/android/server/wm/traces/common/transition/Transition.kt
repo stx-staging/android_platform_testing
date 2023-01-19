@@ -25,17 +25,16 @@ import kotlin.js.JsName
 
 class Transition(
     @JsName("type") val type: Type,
-    @JsName("start") val start: Long,
-    @JsName("end") val end: Long,
-    @JsName("collectingStart") val collectingStart: Long,
+    @JsName("start") val start: Timestamp,
+    @JsName("end") val end: Timestamp,
+    @JsName("collectingStart") val collectingStart: Timestamp,
     @JsName("startTransaction") val startTransaction: Transaction?,
     @JsName("finishTransaction") val finishTransaction: Transaction?,
     @JsName("changes") val changes: List<TransitionChange>,
     @JsName("played") val played: Boolean,
     @JsName("aborted") val aborted: Boolean
 ) : ITraceEntry {
-    // TODO: Dump other timestamps for this trace
-    override val timestamp = Timestamp(elapsedNanos = start)
+    override val timestamp = start
 
     @JsName("isIncomplete")
     val isIncomplete: Boolean
@@ -43,9 +42,9 @@ class Transition(
 
     override fun toString(): String =
         "Transition#${hashCode()}" +
-            "($type, aborted=$aborted, start=$start, end=$end," +
-            "startTransaction=$startTransaction, finishTransaction=$finishTransaction, " +
-            "changes=[${changes.joinToString()}])"
+            "(\n$type,\naborted=$aborted,\nstart=$start,\nend=$end,\n" +
+            "startTransaction=$startTransaction,\nfinishTransaction=$finishTransaction,\n" +
+            "changes=[\n${changes.joinToString(",\n").prependIndent()}\n])"
 
     companion object {
         enum class Type(val value: Int) {
@@ -66,15 +65,15 @@ class Transition(
             FIRST_CUSTOM(12); // TODO: Add custom types we know about
 
             companion object {
-                fun fromInt(value: Int) = values().first { it.value == value }
+                @JsName("fromInt") fun fromInt(value: Int) = values().first { it.value == value }
             }
         }
 
         class Builder(val id: Int) {
             @JsName("type") var type: Type = Type.UNDEFINED
-            @JsName("start") var start: Long = -1
-            @JsName("end") var end: Long = -1
-            @JsName("collectingStart") var collectingStart: Long = -1
+            @JsName("start") var start: Timestamp = Timestamp.EMPTY
+            @JsName("end") var end: Timestamp = Timestamp.EMPTY
+            @JsName("collectingStart") var collectingStart: Timestamp = Timestamp.EMPTY
             @JsName("changes") var changes: List<TransitionChange> = emptyList()
             @JsName("played") var played = false
             @JsName("aborted") var aborted = false
@@ -153,14 +152,16 @@ class Transition(
             }
 
             @JsName("build")
-            fun build(): Transition {
-                val startTransaction = startTransaction
-                require(startTransaction != null || !played) {
-                    "Can't build played transition without matched start transaction"
-                }
-                val finishTransaction = finishTransaction
-                require(finishTransaction != null || aborted) {
-                    "Can't build non-aborted transition without matched finish transaction"
+            fun build(withoutTransactionLinking: Boolean = false): Transition {
+                if (!withoutTransactionLinking) {
+                    val startTransaction = startTransaction
+                    require(startTransaction != null || !played) {
+                        "Can't build played transition without matched start transaction"
+                    }
+                    val finishTransaction = finishTransaction
+                    require(finishTransaction != null || aborted) {
+                        "Can't build non-aborted transition without matched finish transaction"
+                    }
                 }
                 return Transition(
                     type,

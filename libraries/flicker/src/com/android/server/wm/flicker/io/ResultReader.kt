@@ -21,6 +21,7 @@ import androidx.annotation.VisibleForTesting
 import com.android.server.wm.flicker.AssertionTag
 import com.android.server.wm.flicker.TraceConfig
 import com.android.server.wm.flicker.TraceConfigs
+import com.android.server.wm.traces.common.Timestamp
 import com.android.server.wm.traces.common.events.CujTrace
 import com.android.server.wm.traces.common.events.EventLog
 import com.android.server.wm.traces.common.layers.LayersTrace
@@ -140,8 +141,8 @@ open class ResultReader(internal var result: ResultData, internal val traceConfi
                 WindowManagerTraceParser()
                     .parse(
                         it,
-                        from = transitionTimeRange.start.elapsedNanos,
-                        to = transitionTimeRange.end.elapsedNanos,
+                        from = transitionTimeRange.start,
+                        to = transitionTimeRange.end,
                         addInitialEntry = true,
                         clearCache = true
                     )
@@ -149,8 +150,8 @@ open class ResultReader(internal var result: ResultData, internal val traceConfi
             require(trace.entries.size >= minimumEntries) {
                 "WM trace contained ${trace.entries.size} entries, " +
                     "expected at least $minimumEntries... :: " +
-                    "transition starts at ${transitionTimeRange.start.elapsedNanos} and " +
-                    "ends at ${transitionTimeRange.end.elapsedNanos}."
+                    "transition starts at ${transitionTimeRange.start} and " +
+                    "ends at ${transitionTimeRange.end}."
             }
             trace
         }
@@ -168,8 +169,8 @@ open class ResultReader(internal var result: ResultData, internal val traceConfi
                 LayersTraceParser()
                     .parse(
                         it,
-                        transitionTimeRange.start.systemUptimeNanos,
-                        transitionTimeRange.end.systemUptimeNanos,
+                        transitionTimeRange.start,
+                        transitionTimeRange.end,
                         addInitialEntry = true,
                         clearCache = true
                     )
@@ -177,8 +178,8 @@ open class ResultReader(internal var result: ResultData, internal val traceConfi
             require(trace.entries.size >= minimumEntries) {
                 "Layers trace contained ${trace.entries.size} entries, " +
                     "expected at least $minimumEntries... :: " +
-                    "transition starts at ${transitionTimeRange.start.systemUptimeNanos} and " +
-                    "ends at ${transitionTimeRange.end.systemUptimeNanos}."
+                    "transition starts at ${transitionTimeRange.start} and " +
+                    "ends at ${transitionTimeRange.end}."
             }
             trace
         }
@@ -201,12 +202,9 @@ open class ResultReader(internal var result: ResultData, internal val traceConfi
      */
     @Throws(IOException::class)
     override fun readTransactionsTrace(): TransactionsTrace? =
-        doReadTransactionsTrace(
-            from = transitionTimeRange.start.systemUptimeNanos,
-            to = transitionTimeRange.end.systemUptimeNanos
-        )
+        doReadTransactionsTrace(from = transitionTimeRange.start, to = transitionTimeRange.end)
 
-    private fun doReadTransactionsTrace(from: Long, to: Long): TransactionsTrace? {
+    private fun doReadTransactionsTrace(from: Timestamp, to: Timestamp): TransactionsTrace? {
         val traceData = readFromZip(ResultArtifactDescriptor(TraceType.TRANSACTION))
         return traceData?.let {
             val trace = TransactionsTraceParser().parse(it, from, to, addInitialEntry = true)
@@ -221,18 +219,14 @@ open class ResultReader(internal var result: ResultData, internal val traceConfi
      */
     @Throws(IOException::class)
     override fun readTransitionsTrace(): TransitionsTrace? {
-        val transactionsTrace = doReadTransactionsTrace(Long.MIN_VALUE, Long.MAX_VALUE)
+        val transactionsTrace = doReadTransactionsTrace(Timestamp.MIN, Timestamp.MAX)
         val traceData = readFromZip(ResultArtifactDescriptor(TraceType.TRANSITION))
         if (transactionsTrace == null || traceData == null) {
             return null
         }
 
         val fullTrace = TransitionsTraceParser(transactionsTrace).parse(traceData)
-        val trace =
-            fullTrace.sliceElapsed(
-                transitionTimeRange.start.elapsedNanos,
-                transitionTimeRange.end.elapsedNanos
-            )
+        val trace = fullTrace.slice(transitionTimeRange.start, transitionTimeRange.end)
         if (!traceConfig.transitionsTrace.allowNoChange) {
             require(trace.entries.isNotEmpty()) { "Transitions trace cannot be empty" }
         }
@@ -252,11 +246,7 @@ open class ResultReader(internal var result: ResultData, internal val traceConfi
         val descriptor = ResultArtifactDescriptor(TraceType.EVENT_LOG)
         return readFromZip(descriptor)?.let {
             EventLogParser()
-                .parse(
-                    it,
-                    from = transitionTimeRange.start.unixNanos,
-                    to = transitionTimeRange.end.unixNanos
-                )
+                .parse(it, from = transitionTimeRange.start, to = transitionTimeRange.end)
         }
     }
 
@@ -266,6 +256,18 @@ open class ResultReader(internal var result: ResultData, internal val traceConfi
      */
     @Throws(IOException::class)
     override fun readCujTrace(): CujTrace? = readEventLogTrace()?.cujTrace
+
+    /** @return an [IReader] for the subsection of the trace we are reading in this reader */
+    override fun slice(startTimestamp: Timestamp, endTimestamp: Timestamp): ResultReader {
+        val slicedResult =
+            ResultData(
+                result.artifactPath,
+                TransitionTimeRange(startTimestamp, endTimestamp),
+                result.executionError,
+                result.runStatus
+            )
+        return ResultReader(slicedResult, traceConfig)
+    }
 
     override fun toString(): String = "$result"
 
