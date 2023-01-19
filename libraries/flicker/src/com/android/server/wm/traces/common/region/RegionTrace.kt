@@ -18,6 +18,7 @@ package com.android.server.wm.traces.common.region
 
 import com.android.server.wm.traces.common.IComponentMatcher
 import com.android.server.wm.traces.common.ITrace
+import com.android.server.wm.traces.common.Timestamp
 import kotlin.js.JsName
 
 /**
@@ -46,5 +47,16 @@ data class RegionTrace(
         var result = components.hashCode()
         result = 31 * result + entries.contentHashCode()
         return result
+    }
+
+    @JsName("slice")
+    override fun slice(startTimestamp: Timestamp, endTimestamp: Timestamp): ITrace<RegionEntry> {
+        return RegionTrace(
+            components,
+            entries
+                .dropWhile { it.timestamp < startTimestamp }
+                .dropLastWhile { it.timestamp > endTimestamp }
+                .toTypedArray()
+        )
     }
 }

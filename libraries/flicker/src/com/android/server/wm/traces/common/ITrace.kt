@@ -21,6 +21,8 @@ import kotlin.js.JsName
 interface ITrace<Entry : ITraceEntry> {
     @JsName("entries") val entries: Array<Entry>
 
+    @JsName("slice") fun slice(startTimestamp: Timestamp, endTimestamp: Timestamp): ITrace<Entry>
+
     @JsName("getEntryByElapsedTimestamp")
     fun getEntryByElapsedTimestamp(timestamp: Long): Entry {
         return entries.firstOrNull { it.timestamp.elapsedNanos == timestamp }

@@ -17,6 +17,7 @@
 package com.android.server.wm.traces.common.events
 
 import com.android.server.wm.traces.common.ITrace
+import com.android.server.wm.traces.common.Timestamp
 import kotlin.js.JsName
 
 /**
@@ -42,5 +43,15 @@ class EventLog(override val entries: Array<Event>) :
 
     companion object {
         const val MAGIC_NUMBER = "EventLog"
+    }
+
+    @JsName("slice")
+    override fun slice(startTimestamp: Timestamp, endTimestamp: Timestamp): EventLog {
+        return EventLog(
+            entries
+                .dropWhile { it.timestamp < startTimestamp }
+                .dropLastWhile { it.timestamp > endTimestamp }
+                .toTypedArray()
+        )
     }
 }

@@ -17,6 +17,7 @@
 package com.android.server.wm.traces.common.windowmanager
 
 import com.android.server.wm.traces.common.ITrace
+import com.android.server.wm.traces.common.Timestamp
 import com.android.server.wm.traces.common.service.PlatformConsts
 import kotlin.js.JsName
 
@@ -72,5 +73,15 @@ data class WindowManagerTrace(override val entries: Array<WindowManagerState>) :
         val lastWmState = entries.last()
         return lastWmState.policy?.rotation
             ?: run { throw RuntimeException("Wm state has no policy") }
+    }
+
+    @JsName("slice")
+    override fun slice(startTimestamp: Timestamp, endTimestamp: Timestamp): WindowManagerTrace {
+        return WindowManagerTrace(
+            entries
+                .dropWhile { it.timestamp < startTimestamp }
+                .dropLastWhile { it.timestamp > endTimestamp }
+                .toTypedArray()
+        )
     }
 }
