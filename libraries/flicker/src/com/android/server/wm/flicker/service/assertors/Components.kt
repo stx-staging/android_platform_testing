@@ -82,9 +82,11 @@ object Components {
 
         // TODO: (b/231974873) use windowId instead of window name to match instead
         val openWindowName = openingWindows.first().windowName
-        val component = ComponentName.unflattenFromString(openWindowName)
+        val component =
+            ComponentName.unflattenFromString(openWindowName)
+                ?: error("Failed to unflatten $openWindowName")
 
-        return ComponentNameMatcher(component!!.packageName, component.className)
+        return ComponentNameMatcher(component.packageName, component.className)
     }
 
     private fun closingAppFrom(transition: Transition): IComponentMatcher {
@@ -94,7 +96,7 @@ object Components {
         val windowNames = closingWindows.map { it.windowName }.distinct()
         if (windowNames.size > 1) {
             error(
-                "Was not expecting more than one opening windowNames got " +
+                "Was not expecting more than one closing windowNames got " +
                     windowNames.joinToString()
             )
         }
@@ -103,11 +105,12 @@ object Components {
         }
 
         // TODO: (b/231974873) use windowId instead of window name to match instead
-        val closeWindowName = closingWindows.firstOrNull()?.windowName
-        val closeWindowPackage = closeWindowName?.split('/')?.get(0) ?: ""
-        val closeWindowClass = closeWindowName?.split('/')?.get(0) ?: ""
+        val closeWindowName = closingWindows.first().windowName
+        val component =
+            ComponentName.unflattenFromString(closeWindowName)
+                ?: error("Failed to unflatten $closeWindowName")
 
-        return ComponentNameMatcher(closeWindowPackage, closeWindowClass)
+        return ComponentNameMatcher(component.packageName, component.className)
     }
 
     val byType: Map<String, ComponentBuilder> =
