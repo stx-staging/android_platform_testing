@@ -21,9 +21,14 @@ import android.content.Context
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import com.android.server.wm.flicker.datastore.CachedResultWriter
+import com.android.server.wm.flicker.io.ResultReader
 import com.android.server.wm.flicker.io.ResultWriter
 import com.android.server.wm.flicker.io.WINSCOPE_EXT
+import com.android.server.wm.flicker.monitor.EventLogMonitor
 import com.android.server.wm.flicker.monitor.LayersTraceMonitor
+import com.android.server.wm.flicker.monitor.ScreenRecorder
+import com.android.server.wm.flicker.monitor.TransactionsTraceMonitor
+import com.android.server.wm.flicker.monitor.TransitionsTraceMonitor
 import com.android.server.wm.flicker.monitor.WindowManagerTraceMonitor
 import com.android.server.wm.flicker.traces.FlickerSubjectException
 import com.android.server.wm.traces.common.layers.LayersTrace
@@ -283,4 +288,32 @@ fun createMockedFlicker(
     Mockito.`when`(mockedFlicker.transitionTeardown).thenReturn(teardown)
     Mockito.`when`(mockedFlicker.transitions).thenReturn(transitions)
     return mockedFlicker
+}
+
+fun captureTrace(actions: () -> Unit): ResultReader {
+    val instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation()
+    val writer =
+        ResultWriter()
+            .forScenario(TEST_SCENARIO)
+            .withOutputDir(getDefaultFlickerOutputDir())
+            .setRunComplete()
+    val monitors =
+        listOf(
+            ScreenRecorder(instrumentation.targetContext),
+            EventLogMonitor(),
+            TransactionsTraceMonitor(),
+            TransitionsTraceMonitor(),
+            WindowManagerTraceMonitor(),
+            LayersTraceMonitor()
+        )
+    try {
+        monitors.forEach { it.start() }
+        actions.invoke()
+    } finally {
+        monitors.forEach { it.stop() }
+    }
+    monitors.forEach { it.setResult(writer) }
+    val result = writer.write()
+
+    return ResultReader(result, DEFAULT_TRACE_CONFIG)
 }
