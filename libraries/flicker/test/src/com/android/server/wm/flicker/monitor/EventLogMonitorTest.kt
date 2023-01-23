@@ -9,9 +9,9 @@ import com.android.server.wm.traces.common.events.CujEvent
 import com.android.server.wm.traces.common.events.CujType
 import com.android.server.wm.traces.common.events.EventLog.Companion.MAGIC_NUMBER
 import com.android.server.wm.traces.common.events.FocusEvent
-import com.android.server.wm.traces.parser.events.EventLogParser.Companion.WM_JANK_CUJ_EVENTS_BEGIN_REQUEST
-import com.android.server.wm.traces.parser.events.EventLogParser.Companion.WM_JANK_CUJ_EVENTS_CANCEL_REQUEST
-import com.android.server.wm.traces.parser.events.EventLogParser.Companion.WM_JANK_CUJ_EVENTS_END_REQUEST
+import com.android.server.wm.traces.common.parser.events.EventLogParser.Companion.WM_JANK_CUJ_EVENTS_BEGIN_REQUEST
+import com.android.server.wm.traces.common.parser.events.EventLogParser.Companion.WM_JANK_CUJ_EVENTS_CANCEL_REQUEST
+import com.android.server.wm.traces.common.parser.events.EventLogParser.Companion.WM_JANK_CUJ_EVENTS_END_REQUEST
 import com.google.common.truth.Truth
 import java.nio.file.Files
 import java.nio.file.Path

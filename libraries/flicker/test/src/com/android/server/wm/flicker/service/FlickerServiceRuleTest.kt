@@ -19,13 +19,9 @@ package com.android.server.wm.flicker.service
 import com.android.server.wm.flicker.helpers.isShellTransitionsEnabled
 import com.android.server.wm.flicker.runner.Consts
 import com.android.server.wm.flicker.runner.ExecutionError
-import com.android.server.wm.flicker.service.assertors.AssertionResult
+import com.android.server.wm.flicker.service.assertors.IAssertionResult
 import com.android.server.wm.flicker.service.rules.FlickerServiceRule
 import com.android.server.wm.flicker.utils.KotlinMockito
-import com.android.server.wm.traces.common.service.AssertionInvocationGroup
-import com.android.server.wm.traces.common.service.FlickerServiceScenario
-import com.android.server.wm.traces.common.service.PlatformConsts
-import com.android.server.wm.traces.common.service.ScenarioType
 import com.google.common.truth.Truth
 import org.junit.Assume
 import org.junit.AssumptionViolatedException
@@ -109,19 +105,7 @@ class FlickerServiceRuleTest {
 
         val assertionError = Throwable("Some assertion error")
         `when`(mockFlickerServiceResultsCollector.resultsForTest(mockDescription))
-            .thenReturn(
-                listOf(
-                    AssertionResult(
-                        "assertionName",
-                        FlickerServiceScenario(
-                            ScenarioType.APP_LAUNCH,
-                            PlatformConsts.Rotation.ROTATION_0
-                        ),
-                        AssertionInvocationGroup.BLOCKING,
-                        assertionError
-                    )
-                )
-            )
+            .thenReturn(listOf(Mockito.mock(IAssertionResult::class.java)))
         `when`(mockFlickerServiceResultsCollector.testContainsFlicker(mockDescription))
             .thenReturn(true)
 
@@ -140,19 +124,7 @@ class FlickerServiceRuleTest {
 
         val assertionError = Throwable("Some assertion error")
         `when`(mockFlickerServiceResultsCollector.resultsForTest(mockDescription))
-            .thenReturn(
-                listOf(
-                    AssertionResult(
-                        "assertionName",
-                        FlickerServiceScenario(
-                            ScenarioType.APP_LAUNCH,
-                            PlatformConsts.Rotation.ROTATION_0
-                        ),
-                        AssertionInvocationGroup.BLOCKING,
-                        assertionError
-                    )
-                )
-            )
+            .thenReturn(listOf(Mockito.mock(IAssertionResult::class.java)))
         `when`(mockFlickerServiceResultsCollector.testContainsFlicker(mockDescription))
             .thenReturn(true)
 
