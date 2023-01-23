@@ -16,12 +16,14 @@
 
 package com.android.server.wm.traces.common.transition
 
+import com.android.server.wm.traces.common.WindowingMode
 import com.android.server.wm.traces.common.transition.Transition.Companion.Type
 import kotlin.js.JsName
 
 class TransitionChange(
     @JsName("windowName") val windowName: String,
-    @JsName("transitMode") val transitMode: Type
+    @JsName("transitMode") val transitMode: Type,
+    @JsName("windowingMode") val windowingMode: WindowingMode
 ) {
 
     override fun toString(): String {

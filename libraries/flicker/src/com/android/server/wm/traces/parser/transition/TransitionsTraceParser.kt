@@ -20,6 +20,7 @@ import android.util.Log
 import com.android.server.wm.shell.nano.ChangeInfo
 import com.android.server.wm.shell.nano.TransitionTraceProto
 import com.android.server.wm.traces.common.Timestamp
+import com.android.server.wm.traces.common.WindowingMode
 import com.android.server.wm.traces.common.transactions.TransactionsTrace
 import com.android.server.wm.traces.common.transition.Transition
 import com.android.server.wm.traces.common.transition.Transition.Companion.Type
@@ -105,7 +106,7 @@ class TransitionsTraceParser(private val transactions: TransactionsTrace) :
         return TransitionChange(
             windowName,
             Type.fromInt(proto.transitMode),
-            TransitionChange.Companion.WindowingMode.fromInt(proto.windowingMode)
+            WindowingMode.fromInt(proto.windowingMode)
         )
     }
 }
