@@ -33,7 +33,9 @@ import com.android.server.wm.flicker.monitor.WindowManagerTraceMonitor
 import com.android.server.wm.flicker.traces.FlickerSubjectException
 import com.android.server.wm.traces.common.IScenario
 import com.android.server.wm.traces.common.Timestamp
+import com.android.server.wm.traces.common.events.EventLog
 import com.android.server.wm.traces.common.layers.LayersTrace
+import com.android.server.wm.traces.common.parser.events.EventLogParser
 import com.android.server.wm.traces.common.transactions.TransactionsTrace
 import com.android.server.wm.traces.common.transition.TransitionsTrace
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
@@ -132,6 +134,14 @@ internal fun readTransitionsTraceFromFile(
 ): TransitionsTrace {
     return try {
         TransitionsTraceParser(transactionsTrace).parse(readAsset(relativePath))
+    } catch (e: Exception) {
+        throw RuntimeException(e)
+    }
+}
+
+internal fun readEventLogFromFile(relativePath: String): EventLog {
+    return try {
+        EventLogParser().parse(readAsset(relativePath))
     } catch (e: Exception) {
         throw RuntimeException(e)
     }
