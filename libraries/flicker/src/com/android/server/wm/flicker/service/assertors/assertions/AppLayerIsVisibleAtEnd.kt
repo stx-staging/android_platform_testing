@@ -22,7 +22,7 @@ import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 
 /** Checks if the [getWindowState] layer is visible at the end of the transition */
 class AppLayerIsVisibleAtEnd(component: ComponentBuilder) :
-    BaseAssertionBuilderWithComponent(component) {
+    AssertionTemplateWithComponent(component) {
     /** {@inheritDoc} */
     override fun doEvaluate(scenarioInstance: IScenarioInstance, layerSubject: LayersTraceSubject) {
         layerSubject.last().isVisible(component.build(scenarioInstance))

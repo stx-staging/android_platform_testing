@@ -25,7 +25,7 @@ import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubj
  * visible
  */
 class NonAppWindowBecomesVisible(component: ComponentBuilder) :
-    BaseAssertionBuilderWithComponent(component) {
+    AssertionTemplateWithComponent(component) {
     /** {@inheritDoc} */
     override fun doEvaluate(
         scenarioInstance: IScenarioInstance,

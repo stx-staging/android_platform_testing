@@ -26,7 +26,7 @@ import com.android.server.wm.traces.common.ComponentNameMatcher
  * flicker, and disappears before the transition is complete.
  */
 class RotationLayerAppearsAndVanishes(component: ComponentBuilder) :
-    BaseAssertionBuilderWithComponent(component) {
+    AssertionTemplateWithComponent(component) {
     /** {@inheritDoc} */
     override fun doEvaluate(scenarioInstance: IScenarioInstance, layerSubject: LayersTraceSubject) {
         layerSubject

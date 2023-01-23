@@ -27,7 +27,7 @@ import com.android.server.wm.traces.common.ComponentNameMatcher
  * that it is replaced by [Components.LAUNCHER] during the transition
  */
 class LauncherWindowReplacesAppAsTopWindow(component: ComponentBuilder) :
-    BaseAssertionBuilderWithComponent(component) {
+    AssertionTemplateWithComponent(component) {
     override fun doEvaluate(
         scenarioInstance: IScenarioInstance,
         wmSubject: WindowManagerTraceSubject

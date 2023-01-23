@@ -25,7 +25,7 @@ import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubj
  * invisible
  */
 open class NonAppWindowBecomesInvisible(component: ComponentBuilder) :
-    BaseAssertionBuilderWithComponent(component) {
+    AssertionTemplateWithComponent(component) {
     /** {@inheritDoc} */
     override fun doEvaluate(
         scenarioInstance: IScenarioInstance,

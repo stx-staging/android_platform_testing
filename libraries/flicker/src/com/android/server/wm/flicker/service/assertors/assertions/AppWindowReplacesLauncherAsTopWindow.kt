@@ -27,7 +27,7 @@ import com.android.server.wm.traces.common.ComponentNameMatcher
  * and that it is replaced by [getWindowState] during the transition
  */
 class AppWindowReplacesLauncherAsTopWindow(component: ComponentBuilder) :
-    BaseAssertionBuilderWithComponent(component) {
+    AssertionTemplateWithComponent(component) {
     /** {@inheritDoc} */
     override fun doEvaluate(
         scenarioInstance: IScenarioInstance,

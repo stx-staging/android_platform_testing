@@ -22,7 +22,7 @@ import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 
 /** Checks if the [getWindowState] layer is visible throughout the animation */
 class AppLayerIsVisibleAlways(component: ComponentBuilder) :
-    BaseAssertionBuilderWithComponent(component) {
+    AssertionTemplateWithComponent(component) {
     /** {@inheritDoc} */
     override fun doEvaluate(scenarioInstance: IScenarioInstance, layerSubject: LayersTraceSubject) {
         layerSubject.isVisible(component.build(scenarioInstance)).forAllEntries()

@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.service
+package com.android.server.wm.flicker.service.assertors.factories
 
-import com.android.server.wm.flicker.io.IReader
-import com.android.server.wm.flicker.service.config.FaasScenarioType
-import com.android.server.wm.traces.common.IScenario
-import com.android.server.wm.traces.common.transition.Transition
+import com.android.server.wm.flicker.service.IScenarioInstance
+import com.android.server.wm.flicker.service.assertors.IFaasAssertion
 
-interface IScenarioInstance : IScenario {
-    val type: FaasScenarioType
-    // A reader to read the part of the trace associated with the scenario instance
-    val reader: IReader
-
-    val associatedTransition: Transition?
+class GeneratedAssertionsFactory : IAssertionFactory {
+    override fun generateAssertionsFor(
+        scenarioInstance: IScenarioInstance
+    ): Collection<IFaasAssertion> {
+        // TODO: Implement
+        return emptyList()
+    }
 }

@@ -21,12 +21,13 @@ import androidx.annotation.VisibleForTesting
 import com.android.server.wm.flicker.AssertionTag
 import com.android.server.wm.flicker.TraceConfig
 import com.android.server.wm.flicker.TraceConfigs
+import com.android.server.wm.traces.common.events.CujTrace
 import com.android.server.wm.traces.common.events.EventLog
 import com.android.server.wm.traces.common.layers.LayersTrace
+import com.android.server.wm.traces.common.parser.events.EventLogParser
 import com.android.server.wm.traces.common.transactions.TransactionsTrace
 import com.android.server.wm.traces.common.transition.TransitionsTrace
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
-import com.android.server.wm.traces.parser.events.EventLogParser
 import com.android.server.wm.traces.parser.layers.LayersTraceParser
 import com.android.server.wm.traces.parser.transaction.TransactionsTraceParser
 import com.android.server.wm.traces.parser.transition.TransitionsTraceParser
@@ -46,13 +47,13 @@ import java.util.zip.ZipInputStream
  * @param result to read from
  * @param traceConfig
  */
-open class ResultReader(protected var result: ResultData, private val traceConfig: TraceConfigs) :
+open class ResultReader(internal var result: ResultData, internal val traceConfig: TraceConfigs) :
     IReader {
     override val artifactPath
         get() = result.artifactPath
     override val runStatus
         get() = result.runStatus
-    private val transitionTimeRange
+    internal val transitionTimeRange
         get() = result.transitionTimeRange
     override val isFailure
         get() = runStatus.isFailure
@@ -228,7 +229,7 @@ open class ResultReader(protected var result: ResultData, private val traceConfi
 
         val fullTrace = TransitionsTraceParser(transactionsTrace).parse(traceData)
         val trace =
-            fullTrace.slice(
+            fullTrace.sliceElapsed(
                 transitionTimeRange.start.elapsedNanos,
                 transitionTimeRange.end.elapsedNanos
             )
@@ -243,7 +244,7 @@ open class ResultReader(protected var result: ResultData, private val traceConfi
     }
 
     /**
-     * @return a List<[FocusEvent]> for the part of the trace we want to run the assertions on
+     * @return an [EventLog] for the part of the trace we want to run the assertions on
      * @throws IOException if the artifact file doesn't exist or can't be read
      */
     @Throws(IOException::class)
@@ -258,6 +259,13 @@ open class ResultReader(protected var result: ResultData, private val traceConfi
                 )
         }
     }
+
+    /**
+     * @return a [CujTrace] for the part of the trace we want to run the assertions on
+     * @throws IOException if the artifact file doesn't exist or can't be read
+     */
+    @Throws(IOException::class)
+    override fun readCujTrace(): CujTrace? = readEventLogTrace()?.cujTrace
 
     override fun toString(): String = "$result"
 

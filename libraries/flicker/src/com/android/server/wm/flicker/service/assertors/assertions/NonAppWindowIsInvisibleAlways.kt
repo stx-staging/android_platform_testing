@@ -22,7 +22,7 @@ import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubj
 
 /** Checks if the [component] window is invisible during the entire transition */
 class NonAppWindowIsInvisibleAlways(component: ComponentBuilder) :
-    BaseAssertionBuilderWithComponent(component) {
+    AssertionTemplateWithComponent(component) {
     /** {@inheritDoc} */
     override fun doEvaluate(
         scenarioInstance: IScenarioInstance,

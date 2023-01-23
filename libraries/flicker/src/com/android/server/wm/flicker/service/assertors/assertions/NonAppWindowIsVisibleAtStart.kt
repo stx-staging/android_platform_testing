@@ -22,7 +22,7 @@ import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubj
 
 /** Checks if the [component] window is visible at the end of the transition */
 class NonAppWindowIsVisibleAtStart(component: ComponentBuilder) :
-    BaseAssertionBuilderWithComponent(component) {
+    AssertionTemplateWithComponent(component) {
     /** {@inheritDoc} */
     override fun doEvaluate(
         scenarioInstance: IScenarioInstance,

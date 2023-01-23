@@ -29,13 +29,6 @@ import com.android.server.wm.flicker.service.extractors.TaggedScenarioExtractor
 import com.android.server.wm.traces.common.events.CujType
 
 object FlickerServiceConfig {
-    enum class FaasScenarioType {
-        COMMON,
-        LAUNCHER_APP_LAUNCH_FROM_ICON,
-        APP_CLOSE_TO_HOME,
-        NOTIFICATION_APP_START
-    }
-
     /** EDIT THIS CONFIG TO ADD SCENARIOS TO FAAS */
     fun getScenarioConfigFor(type: FaasScenarioType): ScenarioConfig =
         when (type) {

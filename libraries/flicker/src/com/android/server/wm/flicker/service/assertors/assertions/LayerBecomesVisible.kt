@@ -24,8 +24,7 @@ import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
  * Checks if the [componentMatcher] layer is invisible at the start of the transition and becomes
  * visible
  */
-class LayerBecomesVisible(component: ComponentBuilder) :
-    BaseAssertionBuilderWithComponent(component) {
+class LayerBecomesVisible(component: ComponentBuilder) : AssertionTemplateWithComponent(component) {
     /** {@inheritDoc} */
     override fun doEvaluate(scenarioInstance: IScenarioInstance, layerSubject: LayersTraceSubject) {
         layerSubject

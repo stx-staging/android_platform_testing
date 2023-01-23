@@ -22,7 +22,7 @@ import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubj
 
 /** Checks that [component] starts on top and moves out of top during the transition */
 open class WindowMovesOutOfTop(component: ComponentBuilder) :
-    BaseAssertionBuilderWithComponent(component) {
+    AssertionTemplateWithComponent(component) {
     /** {@inheritDoc} */
     override fun doEvaluate(
         scenarioInstance: IScenarioInstance,

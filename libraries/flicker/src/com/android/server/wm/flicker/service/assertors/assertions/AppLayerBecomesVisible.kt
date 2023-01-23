@@ -26,7 +26,7 @@ import com.android.server.wm.traces.common.ComponentNameMatcher
  * created and/or becomes visible during the transition.
  */
 class AppLayerBecomesVisible(component: ComponentBuilder) :
-    BaseAssertionBuilderWithComponent(component) {
+    AssertionTemplateWithComponent(component) {
     /** {@inheritDoc} */
     override fun doEvaluate(scenarioInstance: IScenarioInstance, layerSubject: LayersTraceSubject) {
         layerSubject

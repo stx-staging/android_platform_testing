@@ -63,4 +63,14 @@ data class WindowManagerTrace(override val entries: Array<WindowManagerState>) :
         return firstWmState.policy?.rotation
             ?: run { throw RuntimeException("Wm state has no policy") }
     }
+
+    /** Get the final rotation */
+    fun getFinalRotation(): PlatformConsts.Rotation {
+        if (entries.isEmpty()) {
+            throw RuntimeException("WindowManager Trace has no entries")
+        }
+        val lastWmState = entries.last()
+        return lastWmState.policy?.rotation
+            ?: run { throw RuntimeException("Wm state has no policy") }
+    }
 }

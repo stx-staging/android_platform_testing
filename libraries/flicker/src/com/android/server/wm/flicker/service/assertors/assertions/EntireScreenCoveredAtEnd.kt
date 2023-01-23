@@ -17,14 +17,14 @@
 package com.android.server.wm.flicker.service.assertors.assertions
 
 import com.android.server.wm.flicker.service.IScenarioInstance
-import com.android.server.wm.flicker.service.assertors.BaseAssertionTemplate
+import com.android.server.wm.flicker.service.assertors.AssertionTemplate
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 
 /**
  * Checks if the stack space of all displays is fully covered by any visible layer, at the end of
  * the transition
  */
-class EntireScreenCoveredAtEnd : BaseAssertionTemplate() {
+class EntireScreenCoveredAtEnd : AssertionTemplate() {
     /** {@inheritDoc} */
     override fun doEvaluate(scenarioInstance: IScenarioInstance, layerSubject: LayersTraceSubject) {
         val subject = layerSubject.last()

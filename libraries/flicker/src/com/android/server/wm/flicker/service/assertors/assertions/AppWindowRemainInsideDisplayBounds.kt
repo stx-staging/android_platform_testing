@@ -25,7 +25,7 @@ import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubj
  * animation
  */
 class AppWindowRemainInsideDisplayBounds(component: ComponentBuilder) :
-    BaseAssertionBuilderWithComponent(component) {
+    AssertionTemplateWithComponent(component) {
     /** {@inheritDoc} */
     override fun doEvaluate(
         scenarioInstance: IScenarioInstance,

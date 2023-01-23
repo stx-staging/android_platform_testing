@@ -17,14 +17,14 @@
 package com.android.server.wm.flicker.service.assertors.assertions
 
 import com.android.server.wm.flicker.service.IScenarioInstance
-import com.android.server.wm.flicker.service.assertors.BaseAssertionTemplate
+import com.android.server.wm.flicker.service.assertors.AssertionTemplate
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 
 /**
  * Checks if the stack space of all displays is fully covered by any visible layer, during the whole
  * transitions
  */
-class EntireScreenCoveredAlways : BaseAssertionTemplate() {
+class EntireScreenCoveredAlways : AssertionTemplate() {
     /** {@inheritDoc} */
     override fun doEvaluate(scenarioInstance: IScenarioInstance, layerSubject: LayersTraceSubject) {
         layerSubject

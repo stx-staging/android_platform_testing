@@ -22,7 +22,7 @@ import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 
 /** Checks if the [component] layer is visible at the start of the transition */
 class LayerIsVisibleAtStart(component: ComponentBuilder) :
-    BaseAssertionBuilderWithComponent(component) {
+    AssertionTemplateWithComponent(component) {
     /** {@inheritDoc} */
     override fun doEvaluate(scenarioInstance: IScenarioInstance, layerSubject: LayersTraceSubject) {
         layerSubject.first().isVisible(component.build(scenarioInstance))

@@ -30,7 +30,7 @@ import com.android.server.wm.traces.common.ComponentNameMatcher
  * ```
  */
 class LauncherReplacesAppLayer(component: ComponentBuilder) :
-    BaseAssertionBuilderWithComponent(component) {
+    AssertionTemplateWithComponent(component) {
     /** {@inheritDoc} */
     override fun doEvaluate(scenarioInstance: IScenarioInstance, layerSubject: LayersTraceSubject) {
         layerSubject

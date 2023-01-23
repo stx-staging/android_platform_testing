@@ -16,16 +16,19 @@
 
 package com.android.server.wm.flicker.service.assertors
 
-import com.android.server.wm.traces.common.service.AssertionInvocationGroup
-import com.android.server.wm.traces.common.service.FlickerServiceScenario
+import com.android.server.wm.flicker.assertions.FlickerSubject
+import com.android.server.wm.flicker.traces.FlickerSubjectException
 
 /** Base class for a FaaS assertion */
 data class AssertionResult(
-    val assertionName: String,
-    val scenario: FlickerServiceScenario,
-    val invocationGroup: AssertionInvocationGroup,
-    val assertionError: Throwable?
-) {
-    val failed: Boolean
+    override val assertion: IFaasAssertion,
+    override val assertionError: Throwable?,
+) : IAssertionResult {
+    override val failed: Boolean
         get() = (assertionError !== null)
+    override val passed: Boolean
+        get() = !failed
+
+    val failureSubject: FlickerSubject?
+        get() = if (assertionError is FlickerSubjectException) assertionError.subject else null
 }

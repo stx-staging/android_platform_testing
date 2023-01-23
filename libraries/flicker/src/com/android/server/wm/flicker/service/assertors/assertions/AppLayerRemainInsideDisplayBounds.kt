@@ -25,7 +25,7 @@ import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
  * animation
  */
 class AppLayerRemainInsideDisplayBounds(component: ComponentBuilder) :
-    BaseAssertionBuilderWithComponent(component) {
+    AssertionTemplateWithComponent(component) {
     /** {@inheritDoc} */
     override fun doEvaluate(scenarioInstance: IScenarioInstance, layerSubject: LayersTraceSubject) {
         layerSubject

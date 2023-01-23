@@ -26,7 +26,7 @@ import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubj
  * transition
  */
 class PipWindowBecomesInvisible(component: ComponentBuilder) :
-    BaseAssertionBuilderWithComponent(component) {
+    AssertionTemplateWithComponent(component) {
     /** {@inheritDoc} */
     override fun doEvaluate(
         scenarioInstance: IScenarioInstance,

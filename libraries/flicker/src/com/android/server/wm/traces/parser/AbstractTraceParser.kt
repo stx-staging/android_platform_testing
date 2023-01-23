@@ -18,6 +18,7 @@ package com.android.server.wm.traces.parser
 
 import com.android.server.wm.traces.common.Cache
 import com.android.server.wm.traces.common.Utils
+import com.android.server.wm.traces.common.parser.AbstractParser
 
 /** Base trace parser class */
 abstract class AbstractTraceParser<

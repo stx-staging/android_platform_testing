@@ -22,7 +22,7 @@ import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubj
 
 /** Checks that [getWindowState] window becomes pinned */
 class AppWindowBecomesPinned(component: ComponentBuilder) :
-    BaseAssertionBuilderWithComponent(component) {
+    AssertionTemplateWithComponent(component) {
     /** {@inheritDoc} */
     override fun doEvaluate(
         scenarioInstance: IScenarioInstance,
