@@ -23,10 +23,10 @@ import android.content.ComponentName
 import android.os.ParcelFileDescriptor
 import android.os.Trace
 import android.util.Log
-import com.android.server.wm.traces.common.ComponentNameMatcher
 import com.android.server.wm.traces.common.DeviceStateDump
 import com.android.server.wm.traces.common.NullableDeviceStateDump
 import com.android.server.wm.traces.common.Rect
+import com.android.server.wm.traces.common.component.matchers.ComponentNameMatcher
 import com.android.server.wm.traces.common.layers.BaseLayerTraceEntry
 import com.android.server.wm.traces.common.windowmanager.WindowManagerState
 

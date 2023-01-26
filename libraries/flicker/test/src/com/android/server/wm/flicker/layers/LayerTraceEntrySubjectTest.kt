@@ -28,9 +28,9 @@ import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 import com.android.server.wm.flicker.utils.MockLayerBuilder
 import com.android.server.wm.flicker.utils.MockLayerTraceEntryBuilder
 import com.android.server.wm.traces.common.Cache
-import com.android.server.wm.traces.common.ComponentNameMatcher
-import com.android.server.wm.traces.common.OrComponentMatcher
 import com.android.server.wm.traces.common.Rect
+import com.android.server.wm.traces.common.component.matchers.ComponentNameMatcher
+import com.android.server.wm.traces.common.component.matchers.OrComponentMatcher
 import com.android.server.wm.traces.common.region.Region
 import com.google.common.truth.Truth
 import org.junit.Before

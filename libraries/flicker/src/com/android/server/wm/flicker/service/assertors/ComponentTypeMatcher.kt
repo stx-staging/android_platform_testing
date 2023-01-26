@@ -18,8 +18,8 @@ package com.android.server.wm.flicker.service.assertors
 
 import com.android.server.wm.flicker.Utils
 import com.android.server.wm.flicker.service.ScenarioInstance
-import com.android.server.wm.traces.common.ComponentName
-import com.android.server.wm.traces.common.ComponentNameMatcher
+import com.android.server.wm.traces.common.component.ComponentName
+import com.android.server.wm.traces.common.component.matchers.ComponentNameMatcher
 
 /**
  * ComponentMatcher based on type (e.g. open/close app) It is initialized late based on the

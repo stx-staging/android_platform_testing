@@ -25,12 +25,12 @@ import com.android.server.wm.flicker.traces.windowmanager.WindowManagerStateSubj
 import com.android.server.wm.traces.common.ActiveBuffer
 import com.android.server.wm.traces.common.Cache
 import com.android.server.wm.traces.common.Color
-import com.android.server.wm.traces.common.ComponentNameMatcher
 import com.android.server.wm.traces.common.DeviceStateDump
-import com.android.server.wm.traces.common.IComponentName
 import com.android.server.wm.traces.common.Matrix33
 import com.android.server.wm.traces.common.Rect
 import com.android.server.wm.traces.common.RectF
+import com.android.server.wm.traces.common.component.IComponentName
+import com.android.server.wm.traces.common.component.matchers.ComponentNameMatcher
 import com.android.server.wm.traces.common.layers.HwcCompositionType
 import com.android.server.wm.traces.common.layers.Layer
 import com.android.server.wm.traces.common.layers.LayerTraceEntryBuilder

@@ -17,9 +17,9 @@
 package com.android.server.wm.flicker.service.assertors
 
 import com.android.server.wm.flicker.service.IScenarioInstance
-import com.android.server.wm.traces.common.ComponentIdMatcher
-import com.android.server.wm.traces.common.ComponentNameMatcher
-import com.android.server.wm.traces.common.IComponentMatcher
+import com.android.server.wm.traces.common.component.matchers.ComponentIdMatcher
+import com.android.server.wm.traces.common.component.matchers.ComponentNameMatcher
+import com.android.server.wm.traces.common.component.matchers.IComponentMatcher
 import com.android.server.wm.traces.common.transition.Transition
 
 data class ComponentTemplate(

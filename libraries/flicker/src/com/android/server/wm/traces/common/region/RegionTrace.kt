@@ -16,9 +16,9 @@
 
 package com.android.server.wm.traces.common.region
 
-import com.android.server.wm.traces.common.IComponentMatcher
 import com.android.server.wm.traces.common.ITrace
 import com.android.server.wm.traces.common.Timestamp
+import com.android.server.wm.traces.common.component.matchers.IComponentMatcher
 import kotlin.js.JsName
 
 /**

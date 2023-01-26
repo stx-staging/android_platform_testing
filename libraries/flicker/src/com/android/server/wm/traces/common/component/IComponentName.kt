@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.server.wm.traces.common
+package com.android.server.wm.traces.common.component
 
 import kotlin.js.JsName
 

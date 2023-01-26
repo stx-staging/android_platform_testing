@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.traces.common
+package com.android.server.wm.traces.common.component.matchers
 
 import com.android.server.wm.traces.common.layers.Layer
 import com.android.server.wm.traces.common.windowmanager.windows.Activity

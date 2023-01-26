@@ -18,7 +18,7 @@ package com.android.server.wm.flicker
 
 import com.android.compatibility.common.util.SystemUtil
 import com.android.server.wm.flicker.service.assertors.ComponentTypeMatcher
-import com.android.server.wm.traces.common.ComponentNameMatcher
+import com.android.server.wm.traces.common.component.matchers.ComponentNameMatcher
 import java.nio.file.Path
 
 object Utils {
