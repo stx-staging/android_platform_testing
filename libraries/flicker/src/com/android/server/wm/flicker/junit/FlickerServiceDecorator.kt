@@ -76,7 +76,9 @@ class FlickerServiceDecorator(
     override fun getTestMethods(test: Any): List<FrameworkMethod> {
         val result = inner?.getTestMethods(test)?.toMutableList() ?: mutableListOf()
         if (shouldComputeTestMethods()) {
-            withPerfettoTrace("getTestMethods") {
+            withPerfettoTrace(
+                "$FAAS_METRICS_PREFIX getTestMethods ${testClass.javaClass.simpleName}"
+            ) {
                 result.addAll(computeFlickerServiceTests(test))
                 Log.d(FLICKER_TAG, "Computed ${result.size} flicker tests")
             }
