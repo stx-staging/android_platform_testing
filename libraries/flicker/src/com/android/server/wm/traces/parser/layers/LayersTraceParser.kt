@@ -60,7 +60,7 @@ class LayersTraceParser(
     override fun getTimestamp(entry: Layerstrace.LayersTraceProto): Timestamp {
         require(realToElapsedTimeOffsetNanos != Timestamp.NULL_TIMESTAMP)
         return Timestamp(
-            elapsedNanos = entry.elapsedRealtimeNanos,
+            systemUptimeNanos = entry.elapsedRealtimeNanos,
             unixNanos = entry.elapsedRealtimeNanos + realToElapsedTimeOffsetNanos
         )
     }
