@@ -17,7 +17,7 @@
 package com.android.server.wm.flicker.service.assertors.assertions
 
 import com.android.server.wm.flicker.service.IScenarioInstance
-import com.android.server.wm.flicker.service.assertors.ComponentBuilder
+import com.android.server.wm.flicker.service.assertors.ComponentTemplate
 import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
 
 /**
@@ -25,7 +25,7 @@ import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubj
  * and invisible at the same moment, and remains unpinned and invisible until the end of the
  * transition
  */
-class PipWindowBecomesInvisible(component: ComponentBuilder) :
+class PipWindowBecomesInvisible(component: ComponentTemplate) :
     AssertionTemplateWithComponent(component) {
     /** {@inheritDoc} */
     override fun doEvaluate(

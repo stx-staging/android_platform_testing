@@ -17,11 +17,11 @@
 package com.android.server.wm.flicker.service.assertors.assertions
 
 import com.android.server.wm.flicker.service.IScenarioInstance
-import com.android.server.wm.flicker.service.assertors.ComponentBuilder
+import com.android.server.wm.flicker.service.assertors.ComponentTemplate
 import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
 
 /** Checks that [getWindowState] window becomes pinned */
-class AppWindowBecomesPinned(component: ComponentBuilder) :
+class AppWindowBecomesPinned(component: ComponentTemplate) :
     AssertionTemplateWithComponent(component) {
     /** {@inheritDoc} */
     override fun doEvaluate(

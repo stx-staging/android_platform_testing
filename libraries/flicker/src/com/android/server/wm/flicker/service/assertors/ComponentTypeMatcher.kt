@@ -26,7 +26,7 @@ import com.android.server.wm.traces.common.ComponentNameMatcher
  * transition passed through the execute function of the assertion
  */
 class ComponentTypeMatcher(val name: String) : ComponentNameMatcher(ComponentName("", "")) {
-    constructor(name: String, componentBuilder: ComponentBuilder) : this(name) {
+    constructor(name: String, componentBuilder: ComponentTemplate) : this(name) {
         this.componentBuilder = componentBuilder
     }
 
@@ -39,7 +39,7 @@ class ComponentTypeMatcher(val name: String) : ComponentNameMatcher(ComponentNam
             return field
         }
 
-    var componentBuilder: ComponentBuilder = Components.EMPTY
+    var componentBuilder: ComponentTemplate = Components.EMPTY
 
     fun initialize(scenarioInstance: ScenarioInstance) {
         Utils.componentNameMatcherHardcoded(name)?.run {

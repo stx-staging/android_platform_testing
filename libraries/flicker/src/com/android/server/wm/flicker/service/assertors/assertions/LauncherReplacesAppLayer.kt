@@ -17,7 +17,7 @@
 package com.android.server.wm.flicker.service.assertors.assertions
 
 import com.android.server.wm.flicker.service.IScenarioInstance
-import com.android.server.wm.flicker.service.assertors.ComponentBuilder
+import com.android.server.wm.flicker.service.assertors.ComponentTemplate
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 import com.android.server.wm.traces.common.ComponentNameMatcher
 
@@ -29,7 +29,7 @@ import com.android.server.wm.traces.common.ComponentNameMatcher
  *     [Components.LAUNCHER] becomes visible
  * ```
  */
-class LauncherReplacesAppLayer(component: ComponentBuilder) :
+class LauncherReplacesAppLayer(component: ComponentTemplate) :
     AssertionTemplateWithComponent(component) {
     /** {@inheritDoc} */
     override fun doEvaluate(scenarioInstance: IScenarioInstance, layerSubject: LayersTraceSubject) {

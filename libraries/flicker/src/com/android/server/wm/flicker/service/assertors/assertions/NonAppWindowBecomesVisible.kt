@@ -17,14 +17,14 @@
 package com.android.server.wm.flicker.service.assertors.assertions
 
 import com.android.server.wm.flicker.service.IScenarioInstance
-import com.android.server.wm.flicker.service.assertors.ComponentBuilder
+import com.android.server.wm.flicker.service.assertors.ComponentTemplate
 import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
 
 /**
  * Checks that non-app window [component] is invisible at the start of the transition and becomes
  * visible
  */
-class NonAppWindowBecomesVisible(component: ComponentBuilder) :
+class NonAppWindowBecomesVisible(component: ComponentTemplate) :
     AssertionTemplateWithComponent(component) {
     /** {@inheritDoc} */
     override fun doEvaluate(

@@ -17,7 +17,7 @@
 package com.android.server.wm.flicker.service.assertors.assertions
 
 import com.android.server.wm.flicker.service.IScenarioInstance
-import com.android.server.wm.flicker.service.assertors.ComponentBuilder
+import com.android.server.wm.flicker.service.assertors.ComponentTemplate
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 import com.android.server.wm.traces.common.ComponentNameMatcher
 
@@ -25,7 +25,7 @@ import com.android.server.wm.traces.common.ComponentNameMatcher
  * Checks that the [ComponentNameMatcher.ROTATION] layer appears during the transition, doesn't
  * flicker, and disappears before the transition is complete.
  */
-class RotationLayerAppearsAndVanishes(component: ComponentBuilder) :
+class RotationLayerAppearsAndVanishes(component: ComponentTemplate) :
     AssertionTemplateWithComponent(component) {
     /** {@inheritDoc} */
     override fun doEvaluate(scenarioInstance: IScenarioInstance, layerSubject: LayersTraceSubject) {

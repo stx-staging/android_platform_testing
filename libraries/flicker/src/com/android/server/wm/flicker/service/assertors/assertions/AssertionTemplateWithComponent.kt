@@ -17,10 +17,10 @@
 package com.android.server.wm.flicker.service.assertors.assertions
 
 import com.android.server.wm.flicker.service.assertors.AssertionTemplate
-import com.android.server.wm.flicker.service.assertors.ComponentBuilder
+import com.android.server.wm.flicker.service.assertors.ComponentTemplate
 
 /** Base class for tests that require a [component] named window name */
-abstract class AssertionTemplateWithComponent(val component: ComponentBuilder) :
+abstract class AssertionTemplateWithComponent(val component: ComponentTemplate) :
     AssertionTemplate() {
 
     override val assertionName: String = "${this::class.java.simpleName}(${component.name})"

@@ -17,7 +17,7 @@
 package com.android.server.wm.flicker.service.assertors.assertions
 
 import com.android.server.wm.flicker.service.IScenarioInstance
-import com.android.server.wm.flicker.service.assertors.ComponentBuilder
+import com.android.server.wm.flicker.service.assertors.ComponentTemplate
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 import com.android.server.wm.traces.common.ComponentNameMatcher
 
@@ -25,7 +25,7 @@ import com.android.server.wm.traces.common.ComponentNameMatcher
  * Checks that the app layer doesn't exist or is invisible at the start of the transition, but is
  * created and/or becomes visible during the transition.
  */
-class AppLayerBecomesVisible(component: ComponentBuilder) :
+class AppLayerBecomesVisible(component: ComponentTemplate) :
     AssertionTemplateWithComponent(component) {
     /** {@inheritDoc} */
     override fun doEvaluate(scenarioInstance: IScenarioInstance, layerSubject: LayersTraceSubject) {

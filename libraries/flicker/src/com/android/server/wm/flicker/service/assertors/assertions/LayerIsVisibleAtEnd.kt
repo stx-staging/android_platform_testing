@@ -17,11 +17,12 @@
 package com.android.server.wm.flicker.service.assertors.assertions
 
 import com.android.server.wm.flicker.service.IScenarioInstance
-import com.android.server.wm.flicker.service.assertors.ComponentBuilder
+import com.android.server.wm.flicker.service.assertors.ComponentTemplate
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 
 /** Checks if the [component] layer is visible at the end of the transition */
-class LayerIsVisibleAtEnd(component: ComponentBuilder) : AssertionTemplateWithComponent(component) {
+class LayerIsVisibleAtEnd(component: ComponentTemplate) :
+    AssertionTemplateWithComponent(component) {
     /** {@inheritDoc} */
     override fun doEvaluate(scenarioInstance: IScenarioInstance, layerSubject: LayersTraceSubject) {
         layerSubject.last().isVisible(component.build(scenarioInstance))
