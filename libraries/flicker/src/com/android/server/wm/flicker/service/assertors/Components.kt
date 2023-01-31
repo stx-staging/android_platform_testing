@@ -17,8 +17,8 @@
 package com.android.server.wm.flicker.service.assertors
 
 import com.android.server.wm.flicker.service.IScenarioInstance
-import com.android.server.wm.traces.common.component.matchers.ComponentIdMatcher
 import com.android.server.wm.traces.common.component.matchers.ComponentNameMatcher
+import com.android.server.wm.traces.common.component.matchers.FullComponentIdMatcher
 import com.android.server.wm.traces.common.component.matchers.IComponentMatcher
 import com.android.server.wm.traces.common.transition.Transition
 
@@ -58,39 +58,47 @@ object Components {
 
     // TODO: Extract out common code between two functions below
     private fun openingAppFrom(transition: Transition): IComponentMatcher {
-        val openingLayerIds =
-            transition.changes
-                .filter {
-                    it.transitMode == Transition.Companion.Type.OPEN ||
-                        it.transitMode == Transition.Companion.Type.TO_FRONT
-                }
-                .map { it.layerId }
+        val targetChanges =
+            transition.changes.filter {
+                it.transitMode == Transition.Companion.Type.OPEN ||
+                    it.transitMode == Transition.Companion.Type.TO_FRONT
+            }
 
+        val openingLayerIds = targetChanges.map { it.layerId }
         require(openingLayerIds.size == 1) {
             "Expected 1 opening layer but got ${openingLayerIds.size}"
         }
 
-        val windowId = 0 // TODO: Get? Or allow it to be passed as null?
+        val openingWindowIds = targetChanges.map { it.windowId }
+        require(openingWindowIds.size == 1) {
+            "Expected 1 opening window but got ${openingWindowIds.size}"
+        }
+
+        val windowId = openingWindowIds.first()
         val layerId = openingLayerIds.first()
-        return ComponentIdMatcher(windowId, layerId)
+        return FullComponentIdMatcher(windowId, layerId)
     }
 
     private fun closingAppFrom(transition: Transition): IComponentMatcher {
-        val closingLayerIds =
-            transition.changes
-                .filter {
-                    it.transitMode == Transition.Companion.Type.CLOSE ||
-                        it.transitMode == Transition.Companion.Type.TO_BACK
-                }
-                .map { it.layerId }
+        val targetChanges =
+            transition.changes.filter {
+                it.transitMode == Transition.Companion.Type.CLOSE ||
+                    it.transitMode == Transition.Companion.Type.TO_BACK
+            }
 
+        val closingLayerIds = targetChanges.map { it.layerId }
         require(closingLayerIds.size == 1) {
             "Expected 1 closing layer but got ${closingLayerIds.size}"
         }
 
-        val windowId = 0 // TODO: Get? Or allow it to be passed as null?
+        val closingWindowIds = targetChanges.map { it.layerId }
+        require(closingWindowIds.size == 1) {
+            "Expected 1 closing window but got ${closingWindowIds.size}"
+        }
+
+        val windowId = closingWindowIds.first()
         val layerId = closingLayerIds.first()
-        return ComponentIdMatcher(windowId, layerId)
+        return FullComponentIdMatcher(windowId, layerId)
     }
 
     val byType: Map<String, ComponentTemplate> =
