@@ -29,6 +29,12 @@ interface ITrace<Entry : ITraceEntry> {
             ?: throw RuntimeException("Entry does not exist for timestamp $timestamp")
     }
 
+    @JsName("getLastEntryByElapsedTimestamp")
+    fun getLastEntryByElapsedTimestamp(timestamp: Long): Entry {
+        return entries.asList().asReversed().firstOrNull { it.timestamp.elapsedNanos <= timestamp }
+            ?: throw RuntimeException("No entry at or before timestamp $timestamp")
+    }
+
     @JsName("getEntryBySystemUptime")
     fun getEntryBySystemUptime(timestamp: Long): Entry {
         return entries.firstOrNull { it.timestamp.systemUptimeNanos == timestamp }
