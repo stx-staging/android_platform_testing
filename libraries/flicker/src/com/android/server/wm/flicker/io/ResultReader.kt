@@ -258,6 +258,8 @@ open class ResultReader(internal var result: ResultData, internal val traceConfi
 
     /** @return an [IReader] for the subsection of the trace we are reading in this reader */
     override fun slice(startTimestamp: Timestamp, endTimestamp: Timestamp): ResultReader {
+        require(startTimestamp.hasAllTimestamps)
+        require(endTimestamp.hasAllTimestamps)
         val slicedResult =
             ResultData(
                 result.artifactPath,
