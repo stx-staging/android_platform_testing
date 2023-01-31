@@ -32,6 +32,7 @@ import com.android.server.wm.traces.common.Condition
 import com.android.server.wm.traces.common.DeviceStateDump
 import com.android.server.wm.traces.common.WindowManagerConditionsFactory
 import com.android.server.wm.traces.common.component.matchers.ComponentNameMatcher
+import com.android.server.wm.traces.common.component.matchers.IComponentMatcher
 import com.android.server.wm.traces.common.component.matchers.IComponentNameMatcher
 import com.android.server.wm.traces.common.windowmanager.WindowManagerState
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerStateHelper
@@ -173,14 +174,14 @@ open class StandardAppHelper(
     @JvmOverloads
     open fun launchViaIntent(
         wmHelper: WindowManagerStateHelper,
-        expectedWindowName: String = "",
+        launchedAppComponentMatcherOverride: IComponentMatcher? = null,
         action: String? = null,
         stringExtras: Map<String, String> = mapOf(),
         waitConditions: Array<Condition<DeviceStateDump>> = emptyArray()
     ) =
         launchViaIntentAndWaitShown(
             wmHelper,
-            expectedWindowName,
+            launchedAppComponentMatcherOverride,
             action,
             stringExtras,
             waitConditions
@@ -192,27 +193,22 @@ open class StandardAppHelper(
      */
     protected fun launchViaIntentAndWaitShown(
         wmHelper: WindowManagerStateHelper,
-        expectedWindowName: String = "",
+        launchedAppComponentMatcherOverride: IComponentMatcher? = null,
         action: String? = null,
         stringExtras: Map<String, String> = mapOf(),
         waitConditions: Array<Condition<DeviceStateDump>> = emptyArray()
     ) {
         launchAppViaIntent(action, stringExtras)
-        doWaitShown(wmHelper, expectedWindowName, waitConditions)
+        doWaitShown(wmHelper, launchedAppComponentMatcherOverride, waitConditions)
     }
 
     private fun doWaitShown(
         wmHelper: WindowManagerStateHelper,
-        expectedWindowName: String = "",
+        launchedAppComponentMatcherOverride: IComponentMatcher? = null,
         waitConditions: Array<Condition<DeviceStateDump>> = emptyArray()
     ) {
         withPerfettoTrace("${this::class.simpleName}#doWaitShown") {
-            val expectedWindow =
-                if (expectedWindowName.isNotEmpty()) {
-                    ComponentNameMatcher("", expectedWindowName)
-                } else {
-                    componentMatcher
-                }
+            val expectedWindow = launchedAppComponentMatcherOverride ?: componentMatcher
             val builder =
                 wmHelper
                     .StateSyncBuilder()
