@@ -16,27 +16,26 @@
 
 package com.android.server.wm.flicker.service.config
 
-import com.android.server.wm.traces.common.ComponentNameMatcher
 import com.android.server.wm.traces.common.transition.Transition
 
 object TransitionFilters {
     val OPEN_APP_TRANSITION_FILTER: (Transition) -> Boolean = { t ->
-        t.type == Transition.Companion.Type.OPEN &&
-            t.changes.any {
-                it.transitMode == Transition.Companion.Type.OPEN // cold launch
-                || it.transitMode == Transition.Companion.Type.TO_FRONT // warm launch
-            }
+        t.changes.any {
+            it.transitMode == Transition.Companion.Type.OPEN || // cold launch
+            it.transitMode == Transition.Companion.Type.TO_FRONT // warm launch
+        }
     }
 
     val CLOSE_APP_TO_LAUNCHER_FILTER: (Transition) -> Boolean = { t ->
-        t.type == Transition.Companion.Type.TO_FRONT &&
+        t.changes.any {
+            it.transitMode == Transition.Companion.Type.CLOSE ||
+                it.transitMode == Transition.Companion.Type.TO_BACK
+        } &&
             t.changes.any {
-                it.transitMode == Transition.Companion.Type.CLOSE ||
-                    it.transitMode == Transition.Companion.Type.TO_BACK
-            } &&
-            t.changes.any {
-                it.windowName == ComponentNameMatcher.LAUNCHER.toActivityIdentifier() &&
-                    it.transitMode == Transition.Companion.Type.TO_FRONT
+                // TODO: Match layer id to launcher layer id
+                //                    it.windowName ==
+                // ComponentNameMatcher.LAUNCHER.toActivityIdentifier() &&
+                it.transitMode == Transition.Companion.Type.TO_FRONT
             }
     }
 }

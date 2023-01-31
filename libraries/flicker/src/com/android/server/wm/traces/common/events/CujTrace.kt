@@ -18,11 +18,9 @@ package com.android.server.wm.traces.common.events
 
 import com.android.server.wm.traces.common.ITrace
 import com.android.server.wm.traces.common.Timestamp
-import kotlin.js.JsName
 
 class CujTrace(override val entries: Array<Cuj>) : ITrace<Cuj>, List<Cuj> by entries.toList() {
 
-    @JsName("slice")
     override fun slice(startTimestamp: Timestamp, endTimestamp: Timestamp): CujTrace {
         return CujTrace(
             entries

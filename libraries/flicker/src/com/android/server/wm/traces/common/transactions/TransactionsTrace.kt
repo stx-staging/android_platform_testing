@@ -37,7 +37,6 @@ class TransactionsTrace(override val entries: Array<TransactionsTraceEntry>) :
     @JsName("allTransactions")
     val allTransactions: List<Transaction> = entries.toList().flatMap { it.transactions.toList() }
 
-    @JsName("slice")
     override fun slice(startTimestamp: Timestamp, endTimestamp: Timestamp): TransactionsTrace {
         return TransactionsTrace(
             entries

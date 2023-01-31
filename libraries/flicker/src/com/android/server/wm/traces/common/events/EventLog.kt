@@ -45,7 +45,6 @@ class EventLog(override val entries: Array<Event>) :
         const val MAGIC_NUMBER = "EventLog"
     }
 
-    @JsName("slice")
     override fun slice(startTimestamp: Timestamp, endTimestamp: Timestamp): EventLog {
         return EventLog(
             entries

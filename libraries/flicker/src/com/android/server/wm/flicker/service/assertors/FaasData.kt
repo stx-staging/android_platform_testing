@@ -42,12 +42,6 @@ data class FaasData(
                 if (scenarioInstance.associatedTransition != null) {
                     this.add(
                         Fact(
-                            "Associated transition type",
-                            scenarioInstance.associatedTransition.type
-                        )
-                    )
-                    this.add(
-                        Fact(
                             "Associated transition changes",
                             scenarioInstance.associatedTransition.changes.joinToString(
                                 "\n  -",

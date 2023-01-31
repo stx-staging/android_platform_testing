@@ -53,37 +53,19 @@ data class TransitionsTrace(override val entries: Array<Transition>) :
         return sb.toString()
     }
 
-    @JsName("slice")
     override fun slice(startTimestamp: Timestamp, endTimestamp: Timestamp): TransitionsTrace {
-        return if (
+        require(
             startTimestamp.elapsedNanos != Timestamp.NULL_TIMESTAMP &&
                 endTimestamp.elapsedNanos != Timestamp.NULL_TIMESTAMP
-        ) {
-            sliceElapsed(startTimestamp.elapsedNanos, endTimestamp.elapsedNanos)
-        } else {
-            // Fallback on unix timestamp
-            require(
-                startTimestamp.unixNanos != Timestamp.NULL_TIMESTAMP &&
-                    endTimestamp.unixNanos != Timestamp.NULL_TIMESTAMP
-            ) { "No valid timestamp to slice by was provided." }
-            sliceUnix(startTimestamp.unixNanos, endTimestamp.unixNanos)
-        }
+        )
+        return sliceElapsed(startTimestamp.elapsedNanos, endTimestamp.elapsedNanos)
     }
 
     private fun sliceElapsed(from: Long, to: Long): TransitionsTrace {
         return TransitionsTrace(
             this.entries
-                .dropWhile { it.start.elapsedNanos < from }
-                .dropLastWhile { it.end.elapsedNanos > to }
-                .toTypedArray()
-        )
-    }
-
-    private fun sliceUnix(from: Long, to: Long): TransitionsTrace {
-        return TransitionsTrace(
-            this.entries
-                .dropWhile { it.start.unixNanos < from }
-                .dropLastWhile { it.end.unixNanos > to }
+                .dropWhile { it.sendTime.elapsedNanos < from }
+                .dropLastWhile { it.start.elapsedNanos > to }
                 .toTypedArray()
         )
     }

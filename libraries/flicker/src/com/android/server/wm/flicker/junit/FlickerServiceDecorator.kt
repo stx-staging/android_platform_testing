@@ -159,7 +159,8 @@ class FlickerServiceDecorator(
         if (!DataStore.containsFlickerServiceResult(scenario)) {
             this.doRunFlickerService(test)
         }
-        val aggregateResults = DataStore.getFlickerServiceResults(scenario).groupBy { it.assertion }
+        val aggregateResults =
+            DataStore.getFlickerServiceResults(scenario).groupBy { it.assertion.name }
 
         val cachedResultMethod =
             FlickerServiceCachedTestCase::class.java.getMethod("execute", Description::class.java)

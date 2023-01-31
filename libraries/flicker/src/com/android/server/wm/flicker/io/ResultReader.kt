@@ -219,13 +219,12 @@ open class ResultReader(internal var result: ResultData, internal val traceConfi
      */
     @Throws(IOException::class)
     override fun readTransitionsTrace(): TransitionsTrace? {
-        val transactionsTrace = doReadTransactionsTrace(Timestamp.MIN, Timestamp.MAX)
         val traceData = readFromZip(ResultArtifactDescriptor(TraceType.TRANSITION))
-        if (transactionsTrace == null || traceData == null) {
+        if (traceData == null) {
             return null
         }
 
-        val fullTrace = TransitionsTraceParser(transactionsTrace).parse(traceData)
+        val fullTrace = TransitionsTraceParser().parse(traceData)
         val trace = fullTrace.slice(transitionTimeRange.start, transitionTimeRange.end)
         if (!traceConfig.transitionsTrace.allowNoChange) {
             require(trace.entries.isNotEmpty()) { "Transitions trace cannot be empty" }

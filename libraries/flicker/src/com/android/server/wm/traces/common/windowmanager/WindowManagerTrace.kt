@@ -75,7 +75,6 @@ data class WindowManagerTrace(override val entries: Array<WindowManagerState>) :
             ?: run { throw RuntimeException("Wm state has no policy") }
     }
 
-    @JsName("slice")
     override fun slice(startTimestamp: Timestamp, endTimestamp: Timestamp): WindowManagerTrace {
         return WindowManagerTrace(
             entries

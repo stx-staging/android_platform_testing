@@ -49,7 +49,6 @@ data class RegionTrace(
         return result
     }
 
-    @JsName("slice")
     override fun slice(startTimestamp: Timestamp, endTimestamp: Timestamp): ITrace<RegionEntry> {
         return RegionTrace(
             components,

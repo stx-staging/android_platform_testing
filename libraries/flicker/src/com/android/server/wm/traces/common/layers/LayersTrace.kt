@@ -59,7 +59,6 @@ data class LayersTrace(override val entries: Array<BaseLayerTraceEntry>) :
         )
     }
 
-    @JsName("slice")
     override fun slice(startTimestamp: Timestamp, endTimestamp: Timestamp): LayersTrace {
         return LayersTrace(
             entries
