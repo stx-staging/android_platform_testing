@@ -32,8 +32,8 @@ import org.junit.runners.MethodSorters
 /** Contains [LayersTrace] tests. To run this test: `atest FlickerLibTest:LayersTraceTest` */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class LayersTraceTest {
-    private fun detectRootLayer(fileName: String) {
-        val layersTrace = readLayerTraceFromFile(fileName)
+    private fun detectRootLayer(fileName: String, legacyTrace: Boolean = false) {
+        val layersTrace = readLayerTraceFromFile(fileName, legacyTrace = legacyTrace)
         for (entry in layersTrace.entries) {
             val rootLayers = entry.children
             Truth.assertWithMessage("Does not have any root layer")
@@ -53,17 +53,17 @@ class LayersTraceTest {
 
     @Test
     fun testCanDetectRootLayer() {
-        detectRootLayer("layers_trace_root.pb")
+        detectRootLayer("layers_trace_root.pb", legacyTrace = true)
     }
 
     @Test
     fun testCanDetectRootLayerAOSP() {
-        detectRootLayer("layers_trace_root_aosp.pb")
+        detectRootLayer("layers_trace_root_aosp.pb", legacyTrace = true)
     }
 
     @Test
     fun canTestLayerOccludedByAppLayerHasVisibleRegion() {
-        val trace = readLayerTraceFromFile("layers_trace_occluded.pb")
+        val trace = readLayerTraceFromFile("layers_trace_occluded.pb", legacyTrace = true)
         val entry = trace.getEntryBySystemUptime(1700382131522L)
         val component =
             ComponentNameMatcher("", "com.android.server.wm.flicker.testapp.SimpleActivity#0")
@@ -90,7 +90,7 @@ class LayersTraceTest {
     fun canTestLayerOccludedByAppLayerIsOccludedBySplashScreen() {
         val layerName = "com.android.server.wm.flicker.testapp.SimpleActivity#0"
         val component = ComponentNameMatcher("", layerName)
-        val trace = readLayerTraceFromFile("layers_trace_occluded.pb")
+        val trace = readLayerTraceFromFile("layers_trace_occluded.pb", legacyTrace = true)
         val entry = trace.getEntryBySystemUptime(1700382131522L)
         val layer = entry.getLayerWithBuffer(component)
         val occludedBy = layer?.occludedBy ?: emptyArray()
@@ -110,7 +110,8 @@ class LayersTraceTest {
 
     @Test
     fun exceptionContainsDebugInfo() {
-        val layersTraceEntries = readLayerTraceFromFile("layers_trace_emptyregion.pb")
+        val layersTraceEntries =
+            readLayerTraceFromFile("layers_trace_emptyregion.pb", legacyTrace = true)
         val error =
             assertThrows<AssertionError> { LayersTraceSubject(layersTraceEntries).isEmpty() }
         assertThatErrorContainsDebugInfo(error, withBlameEntry = false)

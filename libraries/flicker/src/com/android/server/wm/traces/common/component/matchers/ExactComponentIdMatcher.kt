@@ -18,7 +18,7 @@ package com.android.server.wm.traces.common.component.matchers
 
 import com.android.server.wm.traces.common.layers.Layer
 import com.android.server.wm.traces.common.windowmanager.windows.Activity
-import com.android.server.wm.traces.common.windowmanager.windows.WindowState
+import com.android.server.wm.traces.common.windowmanager.windows.WindowContainer
 
 /**
  * A component matcher that matches the targeted window and layer with ids windowId and layerId
@@ -34,7 +34,7 @@ class ExactComponentIdMatcher(private val windowId: Int, private val layerId: In
      *
      * @param windows to search
      */
-    override fun windowMatchesAnyOf(windows: Array<WindowState>) =
+    override fun windowMatchesAnyOf(windows: Array<WindowContainer>) =
         windows.any { it.token == windowId.toString(16) }
 
     /**

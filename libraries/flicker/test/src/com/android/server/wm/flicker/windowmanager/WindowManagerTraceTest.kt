@@ -36,7 +36,7 @@ import org.junit.runners.MethodSorters
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class WindowManagerTraceTest {
     private val trace
-        get() = readWmTraceFromFile("wm_trace_openchrome.pb")
+        get() = readWmTraceFromFile("wm_trace_openchrome.pb", legacyTrace = true)
 
     @Before
     fun before() {
@@ -95,7 +95,7 @@ class WindowManagerTraceTest {
     @Test
     fun canAccessAllProperties() {
         arrayOf("wm_trace_activity_transition.pb", "wm_trace_openchrome2.pb").forEach { traceName ->
-            val trace = readWmTraceFromFile(traceName)
+            val trace = readWmTraceFromFile(traceName, legacyTrace = true)
             assertWithMessage("Unable to parse dump").that(trace.entries.size).isGreaterThan(1)
 
             trace.entries.forEach { entry: WindowManagerState ->
@@ -129,7 +129,8 @@ class WindowManagerTraceTest {
             readWmTraceFromFile(
                 "wm_trace_openchrome2.pb",
                 from = 174686204723645,
-                to = 174686640998584
+                to = 174686640998584,
+                legacyTrace = true
             )
 
         assertThat(trace).isNotEmpty()
@@ -140,7 +141,12 @@ class WindowManagerTraceTest {
     @Test
     fun canSliceWithWrongTimestamps() {
         val trace =
-            readWmTraceFromFile("wm_trace_openchrome2.pb", from = 9213763541297, to = 9215895891561)
+            readWmTraceFromFile(
+                "wm_trace_openchrome2.pb",
+                from = 9213763541297,
+                to = 9215895891561,
+                legacyTrace = true
+            )
         assertThat(trace).isEmpty()
     }
 }

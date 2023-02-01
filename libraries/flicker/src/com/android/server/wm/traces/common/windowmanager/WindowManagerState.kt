@@ -382,7 +382,7 @@ class WindowManagerState(
      */
     @JsName("containsWindow")
     fun containsWindow(componentMatcher: IComponentMatcher): Boolean =
-        componentMatcher.windowMatchesAnyOf(windowStates)
+        componentMatcher.windowMatchesAnyOf(windowStates.asList())
 
     /**
      * Check if at least one [WindowState] matching [componentMatcher] is visible
@@ -403,7 +403,7 @@ class WindowManagerState(
      */
     @JsName("isInPipMode")
     fun isInPipMode(componentMatcher: IComponentMatcher): Boolean =
-        componentMatcher.windowMatchesAnyOf(pinnedWindows)
+        componentMatcher.windowMatchesAnyOf(pinnedWindows.asList())
 
     @JsName("getZOrder")
     fun getZOrder(w: WindowState): Int = windowStates.size - windowStates.indexOf(w)

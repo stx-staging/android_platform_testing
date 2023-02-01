@@ -18,11 +18,11 @@ package com.android.server.wm.traces.common.component.matchers
 
 import com.android.server.wm.traces.common.layers.Layer
 import com.android.server.wm.traces.common.windowmanager.windows.Activity
-import com.android.server.wm.traces.common.windowmanager.windows.WindowState
+import com.android.server.wm.traces.common.windowmanager.windows.WindowContainer
 
 class EdgeExtensionComponentMatcher : IComponentMatcher {
     /** {@inheritDoc} */
-    override fun windowMatchesAnyOf(windows: Array<WindowState>): Boolean {
+    override fun windowMatchesAnyOf(windows: Array<WindowContainer>): Boolean {
         // Doesn't have a window component only layers
         return false
     }

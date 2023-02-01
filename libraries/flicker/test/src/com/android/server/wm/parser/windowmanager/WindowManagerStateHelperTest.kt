@@ -194,7 +194,7 @@ class WindowManagerStateHelperTest {
 
     @Test
     fun canWaitForIme() {
-        val trace = readWmTraceFromFile("wm_trace_ime.pb")
+        val trace = readWmTraceFromFile("wm_trace_ime.pb", legacyTrace = true)
         val supplier = trace.asSupplier()
         val helper =
             TestWindowManagerStateHelper(
@@ -216,7 +216,7 @@ class WindowManagerStateHelperTest {
 
     @Test
     fun canFailImeNotShown() {
-        val trace = readWmTraceFromFile("wm_trace_ime.pb")
+        val trace = readWmTraceFromFile("wm_trace_ime.pb", legacyTrace = true)
         val supplier = trace.asSupplier()
         val helper =
             TestWindowManagerStateHelper(
@@ -238,7 +238,7 @@ class WindowManagerStateHelperTest {
 
     @Test
     fun canWaitForWindow() {
-        val trace = readWmTraceFromFile("wm_trace_open_app_cold.pb")
+        val trace = readWmTraceFromFile("wm_trace_open_app_cold.pb", legacyTrace = true)
         val supplier = trace.asSupplier()
         val helper =
             TestWindowManagerStateHelper(
@@ -258,7 +258,7 @@ class WindowManagerStateHelperTest {
 
     @Test
     fun canFailWindowNotShown() {
-        val trace = readWmTraceFromFile("wm_trace_open_app_cold.pb")
+        val trace = readWmTraceFromFile("wm_trace_open_app_cold.pb", legacyTrace = true)
         val supplier = trace.asSupplier()
         val helper =
             TestWindowManagerStateHelper(
@@ -283,7 +283,7 @@ class WindowManagerStateHelperTest {
 
     @Test
     fun canDetectHomeActivityVisibility() {
-        val trace = readWmTraceFromFile("wm_trace_open_and_close_chrome.pb")
+        val trace = readWmTraceFromFile("wm_trace_open_and_close_chrome.pb", legacyTrace = true)
         val supplier = trace.asSupplier()
         val helper =
             TestWindowManagerStateHelper(
@@ -301,7 +301,7 @@ class WindowManagerStateHelperTest {
 
     @Test
     fun canWaitActivityRemoved() {
-        val trace = readWmTraceFromFile("wm_trace_open_and_close_chrome.pb")
+        val trace = readWmTraceFromFile("wm_trace_open_and_close_chrome.pb", legacyTrace = true)
         val supplier = trace.asSupplier()
         val helper =
             TestWindowManagerStateHelper(
@@ -323,7 +323,7 @@ class WindowManagerStateHelperTest {
 
     @Test
     fun canWaitAppStateIdle() {
-        val trace = readWmTraceFromFile("wm_trace_open_and_close_chrome.pb")
+        val trace = readWmTraceFromFile("wm_trace_open_and_close_chrome.pb", legacyTrace = true)
         val initialTimestamp = 69443918698679
         val supplier = trace.asSupplier(startingTimestamp = initialTimestamp)
         val initialEntry = trace.getEntryByElapsedTimestamp(initialTimestamp)
@@ -347,7 +347,7 @@ class WindowManagerStateHelperTest {
 
     @Test
     fun canWaitForRotation() {
-        val trace = readWmTraceFromFile("wm_trace_rotation.pb")
+        val trace = readWmTraceFromFile("wm_trace_rotation.pb", legacyTrace = true)
         val supplier = trace.asSupplier()
         val helper =
             TestWindowManagerStateHelper(
@@ -376,7 +376,7 @@ class WindowManagerStateHelperTest {
     @FlakyTest
     @Test
     fun canWaitForRecents() {
-        val trace = readWmTraceFromFile("wm_trace_open_recents.pb")
+        val trace = readWmTraceFromFile("wm_trace_open_recents.pb", legacyTrace = true)
         val supplier = trace.asSupplier()
         val helper =
             TestWindowManagerStateHelper(

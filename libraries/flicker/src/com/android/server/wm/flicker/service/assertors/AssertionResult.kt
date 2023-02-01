@@ -28,7 +28,4 @@ data class AssertionResult(
         get() = (assertionError !== null)
     override val passed: Boolean
         get() = !failed
-
-    val failureSubject: FlickerSubject?
-        get() = if (assertionError is FlickerSubjectException) assertionError.subject else null
 }

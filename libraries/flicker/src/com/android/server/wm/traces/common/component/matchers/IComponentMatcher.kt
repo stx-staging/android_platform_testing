@@ -18,7 +18,7 @@ package com.android.server.wm.traces.common.component.matchers
 
 import com.android.server.wm.traces.common.layers.Layer
 import com.android.server.wm.traces.common.windowmanager.windows.Activity
-import com.android.server.wm.traces.common.windowmanager.windows.WindowState
+import com.android.server.wm.traces.common.windowmanager.windows.WindowContainer
 import kotlin.js.JsName
 
 interface IComponentMatcher {
@@ -32,14 +32,14 @@ interface IComponentMatcher {
      *
      * @param window to search
      */
-    fun windowMatchesAnyOf(window: WindowState): Boolean = windowMatchesAnyOf(arrayOf(window))
+    fun windowMatchesAnyOf(window: WindowContainer): Boolean = windowMatchesAnyOf(arrayOf(window))
 
     /**
      * @return if any of the [components] matches any of [windows]
      *
      * @param windows to search
      */
-    fun windowMatchesAnyOf(windows: Collection<WindowState>): Boolean =
+    fun windowMatchesAnyOf(windows: Collection<WindowContainer>): Boolean =
         windowMatchesAnyOf(windows.toTypedArray())
 
     /**
@@ -47,7 +47,7 @@ interface IComponentMatcher {
      *
      * @param windows to search
      */
-    fun windowMatchesAnyOf(windows: Array<WindowState>): Boolean
+    fun windowMatchesAnyOf(windows: Array<WindowContainer>): Boolean
 
     /**
      * @return if any of the [components] matches [activity]

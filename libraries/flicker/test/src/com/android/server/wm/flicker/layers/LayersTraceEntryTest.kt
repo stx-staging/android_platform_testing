@@ -41,7 +41,8 @@ class LayersTraceEntryTest {
 
     @Test
     fun exceptionContainsDebugInfo() {
-        val layersTraceEntries = readLayerTraceFromFile("layers_trace_emptyregion.pb")
+        val layersTraceEntries =
+            readLayerTraceFromFile("layers_trace_emptyregion.pb", legacyTrace = true)
         val error =
             assertThrows<AssertionError> {
                 LayersTraceSubject(layersTraceEntries).first().contains(TestComponents.IMAGINARY)
@@ -51,7 +52,7 @@ class LayersTraceEntryTest {
 
     @Test
     fun canParseAllLayers() {
-        val trace = readLayerTraceFromFile("layers_trace_emptyregion.pb")
+        val trace = readLayerTraceFromFile("layers_trace_emptyregion.pb", legacyTrace = true)
         Truth.assertThat(trace.entries).isNotEmpty()
         Truth.assertThat(trace.first().timestamp.systemUptimeNanos).isEqualTo(922839428857)
         Truth.assertThat(trace.last().timestamp.systemUptimeNanos).isEqualTo(941432656959)
@@ -60,7 +61,8 @@ class LayersTraceEntryTest {
 
     @Test
     fun canParseVisibleLayersLauncher() {
-        val trace = readLayerTraceFromFile("layers_trace_launch_split_screen.pb")
+        val trace =
+            readLayerTraceFromFile("layers_trace_launch_split_screen.pb", legacyTrace = true)
         val visibleLayers = trace.getEntryBySystemUptime(90480846872160).visibleLayers
         val msg = "Visible Layers:\n" + visibleLayers.joinToString("\n") { "\t" + it.name }
         Truth.assertWithMessage(msg).that(visibleLayers).asList().hasSize(6)
@@ -74,7 +76,8 @@ class LayersTraceEntryTest {
 
     @Test
     fun canParseVisibleLayersSplitScreen() {
-        val trace = readLayerTraceFromFile("layers_trace_launch_split_screen.pb")
+        val trace =
+            readLayerTraceFromFile("layers_trace_launch_split_screen.pb", legacyTrace = true)
         val visibleLayers = trace.getEntryBySystemUptime(90493757372977).visibleLayers
         val msg = "Visible Layers:\n" + visibleLayers.joinToString("\n") { "\t" + it.name }
         Truth.assertWithMessage(msg).that(visibleLayers).asList().hasSize(7)
@@ -89,7 +92,8 @@ class LayersTraceEntryTest {
 
     @Test
     fun canParseVisibleLayersInTransition() {
-        val trace = readLayerTraceFromFile("layers_trace_launch_split_screen.pb")
+        val trace =
+            readLayerTraceFromFile("layers_trace_launch_split_screen.pb", legacyTrace = true)
         val visibleLayers = trace.getEntryBySystemUptime(90488463619533).visibleLayers
         val msg = "Visible Layers:\n" + visibleLayers.joinToString("\n") { "\t" + it.name }
         Truth.assertWithMessage(msg).that(visibleLayers).asList().hasSize(10)
@@ -108,7 +112,7 @@ class LayersTraceEntryTest {
 
     @Test
     fun canParseLayerHierarchy() {
-        val trace = readLayerTraceFromFile("layers_trace_emptyregion.pb")
+        val trace = readLayerTraceFromFile("layers_trace_emptyregion.pb", legacyTrace = true)
         Truth.assertThat(trace.entries).isNotEmpty()
         Truth.assertThat(trace.entries.first().timestamp.systemUptimeNanos).isEqualTo(922839428857)
         Truth.assertThat(trace.entries.last().timestamp.systemUptimeNanos).isEqualTo(941432656959)
@@ -122,7 +126,11 @@ class LayersTraceEntryTest {
     @Test
     fun canDetectOrphanLayers() {
         try {
-            readLayerTraceFromFile("layers_trace_orphanlayers.pb", ignoreOrphanLayers = false)
+            readLayerTraceFromFile(
+                    "layers_trace_orphanlayers.pb",
+                    ignoreOrphanLayers = false,
+                    legacyTrace = true
+                )
                 .first()
                 .flattenedLayers
             error("Failed to detect orphaned layers.")
@@ -138,7 +146,8 @@ class LayersTraceEntryTest {
     @Test
     fun testCanParseNonCroppedLayerWithHWC() {
         val layerName = "BackColorSurface#0"
-        val layersTrace = readLayerTraceFromFile("layers_trace_backcolorsurface.pb")
+        val layersTrace =
+            readLayerTraceFromFile("layers_trace_backcolorsurface.pb", legacyTrace = true)
         val entry = layersTrace.getEntryBySystemUptime(131954021476)
         Truth.assertWithMessage("$layerName should not be visible")
             .that(entry.visibleLayers.map { it.name })
@@ -152,7 +161,8 @@ class LayersTraceEntryTest {
 
     @Test
     fun canParseTraceEmptyState() {
-        val layersTrace = readLayerTraceFromFile("layers_trace_empty_state.winscope")
+        val layersTrace =
+            readLayerTraceFromFile("layers_trace_empty_state.winscope", legacyTrace = true)
         val emptyStates = layersTrace.filter { it.flattenedLayers.isEmpty() }
 
         Truth.assertWithMessage("Some states in the trace should be empty")

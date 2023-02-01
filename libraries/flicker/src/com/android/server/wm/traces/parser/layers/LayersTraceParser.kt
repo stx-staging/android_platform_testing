@@ -38,7 +38,8 @@ import com.android.server.wm.traces.parser.AbstractTraceParser
 class LayersTraceParser(
     private val ignoreLayersStackMatchNoDisplay: Boolean = true,
     private val ignoreLayersInVirtualDisplay: Boolean = true,
-    private val orphanLayerCallback: ((Layer) -> Boolean)? = null
+    private val legacyTrace: Boolean = false,
+    private val orphanLayerCallback: ((Layer) -> Boolean)? = null,
 ) :
     AbstractTraceParser<
         Layerstrace.LayersTraceFileProto, Layerstrace.LayersTraceProto, LayerTraceEntry, LayersTrace
@@ -58,7 +59,7 @@ class LayersTraceParser(
     ): List<Layerstrace.LayersTraceProto> = input.entryList
 
     override fun getTimestamp(entry: Layerstrace.LayersTraceProto): Timestamp {
-        require(realToElapsedTimeOffsetNanos != Timestamp.NULL_TIMESTAMP)
+        require(legacyTrace || realToElapsedTimeOffsetNanos != Timestamp.NULL_TIMESTAMP)
         return Timestamp(
             systemUptimeNanos = entry.elapsedRealtimeNanos,
             unixNanos = entry.elapsedRealtimeNanos + realToElapsedTimeOffsetNanos

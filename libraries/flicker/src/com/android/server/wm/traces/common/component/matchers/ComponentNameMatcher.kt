@@ -19,7 +19,7 @@ package com.android.server.wm.traces.common.component.matchers
 import com.android.server.wm.traces.common.component.ComponentName
 import com.android.server.wm.traces.common.layers.Layer
 import com.android.server.wm.traces.common.windowmanager.windows.Activity
-import com.android.server.wm.traces.common.windowmanager.windows.WindowState
+import com.android.server.wm.traces.common.windowmanager.windows.WindowContainer
 import kotlin.js.JsName
 
 /**
@@ -58,7 +58,7 @@ open class ComponentNameMatcher(open var component: ComponentName) : IComponentN
     }
 
     /** {@inheritDoc} */
-    override fun windowMatchesAnyOf(windows: Array<WindowState>): Boolean =
+    override fun windowMatchesAnyOf(windows: Array<WindowContainer>): Boolean =
         matchesAnyOf(windows, { it.title }, { it.toWindowNameRegex() })
 
     /** {@inheritDoc} */

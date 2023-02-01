@@ -50,7 +50,7 @@ class AssertionFactoryTest {
         val assertions = factory.generateAssertionsFor(scenarioInstance)
 
         Truth.assertThat(assertions.map { it.name })
-            .containsExactly(
+            .containsExactlyElementsIn(
                 FlickerServiceConfig.getScenarioConfigFor(type = type).assertionTemplates.map {
                     it.assertionName
                 }

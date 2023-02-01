@@ -81,10 +81,11 @@ internal fun readWmTraceFromFile(
     relativePath: String,
     from: Long = Long.MIN_VALUE,
     to: Long = Long.MAX_VALUE,
-    addInitialEntry: Boolean = true
+    addInitialEntry: Boolean = true,
+    legacyTrace: Boolean = false,
 ): WindowManagerTrace {
     return try {
-        WindowManagerTraceParser()
+        WindowManagerTraceParser(legacyTrace)
             .parse(
                 readAsset(relativePath),
                 Timestamp(elapsedNanos = from),
@@ -107,13 +108,17 @@ internal fun readWmTraceFromDumpFile(relativePath: String): WindowManagerTrace {
 
 internal fun readLayerTraceFromFile(
     relativePath: String,
-    ignoreOrphanLayers: Boolean = true
+    ignoreOrphanLayers: Boolean = true,
+    legacyTrace: Boolean = false,
 ): LayersTrace {
     return try {
         LayersTraceParser(
                 ignoreLayersStackMatchNoDisplay = false,
-                ignoreLayersInVirtualDisplay = false
-            ) { ignoreOrphanLayers }
+                ignoreLayersInVirtualDisplay = false,
+                legacyTrace = legacyTrace,
+            ) {
+                ignoreOrphanLayers
+            }
             .parse(readAsset(relativePath))
     } catch (e: Exception) {
         throw RuntimeException(e)
@@ -133,7 +138,7 @@ internal fun readTransitionsTraceFromFile(
     transactionsTrace: TransactionsTrace
 ): TransitionsTrace {
     return try {
-        TransitionsTraceParser(transactionsTrace).parse(readAsset(relativePath))
+        TransitionsTraceParser().parse(readAsset(relativePath))
     } catch (e: Exception) {
         throw RuntimeException(e)
     }
@@ -242,16 +247,18 @@ fun assertArchiveContainsFiles(archivePath: Path, expectedFiles: List<String>) {
 fun getScenarioTraces(scenario: String): FlickerBuilder.TraceFiles {
     val randomString = (1..10).map { (('A'..'Z') + ('a'..'z')).random() }.joinToString("")
 
-    var wmTrace: File? = null
-    var layersTrace: File? = null
-    var transactionsTrace: File? = null
-    var transitionsTrace: File? = null
+    lateinit var wmTrace: File
+    lateinit var layersTrace: File
+    lateinit var transactionsTrace: File
+    lateinit var transitionsTrace: File
+    lateinit var eventLog: File
     val traces =
         mapOf<String, (File) -> Unit>(
             "wm_trace" to { wmTrace = it },
             "layers_trace" to { layersTrace = it },
             "transactions_trace" to { transactionsTrace = it },
-            "transition_trace" to { transitionsTrace = it }
+            "transition_trace" to { transitionsTrace = it },
+            "eventlog" to { eventLog = it }
         )
     for ((traceName, resultSetter) in traces.entries) {
         val traceBytes = readAsset("scenarios/$scenario/$traceName$WINSCOPE_EXT")
@@ -264,10 +271,11 @@ fun getScenarioTraces(scenario: String): FlickerBuilder.TraceFiles {
     }
 
     return FlickerBuilder.TraceFiles(
-        wmTrace!!,
-        layersTrace!!,
-        transactionsTrace!!,
-        transitionsTrace!!
+        wmTrace,
+        layersTrace,
+        transactionsTrace,
+        transitionsTrace,
+        eventLog
     )
 }
 

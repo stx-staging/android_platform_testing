@@ -28,7 +28,7 @@ class TraceParserTest {
     @Test
     fun canSliceWithAllBefore() {
         testSliceUsingElapsedTimestamp(
-            0L,
+            Timestamp.MIN.elapsedNanos,
             mockTraceForSliceTests.first().timestamp.elapsedNanos - 1,
             listOf<Long>()
         )
