@@ -26,6 +26,7 @@ import com.android.server.wm.flicker.service.config.TransitionFilters.OPEN_APP_T
 import com.android.server.wm.flicker.service.extractors.EntireTraceExtractor
 import com.android.server.wm.flicker.service.extractors.IScenarioExtractor
 import com.android.server.wm.flicker.service.extractors.TaggedScenarioExtractor
+import com.android.server.wm.flicker.service.extractors.TransitionMatcher
 import com.android.server.wm.traces.common.events.CujType
 
 object FlickerServiceConfig {
@@ -42,8 +43,8 @@ object FlickerServiceConfig {
                     extractor =
                         TaggedScenarioExtractor(
                             targetTag = CujType.CUJ_LAUNCHER_APP_LAUNCH_FROM_ICON,
-                            transitionFilter = OPEN_APP_TRANSITION_FILTER,
-                            type = FaasScenarioType.LAUNCHER_APP_LAUNCH_FROM_ICON
+                            type = FaasScenarioType.LAUNCHER_APP_LAUNCH_FROM_ICON,
+                            transitionMatcher = TransitionMatcher(OPEN_APP_TRANSITION_FILTER)
                         ),
                     assertionTemplates = APP_LAUNCH_FROM_HOME_ASSERTIONS
                 )
@@ -52,8 +53,8 @@ object FlickerServiceConfig {
                     extractor =
                         TaggedScenarioExtractor(
                             targetTag = CujType.CUJ_LAUNCHER_APP_CLOSE_TO_HOME,
-                            transitionFilter = CLOSE_APP_TO_LAUNCHER_FILTER,
-                            type = FaasScenarioType.APP_CLOSE_TO_HOME
+                            type = FaasScenarioType.APP_CLOSE_TO_HOME,
+                            transitionMatcher = TransitionMatcher(CLOSE_APP_TO_LAUNCHER_FILTER)
                         ),
                     assertionTemplates = APP_CLOSE_ASSERTIONS
                 )
@@ -62,8 +63,8 @@ object FlickerServiceConfig {
                     extractor =
                         TaggedScenarioExtractor(
                             targetTag = CujType.CUJ_NOTIFICATION_APP_START,
-                            transitionFilter = OPEN_APP_TRANSITION_FILTER,
-                            type = FaasScenarioType.NOTIFICATION_APP_START
+                            type = FaasScenarioType.NOTIFICATION_APP_START,
+                            transitionMatcher = TransitionMatcher(OPEN_APP_TRANSITION_FILTER)
                         ),
                     assertionTemplates = APP_LAUNCH_FROM_NOTIFICATION_ASSERTIONS
                 )

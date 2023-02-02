@@ -16,26 +16,35 @@
 
 package com.android.server.wm.flicker.service.config
 
+import com.android.server.wm.flicker.service.extractors.TransitionsTransform
+import com.android.server.wm.traces.common.component.matchers.ComponentNameMatcher
 import com.android.server.wm.traces.common.transition.Transition
 
 object TransitionFilters {
-    val OPEN_APP_TRANSITION_FILTER: (Transition) -> Boolean = { t ->
-        t.changes.any {
-            it.transitMode == Transition.Companion.Type.OPEN || // cold launch
-            it.transitMode == Transition.Companion.Type.TO_FRONT // warm launch
+    val OPEN_APP_TRANSITION_FILTER: TransitionsTransform = { ts, _, _ ->
+        ts.filter { t ->
+            t.changes.any {
+                it.transitMode == Transition.Companion.Type.OPEN || // cold launch
+                it.transitMode == Transition.Companion.Type.TO_FRONT // warm launch
+            }
         }
     }
 
-    val CLOSE_APP_TO_LAUNCHER_FILTER: (Transition) -> Boolean = { t ->
-        t.changes.any {
-            it.transitMode == Transition.Companion.Type.CLOSE ||
-                it.transitMode == Transition.Companion.Type.TO_BACK
-        } &&
+    val CLOSE_APP_TO_LAUNCHER_FILTER: TransitionsTransform = { ts, _, reader ->
+        val layersTrace = reader.readLayersTrace() ?: error("Missing layers trace")
+        val layers =
+            layersTrace.entries.flatMap { it.flattenedLayers.asList() }.distinctBy { it.id }
+        val launcherLayers = layers.filter { ComponentNameMatcher.LAUNCHER.layerMatchesAnyOf(it) }
+
+        ts.filter { t ->
             t.changes.any {
-                // TODO: Match layer id to launcher layer id
-                //                    it.windowName ==
-                // ComponentNameMatcher.LAUNCHER.toActivityIdentifier() &&
-                it.transitMode == Transition.Companion.Type.TO_FRONT
-            }
+                it.transitMode == Transition.Companion.Type.CLOSE ||
+                    it.transitMode == Transition.Companion.Type.TO_BACK
+            } &&
+                t.changes.any { change ->
+                    launcherLayers.any { it.id == change.layerId }
+                    change.transitMode == Transition.Companion.Type.TO_FRONT
+                }
+        }
     }
 }
