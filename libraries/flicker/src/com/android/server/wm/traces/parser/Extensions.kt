@@ -121,7 +121,7 @@ fun getCurrentStateDump(
     )
 }
 
-fun <T> withPerfettoTrace(logMsg: String, predicate: () -> T): T {
+inline fun <T> withPerfettoTrace(logMsg: String, predicate: () -> T): T {
     return try {
         Trace.beginSection(logMsg)
         predicate()

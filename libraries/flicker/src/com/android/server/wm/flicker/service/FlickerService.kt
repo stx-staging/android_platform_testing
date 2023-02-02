@@ -31,6 +31,7 @@ import com.android.server.wm.flicker.service.config.FlickerServiceConfig
 import com.android.server.wm.flicker.service.extractors.CombinedScenarioExtractor
 import com.android.server.wm.flicker.service.extractors.IScenarioExtractor
 import com.android.server.wm.traces.common.errors.ErrorTrace
+import com.android.server.wm.traces.parser.withPerfettoTrace
 
 /** Contains the logic for Flicker as a Service. */
 class FlickerService(
@@ -50,18 +51,20 @@ class FlickerService(
      * fails and 1 if it passes
      */
     override fun process(reader: IReader): List<IAssertionResult> {
-        try {
-            require(isShellTransitionsEnabled) {
-                "Shell transitions must be enabled for FaaS to work!"
-            }
+        withPerfettoTrace("FlickerService#process") {
+            try {
+                require(isShellTransitionsEnabled) {
+                    "Shell transitions must be enabled for FaaS to work!"
+                }
 
-            val scenarioInstances = scenarioExtractor.extract(reader)
-            val assertions =
-                scenarioInstances.flatMap { assertionFactory.generateAssertionsFor(it) }
-            return assertionRunner.execute(assertions)
-        } catch (exception: Throwable) {
-            Log.e("$FLICKER_TAG-ASSERT", "FAILED PROCESSING", exception)
-            throw exception
+                val scenarioInstances = scenarioExtractor.extract(reader)
+                val assertions =
+                    scenarioInstances.flatMap { assertionFactory.generateAssertionsFor(it) }
+                return assertionRunner.execute(assertions)
+            } catch (exception: Throwable) {
+                Log.e("$FLICKER_TAG-ASSERT", "FAILED PROCESSING", exception)
+                throw exception
+            }
         }
     }
 }
