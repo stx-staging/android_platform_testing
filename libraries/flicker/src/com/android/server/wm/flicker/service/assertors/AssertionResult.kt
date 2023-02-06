@@ -16,9 +16,6 @@
 
 package com.android.server.wm.flicker.service.assertors
 
-import com.android.server.wm.flicker.assertions.FlickerSubject
-import com.android.server.wm.flicker.traces.FlickerSubjectException
-
 /** Base class for a FaaS assertion */
 data class AssertionResult(
     override val assertion: IFaasAssertion,

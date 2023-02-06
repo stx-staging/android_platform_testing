@@ -37,13 +37,9 @@ abstract class AssertionTemplate : IAssertionTemplate {
 
             override fun evaluate(): AssertionResult {
                 val wmTraceSubject =
-                    scenarioInstance.reader.readWmTrace()?.let {
-                        WindowManagerTraceSubject(it)
-                    }
+                    scenarioInstance.reader.readWmTrace()?.let { WindowManagerTraceSubject(it) }
                 val layersTraceSubject =
-                    scenarioInstance.reader.readLayersTrace()?.let {
-                        LayersTraceSubject(it)
-                    }
+                    scenarioInstance.reader.readLayersTrace()?.let { LayersTraceSubject(it) }
 
                 var assertionError: Throwable? = null
                 try {

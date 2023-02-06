@@ -93,17 +93,9 @@ class TaggedScenarioExtractor(
 
             ScenarioInstance(
                 type,
-                startRotation =
-                    wmTrace
-                        .getLastEntryByElapsedTimestamp(endTimestamp.elapsedNanos)
-                        .policy
-                        ?.rotation
+                startRotation = wmTrace.getEntryAt(endTimestamp).policy?.rotation
                         ?: error("missing rotation in policy"),
-                endRotation =
-                    wmTrace
-                        .getLastEntryByElapsedTimestamp(endTimestamp.elapsedNanos)
-                        .policy
-                        ?.rotation
+                endRotation = wmTrace.getEntryAt(endTimestamp).policy?.rotation
                         ?: error("missing rotation in policy"),
                 startTimestamp = startTimestamp,
                 endTimestamp = endTimestamp,

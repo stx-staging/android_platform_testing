@@ -63,7 +63,8 @@ class LayersTraceEntryTest {
     fun canParseVisibleLayersLauncher() {
         val trace =
             readLayerTraceFromFile("layers_trace_launch_split_screen.pb", legacyTrace = true)
-        val visibleLayers = trace.getEntryBySystemUptime(90480846872160).visibleLayers
+        val visibleLayers =
+            trace.getEntryExactlyAt(Timestamp(systemUptimeNanos = 90480846872160)).visibleLayers
         val msg = "Visible Layers:\n" + visibleLayers.joinToString("\n") { "\t" + it.name }
         Truth.assertWithMessage(msg).that(visibleLayers).asList().hasSize(6)
         Truth.assertThat(msg).contains("ScreenDecorOverlay#0")
@@ -78,7 +79,8 @@ class LayersTraceEntryTest {
     fun canParseVisibleLayersSplitScreen() {
         val trace =
             readLayerTraceFromFile("layers_trace_launch_split_screen.pb", legacyTrace = true)
-        val visibleLayers = trace.getEntryBySystemUptime(90493757372977).visibleLayers
+        val visibleLayers =
+            trace.getEntryExactlyAt(Timestamp(systemUptimeNanos = 90493757372977)).visibleLayers
         val msg = "Visible Layers:\n" + visibleLayers.joinToString("\n") { "\t" + it.name }
         Truth.assertWithMessage(msg).that(visibleLayers).asList().hasSize(7)
         Truth.assertThat(msg).contains("ScreenDecorOverlayBottom#0")
@@ -94,7 +96,8 @@ class LayersTraceEntryTest {
     fun canParseVisibleLayersInTransition() {
         val trace =
             readLayerTraceFromFile("layers_trace_launch_split_screen.pb", legacyTrace = true)
-        val visibleLayers = trace.getEntryBySystemUptime(90488463619533).visibleLayers
+        val visibleLayers =
+            trace.getEntryExactlyAt(Timestamp(systemUptimeNanos = 90488463619533)).visibleLayers
         val msg = "Visible Layers:\n" + visibleLayers.joinToString("\n") { "\t" + it.name }
         Truth.assertWithMessage(msg).that(visibleLayers).asList().hasSize(10)
         Truth.assertThat(msg).contains("ScreenDecorOverlayBottom#0")
@@ -148,7 +151,7 @@ class LayersTraceEntryTest {
         val layerName = "BackColorSurface#0"
         val layersTrace =
             readLayerTraceFromFile("layers_trace_backcolorsurface.pb", legacyTrace = true)
-        val entry = layersTrace.getEntryBySystemUptime(131954021476)
+        val entry = layersTrace.getEntryExactlyAt(Timestamp(systemUptimeNanos = 131954021476))
         Truth.assertWithMessage("$layerName should not be visible")
             .that(entry.visibleLayers.map { it.name })
             .doesNotContain(layerName)

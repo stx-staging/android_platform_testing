@@ -29,6 +29,7 @@ import com.android.server.wm.traces.common.DeviceStateDump
 import com.android.server.wm.traces.common.Matrix33
 import com.android.server.wm.traces.common.Rect
 import com.android.server.wm.traces.common.RectF
+import com.android.server.wm.traces.common.Timestamp
 import com.android.server.wm.traces.common.component.IComponentName
 import com.android.server.wm.traces.common.component.matchers.ComponentNameMatcher
 import com.android.server.wm.traces.common.layers.HwcCompositionType
@@ -326,7 +327,7 @@ class WindowManagerStateHelperTest {
         val trace = readWmTraceFromFile("wm_trace_open_and_close_chrome.pb", legacyTrace = true)
         val initialTimestamp = 69443918698679
         val supplier = trace.asSupplier(startingTimestamp = initialTimestamp)
-        val initialEntry = trace.getEntryByElapsedTimestamp(initialTimestamp)
+        val initialEntry = trace.getEntryExactlyAt(Timestamp(elapsedNanos = initialTimestamp))
         val helper =
             TestWindowManagerStateHelper(
                 initialEntry,

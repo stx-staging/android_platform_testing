@@ -16,14 +16,15 @@
 
 package com.android.server.wm.traces.common.transition
 
-class TransitionTraceEntry private constructor(
+class TransitionTraceEntry
+private constructor(
     val transitionState: TransitionState? = null,
     val transitionInfo: TransitionInfo? = null
 ) {
     fun hasTransitionState(): Boolean = transitionState != null
     fun hasTransitionInfo(): Boolean = transitionInfo != null
 
-    constructor(transitionState: TransitionState): this(transitionState, null)
+    constructor(transitionState: TransitionState) : this(transitionState, null)
 
-    constructor(transitionInfo: TransitionInfo): this(null, transitionInfo)
+    constructor(transitionInfo: TransitionInfo) : this(null, transitionInfo)
 }

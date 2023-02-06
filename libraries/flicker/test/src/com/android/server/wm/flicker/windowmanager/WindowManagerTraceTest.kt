@@ -18,6 +18,7 @@ package com.android.server.wm.flicker.windowmanager
 
 import com.android.server.wm.flicker.readWmTraceFromFile
 import com.android.server.wm.traces.common.Cache
+import com.android.server.wm.traces.common.Timestamp
 import com.android.server.wm.traces.common.windowmanager.WindowManagerState
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 import com.android.server.wm.traces.common.windowmanager.windows.WindowContainer
@@ -45,7 +46,8 @@ class WindowManagerTraceTest {
 
     @Test
     fun canDetectAppWindow() {
-        val appWindows = trace.getEntryByElapsedTimestamp(9213763541297L).appWindows
+        val appWindows =
+            trace.getEntryExactlyAt(Timestamp(elapsedNanos = 9213763541297L)).appWindows
         assertWithMessage("Unable to detect app windows").that(appWindows.size).isEqualTo(2)
     }
 
@@ -107,7 +109,7 @@ class WindowManagerTraceTest {
 
     @Test
     fun canDetectValidState() {
-        val entry = trace.getEntryByElapsedTimestamp(9213763541297)
+        val entry = trace.getEntryExactlyAt(Timestamp(elapsedNanos = 9213763541297))
         assertWithMessage("${entry.timestamp}: ${entry.getIsIncompleteReason()}")
             .that(entry.isIncomplete())
             .isFalse()
@@ -115,7 +117,7 @@ class WindowManagerTraceTest {
 
     @Test
     fun canDetectInvalidState() {
-        val entry = trace.getEntryByElapsedTimestamp(9215511235586)
+        val entry = trace.getEntryExactlyAt(Timestamp(elapsedNanos = 9215511235586))
         assertWithMessage("${entry.timestamp}: ${entry.getIsIncompleteReason()}")
             .that(entry.isIncomplete())
             .isTrue()
