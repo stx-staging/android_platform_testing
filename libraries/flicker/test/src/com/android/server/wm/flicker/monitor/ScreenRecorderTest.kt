@@ -24,10 +24,12 @@ import android.os.SystemClock
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import com.android.compatibility.common.util.SystemUtil
-import com.android.server.wm.flicker.deleteIfExists
+import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
 import com.android.server.wm.flicker.getDefaultFlickerOutputDir
+import com.android.server.wm.flicker.io.ResultReader
+import com.android.server.wm.flicker.io.TraceType
+import com.android.server.wm.flicker.newTestResultWriter
 import com.google.common.truth.Truth
-import java.io.File
 import org.junit.After
 import org.junit.Before
 import org.junit.FixMethodOrder
@@ -48,8 +50,9 @@ class ScreenRecorderTest {
 
     @After
     fun teardown() {
-        mScreenRecorder.stop()
-        mScreenRecorder.outputFile.deleteIfExists()
+        if (mScreenRecorder.isEnabled) {
+            mScreenRecorder.stop(newTestResultWriter())
+        }
     }
 
     @Test
@@ -64,12 +67,18 @@ class ScreenRecorderTest {
             remainingTime -= 100
             SystemClock.sleep(STEP)
         } while (!mScreenRecorder.isFrameRecorded && remainingTime > 0)
-        mScreenRecorder.stop()
+        val writer = newTestResultWriter()
+        mScreenRecorder.stop(writer)
+        val result = writer.write()
+
+        val reader = ResultReader(result, DEFAULT_TRACE_CONFIG)
         Truth.assertWithMessage("Screen recording file exists")
-            .that(mScreenRecorder.outputFile.exists())
+            .that(reader.hasTraceFile(TraceType.SCREEN_RECORDING))
             .isTrue()
 
-        val (metadataTrack, videoTrack) = parseScreenRecording()
+        val outputData =
+            reader.readBytes(TraceType.SCREEN_RECORDING) ?: error("Screen recording not found")
+        val (metadataTrack, videoTrack) = parseScreenRecording(outputData)
 
         Truth.assertThat(metadataTrack.isEmpty()).isFalse()
         Truth.assertThat(videoTrack.isEmpty()).isFalse()
@@ -78,9 +87,9 @@ class ScreenRecorderTest {
         Truth.assertThat(actualMagicString).isEqualTo(WINSCOPE_MAGIC_STRING)
     }
 
-    private fun parseScreenRecording(): Pair<ByteArray, ByteArray> {
-        val inputReader = SeekableInputReader(mScreenRecorder.outputFile)
-        val outputConsumer = OutputConsumer()
+    private fun parseScreenRecording(data: ByteArray): Pair<ByteArray, ByteArray> {
+        val inputReader = ScreenRecorderSeekableInputReader(data)
+        val outputConsumer = ScreenRecorderOutputConsumer()
         val mediaParser = MediaParser.create(outputConsumer)
 
         while (mediaParser.advance(inputReader)) {
@@ -114,105 +123,108 @@ class ScreenRecorderTest {
                 0x23
             ) // "#VV1NSC0PET1ME2#"
     }
-}
 
-internal class SeekableInputReader(video: File) : MediaParser.SeekableInputReader {
-    private val bytes = video.readBytes()
-    private var position = 0L
+    internal class ScreenRecorderSeekableInputReader(private val bytes: ByteArray) :
+        MediaParser.SeekableInputReader {
+        private var position = 0L
 
-    override fun getPosition(): Long = position
+        override fun getPosition(): Long = position
 
-    override fun getLength(): Long = bytes.size.toLong() - position
+        override fun getLength(): Long = bytes.size.toLong() - position
 
-    override fun seekToPosition(position: Long) {
-        this.position = position
-    }
-
-    override fun read(buffer: ByteArray, offset: Int, readLength: Int): Int {
-        if (position >= bytes.size) {
-            return -1
+        override fun seekToPosition(position: Long) {
+            this.position = position
         }
 
-        val actualLength = kotlin.math.min(readLength.toLong(), bytes.size - position)
-        for (i in 0 until actualLength) {
-            buffer[(offset + i).toInt()] = bytes[(position + i).toInt()]
-        }
-
-        position += actualLength
-
-        return actualLength.toInt()
-    }
-}
-
-internal class OutputConsumer : MediaParser.OutputConsumer {
-    private var videoTrack = ArrayList<Byte>()
-    private var metadataTrack = ArrayList<Byte>()
-    private var videoTrackIndex = -1
-    private var metadataTrackIndex = -1
-    private val auxBuffer = ByteArray(4 * 1024)
-
-    fun getVideoTrack(): ByteArray {
-        return videoTrack.toByteArray()
-    }
-
-    fun getMetadataTrack(): ByteArray {
-        return metadataTrack.toByteArray()
-    }
-
-    override fun onSeekMapFound(seekMap: MediaParser.SeekMap) {
-        // do nothing
-    }
-
-    override fun onTrackCountFound(numberOfTracks: Int) {
-        Truth.assertThat(numberOfTracks).isEqualTo(2)
-    }
-
-    override fun onTrackDataFound(i: Int, trackData: MediaParser.TrackData) {
-        if (
-            videoTrackIndex == -1 &&
-                trackData.mediaFormat.getString(MediaFormat.KEY_MIME, "").startsWith("video/")
-        ) {
-            videoTrackIndex = i
-        }
-
-        if (
-            metadataTrackIndex == -1 &&
-                trackData.mediaFormat.getString(MediaFormat.KEY_MIME, "") ==
-                    "application/octet-stream"
-        ) {
-            metadataTrackIndex = i
-        }
-    }
-
-    override fun onSampleDataFound(trackIndex: Int, inputReader: MediaParser.InputReader) {
-        when (trackIndex) {
-            videoTrackIndex -> processSampleData(inputReader, videoTrack)
-            metadataTrackIndex -> processSampleData(inputReader, metadataTrack)
-            else -> throw RuntimeException("unexpected track index: $trackIndex")
-        }
-    }
-
-    override fun onSampleCompleted(
-        trackIndex: Int,
-        timeMicros: Long,
-        flags: Int,
-        size: Int,
-        offset: Int,
-        cryptoData: MediaCodec.CryptoInfo?
-    ) {
-        // do nothing
-    }
-
-    private fun processSampleData(inputReader: MediaParser.InputReader, buffer: ArrayList<Byte>) {
-        while (inputReader.length > 0) {
-            val requestLength = kotlin.math.min(inputReader.length, auxBuffer.size.toLong())
-            val actualLength = inputReader.read(auxBuffer, 0, requestLength.toInt())
-            if (actualLength == -1) {
-                break
+        override fun read(buffer: ByteArray, offset: Int, readLength: Int): Int {
+            if (position >= bytes.size) {
+                return -1
             }
 
+            val actualLength = kotlin.math.min(readLength.toLong(), bytes.size - position)
             for (i in 0 until actualLength) {
-                buffer.add(auxBuffer[i])
+                buffer[(offset + i).toInt()] = bytes[(position + i).toInt()]
+            }
+
+            position += actualLength
+
+            return actualLength.toInt()
+        }
+    }
+
+    internal class ScreenRecorderOutputConsumer : MediaParser.OutputConsumer {
+        private var videoTrack = ArrayList<Byte>()
+        private var metadataTrack = ArrayList<Byte>()
+        private var videoTrackIndex = -1
+        private var metadataTrackIndex = -1
+        private val auxBuffer = ByteArray(4 * 1024)
+
+        fun getVideoTrack(): ByteArray {
+            return videoTrack.toByteArray()
+        }
+
+        fun getMetadataTrack(): ByteArray {
+            return metadataTrack.toByteArray()
+        }
+
+        override fun onSeekMapFound(seekMap: MediaParser.SeekMap) {
+            // do nothing
+        }
+
+        override fun onTrackCountFound(numberOfTracks: Int) {
+            Truth.assertThat(numberOfTracks).isEqualTo(2)
+        }
+
+        override fun onTrackDataFound(i: Int, trackData: MediaParser.TrackData) {
+            if (
+                videoTrackIndex == -1 &&
+                    trackData.mediaFormat.getString(MediaFormat.KEY_MIME, "").startsWith("video/")
+            ) {
+                videoTrackIndex = i
+            }
+
+            if (
+                metadataTrackIndex == -1 &&
+                    trackData.mediaFormat.getString(MediaFormat.KEY_MIME, "") ==
+                        "application/octet-stream"
+            ) {
+                metadataTrackIndex = i
+            }
+        }
+
+        override fun onSampleDataFound(trackIndex: Int, inputReader: MediaParser.InputReader) {
+            when (trackIndex) {
+                videoTrackIndex -> processSampleData(inputReader, videoTrack)
+                metadataTrackIndex -> processSampleData(inputReader, metadataTrack)
+                else -> throw RuntimeException("unexpected track index: $trackIndex")
+            }
+        }
+
+        override fun onSampleCompleted(
+            trackIndex: Int,
+            timeMicros: Long,
+            flags: Int,
+            size: Int,
+            offset: Int,
+            cryptoData: MediaCodec.CryptoInfo?
+        ) {
+            // do nothing
+        }
+
+        private fun processSampleData(
+            inputReader: MediaParser.InputReader,
+            buffer: ArrayList<Byte>
+        ) {
+            while (inputReader.length > 0) {
+                val requestLength = kotlin.math.min(inputReader.length, auxBuffer.size.toLong())
+                val actualLength = inputReader.read(auxBuffer, 0, requestLength.toInt())
+                if (actualLength == -1) {
+                    break
+                }
+
+                for (i in 0 until actualLength) {
+                    buffer.add(auxBuffer[i])
+                }
             }
         }
     }

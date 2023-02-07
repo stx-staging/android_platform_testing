@@ -16,6 +16,7 @@
 
 package com.android.server.wm.flicker.io
 
+import com.android.server.wm.flicker.AssertionTag
 import com.android.server.wm.flicker.RunStatus
 import com.android.server.wm.traces.common.Timestamp
 import com.android.server.wm.traces.common.events.CujTrace
@@ -84,4 +85,10 @@ interface IReader {
 
     /** @return an [IReader] for the subsection of the trace we are reading in this reader */
     fun slice(startTimestamp: Timestamp, endTimestamp: Timestamp): IReader
+
+    /**
+     * @return [ByteArray] with the contents of a file from the artifact, or null if the file
+     * doesn't exist
+     */
+    fun readBytes(traceType: TraceType, tag: String = AssertionTag.ALL): ByteArray?
 }

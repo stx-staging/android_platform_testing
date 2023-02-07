@@ -22,6 +22,7 @@ import androidx.test.uiautomator.UiDevice
 import com.android.server.wm.flicker.helpers.isShellTransitionsEnabled
 import com.android.server.wm.flicker.io.TraceType
 import com.android.server.wm.flicker.monitor.EventLogMonitor
+import com.android.server.wm.flicker.monitor.ITransitionMonitor
 import com.android.server.wm.flicker.monitor.LayersTraceMonitor
 import com.android.server.wm.flicker.monitor.NoTraceMonitor
 import com.android.server.wm.flicker.monitor.ScreenRecorder
@@ -66,14 +67,14 @@ private constructor(
             WindowManagerStateHelper(instrumentation, clearCacheAfterParsing = false),
         traceMonitors: MutableList<ITransitionMonitor> =
             mutableListOf<ITransitionMonitor>().also {
-                it.add(WindowManagerTraceMonitor(outputDir))
-                it.add(LayersTraceMonitor(outputDir))
+                it.add(WindowManagerTraceMonitor())
+                it.add(LayersTraceMonitor())
                 if (isShellTransitionsEnabled) {
                     // Transition tracing only works if shell transitions are enabled.
-                    it.add(TransitionsTraceMonitor(outputDir))
+                    it.add(TransitionsTraceMonitor())
                 }
-                it.add(TransactionsTraceMonitor(outputDir))
-                it.add(ScreenRecorder(instrumentation.targetContext, outputDir))
+                it.add(TransactionsTraceMonitor())
+                it.add(ScreenRecorder(instrumentation.targetContext))
                 it.add(EventLogMonitor())
             }
     ) : this(
@@ -95,12 +96,11 @@ private constructor(
      * If this tracing is disabled, the assertions for [WindowManagerTrace] and [WindowManagerState]
      * will not be executed
      */
-    fun withWindowManagerTracing(
-        traceMonitor: (File) -> WindowManagerTraceMonitor?
-    ): FlickerBuilder = apply {
-        traceMonitors.removeIf { it is WindowManagerTraceMonitor }
-        addMonitor(traceMonitor(outputDir))
-    }
+    fun withWindowManagerTracing(traceMonitor: () -> WindowManagerTraceMonitor?): FlickerBuilder =
+        apply {
+            traceMonitors.removeIf { it is WindowManagerTraceMonitor }
+            addMonitor(traceMonitor())
+        }
 
     /** Disable [LayersTraceMonitor]. */
     fun withoutLayerTracing(): FlickerBuilder = apply { withLayerTracing { null } }
@@ -113,9 +113,9 @@ private constructor(
      * If this tracing is disabled, the assertions for [LayersTrace] and [BaseLayerTraceEntry] will
      * not be executed
      */
-    fun withLayerTracing(traceMonitor: (File) -> LayersTraceMonitor?): FlickerBuilder = apply {
+    fun withLayerTracing(traceMonitor: () -> LayersTraceMonitor?): FlickerBuilder = apply {
         traceMonitors.removeIf { it is LayersTraceMonitor }
-        addMonitor(traceMonitor(outputDir))
+        addMonitor(traceMonitor())
     }
 
     /** Disable [TransitionsTraceMonitor]. */
@@ -126,10 +126,10 @@ private constructor(
      *
      * By default, shell transition tracing is disabled.
      */
-    fun withTransitionTracing(traceMonitor: (File) -> TransitionsTraceMonitor?): FlickerBuilder =
+    fun withTransitionTracing(traceMonitor: () -> TransitionsTraceMonitor?): FlickerBuilder =
         apply {
             traceMonitors.removeIf { it is TransitionsTraceMonitor }
-            addMonitor(traceMonitor(outputDir))
+            addMonitor(traceMonitor())
         }
 
     /** Disable [TransactionsTraceMonitor]. */
@@ -140,10 +140,10 @@ private constructor(
      *
      * By default, shell transition tracing is disabled.
      */
-    fun withTransactionsTracing(traceMonitor: (File) -> TransactionsTraceMonitor?): FlickerBuilder =
+    fun withTransactionsTracing(traceMonitor: () -> TransactionsTraceMonitor?): FlickerBuilder =
         apply {
             traceMonitors.removeIf { it is TransactionsTraceMonitor }
-            addMonitor(traceMonitor(outputDir))
+            addMonitor(traceMonitor())
         }
 
     /**
@@ -151,9 +151,9 @@ private constructor(
      *
      * By default, the tracing is always active. To disable tracing return null
      */
-    fun withScreenRecorder(screenRecorder: (File) -> ScreenRecorder?): FlickerBuilder = apply {
+    fun withScreenRecorder(screenRecorder: () -> ScreenRecorder?): FlickerBuilder = apply {
         traceMonitors.removeIf { it is ScreenRecorder }
-        addMonitor(screenRecorder(outputDir))
+        addMonitor(screenRecorder())
     }
 
     fun withoutScreenRecorder(): FlickerBuilder = apply {

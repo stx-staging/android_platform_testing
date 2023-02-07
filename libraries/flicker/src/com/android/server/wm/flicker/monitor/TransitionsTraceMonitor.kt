@@ -17,38 +17,24 @@
 package com.android.server.wm.flicker.monitor
 
 import android.view.WindowManagerGlobal
-import com.android.server.wm.flicker.getDefaultFlickerOutputDir
 import com.android.server.wm.flicker.io.TraceType
 import com.android.server.wm.flicker.io.WINSCOPE_EXT
-import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
-import com.android.server.wm.traces.common.layers.LayersTrace
+import com.android.server.wm.traces.common.transition.TransitionsTrace
 import java.io.File
 
-/**
- * Captures [LayersTrace] from SurfaceFlinger.
- *
- * Use [LayersTraceSubject.assertThat] to make assertions on the trace
- */
-open class TransitionsTraceMonitor
-@JvmOverloads
-constructor(
-    outputDir: File = getDefaultFlickerOutputDir(),
-    sourceFile: File = TRACE_DIR.resolve("transition_trace$WINSCOPE_EXT")
-) : TransitionMonitor(outputDir, sourceFile) {
-
+/** Captures [TransitionsTrace] from SurfaceFlinger. */
+open class TransitionsTraceMonitor : TransitionMonitor() {
     private val windowManager = WindowManagerGlobal.getWindowManagerService()
-
-    override fun startTracing() {
-        windowManager.startTransitionTrace()
-    }
-
-    override fun stopTracing() {
-        windowManager.stopTransitionTrace()
-    }
-
+    override val traceType: TraceType = TraceType.TRANSITION
     override val isEnabled: Boolean
         get() = windowManager.isTransitionTraceEnabled
 
-    override val traceType: TraceType
-        get() = TraceType.TRANSITION
+    override fun start() {
+        windowManager.startTransitionTrace()
+    }
+
+    override fun doStop(): File {
+        windowManager.stopTransitionTrace()
+        return TRACE_DIR.resolve("transition_trace$WINSCOPE_EXT")
+    }
 }

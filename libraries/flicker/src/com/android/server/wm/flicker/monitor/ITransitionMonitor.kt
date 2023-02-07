@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 The Android Open Source Project
+ * Copyright (C) 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker
+package com.android.server.wm.flicker.monitor
+
+import com.android.server.wm.flicker.io.ResultWriter
 
 /** Collects test artifacts during a UI transition. */
-interface ITransitionMonitor : IResultSetter {
+interface ITransitionMonitor {
     /** Starts monitor. */
     fun start()
 
-    /** Stops monitor. */
-    fun stop()
+    /** Stops monitor and writes the result to a [ResultWriter] */
+    fun stop(writer: ResultWriter)
 }

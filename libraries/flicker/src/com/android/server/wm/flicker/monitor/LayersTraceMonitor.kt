@@ -17,37 +17,28 @@
 package com.android.server.wm.flicker.monitor
 
 import android.view.WindowManagerGlobal
-import com.android.server.wm.flicker.getDefaultFlickerOutputDir
 import com.android.server.wm.flicker.io.TraceType
 import com.android.server.wm.flicker.io.WINSCOPE_EXT
 import com.android.server.wm.traces.common.layers.LayersTrace
 import java.io.File
 
 /** Captures [LayersTrace] from SurfaceFlinger. */
-open class LayersTraceMonitor
-@JvmOverloads
-constructor(
-    outputDir: File = getDefaultFlickerOutputDir(),
-    sourceFile: File = TRACE_DIR.resolve("layers_trace$WINSCOPE_EXT"),
-    private val traceFlags: Int = TRACE_FLAGS
-) : TransitionMonitor(outputDir, sourceFile) {
-
-    override val traceType: TraceType
-        get() = TraceType.SF
-
+open class LayersTraceMonitor @JvmOverloads constructor(private val traceFlags: Int = TRACE_FLAGS) :
+    TransitionMonitor() {
     private val windowManager = WindowManagerGlobal.getWindowManagerService()
+    override val traceType = TraceType.SF
+    override val isEnabled: Boolean
+        get() = windowManager.isLayerTracing
 
-    override fun startTracing() {
+    override fun start() {
         windowManager.setLayerTracingFlags(traceFlags)
         windowManager.isLayerTracing = true
     }
 
-    override fun stopTracing() {
+    override fun doStop(): File {
         windowManager.isLayerTracing = false
+        return TRACE_DIR.resolve("layers_trace$WINSCOPE_EXT")
     }
-
-    override val isEnabled: Boolean
-        get() = windowManager.isLayerTracing
 
     companion object {
         const val TRACE_FLAGS = 0x47 // TRACE_CRITICAL|TRACE_INPUT|TRACE_COMPOSITION|TRACE_SYNC

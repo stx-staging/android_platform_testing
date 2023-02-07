@@ -17,33 +17,23 @@
 package com.android.server.wm.flicker.monitor
 
 import android.view.WindowManagerGlobal
-import com.android.server.wm.flicker.getDefaultFlickerOutputDir
 import com.android.server.wm.flicker.io.TraceType
 import com.android.server.wm.flicker.io.WINSCOPE_EXT
-import com.android.server.wm.traces.common.layers.LayersTrace
+import com.android.server.wm.traces.common.transactions.TransactionsTrace
 import java.io.File
 
-/** Captures [LayersTrace] from SurfaceFlinger. */
-open class TransactionsTraceMonitor
-@JvmOverloads
-constructor(
-    outputDir: File = getDefaultFlickerOutputDir(),
-    sourceFile: File = TRACE_DIR.resolve("transactions_trace$WINSCOPE_EXT")
-) : TransitionMonitor(outputDir, sourceFile) {
-
+/** Captures [TransactionsTrace] from SurfaceFlinger. */
+open class TransactionsTraceMonitor : TransitionMonitor() {
     private val windowManager = WindowManagerGlobal.getWindowManagerService()
+    override val isEnabled: Boolean = true
+    override val traceType: TraceType = TraceType.TRANSACTION
 
-    override fun startTracing() {
+    override fun start() {
         windowManager.setActiveTransactionTracing(true)
     }
 
-    override fun stopTracing() {
+    override fun doStop(): File {
         windowManager.setActiveTransactionTracing(false)
+        return TRACE_DIR.resolve("transactions_trace$WINSCOPE_EXT")
     }
-
-    override val isEnabled: Boolean
-        get() = true
-
-    override val traceType: TraceType
-        get() = TraceType.TRANSACTION
 }

@@ -5,6 +5,7 @@ import android.util.EventLog
 import com.android.internal.jank.EventLogTags
 import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
 import com.android.server.wm.flicker.io.ResultReader
+import com.android.server.wm.flicker.io.TraceType
 import com.android.server.wm.flicker.newTestResultWriter
 import com.android.server.wm.flicker.now
 import com.android.server.wm.traces.common.events.CujEvent
@@ -12,8 +13,6 @@ import com.android.server.wm.traces.common.events.CujType
 import com.android.server.wm.traces.common.events.EventLog.Companion.MAGIC_NUMBER
 import com.android.server.wm.traces.common.events.FocusEvent
 import com.google.common.truth.Truth
-import java.io.File
-import kotlin.io.path.exists
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -23,7 +22,8 @@ import org.junit.Test
  * FlickerLibTest:EventLogMonitorTest}
  */
 class EventLogMonitorTest : TraceMonitorTest<EventLogMonitor>() {
-    override fun getMonitor(outputDir: File): EventLogMonitor = EventLogMonitor(outputDir)
+    override val traceType = TraceType.EVENT_LOG
+    override fun getMonitor(): EventLogMonitor = EventLogMonitor()
 
     override fun assertTrace(traceData: ByteArray) {
         Truth.assertThat(traceData.size).isAtLeast(MAGIC_NUMBER.toByteArray().size)
@@ -65,15 +65,14 @@ class EventLogMonitorTest : TraceMonitorTest<EventLogMonitor>() {
                 "com.android.phone.settings.fdn.FdnSetting (server)",
             "reason=test"
         )
-        monitor.stop()
+        val writer = newTestResultWriter()
+        monitor.stop(writer)
         EventLog.writeEvent(
             INPUT_FOCUS_TAG /* input_focus */,
             "Focus entering 2aa30cd com.android.phone/" +
                 "com.android.phone.settings.fdn.FdnSetting (server)",
             "reason=test"
         )
-        val writer = newTestResultWriter()
-        monitor.setResult(writer)
         val result = writer.write()
 
         val reader = ResultReader(result, DEFAULT_TRACE_CONFIG)
@@ -111,7 +110,7 @@ class EventLogMonitorTest : TraceMonitorTest<EventLogMonitor>() {
                 "com.android.phone.settings.fdn.FdnSetting (server)",
             "reason=test"
         )
-        monitor.stop()
+        monitor.stop(newTestResultWriter())
 
         monitor.start()
         EventLog.writeEvent(
@@ -126,10 +125,8 @@ class EventLogMonitorTest : TraceMonitorTest<EventLogMonitor>() {
                 "com.android.phone.settings.fdn.FdnSetting (server)",
             "reason=test"
         )
-        monitor.stop()
-
         val writer = newTestResultWriter()
-        monitor.setResult(writer)
+        monitor.stop(writer)
         val result = writer.write()
 
         val reader = ResultReader(result, DEFAULT_TRACE_CONFIG)
@@ -172,10 +169,8 @@ class EventLogMonitorTest : TraceMonitorTest<EventLogMonitor>() {
                 "com.android.phone.settings.fdn.FdnSetting (server)",
             "reason=test"
         )
-        monitor.stop()
-
         val writer = newTestResultWriter()
-        monitor.setResult(writer)
+        monitor.stop(writer)
         val result = writer.write()
 
         val reader = ResultReader(result, DEFAULT_TRACE_CONFIG)
@@ -219,10 +214,13 @@ class EventLogMonitorTest : TraceMonitorTest<EventLogMonitor>() {
                 "com.android.phone.settings.fdn.FdnSetting (server)",
             "reason=test"
         )
-        monitor.stop()
+        val writer = newTestResultWriter()
+        monitor.stop(writer)
+        val result = writer.write()
+        val reader = ResultReader(result, DEFAULT_TRACE_CONFIG)
 
-        Truth.assertWithMessage("Trace file ${monitor.outputFile} not found")
-            .that(monitor.outputFile.exists())
+        Truth.assertWithMessage("Trace not found")
+            .that(reader.hasTraceFile(TraceType.EVENT_LOG))
             .isTrue()
     }
 
@@ -246,10 +244,8 @@ class EventLogMonitorTest : TraceMonitorTest<EventLogMonitor>() {
             "reason=test"
         )
 
-        monitor.stop()
-
         val writer = newTestResultWriter()
-        monitor.setResult(writer)
+        monitor.stop(writer)
         val result = writer.write()
 
         val reader = ResultReader(result, DEFAULT_TRACE_CONFIG)
@@ -290,8 +286,7 @@ class EventLogMonitorTest : TraceMonitorTest<EventLogMonitor>() {
             "reason=test"
         )
 
-        monitor.stop()
-        monitor.setResult(writer)
+        monitor.stop(writer)
         val result = writer.write()
 
         val reader = ResultReader(result, DEFAULT_TRACE_CONFIG)
@@ -316,8 +311,7 @@ class EventLogMonitorTest : TraceMonitorTest<EventLogMonitor>() {
             SystemClock.elapsedRealtimeNanos(),
             SystemClock.uptimeNanos()
         )
-        monitor.stop()
-        monitor.setResult(writer)
+        monitor.stop(writer)
         val result = writer.write()
 
         val reader = ResultReader(result, DEFAULT_TRACE_CONFIG)
@@ -346,8 +340,7 @@ class EventLogMonitorTest : TraceMonitorTest<EventLogMonitor>() {
             SystemClock.elapsedRealtimeNanos(),
             SystemClock.uptimeNanos()
         )
-        monitor.stop()
-        monitor.setResult(writer)
+        monitor.stop(writer)
         val result = writer.write()
 
         val reader = ResultReader(result, DEFAULT_TRACE_CONFIG)
@@ -386,8 +379,7 @@ class EventLogMonitorTest : TraceMonitorTest<EventLogMonitor>() {
             SystemClock.elapsedRealtimeNanos(),
             SystemClock.uptimeNanos()
         )
-        monitor.stop()
-        monitor.setResult(writer)
+        monitor.stop(writer)
         val result = writer.write()
 
         val reader = ResultReader(result, DEFAULT_TRACE_CONFIG)

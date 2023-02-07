@@ -117,6 +117,9 @@ open class ResultReader(internal var result: ResultData, internal val traceConfi
         return if (foundFile) outByteArray.toByteArray() else null
     }
 
+    override fun readBytes(traceType: TraceType, tag: String): ByteArray? =
+        readFromZip(ResultArtifactDescriptor(traceType, tag))
+
     /**
      * @return a [WindowManagerTrace] from the dump associated to [tag]
      * @throws IOException if the artifact file doesn't exist or can't be read
@@ -219,10 +222,7 @@ open class ResultReader(internal var result: ResultData, internal val traceConfi
      */
     @Throws(IOException::class)
     override fun readTransitionsTrace(): TransitionsTrace? {
-        val traceData = readFromZip(ResultArtifactDescriptor(TraceType.TRANSITION))
-        if (traceData == null) {
-            return null
-        }
+        val traceData = readFromZip(ResultArtifactDescriptor(TraceType.TRANSITION)) ?: return null
 
         val fullTrace = TransitionsTraceParser().parse(traceData)
         val trace = fullTrace.slice(transitionTimeRange.start, transitionTimeRange.end)
@@ -281,11 +281,14 @@ open class ResultReader(internal var result: ResultData, internal val traceConfi
     }
 
     /** @return if a file with type [traceType] linked to a [tag] exists in the artifact */
-    @VisibleForTesting
     fun hasTraceFile(traceType: TraceType, tag: String = AssertionTag.ALL): Boolean {
         val descriptor = ResultArtifactDescriptor(traceType, tag)
         var found = false
-        forEachFileInZip { found = found || (it.name == descriptor.fileNameInArtifact) }
+        forEachFileInZip {
+            Log.v("ABC", "Searching file ${descriptor.fileNameInArtifact} against ${it.name}")
+            found = found || (it.name == descriptor.fileNameInArtifact)
+            Log.v("ABC", "Found = $found")
+        }
         return found
     }
 }

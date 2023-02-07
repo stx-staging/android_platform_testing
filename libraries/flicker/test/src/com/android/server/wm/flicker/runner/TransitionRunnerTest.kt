@@ -24,7 +24,6 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.android.compatibility.common.util.SystemUtil
 import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
 import com.android.server.wm.flicker.IFlickerTestData
-import com.android.server.wm.flicker.ITransitionMonitor
 import com.android.server.wm.flicker.RunStatus
 import com.android.server.wm.flicker.TEST_SCENARIO
 import com.android.server.wm.flicker.assertExceptionMessageCause
@@ -32,6 +31,7 @@ import com.android.server.wm.flicker.createMockedFlicker
 import com.android.server.wm.flicker.getDefaultFlickerOutputDir
 import com.android.server.wm.flicker.io.ResultReader
 import com.android.server.wm.flicker.io.ResultWriter
+import com.android.server.wm.flicker.monitor.ITransitionMonitor
 import com.google.common.truth.Truth
 import org.junit.After
 import org.junit.Before
@@ -204,24 +204,18 @@ class TransitionRunnerTest {
     private fun dummyMonitor() =
         object : ITransitionMonitor {
             private var startExecuted = false
-            private var stopExecuted = false
             private var setResultExecuted = false
 
             override fun start() {
                 startExecuted = true
             }
 
-            override fun stop() {
-                stopExecuted = true
-            }
-
-            override fun setResult(result: ResultWriter) {
+            override fun stop(writer: ResultWriter) {
                 setResultExecuted = true
             }
 
             fun validate() {
                 Truth.assertWithMessage("Start executed").that(startExecuted).isTrue()
-                Truth.assertWithMessage("Stop executed").that(stopExecuted).isTrue()
                 Truth.assertWithMessage("Set result executed").that(setResultExecuted).isTrue()
             }
         }

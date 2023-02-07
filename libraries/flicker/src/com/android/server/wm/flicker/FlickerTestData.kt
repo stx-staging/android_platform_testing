@@ -18,6 +18,7 @@ package com.android.server.wm.flicker
 
 import android.app.Instrumentation
 import androidx.test.uiautomator.UiDevice
+import com.android.server.wm.flicker.monitor.ITransitionMonitor
 import com.android.server.wm.traces.common.layers.LayersTrace
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerStateHelper

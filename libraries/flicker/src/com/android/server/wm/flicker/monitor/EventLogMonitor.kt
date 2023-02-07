@@ -19,9 +19,6 @@ package com.android.server.wm.flicker.monitor
 import android.util.Log
 import com.android.compatibility.common.util.SystemUtil
 import com.android.server.wm.flicker.FLICKER_TAG
-import com.android.server.wm.flicker.IResultSetter
-import com.android.server.wm.flicker.deleteIfExists
-import com.android.server.wm.flicker.getDefaultFlickerOutputDir
 import com.android.server.wm.flicker.helpers.SECOND_AS_NANOSECONDS
 import com.android.server.wm.flicker.io.TraceType
 import com.android.server.wm.flicker.now
@@ -31,44 +28,39 @@ import java.io.File
 import java.io.FileOutputStream
 
 /** Collects event logs during transitions. */
-open class EventLogMonitor(
-    outputDir: File = getDefaultFlickerOutputDir(),
-    sourceFile: File = getDefaultFlickerOutputDir().resolve(TraceType.EVENT_LOG.fileName)
-) : TransitionMonitor(outputDir, sourceFile), IResultSetter {
-    override val traceType: TraceType
-        get() = TraceType.EVENT_LOG
-
-    override var isEnabled: Boolean = false
+open class EventLogMonitor : TransitionMonitor() {
+    override val traceType = TraceType.EVENT_LOG
+    final override var isEnabled = false
+        private set
 
     private var traceStartTime: Timestamp? = null
 
-    override fun startTracing() {
+    override fun start() {
         require(!isEnabled) { "Trace already running" }
         isEnabled = true
         traceStartTime = now()
     }
 
-    override fun stopTracing() {
+    override fun doStop(): File {
         require(isEnabled) { "Trace not running" }
         isEnabled = false
         val sinceTime =
             nanosToLogFormat(traceStartTime?.unixNanos ?: error("Missing start timestamp"))
 
         traceStartTime = null
+        val outputFile = File.createTempFile(TraceType.EVENT_LOG.fileName, "")
 
-        sourceFile.deleteIfExists()
-        sourceFile.parentFile.mkdirs()
-        sourceFile.createNewFile()
-
-        FileOutputStream(sourceFile).use {
+        FileOutputStream(outputFile).use {
             it.write("${EventLog.MAGIC_NUMBER}\n".toByteArray())
             val command =
                 "logcat -b events -v threadtime -v printable -v uid -v nsec " +
-                    "-v epoch -t $sinceTime >> $sourceFile"
+                    "-v epoch -t $sinceTime >> $outputFile"
             Log.d(FLICKER_TAG, "Running '$command'")
             val eventLogString = SystemUtil.runShellCommandOrThrow(command)
             it.write(eventLogString.toByteArray())
         }
+
+        return outputFile
     }
 
     private fun nanosToLogFormat(timestampNanos: Long): String {

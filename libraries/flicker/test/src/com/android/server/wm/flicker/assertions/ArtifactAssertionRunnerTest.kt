@@ -132,8 +132,7 @@ class ArtifactAssertionRunnerTest {
             val writer = newTestResultWriter()
             val monitor = EventLogMonitor()
             monitor.start()
-            monitor.stop()
-            monitor.setResult(writer)
+            monitor.stop(writer)
             return writer.write()
         }
     }

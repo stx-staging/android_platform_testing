@@ -67,4 +67,8 @@ class ParsedTracesReader(
     override fun readWmState(tag: String): WindowManagerTrace? {
         error("Trace type not available")
     }
+
+    override fun readBytes(traceType: TraceType, tag: String): ByteArray? {
+        error("Feature not available")
+    }
 }

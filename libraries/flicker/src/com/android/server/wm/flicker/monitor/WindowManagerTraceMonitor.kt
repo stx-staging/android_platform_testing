@@ -17,35 +17,23 @@
 package com.android.server.wm.flicker.monitor
 
 import android.view.WindowManagerGlobal
-import com.android.server.wm.flicker.getDefaultFlickerOutputDir
 import com.android.server.wm.flicker.io.TraceType
-import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 import java.io.File
 
-/**
- * Captures [WindowManagerTrace] from WindowManager.
- *
- * Use [WindowManagerTraceSubject.assertThat] to make assertions on the trace
- */
-open class WindowManagerTraceMonitor
-@JvmOverloads
-constructor(
-    outputDir: File = getDefaultFlickerOutputDir(),
-    sourceFile: File = TRACE_DIR.resolve(TraceType.WM.fileName)
-) : TransitionMonitor(outputDir, sourceFile) {
+/** Captures [WindowManagerTrace] from WindowManager. */
+open class WindowManagerTraceMonitor : TransitionMonitor() {
     private val windowManager = WindowManagerGlobal.getWindowManagerService()
-    override fun startTracing() {
-        windowManager.startWindowTrace()
-    }
-
-    override fun stopTracing() {
-        windowManager.stopWindowTrace()
-    }
-
+    override val traceType: TraceType = TraceType.WM
     override val isEnabled: Boolean
         get() = windowManager.isWindowTraceEnabled
 
-    override val traceType: TraceType
-        get() = TraceType.WM
+    override fun start() {
+        windowManager.startWindowTrace()
+    }
+
+    override fun doStop(): File {
+        windowManager.stopWindowTrace()
+        return TRACE_DIR.resolve(TraceType.WM.fileName)
+    }
 }

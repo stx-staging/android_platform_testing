@@ -18,30 +18,22 @@
 
 package com.android.server.wm.flicker.monitor
 
-import com.android.server.wm.flicker.getDefaultFlickerOutputDir
 import com.android.server.wm.traces.common.DeviceTraceDump
 import com.android.server.wm.traces.common.layers.LayersTrace
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 import com.android.server.wm.traces.parser.DeviceDumpParser
 import com.android.server.wm.traces.parser.layers.LayersTraceParser
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerTraceParser
-import java.io.File
 
 /**
  * Acquire the [WindowManagerTrace] with the device state changes that happen when executing the
  * commands defined in the [predicate].
  *
- * @param outputDir Directory where to store the traces
  * @param predicate Commands to execute
  * @throws UnsupportedOperationException If tracing is already activated
  */
-@JvmOverloads
-fun withWMTracing(
-    outputDir: File = getDefaultFlickerOutputDir().resolve("withWMTracing"),
-    predicate: () -> Unit
-): WindowManagerTrace {
-    return WindowManagerTraceParser()
-        .parse(WindowManagerTraceMonitor(outputDir).withTracing(predicate))
+fun withWMTracing(predicate: () -> Unit): WindowManagerTrace {
+    return WindowManagerTraceParser().parse(WindowManagerTraceMonitor().withTracing(predicate))
 }
 
 /**
@@ -49,34 +41,26 @@ fun withWMTracing(
  * defined in the [predicate].
  *
  * @param traceFlags Flags to indicate tracing level
- * @param outputDir Directory where to store the traces
  * @param predicate Commands to execute
  * @throws UnsupportedOperationException If tracing is already activated
  */
 @JvmOverloads
 fun withSFTracing(
     traceFlags: Int = LayersTraceMonitor.TRACE_FLAGS,
-    outputDir: File = getDefaultFlickerOutputDir().resolve("withSFTracing"),
     predicate: () -> Unit
 ): LayersTrace {
-    return LayersTraceParser()
-        .parse(LayersTraceMonitor(outputDir, traceFlags = traceFlags).withTracing(predicate))
+    return LayersTraceParser().parse(LayersTraceMonitor(traceFlags).withTracing(predicate))
 }
 
 /**
  * Acquire the [WindowManagerTrace] and [LayersTrace] with the device state changes that happen when
  * executing the commands defined in the [predicate].
  *
- * @param outputDir Directory where to store the traces
  * @param predicate Commands to execute
  * @throws UnsupportedOperationException If tracing is already activated
  */
-@JvmOverloads
-fun withTracing(
-    outputDir: File = getDefaultFlickerOutputDir(),
-    predicate: () -> Unit
-): DeviceTraceDump {
-    val traces = recordTraces(outputDir, predicate)
+fun withTracing(predicate: () -> Unit): DeviceTraceDump {
+    val traces = recordTraces(predicate)
     val wmTraceData = traces.first
     val layersTraceData = traces.second
     return DeviceDumpParser.fromTrace(wmTraceData, layersTraceData, clearCache = true)
@@ -86,22 +70,15 @@ fun withTracing(
  * Acquire the [WindowManagerTrace] and [LayersTrace] with the device state changes that happen when
  * executing the commands defined in the [predicate].
  *
- * @param outputDir Directory where to store the traces
  * @param predicate Commands to execute
  * @throws UnsupportedOperationException If tracing is already activated
  * @return a pair containing the WM and SF traces
  */
-@JvmOverloads
-fun recordTraces(
-    outputDir: File = getDefaultFlickerOutputDir(),
-    predicate: () -> Unit
-): Pair<ByteArray, ByteArray> {
+fun recordTraces(predicate: () -> Unit): Pair<ByteArray, ByteArray> {
     var wmTraceData = ByteArray(0)
-    val layersOutputDir = outputDir.resolve("withSFTracing")
     val layersTraceData =
-        LayersTraceMonitor(layersOutputDir).withTracing {
-            val wmOutputDir = outputDir.resolve("withWMTracing")
-            wmTraceData = WindowManagerTraceMonitor(wmOutputDir).withTracing(predicate)
+        LayersTraceMonitor().withTracing {
+            wmTraceData = WindowManagerTraceMonitor().withTracing(predicate)
         }
 
     return Pair(wmTraceData, layersTraceData)

@@ -19,27 +19,28 @@ package com.android.server.wm.flicker.monitor
 import android.app.Instrumentation
 import android.support.test.uiautomator.UiDevice
 import androidx.test.platform.app.InstrumentationRegistry
-import com.android.server.wm.flicker.getDefaultFlickerOutputDir
+import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
+import com.android.server.wm.flicker.RunStatus
+import com.android.server.wm.flicker.deleteIfExists
+import com.android.server.wm.flicker.io.ResultReader
+import com.android.server.wm.flicker.io.TraceType
+import com.android.server.wm.flicker.newTestResultWriter
+import com.android.server.wm.flicker.outputFileName
 import com.android.server.wm.traces.common.DeviceTraceDump
 import com.android.server.wm.traces.parser.DeviceDumpParser
-import com.google.common.io.Files
 import com.google.common.truth.Truth
-import java.io.File
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
 abstract class TraceMonitorTest<T : TransitionMonitor> {
-    lateinit var savedTrace: File
-    abstract fun getMonitor(outputDir: File): T
+    abstract fun getMonitor(): T
     abstract fun assertTrace(traceData: ByteArray)
+    abstract val traceType: TraceType
 
     protected val instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation()
     protected val device: UiDevice = UiDevice.getInstance(instrumentation)
-    private val traceMonitor by lazy {
-        val outputDir = getDefaultFlickerOutputDir()
-        getMonitor(outputDir)
-    }
+    private val traceMonitor by lazy { getMonitor() }
 
     @Before
     fun before() {
@@ -52,11 +53,9 @@ abstract class TraceMonitorTest<T : TransitionMonitor> {
     fun teardown() {
         device.pressHome()
         if (traceMonitor.isEnabled) {
-            traceMonitor.stop()
+            traceMonitor.stop(newTestResultWriter())
         }
-        if (::savedTrace.isInitialized) {
-            savedTrace.delete()
-        }
+        outputFileName(RunStatus.RUN_EXECUTED).deleteIfExists()
         Truth.assertWithMessage("Failed to disable trace at end of test")
             .that(traceMonitor.isEnabled)
             .isFalse()
@@ -74,7 +73,7 @@ abstract class TraceMonitorTest<T : TransitionMonitor> {
     fun canStopTrace() {
         traceMonitor.start()
         Truth.assertThat(traceMonitor.isEnabled).isTrue()
-        traceMonitor.stop()
+        traceMonitor.stop(newTestResultWriter())
         Truth.assertThat(traceMonitor.isEnabled).isFalse()
     }
 
@@ -82,12 +81,18 @@ abstract class TraceMonitorTest<T : TransitionMonitor> {
     @Throws(Exception::class)
     fun captureTrace() {
         traceMonitor.start()
-        traceMonitor.stop()
-        val savedTrace = traceMonitor.outputFile
-        val testFile = savedTrace
-        Truth.assertWithMessage("File $testFile exists").that(testFile.exists()).isTrue()
-        val trace = Files.toByteArray(testFile)
-        Truth.assertWithMessage("File $testFile has data").that(trace.size).isGreaterThan(0)
+        val writer = newTestResultWriter()
+        traceMonitor.stop(writer)
+        val result = writer.write()
+        val reader = ResultReader(result, DEFAULT_TRACE_CONFIG)
+        Truth.assertWithMessage("Trace file exists ${traceMonitor.traceType}")
+            .that(reader.hasTraceFile(traceMonitor.traceType))
+            .isTrue()
+
+        val trace =
+            reader.readBytes(traceMonitor.traceType)
+                ?: error("Missing trace file ${traceMonitor.traceType}")
+        Truth.assertWithMessage("Trace file has data").that(trace.size).isGreaterThan(0)
         assertTrace(trace)
     }
 

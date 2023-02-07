@@ -25,6 +25,7 @@ import com.android.server.wm.flicker.io.ResultReader
 import com.android.server.wm.flicker.io.ResultWriter
 import com.android.server.wm.flicker.io.WINSCOPE_EXT
 import com.android.server.wm.flicker.monitor.EventLogMonitor
+import com.android.server.wm.flicker.monitor.ITransitionMonitor
 import com.android.server.wm.flicker.monitor.LayersTraceMonitor
 import com.android.server.wm.flicker.monitor.ScreenRecorder
 import com.android.server.wm.flicker.monitor.TransactionsTraceMonitor
@@ -332,9 +333,8 @@ fun captureTrace(scenario: IScenario, actions: () -> Unit): ResultReader {
         monitors.forEach { it.start() }
         actions.invoke()
     } finally {
-        monitors.forEach { it.stop() }
+        monitors.forEach { it.stop(writer) }
     }
-    monitors.forEach { it.setResult(writer) }
     val result = writer.write()
 
     return ResultReader(result, DEFAULT_TRACE_CONFIG)

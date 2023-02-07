@@ -16,9 +16,9 @@
 
 package com.android.server.wm.flicker.monitor
 
+import com.android.server.wm.flicker.io.TraceType
 import com.android.server.wm.nano.WindowManagerTraceFileProto
 import com.google.common.truth.Truth
-import java.io.File
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
@@ -29,7 +29,8 @@ import org.junit.runners.MethodSorters
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class WindowManagerTraceMonitorTest : TraceMonitorTest<WindowManagerTraceMonitor>() {
-    override fun getMonitor(outputDir: File) = WindowManagerTraceMonitor(outputDir)
+    override val traceType = TraceType.WM
+    override fun getMonitor() = WindowManagerTraceMonitor()
 
     override fun assertTrace(traceData: ByteArray) {
         val trace = WindowManagerTraceFileProto.parseFrom(traceData)

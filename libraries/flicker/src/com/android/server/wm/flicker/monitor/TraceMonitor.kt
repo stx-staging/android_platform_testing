@@ -16,8 +16,6 @@
 
 package com.android.server.wm.flicker.monitor
 
-import com.android.server.wm.flicker.IResultSetter
-import com.android.server.wm.flicker.ITransitionMonitor
 import com.android.server.wm.flicker.Utils
 import com.android.server.wm.flicker.io.ResultWriter
 import com.android.server.wm.flicker.io.TraceType
@@ -27,45 +25,28 @@ import java.io.File
  * Base class for monitors containing common logic to read the trace as a byte array and save the
  * trace to another location.
  */
-abstract class TraceMonitor internal constructor(outputDir: File, val sourceFile: File) :
-    ITransitionMonitor, IResultSetter, IFileGeneratingMonitor {
-    override val outputFile: File = outputDir.resolve(sourceFile.name)
+abstract class TraceMonitor : ITransitionMonitor {
     abstract val isEnabled: Boolean
     abstract val traceType: TraceType
-
-    /** Starts monitor. */
-    final override fun start() {
-        try {
-            startTracing()
-        } catch (e: Throwable) {
-            throw RuntimeException("Could not start trace", e)
-        }
-    }
+    protected abstract fun doStop(): File
 
     /** Stops monitor. */
-    final override fun stop() {
-        try {
-            stopTracing()
-            moveTraceFileToOutputDir()
-        } catch (e: Throwable) {
-            throw RuntimeException("Could not stop trace", e)
-        }
+    final override fun stop(writer: ResultWriter) {
+        val artifact =
+            try {
+                val srcFile = doStop()
+                moveTraceFileToTmpDir(srcFile)
+            } catch (e: Throwable) {
+                throw RuntimeException("Could not stop trace", e)
+            }
+        writer.addTraceResult(traceType, artifact)
     }
 
-    final override fun setResult(result: ResultWriter) {
-        result.addTraceResult(traceType, outputFile)
-    }
-
-    abstract fun startTracing()
-    abstract fun stopTracing()
-
-    private fun moveTraceFileToOutputDir(): File {
-        outputFile.parentFile.mkdirs()
-        if (sourceFile != outputFile) {
-            Utils.moveFile(sourceFile, outputFile)
-        }
-        require(outputFile.exists()) { "Unable to save trace file $outputFile" }
-        return outputFile
+    private fun moveTraceFileToTmpDir(sourceFile: File): File {
+        val newFile = File.createTempFile(sourceFile.name, "")
+        Utils.moveFile(sourceFile, newFile)
+        require(newFile.exists()) { "Unable to save trace file $newFile" }
+        return newFile
     }
 
     companion object {

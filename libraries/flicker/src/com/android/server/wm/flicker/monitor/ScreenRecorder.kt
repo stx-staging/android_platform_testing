@@ -21,8 +21,6 @@ import android.os.SystemClock
 import android.util.Log
 import androidx.annotation.VisibleForTesting
 import com.android.server.wm.flicker.FLICKER_TAG
-import com.android.server.wm.flicker.deleteIfExists
-import com.android.server.wm.flicker.getDefaultFlickerOutputDir
 import com.android.server.wm.flicker.io.TraceType
 import java.io.File
 
@@ -31,10 +29,10 @@ open class ScreenRecorder
 @JvmOverloads
 constructor(
     private val context: Context,
-    outputDir: File = getDefaultFlickerOutputDir(),
+    private val outputFile: File = File.createTempFile("transition", "screen_recording"),
     private val width: Int = 720,
     private val height: Int = 1280
-) : TraceMonitor(outputDir, getDefaultFlickerOutputDir().resolve("transition.mp4")) {
+) : TraceMonitor() {
     override val traceType: TraceType
         get() = TraceType.SCREEN_RECORDING
 
@@ -42,7 +40,7 @@ constructor(
     private var recordingRunnable: ScreenRecordingRunnable? = null
 
     private fun newRecordingThread(): Thread {
-        val runnable = ScreenRecordingRunnable(sourceFile, context, width, height)
+        val runnable = ScreenRecordingRunnable(outputFile, context, width, height)
         recordingRunnable = runnable
         return Thread(runnable)
     }
@@ -56,14 +54,8 @@ constructor(
                 else -> recordingRunnable?.isFrameRecorded ?: false
             }
 
-    override fun startTracing() {
-        if (recordingThread != null) {
-            Log.i(FLICKER_TAG, "Screen recorder already running")
-            return
-        }
-        sourceFile.deleteIfExists()
-        require(!sourceFile.exists()) { "Could not delete old trace file" }
-        sourceFile.parentFile.mkdirs()
+    override fun start() {
+        require(recordingThread == null) { "Screen recorder already running" }
 
         val recordingThread = newRecordingThread()
         this.recordingThread = recordingThread
@@ -76,16 +68,13 @@ constructor(
             remainingTime -= WAIT_INTERVAL_MS
         } while (recordingRunnable?.isFrameRecorded != true)
 
-        require(sourceFile.exists()) { "Screen recorder didn't start" }
+        require(outputFile.exists()) { "Screen recorder didn't start" }
     }
 
-    override fun stopTracing() {
-        if (recordingThread == null) {
-            Log.i(FLICKER_TAG, "Screen recorder was not started")
-            return
-        }
+    override fun doStop(): File {
+        require(recordingThread != null) { "Screen recorder was not started" }
 
-        Log.d(FLICKER_TAG, "Stopping screen recording. Storing result in $sourceFile")
+        Log.d(FLICKER_TAG, "Stopping screen recording. Storing result in $outputFile")
         try {
             recordingRunnable?.stop()
             recordingThread?.join()
@@ -95,13 +84,14 @@ constructor(
             recordingRunnable = null
             recordingThread = null
         }
+        return outputFile
     }
 
     override val isEnabled: Boolean
         get() = recordingThread != null
 
     override fun toString(): String {
-        return "ScreenRecorder($sourceFile)"
+        return "ScreenRecorder($outputFile)"
     }
 
     companion object {

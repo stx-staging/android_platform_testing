@@ -17,8 +17,8 @@
 package com.android.server.wm.flicker.monitor
 
 import android.surfaceflinger.Layerstrace
+import com.android.server.wm.flicker.io.TraceType
 import com.google.common.truth.Truth
-import java.io.File
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
@@ -29,7 +29,8 @@ import org.junit.runners.MethodSorters
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class LayersTraceMonitorTest : TraceMonitorTest<LayersTraceMonitor>() {
-    override fun getMonitor(outputDir: File) = LayersTraceMonitor(outputDir)
+    override val traceType = TraceType.SF
+    override fun getMonitor() = LayersTraceMonitor()
 
     override fun assertTrace(traceData: ByteArray) {
         val trace = Layerstrace.LayersTraceFileProto.parseFrom(traceData)

@@ -20,8 +20,8 @@ import android.app.Instrumentation
 import android.platform.test.rule.ArtifactSaver
 import android.util.Log
 import com.android.server.wm.flicker.FLICKER_TAG
-import com.android.server.wm.flicker.ITransitionMonitor
 import com.android.server.wm.flicker.io.ResultWriter
+import com.android.server.wm.flicker.monitor.ITransitionMonitor
 import com.android.server.wm.traces.common.IScenario
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerStateHelper
 import com.android.server.wm.traces.parser.withPerfettoTrace
@@ -79,8 +79,7 @@ class TraceMonitorRule(
                 traceMonitors.map {
                     runCatching {
                         try {
-                            it.stop()
-                            it.setResult(resultWriter)
+                            it.stop(resultWriter)
                         } catch (e: Throwable) {
                             ArtifactSaver.onError(
                                 Utils.expandDescription(description, "stopTrace"),

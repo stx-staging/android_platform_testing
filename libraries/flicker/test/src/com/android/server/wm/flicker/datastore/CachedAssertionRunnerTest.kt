@@ -48,8 +48,7 @@ class CachedAssertionRunnerTest {
         val writer = newTestResultWriter()
         val monitor = EventLogMonitor()
         monitor.start()
-        monitor.stop()
-        monitor.setResult(writer)
+        monitor.stop(writer)
         val result = writer.write()
         DataStore.addResult(TEST_SCENARIO, result)
     }

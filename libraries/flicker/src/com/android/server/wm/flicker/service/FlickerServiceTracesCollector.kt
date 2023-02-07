@@ -42,11 +42,11 @@ class FlickerServiceTracesCollector(
 
     private val traceMonitors =
         listOf(
-            WindowManagerTraceMonitor(outputDir),
-            LayersTraceMonitor(outputDir),
-            TransitionsTraceMonitor(outputDir),
-            TransactionsTraceMonitor(outputDir),
-            EventLogMonitor(outputDir)
+            WindowManagerTraceMonitor(),
+            LayersTraceMonitor(),
+            TransitionsTraceMonitor(),
+            TransactionsTraceMonitor(),
+            EventLogMonitor()
         )
 
     override fun start() {
@@ -63,10 +63,7 @@ class FlickerServiceTracesCollector(
 
             Log.v(LOG_TAG, "Stopping trace monitors")
             val writer = ResultWriter().forScenario(scenario).withOutputDir(outputDir)
-            traceMonitors.forEach {
-                it.stop()
-                it.setResult(writer)
-            }
+            traceMonitors.forEach { it.stop(writer) }
             result = writer.write()
         }
     }

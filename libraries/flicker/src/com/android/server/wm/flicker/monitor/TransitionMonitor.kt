@@ -16,11 +16,15 @@
 
 package com.android.server.wm.flicker.monitor
 
+import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
+import com.android.server.wm.flicker.ScenarioBuilder
 import com.android.server.wm.flicker.deleteIfExists
+import com.android.server.wm.flicker.io.ResultData
+import com.android.server.wm.flicker.io.ResultReader
+import com.android.server.wm.flicker.io.ResultWriter
 import java.io.File
 
-abstract class TransitionMonitor(outputDir: File, sourceFile: File) :
-    TraceMonitor(outputDir, sourceFile) {
+abstract class TransitionMonitor : TraceMonitor() {
     /**
      * Acquires the trace generated when executing the commands defined in the [predicate].
      *
@@ -33,13 +37,25 @@ abstract class TransitionMonitor(outputDir: File, sourceFile: File) :
                 "Trace already running. " + "This is likely due to chained 'withTracing' calls."
             )
         }
+        val result: ResultData
         try {
             this.start()
             predicate()
         } finally {
-            this.stop()
+            val writer = createWriter()
+            this.stop(writer)
+            result = writer.write()
         }
+        val reader = ResultReader(result, DEFAULT_TRACE_CONFIG)
+        val bytes = reader.readBytes(traceType) ?: error("Missing trace $traceType")
+        result.artifact.deleteIfExists()
+        return bytes
+    }
 
-        return outputFile.let { it.readBytes().also { _ -> it.deleteIfExists() } }
+    private fun createWriter(): ResultWriter {
+        val className = this::class.simpleName ?: error("Missing class name for $this")
+        val scenario = ScenarioBuilder().forClass(className).build()
+        val tmpDir = File.createTempFile("withTracing", className).parentFile
+        return ResultWriter().forScenario(scenario).withOutputDir(tmpDir)
     }
 }

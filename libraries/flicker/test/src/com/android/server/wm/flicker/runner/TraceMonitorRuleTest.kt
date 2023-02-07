@@ -18,10 +18,10 @@ package com.android.server.wm.flicker.runner
 
 import android.app.Instrumentation
 import androidx.test.platform.app.InstrumentationRegistry
-import com.android.server.wm.flicker.ITransitionMonitor
 import com.android.server.wm.flicker.TEST_SCENARIO
 import com.android.server.wm.flicker.assertThrows
 import com.android.server.wm.flicker.io.ResultWriter
+import com.android.server.wm.flicker.monitor.ITransitionMonitor
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerStateHelper
 import com.google.common.truth.Truth
 import org.junit.Before
@@ -33,32 +33,21 @@ import org.junit.runners.MethodSorters
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class TraceMonitorRuleTest {
     private var startExecutionCount = 0
-    private var stopExecutionCount = 0
     private var setResultExecutionCount = 0
 
     private val monitorWithExceptionStart =
-        createMonitor(
-            { error(Consts.FAILURE) },
-            { stopExecutionCount++ },
-            { setResultExecutionCount++ }
-        )
+        createMonitor({ error(Consts.FAILURE) }, { setResultExecutionCount++ })
     private val monitorWithExceptionStop =
         createMonitor(
             { startExecutionCount++ },
             { error(Consts.FAILURE) },
-            { setResultExecutionCount++ }
         )
     private val monitorWithoutException =
-        createMonitor(
-            { startExecutionCount++ },
-            { stopExecutionCount++ },
-            { setResultExecutionCount++ }
-        )
+        createMonitor({ startExecutionCount++ }, { setResultExecutionCount++ })
 
     @Before
     fun setup() {
         startExecutionCount = 0
-        stopExecutionCount = 0
         setResultExecutionCount = 0
     }
 
@@ -67,7 +56,6 @@ class TraceMonitorRuleTest {
         val rule = createRule(listOf(monitorWithoutException))
         rule.apply(base = null, description = Consts.description(this)).evaluate()
         Truth.assertWithMessage("Start executed").that(startExecutionCount).isEqualTo(1)
-        Truth.assertWithMessage("Stop executed").that(stopExecutionCount).isEqualTo(1)
         Truth.assertWithMessage("Set result executed").that(setResultExecutionCount).isEqualTo(1)
     }
 
@@ -76,7 +64,6 @@ class TraceMonitorRuleTest {
         val rule = createRule(listOf(monitorWithoutException, monitorWithoutException))
         rule.apply(base = null, description = Consts.description(this)).evaluate()
         Truth.assertWithMessage("Start executed").that(startExecutionCount).isEqualTo(2)
-        Truth.assertWithMessage("Stop executed").that(stopExecutionCount).isEqualTo(2)
         Truth.assertWithMessage("Set result executed").that(setResultExecutionCount).isEqualTo(2)
     }
 
@@ -89,7 +76,6 @@ class TraceMonitorRuleTest {
             }
         Truth.assertWithMessage("Failure").that(failure).hasMessageThat().contains(Consts.FAILURE)
         Truth.assertWithMessage("Start executed").that(startExecutionCount).isEqualTo(0)
-        Truth.assertWithMessage("Stop executed").that(stopExecutionCount).isEqualTo(1)
         Truth.assertWithMessage("Set result executed").that(setResultExecutionCount).isEqualTo(1)
     }
 
@@ -102,7 +88,6 @@ class TraceMonitorRuleTest {
             }
         Truth.assertWithMessage("Failure").that(failure).hasMessageThat().contains(Consts.FAILURE)
         Truth.assertWithMessage("Start executed").that(startExecutionCount).isEqualTo(0)
-        Truth.assertWithMessage("Stop executed").that(stopExecutionCount).isEqualTo(2)
         Truth.assertWithMessage("Set result executed").that(setResultExecutionCount).isEqualTo(2)
     }
 
@@ -115,7 +100,6 @@ class TraceMonitorRuleTest {
             }
         Truth.assertWithMessage("Failure").that(failure).hasMessageThat().contains(Consts.FAILURE)
         Truth.assertWithMessage("Start executed").that(startExecutionCount).isEqualTo(1)
-        Truth.assertWithMessage("Stop executed").that(stopExecutionCount).isEqualTo(0)
         Truth.assertWithMessage("Set result executed").that(setResultExecutionCount).isEqualTo(0)
     }
 
@@ -128,7 +112,6 @@ class TraceMonitorRuleTest {
             }
         Truth.assertWithMessage("Failure").that(failure).hasMessageThat().contains(Consts.FAILURE)
         Truth.assertWithMessage("Start executed").that(startExecutionCount).isEqualTo(2)
-        Truth.assertWithMessage("Stop executed").that(stopExecutionCount).isEqualTo(1)
         Truth.assertWithMessage("Set result executed").that(setResultExecutionCount).isEqualTo(1)
     }
 
@@ -146,20 +129,15 @@ class TraceMonitorRuleTest {
 
         private fun createMonitor(
             onStart: () -> Unit,
-            onStop: () -> Unit,
-            onSetResult: () -> Unit
+            onSetResult: (ResultWriter) -> Unit
         ): ITransitionMonitor =
             object : ITransitionMonitor {
                 override fun start() {
                     onStart()
                 }
 
-                override fun stop() {
-                    onStop()
-                }
-
-                override fun setResult(result: ResultWriter) {
-                    onSetResult()
+                override fun stop(writer: ResultWriter) {
+                    onSetResult(writer)
                 }
             }
     }
