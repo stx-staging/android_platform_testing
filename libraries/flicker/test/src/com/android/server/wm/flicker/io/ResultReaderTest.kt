@@ -19,10 +19,10 @@ package com.android.server.wm.flicker.io
 import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
 import com.android.server.wm.flicker.RunStatus
 import com.android.server.wm.flicker.assertThrows
+import com.android.server.wm.flicker.deleteIfExists
 import com.android.server.wm.flicker.newTestResultWriter
 import com.android.server.wm.flicker.outputFileName
-import java.nio.file.Files
-import java.nio.file.NoSuchFileException
+import java.io.FileNotFoundException
 import org.junit.Before
 import org.junit.FixMethodOrder
 import org.junit.Test
@@ -33,15 +33,15 @@ import org.junit.runners.MethodSorters
 class ResultReaderTest {
     @Before
     fun setup() {
-        Files.deleteIfExists(outputFileName(RunStatus.RUN_EXECUTED))
+        outputFileName(RunStatus.RUN_EXECUTED).deleteIfExists()
     }
 
     @Test
     fun failFileNotFound() {
         val data = newTestResultWriter().write()
-        Files.deleteIfExists(outputFileName(RunStatus.RUN_EXECUTED))
+        outputFileName(RunStatus.RUN_EXECUTED).deleteIfExists()
         val reader = ResultReader(data, DEFAULT_TRACE_CONFIG)
-        assertThrows<NoSuchFileException> {
+        assertThrows<FileNotFoundException> {
             reader.readTransitionsTrace() ?: error("Should have failed")
         }
     }

@@ -29,7 +29,7 @@ import com.android.server.wm.traces.common.IScenario
 import com.android.server.wm.traces.parser.getCurrentState
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerStateHelper
 import com.android.server.wm.traces.parser.withPerfettoTrace
-import java.nio.file.Files
+import java.io.File
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
@@ -129,14 +129,14 @@ class TransitionExecutionRule(
             tags.add(tag)
 
             val deviceStateBytes = getCurrentState(instrumentation.uiAutomation)
-            val wmDumpFile = Files.createTempFile(TraceType.WM_DUMP.fileName, tag)
-            val layersDumpFile = Files.createTempFile(TraceType.SF_DUMP.fileName, tag)
+            val wmDumpFile = File.createTempFile(TraceType.WM_DUMP.fileName, tag)
+            val layersDumpFile = File.createTempFile(TraceType.SF_DUMP.fileName, tag)
 
-            Files.write(wmDumpFile, deviceStateBytes.first)
-            Files.write(layersDumpFile, deviceStateBytes.second)
+            wmDumpFile.writeBytes(deviceStateBytes.first)
+            layersDumpFile.writeBytes(deviceStateBytes.second)
 
-            resultWriter.addTraceResult(TraceType.WM_DUMP, wmDumpFile.toFile(), tag)
-            resultWriter.addTraceResult(TraceType.SF_DUMP, layersDumpFile.toFile(), tag)
+            resultWriter.addTraceResult(TraceType.WM_DUMP, wmDumpFile, tag)
+            resultWriter.addTraceResult(TraceType.SF_DUMP, layersDumpFile, tag)
         }
     }
 }

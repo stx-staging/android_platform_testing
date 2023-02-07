@@ -16,10 +16,10 @@
 
 package com.android.server.wm.flicker.monitor
 
-import java.nio.file.Files
-import java.nio.file.Path
+import com.android.server.wm.flicker.deleteIfExists
+import java.io.File
 
-abstract class TransitionMonitor(outputDir: Path, sourceFile: Path) :
+abstract class TransitionMonitor(outputDir: File, sourceFile: File) :
     TraceMonitor(outputDir, sourceFile) {
     /**
      * Acquires the trace generated when executing the commands defined in the [predicate].
@@ -40,7 +40,6 @@ abstract class TransitionMonitor(outputDir: Path, sourceFile: Path) :
             this.stop()
         }
 
-        return outputFile.let { Files.readAllBytes(it).also { _ -> Files.delete(it) } }
-            ?: error("Unable to acquire trace")
+        return outputFile.let { it.readBytes().also { _ -> it.deleteIfExists() } }
     }
 }

@@ -50,8 +50,8 @@ import java.util.zip.ZipInputStream
  */
 open class ResultReader(internal var result: ResultData, internal val traceConfig: TraceConfigs) :
     IReader {
-    override val artifactPath
-        get() = result.artifactPath
+    override val artifact
+        get() = result.artifact
     override val runStatus
         get() = result.runStatus
     internal val transitionTimeRange
@@ -262,7 +262,7 @@ open class ResultReader(internal var result: ResultData, internal val traceConfi
         require(endTimestamp.hasAllTimestamps)
         val slicedResult =
             ResultData(
-                result.artifactPath,
+                result.artifact,
                 TransitionTimeRange(startTimestamp, endTimestamp),
                 result.executionError,
                 result.runStatus

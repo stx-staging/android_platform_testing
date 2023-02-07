@@ -24,14 +24,14 @@ import com.android.server.wm.traces.common.DeviceTraceDump
 import com.android.server.wm.traces.parser.DeviceDumpParser
 import com.google.common.io.Files
 import com.google.common.truth.Truth
-import java.nio.file.Path
+import java.io.File
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
 abstract class TraceMonitorTest<T : TransitionMonitor> {
-    lateinit var savedTrace: Path
-    abstract fun getMonitor(outputDir: Path): T
+    lateinit var savedTrace: File
+    abstract fun getMonitor(outputDir: File): T
     abstract fun assertTrace(traceData: ByteArray)
 
     protected val instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation()
@@ -55,7 +55,7 @@ abstract class TraceMonitorTest<T : TransitionMonitor> {
             traceMonitor.stop()
         }
         if (::savedTrace.isInitialized) {
-            savedTrace.toFile().delete()
+            savedTrace.delete()
         }
         Truth.assertWithMessage("Failed to disable trace at end of test")
             .that(traceMonitor.isEnabled)
@@ -84,7 +84,7 @@ abstract class TraceMonitorTest<T : TransitionMonitor> {
         traceMonitor.start()
         traceMonitor.stop()
         val savedTrace = traceMonitor.outputFile
-        val testFile = savedTrace.toFile()
+        val testFile = savedTrace
         Truth.assertWithMessage("File $testFile exists").that(testFile.exists()).isTrue()
         val trace = Files.toByteArray(testFile)
         Truth.assertWithMessage("File $testFile has data").that(trace.size).isGreaterThan(0)

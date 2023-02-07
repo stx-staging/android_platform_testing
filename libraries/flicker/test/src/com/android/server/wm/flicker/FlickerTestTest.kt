@@ -23,7 +23,6 @@ import com.android.server.wm.flicker.io.ResultReader
 import com.android.server.wm.flicker.io.TraceType
 import com.google.common.truth.Truth
 import java.io.File
-import java.nio.file.Files
 import org.junit.Before
 import org.junit.Test
 
@@ -35,7 +34,7 @@ class FlickerTestTest {
     @Before
     fun setup() {
         executionCount = 0
-        Files.deleteIfExists(outputFileName(RunStatus.RUN_EXECUTED))
+        outputFileName(RunStatus.RUN_EXECUTED).deleteIfExists()
         DataStore.clear()
     }
 

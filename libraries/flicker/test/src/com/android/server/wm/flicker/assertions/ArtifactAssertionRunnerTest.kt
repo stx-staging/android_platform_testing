@@ -20,13 +20,13 @@ import android.annotation.SuppressLint
 import com.android.server.wm.flicker.AssertionTag
 import com.android.server.wm.flicker.RunStatus
 import com.android.server.wm.flicker.assertExceptionMessage
+import com.android.server.wm.flicker.deleteIfExists
 import com.android.server.wm.flicker.io.ResultData
 import com.android.server.wm.flicker.monitor.EventLogMonitor
 import com.android.server.wm.flicker.newTestResultWriter
 import com.android.server.wm.flicker.outputFileName
 import com.android.server.wm.flicker.traces.eventlog.EventLogSubject
 import com.google.common.truth.Truth
-import java.nio.file.Files
 import org.junit.Before
 import org.junit.Test
 
@@ -48,9 +48,9 @@ class ArtifactAssertionRunnerTest {
     @Before
     fun setup() {
         executionCount = 0
-        Files.deleteIfExists(outputFileName(RunStatus.RUN_EXECUTED))
-        Files.deleteIfExists(outputFileName(RunStatus.ASSERTION_FAILED))
-        Files.deleteIfExists(outputFileName(RunStatus.ASSERTION_SUCCESS))
+        outputFileName(RunStatus.RUN_EXECUTED).deleteIfExists()
+        outputFileName(RunStatus.ASSERTION_FAILED).deleteIfExists()
+        outputFileName(RunStatus.ASSERTION_SUCCESS).deleteIfExists()
     }
 
     @Test

@@ -20,20 +20,15 @@ import android.view.WindowManagerGlobal
 import com.android.server.wm.flicker.getDefaultFlickerOutputDir
 import com.android.server.wm.flicker.io.TraceType
 import com.android.server.wm.flicker.io.WINSCOPE_EXT
-import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 import com.android.server.wm.traces.common.layers.LayersTrace
-import java.nio.file.Path
+import java.io.File
 
-/**
- * Captures [LayersTrace] from SurfaceFlinger.
- *
- * Use [LayersTraceSubject.assertThat] to make assertions on the trace
- */
+/** Captures [LayersTrace] from SurfaceFlinger. */
 open class LayersTraceMonitor
 @JvmOverloads
 constructor(
-    outputDir: Path = getDefaultFlickerOutputDir(),
-    sourceFile: Path = TRACE_DIR.resolve("layers_trace$WINSCOPE_EXT"),
+    outputDir: File = getDefaultFlickerOutputDir(),
+    sourceFile: File = TRACE_DIR.resolve("layers_trace$WINSCOPE_EXT"),
     private val traceFlags: Int = TRACE_FLAGS
 ) : TransitionMonitor(outputDir, sourceFile) {
 

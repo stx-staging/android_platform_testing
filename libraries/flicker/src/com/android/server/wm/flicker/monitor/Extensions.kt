@@ -25,7 +25,7 @@ import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 import com.android.server.wm.traces.parser.DeviceDumpParser
 import com.android.server.wm.traces.parser.layers.LayersTraceParser
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerTraceParser
-import java.nio.file.Path
+import java.io.File
 
 /**
  * Acquire the [WindowManagerTrace] with the device state changes that happen when executing the
@@ -37,7 +37,7 @@ import java.nio.file.Path
  */
 @JvmOverloads
 fun withWMTracing(
-    outputDir: Path = getDefaultFlickerOutputDir().resolve("withWMTracing"),
+    outputDir: File = getDefaultFlickerOutputDir().resolve("withWMTracing"),
     predicate: () -> Unit
 ): WindowManagerTrace {
     return WindowManagerTraceParser()
@@ -56,7 +56,7 @@ fun withWMTracing(
 @JvmOverloads
 fun withSFTracing(
     traceFlags: Int = LayersTraceMonitor.TRACE_FLAGS,
-    outputDir: Path = getDefaultFlickerOutputDir().resolve("withSFTracing"),
+    outputDir: File = getDefaultFlickerOutputDir().resolve("withSFTracing"),
     predicate: () -> Unit
 ): LayersTrace {
     return LayersTraceParser()
@@ -73,7 +73,7 @@ fun withSFTracing(
  */
 @JvmOverloads
 fun withTracing(
-    outputDir: Path = getDefaultFlickerOutputDir(),
+    outputDir: File = getDefaultFlickerOutputDir(),
     predicate: () -> Unit
 ): DeviceTraceDump {
     val traces = recordTraces(outputDir, predicate)
@@ -93,7 +93,7 @@ fun withTracing(
  */
 @JvmOverloads
 fun recordTraces(
-    outputDir: Path = getDefaultFlickerOutputDir(),
+    outputDir: File = getDefaultFlickerOutputDir(),
     predicate: () -> Unit
 ): Pair<ByteArray, ByteArray> {
     var wmTraceData = ByteArray(0)

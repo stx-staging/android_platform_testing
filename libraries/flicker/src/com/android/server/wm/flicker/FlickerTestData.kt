@@ -21,7 +21,7 @@ import androidx.test.uiautomator.UiDevice
 import com.android.server.wm.traces.common.layers.LayersTrace
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerStateHelper
-import java.nio.file.Path
+import java.io.File
 
 @DslMarker annotation class FlickerDslMarker
 
@@ -37,7 +37,7 @@ open class FlickerTestData(
     /** Test automation component used to interact with the device */
     override val device: UiDevice,
     /** Output directory for test results */
-    override val outputDir: Path,
+    override val outputDir: File,
     /** Enabled tracing monitors */
     override val traceMonitors: List<ITransitionMonitor>,
     /** Commands to be executed before the transition */

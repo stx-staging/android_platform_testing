@@ -19,19 +19,19 @@ package com.android.server.wm.flicker
 import com.android.compatibility.common.util.SystemUtil
 import com.android.server.wm.flicker.service.assertors.ComponentTypeMatcher
 import com.android.server.wm.traces.common.component.matchers.ComponentNameMatcher
-import java.nio.file.Path
+import java.io.File
 
 object Utils {
-    fun renameFile(src: Path, dst: Path) {
+    private fun renameFile(src: File, dst: File) {
         SystemUtil.runShellCommand("mv $src $dst")
     }
 
-    fun copyFile(src: Path, dst: Path) {
+    private fun copyFile(src: File, dst: File) {
         SystemUtil.runShellCommand("cp $src $dst")
         SystemUtil.runShellCommand("chmod a+r $dst")
     }
 
-    fun moveFile(src: Path, dst: Path) {
+    fun moveFile(src: File, dst: File) {
         // Move the  file to the output directory
         // Note: Due to b/141386109, certain devices do not allow moving the files between
         //       directories with different encryption policies, so manually copy and then
@@ -42,8 +42,8 @@ object Utils {
         SystemUtil.runShellCommand("rm $src")
     }
 
-    fun addStatusToFileName(traceFile: Path, status: RunStatus) {
-        val newFileName = "${status.prefix}_${traceFile.fileName}"
+    fun addStatusToFileName(traceFile: File, status: RunStatus) {
+        val newFileName = "${status.prefix}_${traceFile.name}"
         val dst = traceFile.resolveSibling(newFileName)
         renameFile(traceFile, dst)
     }

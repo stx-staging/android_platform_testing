@@ -22,8 +22,8 @@ import com.android.server.wm.traces.common.Timestamp
 import com.android.server.wm.traces.common.events.EventLog
 import com.android.server.wm.traces.common.layers.LayersTrace
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
+import java.io.File
 import java.io.IOException
-import java.nio.file.Path
 
 /**
  * Helper class to read results from a flicker artifact using a LRU
@@ -40,7 +40,7 @@ open class ResultReaderWithLru(
     @Throws(IOException::class)
     override fun readWmTrace(): WindowManagerTrace? {
         val descriptor = ResultArtifactDescriptor(TraceType.SF)
-        val key = CacheKey(reader.artifactPath, descriptor, reader.transitionTimeRange)
+        val key = CacheKey(reader.artifact, descriptor, reader.transitionTimeRange)
         val trace = wmTraceCache[key] ?: reader.readWmTrace()
         return trace?.also { wmTraceCache.put(key, trace) }
     }
@@ -49,7 +49,7 @@ open class ResultReaderWithLru(
     @Throws(IOException::class)
     override fun readLayersTrace(): LayersTrace? {
         val descriptor = ResultArtifactDescriptor(TraceType.SF)
-        val key = CacheKey(reader.artifactPath, descriptor, reader.transitionTimeRange)
+        val key = CacheKey(reader.artifact, descriptor, reader.transitionTimeRange)
         val trace = layersTraceCache[key] ?: reader.readLayersTrace()
         return trace?.also { layersTraceCache.put(key, trace) }
     }
@@ -58,7 +58,7 @@ open class ResultReaderWithLru(
     @Throws(IOException::class)
     override fun readEventLogTrace(): EventLog? {
         val descriptor = ResultArtifactDescriptor(TraceType.EVENT_LOG)
-        val key = CacheKey(reader.artifactPath, descriptor, reader.transitionTimeRange)
+        val key = CacheKey(reader.artifact, descriptor, reader.transitionTimeRange)
         val trace = eventLogCache[key] ?: reader.readEventLogTrace()
         return trace?.also { eventLogCache.put(key, trace) }
     }
@@ -70,7 +70,7 @@ open class ResultReaderWithLru(
 
     companion object {
         data class CacheKey(
-            private val artifactPath: Path,
+            private val artifact: File,
             private val descriptor: ResultArtifactDescriptor,
             private val transitionTimeRange: TransitionTimeRange
         )

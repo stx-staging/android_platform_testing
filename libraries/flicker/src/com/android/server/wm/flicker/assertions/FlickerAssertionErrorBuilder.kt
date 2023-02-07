@@ -20,18 +20,18 @@ import com.android.server.wm.flicker.AssertionTag
 import com.android.server.wm.flicker.io.IReader
 import com.android.server.wm.flicker.traces.FlickerSubjectException
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.io.PrintStream
-import java.nio.file.Path
 
 class FlickerAssertionErrorBuilder {
     private var error: Throwable? = null
-    private var artifactPath: Path? = null
+    private var artifactPath: File? = null
     private var tag = ""
 
     fun fromError(error: Throwable): FlickerAssertionErrorBuilder = apply { this.error = error }
 
     fun withReader(reader: IReader): FlickerAssertionErrorBuilder = apply {
-        artifactPath = reader.artifactPath
+        artifactPath = reader.artifact
     }
 
     fun atTag(_tag: String): FlickerAssertionErrorBuilder = apply {

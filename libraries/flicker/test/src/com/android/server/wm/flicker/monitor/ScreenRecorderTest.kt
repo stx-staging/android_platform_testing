@@ -24,10 +24,10 @@ import android.os.SystemClock
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import com.android.compatibility.common.util.SystemUtil
+import com.android.server.wm.flicker.deleteIfExists
 import com.android.server.wm.flicker.getDefaultFlickerOutputDir
 import com.google.common.truth.Truth
-import java.nio.file.Files
-import java.nio.file.Path
+import java.io.File
 import org.junit.After
 import org.junit.Before
 import org.junit.FixMethodOrder
@@ -40,25 +40,6 @@ class ScreenRecorderTest {
     private val instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation()
     private val mScreenRecorder =
         ScreenRecorder(instrumentation.targetContext, getDefaultFlickerOutputDir())
-    private val WINSCOPE_MAGIC_STRING =
-        byteArrayOf(
-            0x23,
-            0x56,
-            0x56,
-            0x31,
-            0x4e,
-            0x53,
-            0x43,
-            0x30,
-            0x50,
-            0x45,
-            0x54,
-            0x31,
-            0x4d,
-            0x45,
-            0x32,
-            0x23
-        ) // "#VV1NSC0PET1ME2#"
 
     @Before
     fun clearOutputDir() {
@@ -68,7 +49,7 @@ class ScreenRecorderTest {
     @After
     fun teardown() {
         mScreenRecorder.stop()
-        // Files.deleteIfExists(mScreenRecorder.outputFile)
+        mScreenRecorder.outputFile.deleteIfExists()
     }
 
     @Test
@@ -85,7 +66,7 @@ class ScreenRecorderTest {
         } while (!mScreenRecorder.isFrameRecorded && remainingTime > 0)
         mScreenRecorder.stop()
         Truth.assertWithMessage("Screen recording file exists")
-            .that(Files.exists(mScreenRecorder.outputFile))
+            .that(mScreenRecorder.outputFile.exists())
             .isTrue()
 
         val (metadataTrack, videoTrack) = parseScreenRecording()
@@ -102,7 +83,9 @@ class ScreenRecorderTest {
         val outputConsumer = OutputConsumer()
         val mediaParser = MediaParser.create(outputConsumer)
 
-        while (mediaParser.advance(inputReader)) {}
+        while (mediaParser.advance(inputReader)) {
+            // no op
+        }
         mediaParser.release()
 
         return Pair(outputConsumer.getMetadataTrack(), outputConsumer.getVideoTrack())
@@ -111,16 +94,31 @@ class ScreenRecorderTest {
     companion object {
         private const val TIMEOUT = 10000L
         private const val STEP = 100L
+        private val WINSCOPE_MAGIC_STRING =
+            byteArrayOf(
+                0x23,
+                0x56,
+                0x56,
+                0x31,
+                0x4e,
+                0x53,
+                0x43,
+                0x30,
+                0x50,
+                0x45,
+                0x54,
+                0x31,
+                0x4d,
+                0x45,
+                0x32,
+                0x23
+            ) // "#VV1NSC0PET1ME2#"
     }
 }
 
-internal class SeekableInputReader : MediaParser.SeekableInputReader {
-    private val bytes: ByteArray
-    private var position: Long = 0
-
-    constructor(video: Path) {
-        bytes = Files.newInputStream(video).buffered().readAllBytes()
-    }
+internal class SeekableInputReader(video: File) : MediaParser.SeekableInputReader {
+    private val bytes = video.readBytes()
+    private var position = 0L
 
     override fun getPosition(): Long = position
 

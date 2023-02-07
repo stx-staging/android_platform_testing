@@ -26,7 +26,7 @@ object Consts {
 
     internal val TEST_RESULT =
         ResultData(
-            _artifactPath = getDefaultFlickerOutputDir(),
+            _artifact = getDefaultFlickerOutputDir(),
             _transitionTimeRange = TransitionTimeRange.EMPTY,
             _executionError = null,
             _runStatus = RunStatus.RUN_EXECUTED
@@ -34,7 +34,7 @@ object Consts {
 
     internal val RESULT_FAILURE =
         ResultData(
-            _artifactPath = getDefaultFlickerOutputDir(),
+            _artifact = getDefaultFlickerOutputDir(),
             _transitionTimeRange = TransitionTimeRange.EMPTY,
             _executionError = null,
             _runStatus = RunStatus.RUN_EXECUTED

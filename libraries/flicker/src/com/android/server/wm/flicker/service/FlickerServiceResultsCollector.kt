@@ -121,7 +121,7 @@ class FlickerServiceResultsCollector(
         }
 
         val reader = tracesCollector.getResultReader()
-        dataRecord.addStringMetric(WINSCOPE_FILE_PATH_KEY, reader.artifactPath.toString())
+        dataRecord.addStringMetric(WINSCOPE_FILE_PATH_KEY, reader.artifact.toString())
         Log.i(LOG_TAG, "Processing traces")
         val results = flickerService.process(reader)
         Log.i(LOG_TAG, "Got ${results.size} results")

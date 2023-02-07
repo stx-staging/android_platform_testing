@@ -29,7 +29,6 @@ import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
-import java.nio.file.Path
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
@@ -41,7 +40,7 @@ open class ResultWriter {
     private var transitionStartTime = Timestamp.MIN
     private var transitionEndTime = Timestamp.MAX
     private var executionError: Throwable? = null
-    private var outputDir: Path? = null
+    private var outputDir: File? = null
 
     /** Sets the artifact scenario to [_scenario] */
     fun forScenario(_scenario: IScenario) = apply { scenario = _scenario }
@@ -55,8 +54,8 @@ open class ResultWriter {
     /** Sets the artifact status as successfully executed transition ([RunStatus.RUN_EXECUTED]) */
     fun setRunComplete() = apply { runStatus = RunStatus.RUN_EXECUTED }
 
-    /** Sets the dir where the artifact file will be stored to [path] */
-    fun withOutputDir(path: Path) = apply { outputDir = path }
+    /** Sets the dir where the artifact file will be stored to [dir] */
+    fun withOutputDir(dir: File) = apply { outputDir = dir }
 
     /**
      * Sets the artifact status as failed executed transition ([RunStatus.RUN_FAILED])
@@ -112,7 +111,7 @@ open class ResultWriter {
             requireNotNull(outputDir) { "Output dir not configured" }
             require(!scenario.isEmpty) { "Scenario shouldn't be empty" }
             // Ensure output directory exists
-            outputDir.toFile().mkdirs()
+            outputDir.mkdirs()
 
             if (runStatus == RunStatus.UNDEFINED) {
                 Log.w(FLICKER_IO_TAG, "Writing result with $runStatus run status")
@@ -121,7 +120,7 @@ open class ResultWriter {
             val newFileName = "${runStatus.prefix}_$scenario.zip"
             val dstFile = outputDir.resolve(newFileName)
             Log.d(FLICKER_IO_TAG, "Writing artifact file $dstFile")
-            createZipFile(dstFile.toFile()).use { zipOutputStream ->
+            createZipFile(dstFile).use { zipOutputStream ->
                 files.forEach { (descriptor, file) ->
                     addFile(zipOutputStream, file, nameInArchive = descriptor.fileNameInArtifact)
                 }

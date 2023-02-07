@@ -21,17 +21,17 @@ import android.os.SystemClock
 import android.util.Log
 import androidx.annotation.VisibleForTesting
 import com.android.server.wm.flicker.FLICKER_TAG
+import com.android.server.wm.flicker.deleteIfExists
 import com.android.server.wm.flicker.getDefaultFlickerOutputDir
 import com.android.server.wm.flicker.io.TraceType
-import java.nio.file.Files
-import java.nio.file.Path
+import java.io.File
 
 /** Captures screen contents and saves it as a mp4 video file. */
 open class ScreenRecorder
 @JvmOverloads
 constructor(
     private val context: Context,
-    outputDir: Path = getDefaultFlickerOutputDir(),
+    outputDir: File = getDefaultFlickerOutputDir(),
     private val width: Int = 720,
     private val height: Int = 1280
 ) : TraceMonitor(outputDir, getDefaultFlickerOutputDir().resolve("transition.mp4")) {
@@ -61,9 +61,9 @@ constructor(
             Log.i(FLICKER_TAG, "Screen recorder already running")
             return
         }
-        Files.deleteIfExists(sourceFile)
-        require(!Files.exists(sourceFile)) { "Could not delete old trace file" }
-        Files.createDirectories(sourceFile.parent)
+        sourceFile.deleteIfExists()
+        require(!sourceFile.exists()) { "Could not delete old trace file" }
+        sourceFile.parentFile.mkdirs()
 
         val recordingThread = newRecordingThread()
         this.recordingThread = recordingThread
@@ -76,7 +76,7 @@ constructor(
             remainingTime -= WAIT_INTERVAL_MS
         } while (recordingRunnable?.isFrameRecorded != true)
 
-        require(Files.exists(sourceFile)) { "Screen recorder didn't start" }
+        require(sourceFile.exists()) { "Screen recorder didn't start" }
     }
 
     override fun stopTracing() {

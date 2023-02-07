@@ -16,8 +16,8 @@
 
 package com.android.server.wm.flicker.monitor
 
-import java.nio.file.Path
+import java.io.File
 
 interface IFileGeneratingMonitor {
-    val outputFile: Path
+    val outputFile: File
 }

@@ -22,7 +22,7 @@ import com.android.server.wm.flicker.io.TraceType
 import com.android.server.wm.flicker.io.WINSCOPE_EXT
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 import com.android.server.wm.traces.common.layers.LayersTrace
-import java.nio.file.Path
+import java.io.File
 
 /**
  * Captures [LayersTrace] from SurfaceFlinger.
@@ -32,8 +32,8 @@ import java.nio.file.Path
 open class TransitionsTraceMonitor
 @JvmOverloads
 constructor(
-    outputDir: Path = getDefaultFlickerOutputDir(),
-    sourceFile: Path = TRACE_DIR.resolve("transition_trace$WINSCOPE_EXT")
+    outputDir: File = getDefaultFlickerOutputDir(),
+    sourceFile: File = TRACE_DIR.resolve("transition_trace$WINSCOPE_EXT")
 ) : TransitionMonitor(outputDir, sourceFile) {
 
     private val windowManager = WindowManagerGlobal.getWindowManagerService()

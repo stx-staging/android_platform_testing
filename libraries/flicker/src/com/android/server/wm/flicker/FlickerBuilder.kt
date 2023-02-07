@@ -36,14 +36,13 @@ import com.android.server.wm.traces.common.windowmanager.WindowManagerState
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerStateHelper
 import java.io.File
-import java.nio.file.Path
 
 /** Build Flicker tests using Flicker DSL */
 @FlickerDslMarker
 class FlickerBuilder
 private constructor(
     internal val instrumentation: Instrumentation,
-    private val outputDir: Path,
+    private val outputDir: File,
     private val wmHelper: WindowManagerStateHelper,
     private val setupCommands: MutableList<IFlickerTestData.() -> Any>,
     private val transitionCommands: MutableList<IFlickerTestData.() -> Any>,
@@ -61,7 +60,7 @@ private constructor(
         /** Instrumentation to run the tests */
         instrumentation: Instrumentation,
         /** Output directory for the test results */
-        outputDir: Path = getDefaultFlickerOutputDir(),
+        outputDir: File = getDefaultFlickerOutputDir(),
         /** Helper object for WM Synchronization */
         wmHelper: WindowManagerStateHelper =
             WindowManagerStateHelper(instrumentation, clearCacheAfterParsing = false),
@@ -97,7 +96,7 @@ private constructor(
      * will not be executed
      */
     fun withWindowManagerTracing(
-        traceMonitor: (Path) -> WindowManagerTraceMonitor?
+        traceMonitor: (File) -> WindowManagerTraceMonitor?
     ): FlickerBuilder = apply {
         traceMonitors.removeIf { it is WindowManagerTraceMonitor }
         addMonitor(traceMonitor(outputDir))
@@ -114,7 +113,7 @@ private constructor(
      * If this tracing is disabled, the assertions for [LayersTrace] and [BaseLayerTraceEntry] will
      * not be executed
      */
-    fun withLayerTracing(traceMonitor: (Path) -> LayersTraceMonitor?): FlickerBuilder = apply {
+    fun withLayerTracing(traceMonitor: (File) -> LayersTraceMonitor?): FlickerBuilder = apply {
         traceMonitors.removeIf { it is LayersTraceMonitor }
         addMonitor(traceMonitor(outputDir))
     }
@@ -127,7 +126,7 @@ private constructor(
      *
      * By default, shell transition tracing is disabled.
      */
-    fun withTransitionTracing(traceMonitor: (Path) -> TransitionsTraceMonitor?): FlickerBuilder =
+    fun withTransitionTracing(traceMonitor: (File) -> TransitionsTraceMonitor?): FlickerBuilder =
         apply {
             traceMonitors.removeIf { it is TransitionsTraceMonitor }
             addMonitor(traceMonitor(outputDir))
@@ -141,7 +140,7 @@ private constructor(
      *
      * By default, shell transition tracing is disabled.
      */
-    fun withTransactionsTracing(traceMonitor: (Path) -> TransactionsTraceMonitor?): FlickerBuilder =
+    fun withTransactionsTracing(traceMonitor: (File) -> TransactionsTraceMonitor?): FlickerBuilder =
         apply {
             traceMonitors.removeIf { it is TransactionsTraceMonitor }
             addMonitor(traceMonitor(outputDir))
@@ -152,7 +151,7 @@ private constructor(
      *
      * By default, the tracing is always active. To disable tracing return null
      */
-    fun withScreenRecorder(screenRecorder: (Path) -> ScreenRecorder?): FlickerBuilder = apply {
+    fun withScreenRecorder(screenRecorder: (File) -> ScreenRecorder?): FlickerBuilder = apply {
         traceMonitors.removeIf { it is ScreenRecorder }
         addMonitor(screenRecorder(outputDir))
     }
@@ -252,7 +251,7 @@ private constructor(
     fun copy(block: FlickerBuilder.() -> Unit) =
         FlickerBuilder(
                 instrumentation,
-                outputDir.toAbsolutePath(),
+                outputDir.absoluteFile,
                 wmHelper,
                 setupCommands.toMutableList(),
                 transitionCommands.toMutableList(),

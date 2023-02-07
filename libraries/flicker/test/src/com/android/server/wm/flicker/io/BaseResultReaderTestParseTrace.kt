@@ -21,13 +21,13 @@ import com.android.server.wm.flicker.RunStatus
 import com.android.server.wm.flicker.TestTraces
 import com.android.server.wm.flicker.assertExceptionMessage
 import com.android.server.wm.flicker.assertThrows
+import com.android.server.wm.flicker.deleteIfExists
 import com.android.server.wm.flicker.newTestResultWriter
 import com.android.server.wm.flicker.outputFileName
 import com.android.server.wm.traces.common.ITrace
 import com.android.server.wm.traces.common.Timestamp
 import com.google.common.truth.Truth
 import java.io.File
-import java.nio.file.Files
 import org.junit.Before
 import org.junit.Test
 
@@ -54,7 +54,7 @@ abstract class BaseResultReaderTestParseTrace {
 
     @Before
     fun setup() {
-        Files.deleteIfExists(outputFileName(RunStatus.RUN_EXECUTED))
+        outputFileName(RunStatus.RUN_EXECUTED).deleteIfExists()
     }
 
     @Test

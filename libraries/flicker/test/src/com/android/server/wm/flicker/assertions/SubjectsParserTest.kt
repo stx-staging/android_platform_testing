@@ -20,11 +20,11 @@ import android.annotation.SuppressLint
 import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
 import com.android.server.wm.flicker.RunStatus
 import com.android.server.wm.flicker.assertThrows
+import com.android.server.wm.flicker.deleteIfExists
 import com.android.server.wm.flicker.io.ResultReader
 import com.android.server.wm.flicker.newTestResultWriter
 import com.android.server.wm.flicker.outputFileName
-import java.nio.file.Files
-import java.nio.file.NoSuchFileException
+import java.io.FileNotFoundException
 import org.junit.Before
 import org.junit.Test
 
@@ -33,15 +33,15 @@ import org.junit.Test
 class SubjectsParserTest {
     @Before
     fun setup() {
-        Files.deleteIfExists(outputFileName(RunStatus.RUN_EXECUTED))
+        outputFileName(RunStatus.RUN_EXECUTED).deleteIfExists()
     }
 
     @Test
     fun failFileNotFound() {
         val data = newTestResultWriter().write()
-        Files.deleteIfExists(outputFileName(RunStatus.RUN_EXECUTED))
+        outputFileName(RunStatus.RUN_EXECUTED).deleteIfExists()
         val parser = SubjectsParser(ResultReader(data, DEFAULT_TRACE_CONFIG))
-        assertThrows<NoSuchFileException> {
+        assertThrows<FileNotFoundException> {
             parser.readTransitionsTraceForTesting() ?: error("Should have failed")
         }
     }

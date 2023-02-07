@@ -12,8 +12,8 @@ import com.android.server.wm.traces.common.events.CujType
 import com.android.server.wm.traces.common.events.EventLog.Companion.MAGIC_NUMBER
 import com.android.server.wm.traces.common.events.FocusEvent
 import com.google.common.truth.Truth
-import java.nio.file.Files
-import java.nio.file.Path
+import java.io.File
+import kotlin.io.path.exists
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -23,7 +23,7 @@ import org.junit.Test
  * FlickerLibTest:EventLogMonitorTest}
  */
 class EventLogMonitorTest : TraceMonitorTest<EventLogMonitor>() {
-    override fun getMonitor(outputDir: Path): EventLogMonitor = EventLogMonitor(outputDir)
+    override fun getMonitor(outputDir: File): EventLogMonitor = EventLogMonitor(outputDir)
 
     override fun assertTrace(traceData: ByteArray) {
         Truth.assertThat(traceData.size).isAtLeast(MAGIC_NUMBER.toByteArray().size)
@@ -222,7 +222,7 @@ class EventLogMonitorTest : TraceMonitorTest<EventLogMonitor>() {
         monitor.stop()
 
         Truth.assertWithMessage("Trace file ${monitor.outputFile} not found")
-            .that(Files.exists(monitor.outputFile))
+            .that(monitor.outputFile.exists())
             .isTrue()
     }
 

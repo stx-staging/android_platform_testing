@@ -27,16 +27,16 @@ import android.util.DisplayMetrics
 import android.util.Log
 import android.view.WindowManager
 import com.android.server.wm.flicker.FLICKER_TAG
+import com.android.server.wm.flicker.deleteIfExists
+import java.io.File
 import java.io.FileOutputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.nio.file.Files
-import java.nio.file.Path
 import java.util.concurrent.TimeUnit
 
 /** Runnable to record the screen contents and winscope metadata */
 class ScreenRecordingRunnable(
-    private val outputFile: Path,
+    private val outputFile: File,
     context: Context,
     private val width: Int = 720,
     private val height: Int = 1280
@@ -219,10 +219,10 @@ class ScreenRecordingRunnable(
     }
 
     private fun createMuxer(): MediaMuxer {
-        Files.deleteIfExists(outputFile)
-        require(!Files.exists(outputFile))
-        Files.createFile(outputFile)
-        val inputStream = FileOutputStream(outputFile.toFile())
+        outputFile.deleteIfExists()
+        require(!outputFile.exists())
+        outputFile.createNewFile()
+        val inputStream = FileOutputStream(outputFile)
         return MediaMuxer(inputStream.fd, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
     }
 

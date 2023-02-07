@@ -30,11 +30,10 @@ import com.android.server.wm.flicker.monitor.LayersTraceMonitor
 import com.android.server.wm.flicker.monitor.TransactionsTraceMonitor
 import com.android.server.wm.flicker.monitor.TransitionsTraceMonitor
 import com.android.server.wm.flicker.monitor.WindowManagerTraceMonitor
-import java.nio.file.Files
-import java.nio.file.Path
+import java.io.File
 
 class FlickerServiceTracesCollector(
-    val outputDir: Path,
+    val outputDir: File,
     val scenario: Scenario =
         ScenarioBuilder().forClass(FlickerServiceTracesCollector::class.java.simpleName).build()
 ) : ITracesCollector {
@@ -60,7 +59,7 @@ class FlickerServiceTracesCollector(
     override fun stop() {
         reportErrorsBlock("Failed to stop traces") {
             Log.v(LOG_TAG, "Creating output directory for trace files")
-            Files.createDirectories(outputDir)
+            outputDir.mkdirs()
 
             Log.v(LOG_TAG, "Stopping trace monitors")
             val writer = ResultWriter().forScenario(scenario).withOutputDir(outputDir)
@@ -90,12 +89,8 @@ class FlickerServiceTracesCollector(
      * exists.
      */
     private fun cleanupTraceFiles() {
-        if (Files.exists(outputDir)) {
-            Files.list(outputDir).forEach { file ->
-                if (!Files.isDirectory(file)) {
-                    Files.delete(file)
-                }
-            }
+        if (outputDir.exists()) {
+            outputDir.deleteRecursively()
         }
     }
 

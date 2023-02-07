@@ -16,23 +16,20 @@
 
 package com.android.server.wm.flicker.monitor
 
-import androidx.annotation.VisibleForTesting
 import com.android.server.wm.flicker.IResultSetter
 import com.android.server.wm.flicker.ITransitionMonitor
 import com.android.server.wm.flicker.Utils
 import com.android.server.wm.flicker.io.ResultWriter
 import com.android.server.wm.flicker.io.TraceType
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
+import java.io.File
 
 /**
  * Base class for monitors containing common logic to read the trace as a byte array and save the
  * trace to another location.
  */
-abstract class TraceMonitor internal constructor(outputDir: Path, val sourceFile: Path) :
+abstract class TraceMonitor internal constructor(outputDir: File, val sourceFile: File) :
     ITransitionMonitor, IResultSetter, IFileGeneratingMonitor {
-    @VisibleForTesting override val outputFile: Path = outputDir.resolve(sourceFile.fileName)
+    override val outputFile: File = outputDir.resolve(sourceFile.name)
     abstract val isEnabled: Boolean
     abstract val traceType: TraceType
 
@@ -56,22 +53,22 @@ abstract class TraceMonitor internal constructor(outputDir: Path, val sourceFile
     }
 
     final override fun setResult(result: ResultWriter) {
-        result.addTraceResult(traceType, outputFile.toFile())
+        result.addTraceResult(traceType, outputFile)
     }
 
     abstract fun startTracing()
     abstract fun stopTracing()
 
-    private fun moveTraceFileToOutputDir(): Path {
-        Files.createDirectories(outputFile.parent)
+    private fun moveTraceFileToOutputDir(): File {
+        outputFile.parentFile.mkdirs()
         if (sourceFile != outputFile) {
             Utils.moveFile(sourceFile, outputFile)
         }
-        require(Files.exists(outputFile)) { "Unable to save trace file $outputFile" }
+        require(outputFile.exists()) { "Unable to save trace file $outputFile" }
         return outputFile
     }
 
     companion object {
-        @JvmStatic protected val TRACE_DIR: Path = Paths.get("/data/misc/wmtrace/")
+        @JvmStatic protected val TRACE_DIR = File("/data/misc/wmtrace/")
     }
 }

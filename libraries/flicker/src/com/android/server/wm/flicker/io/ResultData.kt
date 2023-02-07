@@ -18,24 +18,23 @@ package com.android.server.wm.flicker.io
 
 import com.android.server.wm.flicker.RunStatus
 import com.android.server.wm.flicker.Utils
-import java.nio.file.Files
-import java.nio.file.Path
+import java.io.File
 
 /**
  * Contents of a flicker run (e.g. files, status, event log)
  *
- * @param _artifactPath Path to the artifact file
+ * @param _artifact Path to the artifact file
  * @param _transitionTimeRange Transition start and end time
  * @param _executionError Transition execution error (if any)
  * @param _runStatus Status of the run
  */
 open class ResultData(
-    _artifactPath: Path,
+    _artifact: File,
     _transitionTimeRange: TransitionTimeRange,
     _executionError: Throwable?,
     _runStatus: RunStatus
 ) {
-    var artifactPath: Path = _artifactPath
+    var artifact: File = _artifact
         private set
     var transitionTimeRange: TransitionTimeRange = _transitionTimeRange
         private set
@@ -44,29 +43,29 @@ open class ResultData(
     var runStatus: RunStatus = _runStatus
         private set
 
-    open fun getArtifactBytes(): ByteArray = Files.readAllBytes(artifactPath)
+    open fun getArtifactBytes(): ByteArray = artifact.readBytes()
 
-    protected fun getNewFilePath(newStatus: RunStatus): Path {
-        val currTestName = artifactPath.fileName.toString().dropWhile { it != '_' }
-        return artifactPath.resolveSibling("${newStatus.prefix}_$currTestName")
+    protected fun getNewFilePath(newStatus: RunStatus): File {
+        val currTestName = artifact.name.dropWhile { it != '_' }
+        return artifact.resolveSibling("${newStatus.prefix}_$currTestName")
     }
 
     /** updates the artifact status to [newStatus] */
     internal open fun updateStatus(newStatus: RunStatus) = apply {
-        val currFile = artifactPath
+        val currFile = artifact
         require(RunStatus.fromFile(currFile) != RunStatus.UNDEFINED) {
             "File name should start with a value from `RunStatus`, instead it was $currFile"
         }
         val newFile = getNewFilePath(newStatus)
         if (currFile != newFile) {
             Utils.moveFile(currFile, newFile)
-            artifactPath = newFile
+            artifact = newFile
             runStatus = newStatus
         }
     }
 
     override fun toString(): String = buildString {
-        append(artifactPath)
+        append(artifact)
         append(" (status=")
         append(runStatus)
         executionError?.let {

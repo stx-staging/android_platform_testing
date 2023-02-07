@@ -20,20 +20,20 @@ import android.util.Log
 import com.android.compatibility.common.util.SystemUtil
 import com.android.server.wm.flicker.FLICKER_TAG
 import com.android.server.wm.flicker.IResultSetter
+import com.android.server.wm.flicker.deleteIfExists
 import com.android.server.wm.flicker.getDefaultFlickerOutputDir
 import com.android.server.wm.flicker.helpers.SECOND_AS_NANOSECONDS
 import com.android.server.wm.flicker.io.TraceType
 import com.android.server.wm.flicker.now
 import com.android.server.wm.traces.common.Timestamp
 import com.android.server.wm.traces.common.events.EventLog
+import java.io.File
 import java.io.FileOutputStream
-import java.nio.file.Files
-import java.nio.file.Path
 
 /** Collects event logs during transitions. */
 open class EventLogMonitor(
-    outputDir: Path = getDefaultFlickerOutputDir(),
-    sourceFile: Path = getDefaultFlickerOutputDir().resolve(TraceType.EVENT_LOG.fileName)
+    outputDir: File = getDefaultFlickerOutputDir(),
+    sourceFile: File = getDefaultFlickerOutputDir().resolve(TraceType.EVENT_LOG.fileName)
 ) : TransitionMonitor(outputDir, sourceFile), IResultSetter {
     override val traceType: TraceType
         get() = TraceType.EVENT_LOG
@@ -56,11 +56,11 @@ open class EventLogMonitor(
 
         traceStartTime = null
 
-        Files.deleteIfExists(sourceFile)
-        sourceFile.toFile().parentFile.mkdirs()
-        sourceFile.toFile().createNewFile()
+        sourceFile.deleteIfExists()
+        sourceFile.parentFile.mkdirs()
+        sourceFile.createNewFile()
 
-        FileOutputStream(sourceFile.toFile()).use {
+        FileOutputStream(sourceFile).use {
             it.write("${EventLog.MAGIC_NUMBER}\n".toByteArray())
             val command =
                 "logcat -b events -v threadtime -v printable -v uid -v nsec " +

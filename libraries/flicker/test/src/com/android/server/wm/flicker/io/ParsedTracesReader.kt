@@ -24,7 +24,7 @@ import com.android.server.wm.traces.common.layers.LayersTrace
 import com.android.server.wm.traces.common.transactions.TransactionsTrace
 import com.android.server.wm.traces.common.transition.TransitionsTrace
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
-import java.nio.file.Path
+import java.io.File
 
 /** Reads parsed traces from in memory objects */
 class ParsedTracesReader(
@@ -34,7 +34,7 @@ class ParsedTracesReader(
     private val transactionsTrace: TransactionsTrace? = null,
     private val eventLog: EventLog? = null
 ) : IReader {
-    override val artifactPath: Path? = null
+    override val artifact: File? = null
     override val runStatus: RunStatus = RunStatus.UNDEFINED
     override val executionError: Throwable? = null
 

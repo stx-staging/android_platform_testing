@@ -16,7 +16,7 @@
 
 package com.android.server.wm.flicker
 
-import java.nio.file.Path
+import java.io.File
 
 enum class RunStatus(val prefix: String, val isFailure: Boolean) {
     UNDEFINED("UNDEFINED", false),
@@ -27,8 +27,8 @@ enum class RunStatus(val prefix: String, val isFailure: Boolean) {
     ASSERTION_FAILED("FAIL", true);
 
     companion object {
-        fun fromFile(file: Path): RunStatus =
-            when (file.fileName.toString().takeWhile { it != '_' }) {
+        fun fromFile(file: File): RunStatus =
+            when (file.name.takeWhile { it != '_' }) {
                 RUN_EXECUTED.prefix -> RUN_EXECUTED
                 ASSERTION_SUCCESS.prefix -> ASSERTION_SUCCESS
                 RUN_FAILED.prefix -> RUN_FAILED

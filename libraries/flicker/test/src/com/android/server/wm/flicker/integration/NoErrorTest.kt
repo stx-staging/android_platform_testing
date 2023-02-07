@@ -22,7 +22,6 @@ import com.android.server.wm.flicker.RunStatus
 import com.android.server.wm.flicker.TEST_SCENARIO
 import com.android.server.wm.flicker.datastore.CachedResultReader
 import com.google.common.truth.Truth
-import java.nio.file.Files
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.FixMethodOrder
@@ -216,7 +215,7 @@ class NoErrorTest {
 
     private fun assertArtifactExists() {
         val reader = CachedResultReader(TEST_SCENARIO, DEFAULT_TRACE_CONFIG)
-        Truth.assertWithMessage("Files exist").that(Files.exists(reader.artifactPath)).isTrue()
+        Truth.assertWithMessage("Files exist").that(reader.artifact?.exists() ?: false).isTrue()
     }
 
     companion object {

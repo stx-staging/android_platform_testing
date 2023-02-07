@@ -21,16 +21,16 @@ package com.android.server.wm.flicker
 import android.os.SystemClock
 import com.android.server.wm.flicker.helpers.SECOND_AS_NANOSECONDS
 import com.android.server.wm.traces.common.Timestamp
-import java.nio.file.Paths
+import java.io.File
 import java.time.Instant
 
 internal const val FLICKER_TAG = "FLICKER"
 
 /**
- * Gets the default flicker output dir. By default the data is stored in /sdcard/flicker instead of
+ * Gets the default flicker output dir. By default, the data is stored in /sdcard/flicker instead of
  * using the app's internal data directory to be accessible by other components (i.e. FilePuller)
  */
-fun getDefaultFlickerOutputDir() = Paths.get("/sdcard/flicker")
+fun getDefaultFlickerOutputDir() = File("/sdcard/flicker")
 
 internal fun String.containsAny(vararg values: String): Boolean {
     return values.isEmpty() || values.any { search -> this.contains(search) }
@@ -45,3 +45,10 @@ fun now(): Timestamp {
         unixNanos = now.epochSecond * SECOND_AS_NANOSECONDS + now.nano
     )
 }
+
+fun File.deleteIfExists(): Boolean =
+    if (this.exists()) {
+        this.delete()
+    } else {
+        false
+    }

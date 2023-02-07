@@ -24,13 +24,13 @@ import com.android.server.wm.flicker.TEST_SCENARIO
 import com.android.server.wm.flicker.TestTraces
 import com.android.server.wm.flicker.assertExceptionMessage
 import com.android.server.wm.flicker.assertThrows
+import com.android.server.wm.flicker.deleteIfExists
 import com.android.server.wm.flicker.getDefaultFlickerOutputDir
 import com.android.server.wm.flicker.newTestResultWriter
 import com.android.server.wm.flicker.outputFileName
 import com.android.server.wm.traces.common.Timestamp
 import com.google.common.truth.Truth
-import java.nio.file.Files
-import java.nio.file.Path
+import java.io.File
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
@@ -53,11 +53,11 @@ class ResultWriterTest {
 
     @Test
     fun writesEmptyFile() {
-        Files.deleteIfExists(outputFileName(RunStatus.RUN_EXECUTED))
+        outputFileName(RunStatus.RUN_EXECUTED).deleteIfExists()
         val writer = newTestResultWriter()
         val result = writer.write()
-        val path = result.artifactPath
-        Truth.assertWithMessage("File exists").that(Files.exists(path)).isTrue()
+        val path = result.artifact
+        Truth.assertWithMessage("File exists").that(path.exists()).isTrue()
         Truth.assertWithMessage("Transition start time")
             .that(result.transitionTimeRange.start)
             .isEqualTo(Timestamp.MIN)
@@ -70,29 +70,29 @@ class ResultWriterTest {
 
     @Test
     fun writesUndefinedFile() {
-        Files.deleteIfExists(outputFileName(RunStatus.RUN_EXECUTED))
+        outputFileName(RunStatus.RUN_EXECUTED).deleteIfExists()
         val writer =
             ResultWriter().forScenario(TEST_SCENARIO).withOutputDir(getDefaultFlickerOutputDir())
         val result = writer.write()
-        val path = result.artifactPath
+        val path = result.artifact
         validateFileName(path, RunStatus.UNDEFINED)
     }
 
     @Test
     fun writesRunCompleteFile() {
-        Files.deleteIfExists(outputFileName(RunStatus.RUN_EXECUTED))
+        outputFileName(RunStatus.RUN_EXECUTED).deleteIfExists()
         val writer = newTestResultWriter().setRunComplete()
         val result = writer.write()
-        val path = result.artifactPath
+        val path = result.artifact
         validateFileName(path, RunStatus.RUN_EXECUTED)
     }
 
     @Test
     fun writesRunFailureFile() {
-        Files.deleteIfExists(outputFileName(RunStatus.RUN_FAILED))
+        outputFileName(RunStatus.RUN_FAILED).deleteIfExists()
         val writer = newTestResultWriter().setRunFailed(EXPECTED_FAILURE)
         val result = writer.write()
-        val path = result.artifactPath
+        val path = result.artifact
         validateFileName(path, RunStatus.RUN_FAILED)
         Truth.assertWithMessage("Expected assertion")
             .that(result.executionError)
@@ -191,9 +191,9 @@ class ResultWriterTest {
     companion object {
         private val EXPECTED_FAILURE = IllegalArgumentException("Expected test exception")
 
-        private fun validateFileName(filePath: Path, status: RunStatus) {
+        private fun validateFileName(filePath: File, status: RunStatus) {
             Truth.assertWithMessage("File name contains run status")
-                .that(filePath.fileName.toString())
+                .that(filePath.name)
                 .contains(status.prefix)
         }
     }

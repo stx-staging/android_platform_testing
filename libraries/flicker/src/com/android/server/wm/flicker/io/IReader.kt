@@ -24,11 +24,11 @@ import com.android.server.wm.traces.common.layers.LayersTrace
 import com.android.server.wm.traces.common.transactions.TransactionsTrace
 import com.android.server.wm.traces.common.transition.TransitionsTrace
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
+import java.io.File
 import java.io.IOException
-import java.nio.file.Path
 
 interface IReader {
-    val artifactPath: Path?
+    val artifact: File?
     val executionError: Throwable?
     val runStatus: RunStatus
     val isFailure: Boolean

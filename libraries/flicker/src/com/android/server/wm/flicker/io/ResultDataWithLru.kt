@@ -18,25 +18,25 @@ package com.android.server.wm.flicker.io
 
 import androidx.collection.LruCache
 import com.android.server.wm.flicker.RunStatus
-import java.nio.file.Path
+import java.io.File
 
 /**
  * Contents of a flicker run (e.g. files, status, event log) using a [LruCache]
  *
- * @param _artifactPath Path to the artifact file
+ * @param _artifact Path to the artifact file
  * @param _transitionTimeRange Transition start and end time
  * @param _executionError Transition execution error (if any)
  * @param _runStatus Status of the run
  */
 class ResultDataWithLru(
-    _artifactPath: Path,
+    _artifact: File,
     _transitionTimeRange: TransitionTimeRange,
     _executionError: Throwable?,
     _runStatus: RunStatus
-) : ResultData(_artifactPath, _transitionTimeRange, _executionError, _runStatus) {
+) : ResultData(_artifact, _transitionTimeRange, _executionError, _runStatus) {
     override fun getArtifactBytes(): ByteArray {
-        val data = cache[artifactPath] ?: super.getArtifactBytes()
-        cache.put(artifactPath, data)
+        val data = cache[artifact] ?: super.getArtifactBytes()
+        cache.put(artifact, data)
         return data
     }
 
@@ -47,6 +47,6 @@ class ResultDataWithLru(
     }
 
     companion object {
-        private val cache = LruCache<Path, ByteArray>(1)
+        private val cache = LruCache<File, ByteArray>(1)
     }
 }

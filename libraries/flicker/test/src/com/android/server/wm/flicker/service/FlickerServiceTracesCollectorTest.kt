@@ -24,7 +24,6 @@ import com.android.server.wm.flicker.helpers.BrowserAppHelper
 import com.android.server.wm.flicker.helpers.isShellTransitionsEnabled
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerStateHelper
 import com.google.common.truth.Truth
-import java.nio.file.Files
 import org.junit.Assume
 import org.junit.Before
 import org.junit.FixMethodOrder
@@ -70,9 +69,9 @@ class FlickerServiceTracesCollectorTest {
         collector.stop()
         val reader = collector.getResultReader()
 
-        val path = reader.artifactPath
+        val path = reader.artifact
         requireNotNull(path) { "Missing artifact path " }
-        Truth.assertThat(Files.exists(path)).isTrue()
+        Truth.assertThat(path.exists()).isTrue()
     }
 
     @Test
@@ -83,7 +82,7 @@ class FlickerServiceTracesCollectorTest {
         testApp.launchViaIntent(wmHelper)
         testApp.exit(wmHelper)
         collector.stop()
-        val traceFile = collector.getResultReader().artifactPath
+        val traceFile = collector.getResultReader().artifact
 
         requireNotNull(traceFile) { "Artifact path missing in result" }
         assertArchiveContainsFiles(traceFile, expectedTraces)

@@ -19,7 +19,7 @@ package com.android.server.wm.flicker
 import android.app.Instrumentation
 import androidx.test.uiautomator.UiDevice
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerStateHelper
-import java.nio.file.Path
+import java.io.File
 
 interface IFlickerTestData {
     /** Instrumentation to run the tests */
@@ -27,7 +27,7 @@ interface IFlickerTestData {
     /** Test automation component used to interact with the device */
     val device: UiDevice
     /** Output directory for test results */
-    val outputDir: Path
+    val outputDir: File
     /** Enabled tracing monitors */
     val traceMonitors: List<ITransitionMonitor>
     /** Commands to be executed before the transition */

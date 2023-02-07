@@ -19,6 +19,7 @@ package com.android.server.wm.flicker.assertions
 import com.android.server.wm.flicker.AssertionTag
 import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
 import com.android.server.wm.flicker.RunStatus
+import com.android.server.wm.flicker.deleteIfExists
 import com.android.server.wm.flicker.io.ResultReader
 import com.android.server.wm.flicker.io.ResultWriter
 import com.android.server.wm.flicker.io.TraceType
@@ -28,7 +29,6 @@ import com.android.server.wm.flicker.traces.FlickerTraceSubject
 import com.android.server.wm.traces.common.Timestamp
 import com.google.common.truth.Truth
 import java.io.File
-import java.nio.file.Files
 import org.junit.Before
 import org.junit.Test
 
@@ -52,7 +52,7 @@ abstract class BaseSubjectsParserTestParse {
 
     @Before
     fun setup() {
-        Files.deleteIfExists(outputFileName(RunStatus.RUN_EXECUTED))
+        outputFileName(RunStatus.RUN_EXECUTED).deleteIfExists()
     }
 
     @Test

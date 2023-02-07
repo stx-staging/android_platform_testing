@@ -51,19 +51,13 @@ import com.google.common.truth.Truth
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
 import java.util.zip.ZipInputStream
-import kotlin.io.path.createDirectories
-import kotlin.io.path.createFile
-import kotlin.io.path.writeBytes
 import org.mockito.Mockito
 
 internal val TEST_SCENARIO = ScenarioBuilder().forClass("test").build()
 
 internal fun outputFileName(status: RunStatus) =
-    Paths.get("/sdcard/flicker/${status.prefix}_test_ROTATION_0_GESTURAL_NAV.zip")
+    File("/sdcard/flicker/${status.prefix}_test_ROTATION_0_GESTURAL_NAV.zip")
 
 internal fun newTestResultWriter() =
     ResultWriter()
@@ -174,8 +168,7 @@ fun readAssetAsFile(relativePath: String): File {
 }
 
 /**
- * Runs `r` and asserts that an exception of type `expectedThrowable` is thrown.
- * @param expectedThrowable the type of throwable that is expected to be thrown
+ * Runs `r` and asserts that an exception with type `expectedThrowable` is thrown.
  * @param r the [Runnable] which is run and expected to throw.
  * @throws AssertionError if `r` does not throw, or throws a runnable that is not an instance of
  * `expectedThrowable`.
@@ -230,12 +223,12 @@ fun assertThatErrorContainsDebugInfo(error: Throwable, withBlameEntry: Boolean =
     }
 }
 
-fun assertArchiveContainsFiles(archivePath: Path, expectedFiles: List<String>) {
+fun assertArchiveContainsFiles(archivePath: File, expectedFiles: List<String>) {
     Truth.assertWithMessage("Expected trace archive `$archivePath` to exist")
-        .that(Files.exists(archivePath))
+        .that(archivePath.exists())
         .isTrue()
 
-    val archiveStream = ZipInputStream(FileInputStream(archivePath.toFile()))
+    val archiveStream = ZipInputStream(FileInputStream(archivePath))
 
     val actualFiles = generateSequence { archiveStream.nextEntry }.map { it.name }.toList()
 
@@ -264,10 +257,10 @@ fun getScenarioTraces(scenario: String): FlickerBuilder.TraceFiles {
         val traceBytes = readAsset("scenarios/$scenario/$traceName$WINSCOPE_EXT")
         val traceFile =
             getDefaultFlickerOutputDir().resolve("${traceName}_$randomString$WINSCOPE_EXT")
-        traceFile.parent.createDirectories()
-        traceFile.createFile()
+        traceFile.parentFile.mkdirs()
+        traceFile.createNewFile()
         traceFile.writeBytes(traceBytes)
-        resultSetter.invoke(traceFile.toFile())
+        resultSetter.invoke(traceFile)
     }
 
     return FlickerBuilder.TraceFiles(
@@ -317,7 +310,7 @@ fun createMockedFlicker(
 }
 
 fun captureTrace(scenario: IScenario, actions: () -> Unit): ResultReader {
-    if (scenario == null) {
+    if (scenario.isEmpty) {
         ScenarioBuilder().forClass("UNNAMED_CAPTURE").build()
     }
     val instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation()
