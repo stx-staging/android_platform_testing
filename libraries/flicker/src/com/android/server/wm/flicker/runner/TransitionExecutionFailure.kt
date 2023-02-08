@@ -22,6 +22,5 @@ package com.android.server.wm.flicker.runner
  * @param inner cause
  */
 class TransitionExecutionFailure(inner: Throwable) : ExecutionError(inner) {
-    override val message: String
-        get() = "Transition execution failed: ${super.message}"
+    override val message = "Transition execution failed: ${super.message}"
 }

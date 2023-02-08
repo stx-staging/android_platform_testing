@@ -19,9 +19,9 @@ package com.android.server.wm.flicker.io
 import android.util.Log
 import com.android.server.wm.flicker.AssertionTag
 import com.android.server.wm.flicker.RunStatus
-import com.android.server.wm.flicker.ScenarioBuilder
 import com.android.server.wm.flicker.now
 import com.android.server.wm.traces.common.IScenario
+import com.android.server.wm.traces.common.ScenarioBuilder
 import com.android.server.wm.traces.common.Timestamp
 import com.android.server.wm.traces.parser.withPerfettoTrace
 import java.io.BufferedInputStream

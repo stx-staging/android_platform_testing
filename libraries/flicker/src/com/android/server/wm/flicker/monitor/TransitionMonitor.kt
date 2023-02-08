@@ -17,11 +17,11 @@
 package com.android.server.wm.flicker.monitor
 
 import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
-import com.android.server.wm.flicker.ScenarioBuilder
 import com.android.server.wm.flicker.deleteIfExists
 import com.android.server.wm.flicker.io.ResultData
 import com.android.server.wm.flicker.io.ResultReader
 import com.android.server.wm.flicker.io.ResultWriter
+import com.android.server.wm.traces.common.ScenarioBuilder
 import java.io.File
 
 abstract class TransitionMonitor : TraceMonitor() {

@@ -33,6 +33,8 @@ import com.android.server.wm.flicker.traces.region.RegionTraceSubject
 import com.android.server.wm.flicker.traces.windowmanager.WindowManagerStateSubject
 import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
 import com.android.server.wm.traces.common.IScenario
+import com.android.server.wm.traces.common.Scenario
+import com.android.server.wm.traces.common.ScenarioBuilder
 import com.android.server.wm.traces.common.component.matchers.IComponentMatcher
 import com.android.server.wm.traces.parser.withPerfettoTrace
 

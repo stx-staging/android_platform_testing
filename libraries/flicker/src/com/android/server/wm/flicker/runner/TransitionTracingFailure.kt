@@ -22,6 +22,5 @@ package com.android.server.wm.flicker.runner
  * @param inner cause
  */
 class TransitionTracingFailure(inner: Throwable) : ExecutionError(inner) {
-    override val message: String
-        get() = "Tracing failed: ${super.message}"
+    override val message = "Tracing failed: ${super.message}"
 }

@@ -22,9 +22,9 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.android.server.wm.flicker.FLICKER_TAG
 import com.android.server.wm.flicker.FlickerBuilder
 import com.android.server.wm.flicker.FlickerTest
-import com.android.server.wm.flicker.Scenario
 import com.android.server.wm.flicker.datastore.DataStore
 import com.android.server.wm.flicker.runner.TransitionRunner
+import com.android.server.wm.traces.common.Scenario
 import java.lang.reflect.Modifier
 import org.junit.runner.Description
 import org.junit.runners.model.FrameworkMethod

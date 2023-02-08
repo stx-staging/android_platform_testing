@@ -19,8 +19,6 @@ package com.android.server.wm.flicker.service
 import android.util.Log
 import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
 import com.android.server.wm.flicker.FLICKER_TAG
-import com.android.server.wm.flicker.Scenario
-import com.android.server.wm.flicker.ScenarioBuilder
 import com.android.server.wm.flicker.io.IReader
 import com.android.server.wm.flicker.io.ResultData
 import com.android.server.wm.flicker.io.ResultReaderWithLru
@@ -30,6 +28,8 @@ import com.android.server.wm.flicker.monitor.LayersTraceMonitor
 import com.android.server.wm.flicker.monitor.TransactionsTraceMonitor
 import com.android.server.wm.flicker.monitor.TransitionsTraceMonitor
 import com.android.server.wm.flicker.monitor.WindowManagerTraceMonitor
+import com.android.server.wm.traces.common.Scenario
+import com.android.server.wm.traces.common.ScenarioBuilder
 import java.io.File
 
 class FlickerServiceTracesCollector(

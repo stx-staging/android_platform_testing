@@ -16,6 +16,7 @@
 
 package com.android.server.wm.flicker
 
+import com.android.server.wm.traces.common.ScenarioBuilder
 import com.android.server.wm.traces.common.service.PlatformConsts
 
 /**

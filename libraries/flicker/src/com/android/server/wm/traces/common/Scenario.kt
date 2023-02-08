@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 The Android Open Source Project
+ * Copyright (C) 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker
+package com.android.server.wm.traces.common
 
-import androidx.annotation.VisibleForTesting
-import com.android.server.wm.traces.common.IScenario
 import com.android.server.wm.traces.common.service.PlatformConsts
 
 /**
@@ -33,7 +31,7 @@ import com.android.server.wm.traces.common.service.PlatformConsts
  */
 class Scenario
 internal constructor(
-    @VisibleForTesting val testClass: String,
+    val testClass: String,
     override val startRotation: PlatformConsts.Rotation,
     override val endRotation: PlatformConsts.Rotation,
     override val navBarMode: PlatformConsts.NavBar,
@@ -42,9 +40,9 @@ internal constructor(
 ) : IScenario {
     internal val extraConfig = _extraConfig.toMutableMap()
 
-    override val isEmpty: Boolean = testClass.isEmpty()
+    override val isEmpty = testClass.isEmpty()
 
-    override val key: String = if (isEmpty) "empty" else "${testClass}_$description"
+    override val key = if (isEmpty) "empty" else "${testClass}_$description"
 
     /** If the initial screen rotation is 90 (landscape) or 180 (seascape) degrees */
     val isLandscapeOrSeascapeAtStart: Boolean =

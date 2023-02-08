@@ -19,7 +19,7 @@ package com.android.server.wm.flicker.junit
 import android.os.Bundle
 import android.platform.test.util.TestFilter
 import androidx.test.platform.app.InstrumentationRegistry
-import com.android.server.wm.flicker.Scenario
+import com.android.server.wm.traces.common.Scenario
 import java.util.Collections
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock

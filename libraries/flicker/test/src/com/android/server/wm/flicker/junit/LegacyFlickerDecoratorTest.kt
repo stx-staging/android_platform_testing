@@ -18,8 +18,8 @@ package com.android.server.wm.flicker.junit
 
 import android.annotation.SuppressLint
 import com.android.server.wm.flicker.FlickerTest
-import com.android.server.wm.flicker.ScenarioBuilder
 import com.android.server.wm.flicker.datastore.DataStore
+import com.android.server.wm.traces.common.ScenarioBuilder
 import com.google.common.truth.Truth
 import org.junit.Before
 import org.junit.Test

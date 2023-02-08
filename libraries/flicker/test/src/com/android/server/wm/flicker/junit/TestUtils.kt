@@ -20,7 +20,7 @@ import android.app.Instrumentation
 import androidx.test.platform.app.InstrumentationRegistry
 import com.android.server.wm.flicker.FlickerBuilder
 import com.android.server.wm.flicker.FlickerTest
-import com.android.server.wm.flicker.ScenarioBuilder
+import com.android.server.wm.traces.common.ScenarioBuilder
 
 object TestUtils {
     private val instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation()

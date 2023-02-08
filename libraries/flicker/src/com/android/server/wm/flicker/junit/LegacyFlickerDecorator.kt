@@ -16,7 +16,7 @@
 
 package com.android.server.wm.flicker.junit
 
-import com.android.server.wm.flicker.Scenario
+import com.android.server.wm.traces.common.Scenario
 import org.junit.runner.Description
 import org.junit.runners.model.FrameworkMethod
 import org.junit.runners.model.Statement

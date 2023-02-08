@@ -23,7 +23,6 @@ import com.android.launcher3.tapl.LauncherInstrumentation
 import com.android.server.wm.flicker.FlickerBuilder
 import com.android.server.wm.flicker.FlickerTest
 import com.android.server.wm.flicker.FlickerTestFactory
-import com.android.server.wm.flicker.Scenario
 import com.android.server.wm.flicker.annotation.FlickerServiceCompatible
 import com.android.server.wm.flicker.assertions.FlickerSubject
 import com.android.server.wm.flicker.helpers.CalculatorAppHelper
@@ -32,6 +31,7 @@ import com.android.server.wm.flicker.junit.FlickerParametersRunnerFactory
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 import com.android.server.wm.flicker.traces.region.RegionSubject
 import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
+import com.android.server.wm.traces.common.Scenario
 import com.android.server.wm.traces.common.region.Region
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerStateHelper
 import com.google.common.truth.Truth

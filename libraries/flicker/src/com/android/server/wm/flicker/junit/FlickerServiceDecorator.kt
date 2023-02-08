@@ -21,7 +21,6 @@ import android.util.Log
 import androidx.test.platform.app.InstrumentationRegistry
 import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
 import com.android.server.wm.flicker.FLICKER_TAG
-import com.android.server.wm.flicker.Scenario
 import com.android.server.wm.flicker.annotation.FlickerServiceCompatible
 import com.android.server.wm.flicker.datastore.CachedResultReader
 import com.android.server.wm.flicker.datastore.DataStore
@@ -30,6 +29,7 @@ import com.android.server.wm.flicker.helpers.isShellTransitionsEnabled
 import com.android.server.wm.flicker.service.FlickerService
 import com.android.server.wm.flicker.service.FlickerServiceResultsCollector
 import com.android.server.wm.flicker.service.assertors.IAssertionResult
+import com.android.server.wm.traces.common.Scenario
 import com.android.server.wm.traces.parser.withPerfettoTrace
 import org.junit.runner.Description
 import org.junit.runners.model.FrameworkMethod

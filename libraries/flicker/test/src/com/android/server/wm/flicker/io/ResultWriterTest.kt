@@ -19,7 +19,6 @@ package com.android.server.wm.flicker.io
 import android.annotation.SuppressLint
 import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
 import com.android.server.wm.flicker.RunStatus
-import com.android.server.wm.flicker.ScenarioBuilder
 import com.android.server.wm.flicker.TEST_SCENARIO
 import com.android.server.wm.flicker.TestTraces
 import com.android.server.wm.flicker.assertExceptionMessage
@@ -28,6 +27,7 @@ import com.android.server.wm.flicker.deleteIfExists
 import com.android.server.wm.flicker.getDefaultFlickerOutputDir
 import com.android.server.wm.flicker.newTestResultWriter
 import com.android.server.wm.flicker.outputFileName
+import com.android.server.wm.traces.common.ScenarioBuilder
 import com.android.server.wm.traces.common.Timestamp
 import com.google.common.truth.Truth
 import java.io.File
