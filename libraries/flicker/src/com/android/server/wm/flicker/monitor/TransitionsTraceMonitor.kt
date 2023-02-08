@@ -25,8 +25,8 @@ import java.io.File
 /** Captures [TransitionsTrace] from SurfaceFlinger. */
 open class TransitionsTraceMonitor : TransitionMonitor() {
     private val windowManager = WindowManagerGlobal.getWindowManagerService()
-    override val traceType: TraceType = TraceType.TRANSITION
-    override val isEnabled: Boolean
+    override val traceType = TraceType.TRANSITION
+    override val isEnabled
         get() = windowManager.isTransitionTraceEnabled
 
     override fun start() {

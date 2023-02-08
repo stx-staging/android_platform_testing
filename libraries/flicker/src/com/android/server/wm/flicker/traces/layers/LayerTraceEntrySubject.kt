@@ -20,7 +20,6 @@ import com.android.server.wm.flicker.assertions.Assertion
 import com.android.server.wm.flicker.assertions.Fact
 import com.android.server.wm.flicker.assertions.FlickerSubject
 import com.android.server.wm.flicker.traces.region.RegionSubject
-import com.android.server.wm.traces.common.Timestamp
 import com.android.server.wm.traces.common.component.matchers.IComponentMatcher
 import com.android.server.wm.traces.common.layers.BaseLayerTraceEntry
 import com.android.server.wm.traces.common.layers.Layer
@@ -54,8 +53,7 @@ class LayerTraceEntrySubject(
     val trace: LayersTrace? = null,
     override val parent: FlickerSubject? = null
 ) : FlickerSubject(), ILayerSubject<LayerTraceEntrySubject, RegionSubject> {
-    override val timestamp: Timestamp
-        get() = entry.timestamp
+    override val timestamp = entry.timestamp
     override val selfFacts = listOf(Fact("SF State", entry))
 
     val subjects by lazy { entry.flattenedLayers.map { LayerSubject(this, timestamp, it) } }

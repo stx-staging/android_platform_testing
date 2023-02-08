@@ -18,13 +18,11 @@ package com.android.server.wm.flicker.traces.eventlog
 
 import com.android.server.wm.flicker.assertions.Fact
 import com.android.server.wm.flicker.assertions.FlickerSubject
-import com.android.server.wm.traces.common.Timestamp
 import com.android.server.wm.traces.common.events.FocusEvent
 
 class FocusEventSubject(val event: FocusEvent, override val parent: EventLogSubject?) :
     FlickerSubject() {
-    override val timestamp: Timestamp
-        get() = event.timestamp
+    override val timestamp = event.timestamp
     override val selfFacts by lazy { listOf(Fact(event.toString())) }
 
     fun hasFocus() {

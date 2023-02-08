@@ -24,15 +24,14 @@ import com.android.server.wm.traces.common.service.AssertionInvocationGroup.NON_
 
 /** Base class for a FaaS assertion */
 abstract class AssertionTemplate : IAssertionTemplate {
-    override val assertionName = this@AssertionTemplate::class.java.simpleName
+    override val assertionName = "${this@AssertionTemplate::class.simpleName}"
     private var stabilityGroup: AssertionInvocationGroup = NON_BLOCKING
 
     override fun createAssertion(scenarioInstance: IScenarioInstance): IFaasAssertion {
         return object : IFaasAssertion {
-            override val name: String
-                get() = this@AssertionTemplate.assertionName
+            override val name = this@AssertionTemplate.assertionName
 
-            override val stabilityGroup: AssertionInvocationGroup
+            override val stabilityGroup
                 get() = this@AssertionTemplate.stabilityGroup
 
             override fun evaluate(): AssertionResult {

@@ -296,9 +296,7 @@ class FlickerBlockJUnit4ClassRunnerTest {
     class TransitionRunCounterWithFaasTest(flicker: FlickerTest) : SimpleFaasTest(flicker) {
         @FlickerBuilderProvider
         override fun buildFlicker(): FlickerBuilder {
-            return FlickerBuilder(instrumentation)
-                .apply { transitions { transitionRunCount++ } }
-                .allowNoopTransition()
+            return FlickerBuilder(instrumentation).apply { transitions { transitionRunCount++ } }
         }
     }
 

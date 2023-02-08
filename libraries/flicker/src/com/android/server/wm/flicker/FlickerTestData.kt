@@ -48,17 +48,5 @@ open class FlickerTestData(
     /** Commands to be executed after the transition */
     override val transitionTeardown: List<IFlickerTestData.() -> Any>,
     /** Helper object for WM Synchronization */
-    override val wmHelper: WindowManagerStateHelper,
-    /** Whether to run Flicker as a Service on the collected transition traces */
-    val faasEnabled: Boolean = false,
-    /**
-     * Defines properties we allow on traces (e.g. is it valid for a transition to not have any
-     * changed in the WM and Layers states)
-     */
-    val traceConfigs: TraceConfigs = DEFAULT_TRACE_CONFIG,
-    /**
-     * Whether the transition needs to be executed or if the trace monitors will just return the
-     * traces without needing to run anything on device.
-     */
-    val usingExistingTraces: Boolean = false
+    override val wmHelper: WindowManagerStateHelper
 ) : AbstractFlickerTestData()

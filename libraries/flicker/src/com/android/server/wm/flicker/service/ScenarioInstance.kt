@@ -39,16 +39,14 @@ data class ScenarioInstance(
         get() = associatedTransition?.finishTransaction
 
     // b/227752705
-    override val navBarMode: PlatformConsts.NavBar
+    override val navBarMode
         get() = error("Unsupported")
 
-    override val key: String
-        get() = "${type.name}_${startRotation}_$endRotation"
+    override val key = "${type.name}_${startRotation}_$endRotation"
 
-    override val description: String = key
+    override val description = key
 
-    override val isEmpty: Boolean
-        get() = false
+    override val isEmpty = false
 
     override fun toString() = key
 }

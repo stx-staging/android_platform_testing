@@ -22,6 +22,5 @@ package com.android.server.wm.flicker.runner
  * @param inner cause
  */
 class TransitionSetupFailure(inner: Throwable) : ExecutionError(inner) {
-    override val message: String
-        get() = "Setup failed: ${super.message}"
+    override val message = "Setup failed: ${super.message}"
 }

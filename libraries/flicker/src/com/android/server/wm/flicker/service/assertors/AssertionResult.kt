@@ -21,8 +21,6 @@ data class AssertionResult(
     override val assertion: IFaasAssertion,
     override val assertionError: Throwable?,
 ) : IAssertionResult {
-    override val failed: Boolean
-        get() = (assertionError !== null)
-    override val passed: Boolean
-        get() = !failed
+    override val failed = (assertionError !== null)
+    override val passed = !failed
 }

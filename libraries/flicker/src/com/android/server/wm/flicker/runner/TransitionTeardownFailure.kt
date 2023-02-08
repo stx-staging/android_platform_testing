@@ -22,6 +22,5 @@ package com.android.server.wm.flicker.runner
  * @param inner cause
  */
 class TransitionTeardownFailure(inner: Throwable) : ExecutionError(inner) {
-    override val message: String
-        get() = "Teardown failed: ${super.message}"
+    override val message = "Teardown failed: ${super.message}"
 }

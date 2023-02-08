@@ -68,10 +68,10 @@ class CompoundAssertion<T>(assertion: Assertion<T>, name: String, optional: Bool
         add(assertion, name, optional)
     }
 
-    override val isOptional: Boolean
+    override val isOptional
         get() = assertions.all { it.isOptional }
 
-    override val name: String
+    override val name
         get() = assertions.joinToString(" and ") { it.name }
 
     /**

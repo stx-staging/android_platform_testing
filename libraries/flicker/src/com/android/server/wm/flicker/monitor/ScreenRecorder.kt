@@ -33,8 +33,7 @@ constructor(
     private val width: Int = 720,
     private val height: Int = 1280
 ) : TraceMonitor() {
-    override val traceType: TraceType
-        get() = TraceType.SCREEN_RECORDING
+    override val traceType = TraceType.SCREEN_RECORDING
 
     private var recordingThread: Thread? = null
     private var recordingRunnable: ScreenRecordingRunnable? = null
@@ -87,7 +86,7 @@ constructor(
         return outputFile
     }
 
-    override val isEnabled: Boolean
+    override val isEnabled
         get() = recordingThread != null
 
     override fun toString(): String {

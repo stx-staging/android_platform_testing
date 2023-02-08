@@ -25,10 +25,8 @@ import com.android.server.wm.traces.common.events.FocusEvent
 
 /** Truth subject for [FocusEvent] objects. */
 class EventLogSubject(val eventLog: EventLog) : FlickerSubject() {
-    override val timestamp: Timestamp
-        get() = Timestamp.EMPTY
-    override val parent: FlickerSubject?
-        get() = null
+    override val timestamp = Timestamp.EMPTY
+    override val parent = null
     override val selfFacts by lazy {
         val firstTimestamp = eventLog.entries.firstOrNull()?.timestamp ?: Timestamp.EMPTY
         val lastTimestamp = eventLog.entries.lastOrNull()?.timestamp ?: Timestamp.EMPTY

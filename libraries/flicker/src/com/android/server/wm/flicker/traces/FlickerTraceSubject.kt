@@ -25,7 +25,7 @@ import com.android.server.wm.traces.common.Timestamp
 
 /** Base subject for flicker trace assertions */
 abstract class FlickerTraceSubject<EntrySubject : FlickerSubject> : FlickerSubject() {
-    override val timestamp: Timestamp
+    override val timestamp
         get() = subjects.firstOrNull()?.timestamp ?: Timestamp.EMPTY
     override val selfFacts by lazy {
         val firstTimestamp = subjects.firstOrNull()?.timestamp ?: Timestamp.EMPTY

@@ -26,9 +26,7 @@ open class ExecutionError(private val inner: Throwable) : Throwable(inner) {
         super.setStackTrace(inner.stackTrace)
     }
 
-    override val message: String?
-        get() = inner.toString()
+    override val message = inner.toString()
 
-    override val cause: Throwable?
-        get() = inner.cause ?: super.cause
+    override val cause = inner.cause ?: super.cause
 }

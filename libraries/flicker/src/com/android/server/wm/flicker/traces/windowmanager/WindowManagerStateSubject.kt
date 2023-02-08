@@ -21,7 +21,6 @@ import com.android.server.wm.flicker.assertions.Assertion
 import com.android.server.wm.flicker.assertions.Fact
 import com.android.server.wm.flicker.assertions.FlickerSubject
 import com.android.server.wm.flicker.traces.region.RegionSubject
-import com.android.server.wm.traces.common.Timestamp
 import com.android.server.wm.traces.common.component.matchers.ComponentNameMatcher
 import com.android.server.wm.traces.common.component.matchers.IComponentMatcher
 import com.android.server.wm.traces.common.region.Region
@@ -57,8 +56,7 @@ class WindowManagerStateSubject(
     val trace: WindowManagerTraceSubject? = null,
     override val parent: FlickerSubject? = null
 ) : FlickerSubject(), IWindowManagerSubject<WindowManagerStateSubject, RegionSubject> {
-    override val timestamp: Timestamp
-        get() = wmState.timestamp
+    override val timestamp = wmState.timestamp
     override val selfFacts = listOf(Fact("WM State", wmState))
 
     val subjects by lazy { wmState.windowStates.map { WindowStateSubject(this, timestamp, it) } }

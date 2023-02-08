@@ -24,8 +24,8 @@ import java.io.File
 /** Captures [WindowManagerTrace] from WindowManager. */
 open class WindowManagerTraceMonitor : TransitionMonitor() {
     private val windowManager = WindowManagerGlobal.getWindowManagerService()
-    override val traceType: TraceType = TraceType.WM
-    override val isEnabled: Boolean
+    override val traceType = TraceType.WM
+    override val isEnabled
         get() = windowManager.isWindowTraceEnabled
 
     override fun start() {

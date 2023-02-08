@@ -25,17 +25,14 @@ import com.android.server.wm.traces.common.region.RegionTrace
 class RegionTraceSubject(val trace: RegionTrace, override val parent: FlickerSubject?) :
     FlickerTraceSubject<RegionSubject>() {
 
-    private val components = trace.components
-
     override val subjects by lazy { trace.entries.map { RegionSubject(it, this, it.timestamp) } }
 
-    private val componentsAsString
-        get() =
-            if (components == null) {
-                "<any>"
-            } else {
-                "[$components]"
-            }
+    private val componentsAsString =
+        if (trace.components == null) {
+            "<any>"
+        } else {
+            "[${trace.components}]"
+        }
 
     /**
      * Asserts that the visible area covered by any element in the state covers at most [testRegion]

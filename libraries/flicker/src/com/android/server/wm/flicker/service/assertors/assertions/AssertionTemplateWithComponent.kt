@@ -23,7 +23,7 @@ import com.android.server.wm.flicker.service.assertors.ComponentTemplate
 abstract class AssertionTemplateWithComponent(val component: ComponentTemplate) :
     AssertionTemplate() {
 
-    override val assertionName: String = "${this::class.java.simpleName}(${component.name})"
+    override val assertionName = "${this::class.simpleName}(${component.name})"
 
     override fun equals(other: Any?): Boolean {
         if (other !is AssertionTemplateWithComponent) {
@@ -37,5 +37,11 @@ abstract class AssertionTemplateWithComponent(val component: ComponentTemplate) 
 
         // TODO: Make sure equality is properly defined on the component
         return other.component == component
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + component.hashCode()
+        return result
     }
 }

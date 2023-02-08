@@ -25,8 +25,8 @@ import java.io.File
 /** Captures [TransactionsTrace] from SurfaceFlinger. */
 open class TransactionsTraceMonitor : TransitionMonitor() {
     private val windowManager = WindowManagerGlobal.getWindowManagerService()
-    override val isEnabled: Boolean = true
-    override val traceType: TraceType = TraceType.TRANSACTION
+    override val isEnabled = true
+    override val traceType = TraceType.TRANSACTION
 
     override fun start() {
         windowManager.setActiveTransactionTracing(true)

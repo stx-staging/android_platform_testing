@@ -23,29 +23,28 @@ import com.android.server.wm.traces.common.Timestamp
 
 /** Exception thrown by [FlickerSubject]s */
 class FlickerSubjectException(
-    private val timestamp: Timestamp,
+    timestamp: Timestamp,
     val facts: List<Fact>,
     override val cause: Throwable? = null
 ) : AssertionError() {
-    override val message: String
-        get() = buildString {
-            appendLine(errorType)
+    override val message = buildString {
+        appendLine(errorType)
 
+        appendLine()
+        appendLine("What? ")
+        cause?.message?.split("\n")?.forEach {
             appendLine()
-            appendLine("What? ")
-            cause?.message?.split("\n")?.forEach {
-                appendLine()
-                appendLine(it.prependIndent("\t"))
-            }
-
-            appendLine()
-            appendLine("Where?")
-            appendLine(timestamp.format().prependIndent("\t"))
-
-            appendLine()
-            appendLine("Facts")
-            facts.forEach { appendLine(it.toString().prependIndent("\t")) }
+            appendLine(it.prependIndent("\t"))
         }
+
+        appendLine()
+        appendLine("Where?")
+        appendLine(timestamp.format().prependIndent("\t"))
+
+        appendLine()
+        appendLine("Facts")
+        facts.forEach { appendLine(it.toString().prependIndent("\t")) }
+    }
 
     private val errorType: String =
         if (cause == null) "Flicker assertion error" else "Unknown error"

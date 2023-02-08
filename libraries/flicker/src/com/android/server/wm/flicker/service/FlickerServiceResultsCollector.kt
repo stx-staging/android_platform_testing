@@ -45,7 +45,7 @@ class FlickerServiceResultsCollector(
     private var testSkipped = false
 
     private val _executionErrors = mutableListOf<ExecutionError>()
-    override val executionErrors: List<ExecutionError>
+    override val executionErrors
         get() = _executionErrors
 
     @VisibleForTesting val assertionResults = mutableListOf<IAssertionResult>()

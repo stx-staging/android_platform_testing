@@ -27,7 +27,7 @@ open class LayersTraceMonitor @JvmOverloads constructor(private val traceFlags: 
     TransitionMonitor() {
     private val windowManager = WindowManagerGlobal.getWindowManagerService()
     override val traceType = TraceType.SF
-    override val isEnabled: Boolean
+    override val isEnabled
         get() = windowManager.isLayerTracing
 
     override fun start() {
