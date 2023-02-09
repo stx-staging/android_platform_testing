@@ -179,6 +179,20 @@ public class AutomotiveConfigConstants {
     public static final String SYSTEM_SETTINGS_SCROLL_WAIT_TIME =
             "SYSTEM_SETTINGS_SCROLL_WAIT_TIME";
 
+    // Sound Setting Constants
+    public static final String SOUND_SETTINGS_SAVE_BUTTON = "SOUND_SETTINGS_SAVE_BUTTON";
+    public static final String SOUND_SETTINGS_LIST_SCROLL_DIRECTION =
+            "SOUND_SETTINGS_LIST_SCROLL_DIRECTION";
+    public static final String SOUND_SETTINGS_LIST_SCROLL_ACTION =
+            "SOUND_SETTINGS_LIST_SCROLL_ACTION";
+    public static final String SOUND_SETTINGS_SCROLL_ELEMENT = "SOUND_SETTINGS_SCROLL_ELEMENT";
+    public static final String SOUND_SETTINGS_SCROLL_FORWARD_BUTTON =
+            "SOUND_SETTINGS_SCROLL_FORWARD_BUTTON";
+    public static final String SOUND_SETTINGS_SCROLL_BACKWARD_BUTTON =
+            "SOUND_SETTINGS_SCROLL_BACKWARD_BUTTON";
+    public static final String SOUND_SETTINGS_SCROLL_MARGIN = "SOUND_SETTINGS_SCROLL_MARGIN";
+    public static final String SOUND_SETTINGS_SCROLL_WAIT_TIME = "SOUND_SETTINGS_SCROLL_WAIT_TIME";
+
     // APPINFO SETTINGS CONSTANTS
     public static final String OPEN_SETTINGS_COMMAND = "OPEN_SETTINGS_COMMAND";
     public static final String APP_INFO_SETTINGS_SCROLL_ACTION = "APP_INFO_SETTINGS_SCROLL_ACTION";
