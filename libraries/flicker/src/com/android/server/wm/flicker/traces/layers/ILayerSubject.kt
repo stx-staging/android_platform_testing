@@ -100,5 +100,5 @@ interface ILayerSubject<LayerSubjectType, RegionSubjectType> {
      * @return LayerSubject that can be used to make assertions on a single layer matching [name]
      * and [frameNumber].
      */
-    fun layer(name: String, frameNumber: Long): LayerSubject
+    fun layer(name: String, frameNumber: Long): LayerSubject?
 }

@@ -91,7 +91,7 @@ class LayerTraceEntrySubject(
                 // No filters so use all subjects
                 subjects
             } else {
-                subjects.filter { it.layer != null && componentMatcher.layerMatchesAnyOf(it.layer) }
+                subjects.filter { componentMatcher.layerMatchesAnyOf(it.layer) }
             }
 
         if (selectedLayers.isEmpty()) {
@@ -107,10 +107,10 @@ class LayerTraceEntrySubject(
 
         val visibleLayers = selectedLayers.filter { it.isVisible }
         return if (useCompositionEngineRegionOnly) {
-            val visibleAreas = visibleLayers.mapNotNull { it.layer?.visibleRegion }.toTypedArray()
+            val visibleAreas = visibleLayers.mapNotNull { it.layer.visibleRegion }.toTypedArray()
             RegionSubject(visibleAreas, this, timestamp)
         } else {
-            val visibleAreas = visibleLayers.mapNotNull { it.layer?.screenBounds }.toTypedArray()
+            val visibleAreas = visibleLayers.map { it.layer.screenBounds }.toTypedArray()
             RegionSubject(visibleAreas, this, timestamp)
         }
     }
@@ -128,7 +128,7 @@ class LayerTraceEntrySubject(
 
     /** {@inheritDoc} */
     override fun notContains(componentMatcher: IComponentMatcher): LayerTraceEntrySubject = apply {
-        val layers = subjects.mapNotNull { it.layer }
+        val layers = subjects.map { it.layer }
         val notContainsComponent =
             componentMatcher.check(layers) { matchedLayers -> matchedLayers.isEmpty() }
 
@@ -136,8 +136,7 @@ class LayerTraceEntrySubject(
             return@apply
         }
 
-        val failedEntries =
-            subjects.filter { it.layer != null && componentMatcher.layerMatchesAnyOf(it.layer) }
+        val failedEntries = subjects.filter { componentMatcher.layerMatchesAnyOf(it.layer) }
         val failureFacts =
             mutableListOf(
                 Fact(ASSERTION_TAG, "notContains(${componentMatcher.toLayerIdentifier()})")
@@ -149,7 +148,7 @@ class LayerTraceEntrySubject(
     /** {@inheritDoc} */
     override fun isVisible(componentMatcher: IComponentMatcher): LayerTraceEntrySubject = apply {
         contains(componentMatcher)
-        val layers = subjects.mapNotNull { it.layer }
+        val layers = subjects.map { it.layer }
         val hasVisibleSubject =
             componentMatcher.check(layers) { matchedLayers ->
                 matchedLayers.any { layer -> layer.isVisible }
@@ -159,8 +158,7 @@ class LayerTraceEntrySubject(
             return@apply
         }
 
-        val matchingSubjects =
-            subjects.filter { it.layer != null && componentMatcher.layerMatchesAnyOf(it.layer) }
+        val matchingSubjects = subjects.filter { componentMatcher.layerMatchesAnyOf(it.layer) }
         val failedEntries = matchingSubjects.filter { it.isInvisible }
         val failureFacts =
             mutableListOf(Fact(ASSERTION_TAG, "isVisible(${componentMatcher.toLayerIdentifier()})"))
@@ -174,7 +172,7 @@ class LayerTraceEntrySubject(
 
     /** {@inheritDoc} */
     override fun isInvisible(componentMatcher: IComponentMatcher): LayerTraceEntrySubject = apply {
-        val layers = subjects.mapNotNull { it.layer }
+        val layers = subjects.map { it.layer }
         val hasInvisibleComponent =
             componentMatcher.check(layers) { componentLayers ->
                 componentLayers.all { layer ->
@@ -186,8 +184,7 @@ class LayerTraceEntrySubject(
             return@apply
         }
 
-        val matchingSubjects =
-            subjects.filter { it.layer != null && componentMatcher.layerMatchesAnyOf(it.layer) }
+        val matchingSubjects = subjects.filter { componentMatcher.layerMatchesAnyOf(it.layer) }
         val failedEntries = matchingSubjects.filter { it.isVisible }
         val failureFacts =
             mutableListOf(
@@ -205,7 +202,7 @@ class LayerTraceEntrySubject(
         var reason: Fact? = null
 
         val matchingLayer =
-            subjects.mapNotNull { it.layer }.filter { componentMatcher.layerMatchesAnyOf(it) }
+            subjects.map { it.layer }.filter { componentMatcher.layerMatchesAnyOf(it) }
         val matchingActivityRecords = matchingLayer.mapNotNull { getActivityRecordFor(it) }
 
         if (matchingActivityRecords.isEmpty()) {
@@ -253,7 +250,7 @@ class LayerTraceEntrySubject(
         contains(componentMatcher)
 
         val hasColorLayer =
-            componentMatcher.check(subjects.mapNotNull { it.layer }) {
+            componentMatcher.check(subjects.map { it.layer }) {
                 it.any { layer -> layer.color.isNotEmpty }
             }
 
@@ -265,7 +262,7 @@ class LayerTraceEntrySubject(
     /** {@inheritDoc} */
     override fun hasNoColor(componentMatcher: IComponentMatcher): LayerTraceEntrySubject = apply {
         val hasNoColorLayer =
-            componentMatcher.check(subjects.mapNotNull { it.layer }) {
+            componentMatcher.check(subjects.map { it.layer }) {
                 it.all { layer -> layer.color.isEmpty }
             }
 
@@ -275,31 +272,25 @@ class LayerTraceEntrySubject(
     }
 
     /** See [layer] */
-    fun layer(componentMatcher: IComponentMatcher): LayerSubject {
+    fun layer(componentMatcher: IComponentMatcher): LayerSubject? {
         return layer { componentMatcher.layerMatchesAnyOf(it) }
     }
 
     /** {@inheritDoc} */
-    override fun layer(name: String, frameNumber: Long): LayerSubject {
-        return layer(name) { it.name.contains(name) && it.currFrame == frameNumber }
+    override fun layer(name: String, frameNumber: Long): LayerSubject? {
+        return layer { it.name.contains(name) && it.currFrame == frameNumber }
     }
 
     /**
-     * Obtains a [LayerSubject] for the first occurrence of a [Layer] matching [predicate]
-     *
-     * Always returns a subject, event when the layer doesn't exist. To verify if layer actually
-     * exists in the hierarchy use [LayerSubject.exists] or [LayerSubject.doesNotExist]
+     * Obtains a [LayerSubject] for the first occurrence of a [Layer] matching [predicate] or throws
+     * and error if the layer doesn't exist
      *
      * @param predicate to search for a layer
-     * @param name Name of the subject to use when not found (optional)
      *
      * @return [LayerSubject] that can be used to make assertions
      */
-    @JvmOverloads
-    fun layer(name: String = "", predicate: (Layer) -> Boolean): LayerSubject {
-        return subjects.firstOrNull { it.layer?.run { predicate(this) } ?: false }
-            ?: LayerSubject(this, timestamp, null, name)
-    }
+    fun layer(predicate: (Layer) -> Boolean): LayerSubject? =
+        subjects.firstOrNull { predicate(it.layer) }
 
     private fun getActivityRecordFor(layer: Layer): Layer? {
         if (layer.name.startsWith("ActivityRecord{")) {

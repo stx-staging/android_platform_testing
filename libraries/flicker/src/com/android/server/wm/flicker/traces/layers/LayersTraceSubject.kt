@@ -20,7 +20,6 @@ import com.android.server.wm.flicker.assertions.Assertion
 import com.android.server.wm.flicker.assertions.Fact
 import com.android.server.wm.flicker.traces.FlickerTraceSubject
 import com.android.server.wm.flicker.traces.region.RegionTraceSubject
-import com.android.server.wm.traces.common.Timestamp
 import com.android.server.wm.traces.common.component.matchers.ComponentNameMatcher
 import com.android.server.wm.traces.common.component.matchers.EdgeExtensionComponentMatcher
 import com.android.server.wm.traces.common.component.matchers.IComponentMatcher
@@ -83,23 +82,23 @@ class LayersTraceSubject(
 
     /** {@inheritDoc} */
     override fun layer(name: String, frameNumber: Long): LayerSubject {
-        return subjects.map { it.layer(name, frameNumber) }.firstOrNull { it.isNotEmpty }
-            ?: LayerSubject(
-                this,
-                timestamp = subjects.firstOrNull()?.entry?.timestamp ?: Timestamp.EMPTY,
-                null
-            )
+        val value = subjects.firstNotNullOfOrNull { it.layer(name, frameNumber) }
+        if (value == null) {
+            fail("Layer does not exist $name")
+        }
+        requireNotNull(value)
+        return value
     }
 
     /** @return List of [LayerSubject]s matching [name] in the order they appear on the trace */
     fun layers(name: String): List<LayerSubject> =
-        subjects.map { it.layer { layer -> layer.name.contains(name) } }.filter { it.isNotEmpty }
+        subjects.mapNotNull { it.layer { layer -> layer.name.contains(name) } }
 
     /**
      * @return List of [LayerSubject]s matching [predicate] in the order they appear on the trace
      */
     fun layers(predicate: (Layer) -> Boolean): List<LayerSubject> =
-        subjects.map { it.layer { layer -> predicate(layer) } }.filter { it.isNotEmpty }
+        subjects.mapNotNull { it.layer { layer -> predicate(layer) } }
 
     /** Checks that all visible layers are shown for more than one consecutive entry */
     @JvmOverloads

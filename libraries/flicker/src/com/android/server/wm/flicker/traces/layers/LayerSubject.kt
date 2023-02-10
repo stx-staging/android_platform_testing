@@ -16,7 +16,6 @@
 package com.android.server.wm.flicker.traces.layers
 
 import android.graphics.Point
-import com.android.server.wm.flicker.assertions.Assertion
 import com.android.server.wm.flicker.assertions.Fact
 import com.android.server.wm.flicker.assertions.FlickerSubject
 import com.android.server.wm.flicker.traces.region.RegionSubject
@@ -46,54 +45,33 @@ import com.android.server.wm.traces.common.layers.Layer
 class LayerSubject(
     public override val parent: FlickerSubject,
     override val timestamp: Timestamp,
-    val layer: Layer?,
-    private val layerName: String? = null
+    val layer: Layer
 ) : FlickerSubject() {
-    val isEmpty: Boolean
-        get() = layer == null
-    val isNotEmpty: Boolean
-        get() = !isEmpty
     val isVisible: Boolean
-        get() = layer?.isVisible == true
+        get() = layer.isVisible
     val isInvisible: Boolean
-        get() = layer?.isVisible == false
+        get() = !layer.isVisible
     val name: String
-        get() = layer?.name ?: ""
+        get() = layer.name
 
     /** Visible region calculated by the Composition Engine */
     val visibleRegion: RegionSubject
-        get() = RegionSubject(layer?.visibleRegion, this, timestamp)
+        get() = RegionSubject(layer.visibleRegion, this, timestamp)
 
     val visibilityReason: Array<String>
-        get() = layer?.visibilityReason ?: emptyArray()
+        get() = layer.visibilityReason
 
     /**
      * Visible region calculated by the Composition Engine (when available) or calculated based on
      * the layer bounds and transform
      */
     val screenBounds: RegionSubject
-        get() = RegionSubject(layer?.screenBounds, this, timestamp)
+        get() = RegionSubject(layer.screenBounds, this, timestamp)
 
-    override val selfFacts =
-        if (layer != null) {
-            listOf(Fact("Frame", layer.currFrame), Fact("Layer", layer.name))
-        } else {
-            listOf(Fact("Layer name", layerName))
-        }
+    override val selfFacts = listOf(Fact("Frame", layer.currFrame), Fact("Layer", layer.name))
 
     /** If the [layer] exists, executes a custom [assertion] on the current subject */
-    operator fun invoke(assertion: Assertion<Layer>): LayerSubject = apply {
-        layer ?: return exists()
-        assertion(this.layer)
-    }
-
-    /** Asserts that current subject doesn't exist in the layer hierarchy */
-    fun doesNotExist(): LayerSubject = apply {
-        check { "Layer does not exist ${layer?.name}" }.that(layer).isEqual(null)
-    }
-
-    /** Asserts that current subject exists in the layer hierarchy */
-    fun exists(): LayerSubject = apply { check { "Layer exists" }.that(layer).isNotEqual(null) }
+    operator fun invoke(assertion: (Layer) -> Unit): LayerSubject = apply { assertion(this.layer) }
 
     @Deprecated("Prefer hasBufferSize(bounds)")
     fun hasBufferSize(expected: Point): LayerSubject = apply {
@@ -108,7 +86,6 @@ class LayerSubject(
      * @param expected expected buffer size
      */
     fun hasBufferSize(expected: Size): LayerSubject = apply {
-        layer ?: return exists()
         val bufferSize = Size.from(layer.activeBuffer.width, layer.activeBuffer.height)
         check { "Buffer size" }.that(bufferSize).isEqual(expected)
     }
@@ -120,7 +97,6 @@ class LayerSubject(
      * @param size expected layer bounds size
      */
     fun hasLayerSize(size: Point): LayerSubject = apply {
-        layer ?: return exists()
         val layerSize = Point(layer.screenBounds.width.toInt(), layer.screenBounds.height.toInt())
         check { "Number of layers" }.that(layerSize).isEqual(size)
     }
@@ -130,7 +106,6 @@ class LayerSubject(
      * [expectedScalingMode]
      */
     fun hasScalingMode(expectedScalingMode: Int): LayerSubject = apply {
-        layer ?: return exists()
         val actualScalingMode = layer.effectiveScalingMode
         check(actualScalingMode == expectedScalingMode) {
             "Scaling mode. Actual: $actualScalingMode, expected: $expectedScalingMode"
@@ -142,7 +117,6 @@ class LayerSubject(
      * [expectedOrientation]
      */
     fun hasBufferOrientation(expectedOrientation: Int): LayerSubject = apply {
-        layer ?: return exists()
         // see Transform::getOrientation
         val bufferTransformType = layer.bufferTransform.type ?: 0
         val actualOrientation = (bufferTransformType shr 8) and 0xFF
@@ -152,6 +126,6 @@ class LayerSubject(
     }
 
     override fun toString(): String {
-        return "Layer:${layer?.name} frame#${layer?.currFrame}"
+        return "Layer:${layer.name} frame#${layer.currFrame}"
     }
 }

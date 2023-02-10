@@ -373,10 +373,12 @@ class LayerTraceEntrySubjectTest {
         val simpleActivityMatcher =
             ComponentNameMatcher(defaultPkg, "$defaultPkg.SimpleActivity#66086")
         val imeActivityMatcher = ComponentNameMatcher(defaultPkg, "$defaultPkg.ImeActivity#66060")
-        val simpleActivitySubject = entry.layer(simpleActivityMatcher)
-        val imeActivitySubject = entry.layer(imeActivityMatcher)
-        val simpleActivityLayer = simpleActivitySubject.layer ?: error("Layer should be available")
-        val imeActivityLayer = imeActivitySubject.layer ?: error("Layer should be available")
+        val simpleActivitySubject =
+            entry.layer(simpleActivityMatcher) ?: error("Layer should be available")
+        val imeActivitySubject =
+            entry.layer(imeActivityMatcher) ?: error("Layer should be available")
+        val simpleActivityLayer = simpleActivitySubject.layer
+        val imeActivityLayer = imeActivitySubject.layer
         // both layers have the same region
         imeActivitySubject.visibleRegion.coversExactly(simpleActivitySubject.visibleRegion.region)
         // both are visible
