@@ -18,6 +18,7 @@ package com.android.server.wm.flicker.service
 
 import android.app.Instrumentation
 import androidx.test.platform.app.InstrumentationRegistry
+import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.assertArchiveContainsFiles
 import com.android.server.wm.flicker.getDefaultFlickerOutputDir
 import com.android.server.wm.flicker.helpers.BrowserAppHelper
@@ -26,6 +27,7 @@ import com.android.server.wm.traces.parser.windowmanager.WindowManagerStateHelpe
 import com.google.common.truth.Truth
 import org.junit.Assume
 import org.junit.Before
+import org.junit.ClassRule
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
@@ -97,5 +99,7 @@ class FlickerServiceTracesCollectorTest {
                 "transition_trace.winscope",
                 "eventlog.winscope"
             )
+
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

@@ -18,12 +18,14 @@ package com.android.server.wm.flicker.service
 
 import android.app.Instrumentation
 import androidx.test.platform.app.InstrumentationRegistry
+import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.io.IReader
 import com.android.server.wm.flicker.service.assertors.IFaasAssertion
 import com.android.server.wm.flicker.service.assertors.factories.IAssertionFactory
 import com.android.server.wm.flicker.service.assertors.runners.IAssertionRunner
 import com.android.server.wm.flicker.service.extractors.IScenarioExtractor
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerStateHelper
+import org.junit.ClassRule
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
@@ -93,4 +95,8 @@ class FlickerServiceTest {
     fun <T> capture(argumentCaptor: ArgumentCaptor<T>): T = argumentCaptor.capture()
 
     inline fun <reified T : Any> argumentCaptor() = ArgumentCaptor.forClass(T::class.java)
+
+    companion object {
+        @ClassRule @JvmField val initRule = InitRule()
+    }
 }

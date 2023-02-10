@@ -17,8 +17,10 @@
 package com.android.server.wm.flicker.io
 
 import android.annotation.SuppressLint
+import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.AssertionTag
 import com.google.common.truth.Truth
+import org.junit.ClassRule
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
@@ -128,5 +130,7 @@ class ResultArtifactDescriptorTest {
 
     companion object {
         private const val TEST_TAG = "testTag"
+
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

@@ -22,6 +22,7 @@ import android.os.SystemClock
 import android.view.WindowManagerGlobal
 import androidx.test.platform.app.InstrumentationRegistry
 import com.android.compatibility.common.util.SystemUtil
+import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
 import com.android.server.wm.flicker.IFlickerTestData
 import com.android.server.wm.flicker.RunStatus
@@ -35,6 +36,7 @@ import com.android.server.wm.flicker.monitor.ITransitionMonitor
 import com.google.common.truth.Truth
 import org.junit.After
 import org.junit.Before
+import org.junit.ClassRule
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
@@ -222,5 +224,7 @@ class TransitionRunnerTest {
 
     companion object {
         private val instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation()
+
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

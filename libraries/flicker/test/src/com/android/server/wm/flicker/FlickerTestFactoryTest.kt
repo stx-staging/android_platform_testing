@@ -16,8 +16,10 @@
 
 package com.android.server.wm.flicker
 
+import com.android.server.wm.InitRule
 import com.android.server.wm.traces.common.service.PlatformConsts
 import com.google.common.truth.Truth
+import org.junit.ClassRule
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
@@ -59,5 +61,9 @@ class FlickerTestFactoryTest {
         Truth.assertWithMessage("Flicker should create tests for 0/90/180/270 degrees")
             .that(actual)
             .hasSize(24)
+    }
+
+    companion object {
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

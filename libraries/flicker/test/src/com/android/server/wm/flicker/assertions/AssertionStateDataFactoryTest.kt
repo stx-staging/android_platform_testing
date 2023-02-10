@@ -16,12 +16,13 @@
 
 package com.android.server.wm.flicker.assertions
 
-import com.android.server.wm.flicker.AssertionTag
+import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.traces.eventlog.EventLogSubject
 import com.android.server.wm.flicker.traces.layers.LayerTraceEntrySubject
 import com.android.server.wm.flicker.traces.windowmanager.WindowManagerStateSubject
 import com.google.common.truth.Truth
 import kotlin.reflect.KClass
+import org.junit.ClassRule
 import org.junit.Test
 
 /** Tests for [AssertionStateDataFactory] */
@@ -99,5 +100,6 @@ open class AssertionStateDataFactoryTest {
 
     companion object {
         internal const val TAG = "tag"
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

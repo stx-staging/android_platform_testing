@@ -16,12 +16,14 @@
 
 package com.android.server.wm.flicker.region
 
+import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.assertThrows
 import com.android.server.wm.flicker.traces.FlickerSubjectException
 import com.android.server.wm.flicker.traces.region.RegionSubject
 import com.android.server.wm.traces.common.Rect
 import com.android.server.wm.traces.common.Timestamp
 import com.google.common.truth.Truth
+import org.junit.ClassRule
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
@@ -154,5 +156,9 @@ class RegionSubjectTest {
         assertFail("SkRegion((1,1,2,2))") {
             RegionSubject(rectA, timestamp = Timestamp.EMPTY).notOverlaps(rectC)
         }
+    }
+
+    companion object {
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

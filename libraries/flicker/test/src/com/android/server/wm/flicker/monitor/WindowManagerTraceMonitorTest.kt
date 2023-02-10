@@ -16,9 +16,11 @@
 
 package com.android.server.wm.flicker.monitor
 
+import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.io.TraceType
 import com.android.server.wm.nano.WindowManagerTraceFileProto
 import com.google.common.truth.Truth
+import org.junit.ClassRule
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
@@ -50,5 +52,9 @@ class WindowManagerTraceMonitorTest : TraceMonitorTest<WindowManagerTraceMonitor
         }
 
         Truth.assertWithMessage("Could not obtain WM trace").that(trace.entries).isNotEmpty()
+    }
+
+    companion object {
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

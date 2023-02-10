@@ -16,6 +16,7 @@
 
 package com.android.server.wm.flicker.io
 
+import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
 import com.android.server.wm.flicker.RunStatus
 import com.android.server.wm.flicker.TestTraces
@@ -29,6 +30,7 @@ import com.android.server.wm.traces.common.Timestamp
 import com.google.common.truth.Truth
 import java.io.File
 import org.junit.Before
+import org.junit.ClassRule
 import org.junit.Test
 
 /** Base class for [ResultReader] tests parsing traces */
@@ -112,5 +114,9 @@ abstract class BaseResultReaderTestParseTrace {
                 doParse(reader) ?: error("$traceName not built")
             }
         assertExceptionMessage(exception, invalidSizeMessage)
+    }
+
+    companion object {
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

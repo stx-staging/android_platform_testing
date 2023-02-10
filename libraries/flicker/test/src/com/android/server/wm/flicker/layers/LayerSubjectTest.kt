@@ -16,6 +16,7 @@
 
 package com.android.server.wm.flicker.layers
 
+import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.readLayerTraceFromFile
 import com.android.server.wm.flicker.traces.layers.LayerSubject
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
@@ -23,6 +24,7 @@ import com.android.server.wm.traces.common.Cache
 import com.android.server.wm.traces.common.Size
 import com.google.common.truth.Truth
 import org.junit.Before
+import org.junit.ClassRule
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
@@ -51,5 +53,9 @@ class LayerSubjectTest {
             .layer("SoundVizWallpaperV2", 26033)
             .hasBufferSize(Size.from(1440, 2960))
             .hasScalingMode(0)
+    }
+
+    companion object {
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

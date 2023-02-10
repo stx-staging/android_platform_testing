@@ -3,6 +3,7 @@ package com.android.server.wm.flicker.monitor
 import android.os.SystemClock
 import android.util.EventLog
 import com.android.internal.jank.EventLogTags
+import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
 import com.android.server.wm.flicker.io.ResultReader
 import com.android.server.wm.flicker.io.TraceType
@@ -15,6 +16,7 @@ import com.android.server.wm.traces.common.events.FocusEvent
 import com.google.common.truth.Truth
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.ClassRule
 import org.junit.Test
 
 /**
@@ -394,5 +396,7 @@ class EventLogMonitorTest : TraceMonitorTest<EventLogMonitor>() {
 
     private companion object {
         const val INPUT_FOCUS_TAG = 62001
+
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

@@ -17,6 +17,7 @@
 package com.android.server.wm.flicker
 
 import android.annotation.SuppressLint
+import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.datastore.CachedResultReader
 import com.android.server.wm.flicker.datastore.DataStore
 import com.android.server.wm.flicker.io.ResultReader
@@ -24,6 +25,7 @@ import com.android.server.wm.flicker.io.TraceType
 import com.google.common.truth.Truth
 import java.io.File
 import org.junit.Before
+import org.junit.ClassRule
 import org.junit.Test
 
 /** Tests for [FlickerTest] */
@@ -230,5 +232,9 @@ class FlickerTestTest {
         predicate.invoke(flickerWrapper)
 
         Truth.assertWithMessage("Executed").that(executionCount).isEqualTo(expectedExecutionCount)
+    }
+
+    companion object {
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

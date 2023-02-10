@@ -17,6 +17,7 @@
 package com.android.server.wm.flicker.assertions
 
 import android.annotation.SuppressLint
+import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.AssertionTag
 import com.android.server.wm.flicker.RunStatus
 import com.android.server.wm.flicker.assertExceptionMessage
@@ -28,6 +29,7 @@ import com.android.server.wm.flicker.outputFileName
 import com.android.server.wm.flicker.traces.eventlog.EventLogSubject
 import com.google.common.truth.Truth
 import org.junit.Before
+import org.junit.ClassRule
 import org.junit.Test
 
 /**
@@ -135,5 +137,7 @@ class ArtifactAssertionRunnerTest {
             monitor.stop(writer)
             return writer.write()
         }
+
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

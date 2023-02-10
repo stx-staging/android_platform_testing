@@ -18,12 +18,14 @@ package com.android.server.wm.parser.windowmanager
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
+import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.monitor.WindowManagerTraceMonitor
 import com.android.server.wm.flicker.readAsset
 import com.android.server.wm.traces.common.Cache
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerTraceParser
 import com.google.common.truth.Truth
 import org.junit.Before
+import org.junit.ClassRule
 import org.junit.Test
 
 /** Tests for [WindowManagerTraceParser] */
@@ -56,5 +58,9 @@ class WindowManagerTraceParserTest {
             }
         val trace = WindowManagerTraceParser().parse(data, clearCache = false)
         Truth.assertThat(trace.entries).asList().isNotEmpty()
+    }
+
+    companion object {
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

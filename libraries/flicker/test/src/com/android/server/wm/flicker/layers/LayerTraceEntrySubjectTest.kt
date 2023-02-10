@@ -16,6 +16,7 @@
 
 package com.android.server.wm.flicker.layers
 
+import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.TestComponents
 import com.android.server.wm.flicker.assertFailureFact
 import com.android.server.wm.flicker.assertThatErrorContainsDebugInfo
@@ -34,6 +35,7 @@ import com.android.server.wm.traces.common.component.matchers.OrComponentMatcher
 import com.android.server.wm.traces.common.region.Region
 import com.google.common.truth.Truth
 import org.junit.Before
+import org.junit.ClassRule
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
@@ -393,5 +395,9 @@ class LayerTraceEntrySubjectTest {
         Truth.assertWithMessage("IME activity has rounded corners")
             .that(imeActivityLayer.cornerRadius)
             .isGreaterThan(0)
+    }
+
+    companion object {
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

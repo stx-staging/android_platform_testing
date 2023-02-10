@@ -19,6 +19,7 @@ package com.android.server.wm.parser.windowmanager
 import android.annotation.SuppressLint
 import androidx.test.filters.FlakyTest
 import androidx.test.platform.app.InstrumentationRegistry
+import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.readWmTraceFromDumpFile
 import com.android.server.wm.flicker.readWmTraceFromFile
 import com.android.server.wm.flicker.traces.windowmanager.WindowManagerStateSubject
@@ -43,6 +44,7 @@ import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerStateHelper
 import com.google.common.truth.Truth
 import org.junit.Before
+import org.junit.ClassRule
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
@@ -389,5 +391,9 @@ class WindowManagerStateHelperTest {
         WindowManagerStateSubject(helper.wmState).isRecentsActivityInvisible()
         helper.StateSyncBuilder().withRecentsActivityVisible().waitFor()
         WindowManagerStateSubject(helper.wmState).isRecentsActivityVisible()
+    }
+
+    companion object {
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

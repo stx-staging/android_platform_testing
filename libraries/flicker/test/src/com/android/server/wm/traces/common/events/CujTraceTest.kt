@@ -16,8 +16,10 @@
 
 package com.android.server.wm.traces.common.events
 
+import com.android.server.wm.InitRule
 import com.android.server.wm.traces.common.Timestamp
 import com.google.common.truth.Truth
+import org.junit.ClassRule
 import org.junit.Test
 
 /** Tests for [CujTrace]. Run with `atest FlickerLibTest:CujTraceTest` */
@@ -146,5 +148,9 @@ class CujTraceTest {
 
     private fun createCujEvent(timestamp: Long, cuj: CujType, tag: String): CujEvent {
         return CujEvent(Timestamp(unixNanos = timestamp), cuj, 0, "root", 0, tag)
+    }
+
+    companion object {
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

@@ -17,8 +17,10 @@
 package com.android.server.wm.flicker.monitor
 
 import android.surfaceflinger.Layerstrace
+import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.io.TraceType
 import com.google.common.truth.Truth
+import org.junit.ClassRule
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
@@ -50,5 +52,9 @@ class LayersTraceMonitorTest : TraceMonitorTest<LayersTraceMonitor>() {
         }
 
         Truth.assertWithMessage("Could not obtain SF trace").that(trace.entries).isNotEmpty()
+    }
+
+    companion object {
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

@@ -17,6 +17,7 @@
 package com.android.server.wm.flicker.assertions
 
 import android.annotation.SuppressLint
+import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
 import com.android.server.wm.flicker.RunStatus
 import com.android.server.wm.flicker.assertThrows
@@ -26,6 +27,7 @@ import com.android.server.wm.flicker.newTestResultWriter
 import com.android.server.wm.flicker.outputFileName
 import java.io.FileNotFoundException
 import org.junit.Before
+import org.junit.ClassRule
 import org.junit.Test
 
 /** Tests for [SubjectsParser] */
@@ -44,5 +46,9 @@ class SubjectsParserTest {
         assertThrows<FileNotFoundException> {
             parser.readTransitionsTraceForTesting() ?: error("Should have failed")
         }
+    }
+
+    companion object {
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

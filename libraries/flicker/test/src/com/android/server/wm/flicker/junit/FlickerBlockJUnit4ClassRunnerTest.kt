@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.app.Instrumentation
 import androidx.test.filters.FlakyTest
 import androidx.test.platform.app.InstrumentationRegistry
+import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.FlickerBuilder
 import com.android.server.wm.flicker.FlickerTest
 import com.android.server.wm.flicker.FlickerTestFactory
@@ -30,6 +31,7 @@ import com.android.server.wm.flicker.helpers.IS_FAAS_ENABLED
 import com.android.server.wm.flicker.helpers.isShellTransitionsEnabled
 import com.google.common.truth.Truth
 import org.junit.Assume
+import org.junit.ClassRule
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runner.Description
@@ -326,5 +328,7 @@ class FlickerBlockJUnit4ClassRunnerTest {
         private fun createRunner(baseTest: TestWithParameters) =
             FlickerParametersRunnerFactory().createRunnerForTestWithParameters(baseTest)
                 as FlickerBlockJUnit4ClassRunner
+
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

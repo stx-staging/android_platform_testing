@@ -17,6 +17,7 @@
 package com.android.server.wm.parser
 
 import androidx.test.platform.app.InstrumentationRegistry
+import com.android.server.wm.InitRule
 import com.android.server.wm.traces.common.NullableDeviceStateDump
 import com.android.server.wm.traces.parser.FLAG_STATE_DUMP_FLAG_LAYERS
 import com.android.server.wm.traces.parser.FLAG_STATE_DUMP_FLAG_WM
@@ -24,6 +25,7 @@ import com.android.server.wm.traces.parser.WmStateDumpFlags
 import com.android.server.wm.traces.parser.getCurrentState
 import com.android.server.wm.traces.parser.getCurrentStateDumpNullable
 import com.google.common.truth.Truth
+import org.junit.ClassRule
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
@@ -90,5 +92,9 @@ class UiDeviceExtensionsTest {
             .hasSize(1)
         Truth.assertThat(currState.layerState?.asTrace()?.entries?.first()?.flattenedLayers)
             .isNotEmpty()
+    }
+
+    companion object {
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

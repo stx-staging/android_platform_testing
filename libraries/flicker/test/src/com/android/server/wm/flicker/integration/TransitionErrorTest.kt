@@ -16,6 +16,7 @@
 
 package com.android.server.wm.flicker.integration
 
+import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
 import com.android.server.wm.flicker.FlickerTest
 import com.android.server.wm.flicker.RunStatus
@@ -24,6 +25,7 @@ import com.android.server.wm.flicker.datastore.CachedResultReader
 import com.google.common.truth.Truth
 import org.junit.Before
 import org.junit.BeforeClass
+import org.junit.ClassRule
 import org.junit.Test
 
 class TransitionErrorTest {
@@ -76,5 +78,7 @@ class TransitionErrorTest {
         private const val WRONG_EXCEPTION = "Wrong exception"
 
         @BeforeClass @JvmStatic fun runTransition() = Utils.runTransition { error(Utils.FAILURE) }
+
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

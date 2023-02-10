@@ -17,6 +17,7 @@
 package com.android.server.wm.parser.windowmanager
 
 import androidx.test.platform.app.InstrumentationRegistry
+import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.readAsset
 import com.android.server.wm.traces.common.Cache
 import com.android.server.wm.traces.parser.FLAG_STATE_DUMP_FLAG_WM
@@ -24,6 +25,7 @@ import com.android.server.wm.traces.parser.getCurrentState
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerDumpParser
 import com.google.common.truth.Truth
 import org.junit.Before
+import org.junit.ClassRule
 import org.junit.Test
 
 /** Tests for [WindowManagerDumpParser] */
@@ -48,5 +50,9 @@ class WindowManagerDumpParserTest {
             )
         val trace = WindowManagerDumpParser().parse(data.first)
         Truth.assertWithMessage("Unable to parse dump").that(trace).hasSize(1)
+    }
+
+    companion object {
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

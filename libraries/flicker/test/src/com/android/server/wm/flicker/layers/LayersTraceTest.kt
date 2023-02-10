@@ -16,6 +16,7 @@
 
 package com.android.server.wm.flicker.layers
 
+import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.assertThatErrorContainsDebugInfo
 import com.android.server.wm.flicker.assertThrows
 import com.android.server.wm.flicker.readLayerTraceFromFile
@@ -26,6 +27,7 @@ import com.android.server.wm.traces.common.component.matchers.ComponentNameMatch
 import com.android.server.wm.traces.common.layers.LayersTrace
 import com.google.common.truth.Truth
 import org.junit.Before
+import org.junit.ClassRule
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
@@ -116,5 +118,9 @@ class LayersTraceTest {
         val error =
             assertThrows<AssertionError> { LayersTraceSubject(layersTraceEntries).isEmpty() }
         assertThatErrorContainsDebugInfo(error, withBlameEntry = false)
+    }
+
+    companion object {
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

@@ -17,11 +17,13 @@
 package com.android.server.wm.flicker.datastore
 
 import android.annotation.SuppressLint
+import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.TEST_SCENARIO
 import com.android.server.wm.flicker.assertExceptionMessage
 import com.android.server.wm.flicker.assertThrows
 import com.google.common.truth.Truth
 import org.junit.Before
+import org.junit.ClassRule
 import org.junit.Test
 
 @SuppressLint("VisibleForTests")
@@ -80,5 +82,9 @@ class DataStoreTest {
                 DataStore.replaceResult(TEST_SCENARIO, Consts.RESULT_FAILURE)
             }
         assertExceptionMessage(failure, TEST_SCENARIO.toString())
+    }
+
+    companion object {
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

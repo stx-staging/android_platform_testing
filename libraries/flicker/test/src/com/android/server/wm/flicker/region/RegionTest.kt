@@ -16,6 +16,7 @@
 
 package com.android.server.wm.flicker.region
 
+import com.android.server.wm.InitRule
 import com.android.server.wm.traces.common.Rect
 import com.android.server.wm.traces.common.region.Region
 import kotlin.random.Random
@@ -24,6 +25,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotSame
 import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.ClassRule
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
@@ -1780,5 +1782,9 @@ class RegionTest {
                 }
             }
         )
+    }
+
+    companion object {
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

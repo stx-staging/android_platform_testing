@@ -17,6 +17,7 @@
 package com.android.server.wm.flicker.io
 
 import android.annotation.SuppressLint
+import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
 import com.android.server.wm.flicker.RunStatus
 import com.android.server.wm.flicker.TEST_SCENARIO
@@ -31,6 +32,7 @@ import com.android.server.wm.traces.common.ScenarioBuilder
 import com.android.server.wm.traces.common.Timestamp
 import com.google.common.truth.Truth
 import java.io.File
+import org.junit.ClassRule
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
@@ -196,5 +198,7 @@ class ResultWriterTest {
                 .that(filePath.name)
                 .contains(status.prefix)
         }
+
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

@@ -16,6 +16,7 @@
 
 package com.android.server.wm.flicker.windowmanager
 
+import com.android.server.wm.InitRule
 import com.android.server.wm.traces.common.Timestamp
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTraceEntryBuilder
 import com.android.server.wm.traces.common.windowmanager.windows.ConfigurationContainer
@@ -23,6 +24,7 @@ import com.android.server.wm.traces.common.windowmanager.windows.KeyguardControl
 import com.android.server.wm.traces.common.windowmanager.windows.RootWindowContainer
 import com.android.server.wm.traces.common.windowmanager.windows.WindowContainer
 import com.google.common.truth.Truth
+import org.junit.ClassRule
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
@@ -111,5 +113,9 @@ class WindowManagerTraceEntryBuilderTest {
         Truth.assertThat(entry.timestamp.systemUptimeNanos)
             .isEqualTo(Timestamp.EMPTY.systemUptimeNanos)
         Truth.assertThat(entry.timestamp.unixNanos).isEqualTo(Timestamp.EMPTY.unixNanos)
+    }
+
+    companion object {
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

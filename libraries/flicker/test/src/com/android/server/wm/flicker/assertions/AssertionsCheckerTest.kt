@@ -16,12 +16,14 @@
 
 package com.android.server.wm.flicker.assertions
 
+import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.assertFailureFact
 import com.android.server.wm.flicker.assertThrows
 import com.android.server.wm.flicker.traces.FlickerSubjectException
 import com.android.server.wm.traces.common.ITraceEntry
 import com.android.server.wm.traces.common.Timestamp
 import com.google.common.truth.Truth
+import org.junit.ClassRule
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
@@ -174,5 +176,6 @@ class AssertionsCheckerTest {
             data.indices.map {
                 SimpleEntrySubject(SimpleEntry(Timestamp(elapsedNanos = it.toLong()), data[it]))
             }
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

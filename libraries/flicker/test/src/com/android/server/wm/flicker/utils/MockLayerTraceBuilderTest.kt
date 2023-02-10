@@ -16,8 +16,10 @@
 
 package com.android.server.wm.flicker.utils
 
+import com.android.server.wm.InitRule
 import com.android.server.wm.traces.common.Rect
 import com.google.common.truth.Truth
+import org.junit.ClassRule
 import org.junit.Test
 
 /**
@@ -80,5 +82,9 @@ class MockLayerTraceBuilderTest {
                 .build()
 
         Truth.assertThat(mockLayer.visibleRegion?.isEmpty ?: true).isTrue()
+    }
+
+    companion object {
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

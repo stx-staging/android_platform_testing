@@ -16,6 +16,7 @@
 
 package com.android.server.wm.flicker.windowmanager
 
+import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.readWmTraceFromFile
 import com.android.server.wm.traces.common.Cache
 import com.android.server.wm.traces.common.Timestamp
@@ -26,6 +27,7 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.lang.reflect.Modifier
 import org.junit.Before
+import org.junit.ClassRule
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
@@ -150,5 +152,9 @@ class WindowManagerTraceTest {
                 legacyTrace = true
             )
         assertThat(trace).isEmpty()
+    }
+
+    companion object {
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

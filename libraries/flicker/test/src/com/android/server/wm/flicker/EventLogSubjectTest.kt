@@ -16,12 +16,14 @@
 
 package com.android.server.wm.flicker
 
+import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.assertions.SubjectsParser
 import com.android.server.wm.flicker.io.ParsedTracesReader
 import com.android.server.wm.flicker.traces.eventlog.EventLogSubject
 import com.android.server.wm.traces.common.Timestamp
 import com.android.server.wm.traces.common.events.EventLog
 import com.android.server.wm.traces.common.events.FocusEvent
+import org.junit.ClassRule
 import org.junit.Test
 
 /**
@@ -92,5 +94,9 @@ class EventLogSubjectTest {
 
         val subject = subjectsParser.eventLogSubject ?: error("Event log subject not built")
         subject.focusDoesNotChange()
+    }
+
+    companion object {
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

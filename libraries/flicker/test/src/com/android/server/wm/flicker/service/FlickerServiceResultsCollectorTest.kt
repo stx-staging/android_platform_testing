@@ -17,6 +17,7 @@
 package com.android.server.wm.flicker.service
 
 import android.device.collectors.DataRecord
+import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.io.IReader
 import com.android.server.wm.flicker.io.ParsedTracesReader
 import com.android.server.wm.flicker.service.assertors.AssertionResult
@@ -28,6 +29,7 @@ import com.android.server.wm.flicker.utils.MockWindowManagerTraceBuilder
 import com.android.server.wm.traces.common.service.AssertionInvocationGroup
 import com.android.server.wm.traces.common.transition.TransitionsTrace
 import com.google.common.truth.Truth
+import org.junit.ClassRule
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runner.Description
@@ -206,5 +208,7 @@ class FlickerServiceResultsCollectorTest {
                 },
                 assertionError = null
             )
+
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

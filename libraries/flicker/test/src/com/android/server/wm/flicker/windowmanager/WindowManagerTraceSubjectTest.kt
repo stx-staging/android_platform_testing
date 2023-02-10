@@ -16,6 +16,7 @@
 
 package com.android.server.wm.flicker.windowmanager
 
+import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.TestComponents
 import com.android.server.wm.flicker.assertThatErrorContainsDebugInfo
 import com.android.server.wm.flicker.assertThrows
@@ -26,6 +27,7 @@ import com.android.server.wm.traces.common.Cache
 import com.android.server.wm.traces.common.component.matchers.ComponentNameMatcher
 import com.google.common.truth.Truth
 import org.junit.Before
+import org.junit.ClassRule
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
@@ -270,5 +272,9 @@ class WindowManagerTraceSubjectTest {
     fun canDetectAppOpenRecentsTablet() {
         val trace = readWmTraceFromFile("tablet/wm_trace_open_recents.winscope", legacyTrace = true)
         WindowManagerTraceSubject(trace).isRecentsActivityVisible().forAllEntries()
+    }
+
+    companion object {
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

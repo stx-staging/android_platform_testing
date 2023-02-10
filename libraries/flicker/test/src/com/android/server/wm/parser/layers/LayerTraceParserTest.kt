@@ -16,11 +16,13 @@
 
 package com.android.server.wm.parser.layers
 
+import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.readAsset
 import com.android.server.wm.traces.common.Cache
 import com.android.server.wm.traces.parser.layers.LayersTraceParser
 import com.google.common.truth.Truth
 import org.junit.Before
+import org.junit.ClassRule
 import org.junit.Test
 
 class LayerTraceParserTest {
@@ -48,5 +50,9 @@ class LayerTraceParserTest {
             .that(trace.first().displays)
             .asList()
             .isNotEmpty()
+    }
+
+    companion object {
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

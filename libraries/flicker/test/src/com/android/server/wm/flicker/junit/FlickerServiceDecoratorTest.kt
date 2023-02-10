@@ -17,6 +17,7 @@
 package com.android.server.wm.flicker.junit
 
 import android.annotation.SuppressLint
+import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.FlickerBuilder
 import com.android.server.wm.flicker.FlickerTest
 import com.android.server.wm.flicker.TEST_SCENARIO
@@ -25,6 +26,7 @@ import com.android.server.wm.flicker.helpers.isShellTransitionsEnabled
 import com.google.common.truth.Truth
 import kotlin.reflect.KClass
 import org.junit.Before
+import org.junit.ClassRule
 import org.junit.Test
 import org.junit.runners.model.TestClass
 import org.junit.runners.parameterized.TestWithParameters
@@ -153,5 +155,9 @@ class FlickerServiceDecoratorTest {
             .contains(
                 "Constructor should have a parameter of type ${FlickerTest::class.simpleName}"
             )
+    }
+
+    companion object {
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

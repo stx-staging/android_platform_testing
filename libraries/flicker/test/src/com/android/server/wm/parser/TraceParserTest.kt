@@ -16,11 +16,13 @@
 
 package com.android.server.wm.parser
 
+import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.utils.MockWindowManagerTraceBuilder
 import com.android.server.wm.flicker.utils.MockWindowStateBuilder
 import com.android.server.wm.traces.common.Timestamp
 import com.android.server.wm.traces.parser.AbstractTraceParser
 import com.google.common.truth.Truth
+import org.junit.ClassRule
 import org.junit.Test
 
 /** Tests for [AbstractTraceParser] (for trace slicing) */
@@ -275,5 +277,7 @@ class TraceParserTest {
                         )
                 )
                 .build()
+
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

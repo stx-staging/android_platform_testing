@@ -16,6 +16,7 @@
 
 package com.android.server.wm.flicker.service
 
+import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.helpers.isShellTransitionsEnabled
 import com.android.server.wm.flicker.runner.Consts
 import com.android.server.wm.flicker.runner.ExecutionError
@@ -29,6 +30,7 @@ import com.google.common.truth.Truth
 import org.junit.Assume
 import org.junit.AssumptionViolatedException
 import org.junit.Before
+import org.junit.ClassRule
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runner.Description
@@ -178,5 +180,7 @@ class FlickerServiceRuleTest {
                 assertionError = error
             )
         }
+
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

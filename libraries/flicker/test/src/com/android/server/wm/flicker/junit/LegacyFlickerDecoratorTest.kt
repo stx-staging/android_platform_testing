@@ -17,11 +17,13 @@
 package com.android.server.wm.flicker.junit
 
 import android.annotation.SuppressLint
+import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.FlickerTest
 import com.android.server.wm.flicker.datastore.DataStore
 import com.android.server.wm.traces.common.ScenarioBuilder
 import com.google.common.truth.Truth
 import org.junit.Before
+import org.junit.ClassRule
 import org.junit.Test
 import org.junit.runners.model.FrameworkMethod
 import org.junit.runners.model.TestClass
@@ -76,5 +78,9 @@ class LegacyFlickerDecoratorTest {
         Truth.assertWithMessage("In Datastore")
             .that(DataStore.containsResult(TestUtils.DummyTestClassValid.SCENARIO))
             .isTrue()
+    }
+
+    companion object {
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

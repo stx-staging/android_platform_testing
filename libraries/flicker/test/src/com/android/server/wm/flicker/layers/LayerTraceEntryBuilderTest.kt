@@ -16,9 +16,11 @@
 
 package com.android.server.wm.flicker.layers
 
+import com.android.server.wm.InitRule
 import com.android.server.wm.traces.common.Timestamp
 import com.android.server.wm.traces.common.layers.LayerTraceEntryBuilder
 import com.google.common.truth.Truth
+import org.junit.ClassRule
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
@@ -63,5 +65,9 @@ class LayerTraceEntryBuilderTest {
         Truth.assertThat(entry.timestamp.elapsedNanos).isEqualTo(Timestamp.EMPTY.elapsedNanos)
         Truth.assertThat(entry.timestamp.systemUptimeNanos).isEqualTo(100)
         Truth.assertThat(entry.timestamp.unixNanos).isEqualTo(Timestamp.EMPTY.unixNanos)
+    }
+
+    companion object {
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

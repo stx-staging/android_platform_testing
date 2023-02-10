@@ -24,6 +24,7 @@ import android.os.SystemClock
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import com.android.compatibility.common.util.SystemUtil
+import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
 import com.android.server.wm.flicker.getDefaultFlickerOutputDir
 import com.android.server.wm.flicker.io.ResultReader
@@ -32,6 +33,7 @@ import com.android.server.wm.flicker.newTestResultWriter
 import com.google.common.truth.Truth
 import org.junit.After
 import org.junit.Before
+import org.junit.ClassRule
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
@@ -122,6 +124,8 @@ class ScreenRecorderTest {
                 0x32,
                 0x23
             ) // "#VV1NSC0PET1ME2#"
+
+        @ClassRule @JvmField val initRule = InitRule()
     }
 
     internal class ScreenRecorderSeekableInputReader(private val bytes: ByteArray) :

@@ -17,6 +17,7 @@
 package com.android.server.wm.flicker.layers
 
 import androidx.test.filters.FlakyTest
+import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.TestComponents
 import com.android.server.wm.flicker.assertFailureFact
 import com.android.server.wm.flicker.assertThrows
@@ -29,6 +30,7 @@ import com.android.server.wm.traces.common.layers.LayersTrace
 import com.android.server.wm.traces.common.region.Region
 import com.google.common.truth.Truth
 import org.junit.Before
+import org.junit.ClassRule
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
@@ -347,5 +349,7 @@ class LayersTraceSubjectTest {
             ComponentNameMatcher(SHELL_APP_PACKAGE, "$SHELL_APP_PACKAGE.FixedActivity")
         private val PIP_APP =
             ComponentNameMatcher(SHELL_APP_PACKAGE, "$SHELL_APP_PACKAGE.PipActivity")
+
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

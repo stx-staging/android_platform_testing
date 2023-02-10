@@ -18,6 +18,7 @@ package com.android.server.wm.flicker.runner
 
 import android.app.Instrumentation
 import androidx.test.platform.app.InstrumentationRegistry
+import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.TEST_SCENARIO
 import com.android.server.wm.flicker.assertThrows
 import com.android.server.wm.flicker.io.ResultWriter
@@ -25,6 +26,7 @@ import com.android.server.wm.flicker.monitor.ITransitionMonitor
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerStateHelper
 import com.google.common.truth.Truth
 import org.junit.Before
+import org.junit.ClassRule
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
@@ -140,5 +142,7 @@ class TraceMonitorRuleTest {
                     onSetResult(writer)
                 }
             }
+
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

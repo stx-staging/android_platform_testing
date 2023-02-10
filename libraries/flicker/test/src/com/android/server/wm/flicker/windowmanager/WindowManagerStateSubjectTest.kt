@@ -16,6 +16,7 @@
 
 package com.android.server.wm.flicker.windowmanager
 
+import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.TestComponents
 import com.android.server.wm.flicker.assertFailureFact
 import com.android.server.wm.flicker.assertThatErrorContainsDebugInfo
@@ -36,6 +37,7 @@ import com.android.server.wm.traces.common.windowmanager.windows.RootWindowConta
 import com.android.server.wm.traces.common.windowmanager.windows.WindowContainer
 import com.google.common.truth.Truth
 import org.junit.Before
+import org.junit.ClassRule
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
@@ -464,5 +466,9 @@ class WindowManagerStateSubjectTest {
     fun canDetectInvisibleWindowBecauseActivityIsInvisible() {
         val entry = WindowManagerTraceSubject(trace).getEntryByElapsedTimestamp(9215551505798L)
         entry.isAppWindowInvisible(TestComponents.CHROME_SPLASH_SCREEN)
+    }
+
+    companion object {
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

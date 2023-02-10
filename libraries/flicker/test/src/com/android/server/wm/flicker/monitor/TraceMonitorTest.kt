@@ -19,6 +19,7 @@ package com.android.server.wm.flicker.monitor
 import android.app.Instrumentation
 import android.support.test.uiautomator.UiDevice
 import androidx.test.platform.app.InstrumentationRegistry
+import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
 import com.android.server.wm.flicker.RunStatus
 import com.android.server.wm.flicker.deleteIfExists
@@ -31,6 +32,7 @@ import com.android.server.wm.traces.parser.DeviceDumpParser
 import com.google.common.truth.Truth
 import org.junit.After
 import org.junit.Before
+import org.junit.ClassRule
 import org.junit.Test
 
 abstract class TraceMonitorTest<T : TransitionMonitor> {
@@ -126,5 +128,9 @@ abstract class TraceMonitorTest<T : TransitionMonitor> {
 
         val dump = DeviceDumpParser.fromTrace(trace.first, trace.second, clearCache = true)
         this.validateTrace(dump)
+    }
+
+    companion object {
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

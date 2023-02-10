@@ -16,7 +16,7 @@
 
 package com.android.server.wm.flicker.assertions
 
-import com.android.server.wm.flicker.AssertionTag
+import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
 import com.android.server.wm.flicker.RunStatus
 import com.android.server.wm.flicker.deleteIfExists
@@ -30,6 +30,7 @@ import com.android.server.wm.traces.common.Timestamp
 import com.google.common.truth.Truth
 import java.io.File
 import org.junit.Before
+import org.junit.ClassRule
 import org.junit.Test
 
 abstract class BaseSubjectsParserTestParse {
@@ -103,5 +104,9 @@ abstract class BaseSubjectsParserTestParse {
         Truth.assertWithMessage("$subjectName - $tag")
             .that(getTime(subject.timestamp))
             .isEqualTo(getTime(expectedTime))
+    }
+
+    companion object {
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.app.Instrumentation
 import android.os.SystemClock
 import androidx.test.platform.app.InstrumentationRegistry
+import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.AbstractFlickerTestData
 import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
 import com.android.server.wm.flicker.IFlickerTestData
@@ -33,6 +34,7 @@ import com.android.server.wm.flicker.newTestResultWriter
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerStateHelper
 import com.google.common.truth.Truth
 import org.junit.Before
+import org.junit.ClassRule
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
@@ -200,5 +202,7 @@ class TransitionExecutionRuleTest {
                 WindowManagerStateHelper()
             )
         }
+
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }

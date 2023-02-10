@@ -17,12 +17,14 @@
 package com.android.server.wm.flicker.datastore
 
 import android.annotation.SuppressLint
+import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.TEST_SCENARIO
 import com.android.server.wm.flicker.assertExceptionMessage
 import com.android.server.wm.flicker.assertThrows
 import com.android.server.wm.flicker.newTestCachedResultWriter
 import com.google.common.truth.Truth
 import org.junit.Before
+import org.junit.ClassRule
 import org.junit.Test
 
 /** Tests for [CachedResultWriterTest] */
@@ -56,5 +58,9 @@ class CachedResultWriterTest {
             .that(DataStore.containsResult(TEST_SCENARIO))
             .isTrue()
         assertExceptionMessage(failure, TEST_SCENARIO.toString())
+    }
+
+    companion object {
+        @ClassRule @JvmField val initRule = InitRule()
     }
 }
