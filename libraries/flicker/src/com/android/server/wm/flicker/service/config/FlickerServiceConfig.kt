@@ -17,7 +17,7 @@
 package com.android.server.wm.flicker.service.config
 
 import com.android.server.wm.flicker.service.assertors.IAssertionTemplate
-import com.android.server.wm.flicker.service.config.AssertionTemplates.APP_CLOSE_ASSERTIONS
+import com.android.server.wm.flicker.service.config.AssertionTemplates.APP_CLOSE_TO_HOME_ASSERTIONS
 import com.android.server.wm.flicker.service.config.AssertionTemplates.APP_LAUNCH_FROM_HOME_ASSERTIONS
 import com.android.server.wm.flicker.service.config.AssertionTemplates.APP_LAUNCH_FROM_NOTIFICATION_ASSERTIONS
 import com.android.server.wm.flicker.service.config.AssertionTemplates.COMMON_ASSERTIONS
@@ -59,7 +59,7 @@ object FlickerServiceConfig {
                             type,
                             transitionMatcher = TransitionMatcher(CLOSE_APP_TO_LAUNCHER_FILTER)
                         ),
-                    assertionTemplates = APP_CLOSE_ASSERTIONS
+                    assertionTemplates = APP_CLOSE_TO_HOME_ASSERTIONS
                 )
             FaasScenarioType.NOTIFICATION_APP_START ->
                 ScenarioConfig(

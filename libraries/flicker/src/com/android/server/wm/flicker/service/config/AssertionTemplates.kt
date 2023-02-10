@@ -75,6 +75,18 @@ object AssertionTemplates {
                 AppWindowBecomesTopWindow(Components.OPENING_APP),
             )
 
+    val APP_CLOSE_ASSERTIONS =
+        COMMON_ASSERTIONS +
+            listOf(
+                AppLayerIsVisibleAtStart(Components.CLOSING_APP),
+                AppLayerIsInvisibleAtEnd(Components.CLOSING_APP),
+                AppWindowIsVisibleAtStart(Components.CLOSING_APP),
+                AppWindowIsInvisibleAtEnd(Components.CLOSING_APP),
+                AppLayerBecomesInvisible(Components.CLOSING_APP),
+                AppWindowBecomesInvisible(Components.CLOSING_APP),
+                AppWindowIsTopWindowAtStart(Components.CLOSING_APP),
+            )
+
     val APP_LAUNCH_FROM_HOME_ASSERTIONS =
         APP_LAUNCH_ASSERTIONS +
             listOf(
@@ -82,13 +94,14 @@ object AssertionTemplates {
                 AppLayerIsInvisibleAtEnd(Components.LAUNCHER),
             )
 
-    val APP_CLOSE_ASSERTIONS =
-        COMMON_ASSERTIONS +
+    val APP_CLOSE_TO_HOME_ASSERTIONS =
+        APP_CLOSE_ASSERTIONS +
             listOf(
-                AppLayerIsVisibleAtStart(Components.CLOSING_APP),
                 AppLayerIsInvisibleAtStart(Components.LAUNCHER),
-                AppLayerIsInvisibleAtEnd(Components.CLOSING_APP),
                 AppLayerIsVisibleAtEnd(Components.LAUNCHER),
+                AppWindowIsInvisibleAtStart(Components.LAUNCHER),
+                AppWindowIsVisibleAtEnd(Components.LAUNCHER),
+                AppWindowBecomesTopWindow(Components.LAUNCHER),
             )
 
     val APP_LAUNCH_FROM_NOTIFICATION_ASSERTIONS =
