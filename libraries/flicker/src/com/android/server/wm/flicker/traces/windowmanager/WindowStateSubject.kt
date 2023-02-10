@@ -16,10 +16,10 @@
 
 package com.android.server.wm.flicker.traces.windowmanager
 
-import com.android.server.wm.flicker.assertions.Fact
 import com.android.server.wm.flicker.assertions.FlickerSubject
 import com.android.server.wm.flicker.traces.region.RegionSubject
 import com.android.server.wm.traces.common.Timestamp
+import com.android.server.wm.traces.common.assertions.Fact
 import com.android.server.wm.traces.common.windowmanager.windows.WindowState
 
 /**

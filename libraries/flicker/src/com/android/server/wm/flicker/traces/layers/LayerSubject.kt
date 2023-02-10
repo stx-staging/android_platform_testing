@@ -16,11 +16,11 @@
 package com.android.server.wm.flicker.traces.layers
 
 import android.graphics.Point
-import com.android.server.wm.flicker.assertions.Fact
 import com.android.server.wm.flicker.assertions.FlickerSubject
 import com.android.server.wm.flicker.traces.region.RegionSubject
 import com.android.server.wm.traces.common.Size
 import com.android.server.wm.traces.common.Timestamp
+import com.android.server.wm.traces.common.assertions.Fact
 import com.android.server.wm.traces.common.layers.Layer
 
 /**

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.assertions
+package com.android.server.wm.traces.common.assertions
 
 /** A string key-value pair in a failure message, such as "expected: abc" or "but was: xyz." */
 data class Fact(val key: String, val value: String) {
@@ -22,6 +22,6 @@ data class Fact(val key: String, val value: String) {
     constructor(key: String, value: Any? = null) : this(key, "$value")
 
     override fun toString(): String {
-        return if (value == null) key else "$key: $value"
+        return if (value.isEmpty()) key else "$key: $value"
     }
 }

@@ -19,6 +19,7 @@ package com.android.server.wm.flicker.assertions
 import androidx.annotation.VisibleForTesting
 import com.android.server.wm.flicker.traces.FlickerSubjectException
 import com.android.server.wm.traces.common.Timestamp
+import com.android.server.wm.traces.common.assertions.Fact
 
 /** Base subject for flicker assertions */
 abstract class FlickerSubject {
@@ -87,7 +88,7 @@ abstract class FlickerSubject {
     }
 
     fun check(lazyMessage: () -> String): CheckSubjectBuilder {
-        return CheckSubjectBuilder(lazyMessage, this)
+        return CheckSubjectBuilder(this, lazyMessage)
     }
 
     companion object {

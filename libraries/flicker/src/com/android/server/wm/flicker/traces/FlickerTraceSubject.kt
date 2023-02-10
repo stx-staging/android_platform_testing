@@ -17,10 +17,10 @@
 package com.android.server.wm.flicker.traces
 
 import com.android.server.wm.flicker.assertions.AssertionsChecker
-import com.android.server.wm.flicker.assertions.Fact
 import com.android.server.wm.flicker.assertions.FlickerSubject
 import com.android.server.wm.flicker.helpers.format
 import com.android.server.wm.traces.common.Timestamp
+import com.android.server.wm.traces.common.assertions.Fact
 
 /** Base subject for flicker trace assertions */
 abstract class FlickerTraceSubject<EntrySubject : FlickerSubject> : FlickerSubject() {

@@ -16,9 +16,9 @@
 
 package com.android.server.wm.flicker.traces.layers
 
-import com.android.server.wm.flicker.assertions.Fact
 import com.android.server.wm.flicker.assertions.FlickerSubject
 import com.android.server.wm.flicker.traces.region.RegionSubject
+import com.android.server.wm.traces.common.assertions.Fact
 import com.android.server.wm.traces.common.component.matchers.IComponentMatcher
 import com.android.server.wm.traces.common.layers.BaseLayerTraceEntry
 import com.android.server.wm.traces.common.layers.Layer

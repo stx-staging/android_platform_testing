@@ -16,21 +16,13 @@
 
 package com.android.server.wm.flicker.assertions
 
-/** Subject builder for flicker checks */
-class CheckSubjectBuilder(
-    private val lazyMessage: () -> String,
-    private val subject: FlickerSubject
-) {
-    fun <T> that(actual: T?): CheckSubject<T> {
-        return CheckSubject(actual, lazyMessage, subject)
-    }
-}
+import com.android.server.wm.traces.common.assertions.Fact
 
 /** Subject for flicker checks */
-class CheckSubject<T>(
+data class CheckSubject<T>(
     private val actualValue: T?,
+    private val subject: FlickerSubject,
     private val lazyMessage: () -> String,
-    private val subject: FlickerSubject
 ) {
     fun isEqual(expectedValue: T?) {
         if (actualValue != expectedValue) {

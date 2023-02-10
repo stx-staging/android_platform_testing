@@ -17,11 +17,11 @@
 package com.android.server.wm.flicker.traces.region
 
 import androidx.annotation.VisibleForTesting
-import com.android.server.wm.flicker.assertions.Fact
 import com.android.server.wm.flicker.assertions.FlickerSubject
 import com.android.server.wm.traces.common.Rect
 import com.android.server.wm.traces.common.RectF
 import com.android.server.wm.traces.common.Timestamp
+import com.android.server.wm.traces.common.assertions.Fact
 import com.android.server.wm.traces.common.region.Region
 import com.android.server.wm.traces.common.region.RegionEntry
 import kotlin.math.abs

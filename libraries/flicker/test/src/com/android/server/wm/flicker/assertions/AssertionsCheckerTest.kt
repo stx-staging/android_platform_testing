@@ -22,6 +22,7 @@ import com.android.server.wm.flicker.assertThrows
 import com.android.server.wm.flicker.traces.FlickerSubjectException
 import com.android.server.wm.traces.common.ITraceEntry
 import com.android.server.wm.traces.common.Timestamp
+import com.android.server.wm.traces.common.assertions.Fact
 import com.google.common.truth.Truth
 import org.junit.ClassRule
 import org.junit.FixMethodOrder

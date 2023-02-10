@@ -17,9 +17,9 @@
 package com.android.server.wm.flicker.traces.windowmanager
 
 import androidx.annotation.VisibleForTesting
-import com.android.server.wm.flicker.assertions.Fact
 import com.android.server.wm.flicker.assertions.FlickerSubject
 import com.android.server.wm.flicker.traces.region.RegionSubject
+import com.android.server.wm.traces.common.assertions.Fact
 import com.android.server.wm.traces.common.component.matchers.ComponentNameMatcher
 import com.android.server.wm.traces.common.component.matchers.IComponentMatcher
 import com.android.server.wm.traces.common.region.Region

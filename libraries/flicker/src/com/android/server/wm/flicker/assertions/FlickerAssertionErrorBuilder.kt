@@ -18,6 +18,7 @@ package com.android.server.wm.flicker.assertions
 
 import com.android.server.wm.flicker.traces.FlickerSubjectException
 import com.android.server.wm.traces.common.AssertionTag
+import com.android.server.wm.traces.common.assertions.Fact
 import com.android.server.wm.traces.common.io.IReader
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
