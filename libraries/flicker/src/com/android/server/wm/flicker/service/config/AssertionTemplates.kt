@@ -17,13 +17,21 @@
 package com.android.server.wm.flicker.service.config
 
 import com.android.server.wm.flicker.service.assertors.Components
+import com.android.server.wm.flicker.service.assertors.assertions.AppLayerBecomesInvisible
 import com.android.server.wm.flicker.service.assertors.assertions.AppLayerBecomesVisible
+import com.android.server.wm.flicker.service.assertors.assertions.AppLayerCoversFullScreenAtEnd
+import com.android.server.wm.flicker.service.assertors.assertions.AppLayerCoversFullScreenAtStart
 import com.android.server.wm.flicker.service.assertors.assertions.AppLayerIsInvisibleAtEnd
 import com.android.server.wm.flicker.service.assertors.assertions.AppLayerIsInvisibleAtStart
 import com.android.server.wm.flicker.service.assertors.assertions.AppLayerIsVisibleAtEnd
 import com.android.server.wm.flicker.service.assertors.assertions.AppLayerIsVisibleAtStart
+import com.android.server.wm.flicker.service.assertors.assertions.AppWindowBecomesInvisible
 import com.android.server.wm.flicker.service.assertors.assertions.AppWindowBecomesTopWindow
 import com.android.server.wm.flicker.service.assertors.assertions.AppWindowBecomesVisible
+import com.android.server.wm.flicker.service.assertors.assertions.AppWindowCoversFullScreenAtEnd
+import com.android.server.wm.flicker.service.assertors.assertions.AppWindowCoversFullScreenAtStart
+import com.android.server.wm.flicker.service.assertors.assertions.AppWindowOnTopAtEnd
+import com.android.server.wm.flicker.service.assertors.assertions.AppWindowOnTopAtStart
 import com.android.server.wm.flicker.service.assertors.assertions.EntireScreenCoveredAlways
 import com.android.server.wm.flicker.service.assertors.assertions.EntireScreenCoveredAtEnd
 import com.android.server.wm.flicker.service.assertors.assertions.EntireScreenCoveredAtStart
@@ -89,4 +97,21 @@ object AssertionTemplates {
             listOf(
                 // None specific to opening from notification yet
                 )
+
+    val LAUNCHER_QUICK_SWITCH_ASSERTIONS =
+        COMMON_ASSERTIONS +
+            APP_LAUNCH_ASSERTIONS +
+            APP_CLOSE_ASSERTIONS +
+            listOf(
+                AppWindowCoversFullScreenAtStart(Components.CLOSING_APP),
+                AppLayerCoversFullScreenAtStart(Components.CLOSING_APP),
+                AppWindowCoversFullScreenAtEnd(Components.OPENING_APP),
+                AppLayerCoversFullScreenAtEnd(Components.OPENING_APP),
+                AppWindowOnTopAtStart(Components.CLOSING_APP),
+                AppWindowOnTopAtEnd(Components.OPENING_APP),
+                AppWindowBecomesInvisible(Components.CLOSING_APP),
+                AppLayerBecomesInvisible(Components.CLOSING_APP),
+                AppWindowBecomesVisible(Components.OPENING_APP),
+                AppLayerBecomesVisible(Components.OPENING_APP),
+            )
 }
