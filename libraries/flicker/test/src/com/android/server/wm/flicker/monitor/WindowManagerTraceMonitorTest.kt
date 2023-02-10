@@ -17,8 +17,8 @@
 package com.android.server.wm.flicker.monitor
 
 import com.android.server.wm.InitRule
-import com.android.server.wm.flicker.io.TraceType
 import com.android.server.wm.nano.WindowManagerTraceFileProto
+import com.android.server.wm.traces.common.io.TraceType
 import com.google.common.truth.Truth
 import org.junit.ClassRule
 import org.junit.FixMethodOrder

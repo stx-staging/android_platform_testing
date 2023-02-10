@@ -25,7 +25,6 @@ import com.android.compatibility.common.util.SystemUtil
 import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
 import com.android.server.wm.flicker.IFlickerTestData
-import com.android.server.wm.flicker.RunStatus
 import com.android.server.wm.flicker.TEST_SCENARIO
 import com.android.server.wm.flicker.assertExceptionMessageCause
 import com.android.server.wm.flicker.createMockedFlicker
@@ -33,6 +32,7 @@ import com.android.server.wm.flicker.getDefaultFlickerOutputDir
 import com.android.server.wm.flicker.io.ResultReader
 import com.android.server.wm.flicker.io.ResultWriter
 import com.android.server.wm.flicker.monitor.ITransitionMonitor
+import com.android.server.wm.traces.common.io.RunStatus
 import com.google.common.truth.Truth
 import org.junit.After
 import org.junit.Before

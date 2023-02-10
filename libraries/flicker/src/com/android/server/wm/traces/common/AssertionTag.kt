@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 The Android Open Source Project
+ * Copyright (C) 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.io
+package com.android.server.wm.traces.common
 
-import com.android.server.wm.traces.common.Timestamp
-
-data class TransitionTimeRange(val start: Timestamp, val end: Timestamp) {
-    companion object {
-        val EMPTY = TransitionTimeRange(Timestamp.MIN, Timestamp.MAX)
-    }
+/**
+ * Identify a trace location. By default all traces have: [START], [END] and [ALL] locations,
+ * representing inital, final and all trace states.
+ *
+ * In addition, it is possible to create custom trace locations (tags).
+ */
+object AssertionTag {
+    const val START = "start"
+    const val END = "end"
+    const val ALL = "all"
 }

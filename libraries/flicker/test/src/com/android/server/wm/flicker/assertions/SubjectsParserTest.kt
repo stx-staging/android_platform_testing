@@ -19,12 +19,12 @@ package com.android.server.wm.flicker.assertions
 import android.annotation.SuppressLint
 import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
-import com.android.server.wm.flicker.RunStatus
 import com.android.server.wm.flicker.assertThrows
 import com.android.server.wm.flicker.deleteIfExists
 import com.android.server.wm.flicker.io.ResultReader
 import com.android.server.wm.flicker.newTestResultWriter
 import com.android.server.wm.flicker.outputFileName
+import com.android.server.wm.traces.common.io.RunStatus
 import java.io.FileNotFoundException
 import org.junit.Before
 import org.junit.ClassRule

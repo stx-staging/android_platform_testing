@@ -17,12 +17,18 @@
 package com.android.server.wm.flicker.io
 
 import android.util.Log
-import com.android.server.wm.flicker.AssertionTag
-import com.android.server.wm.flicker.RunStatus
+import com.android.server.wm.flicker.deleteIfExists
 import com.android.server.wm.flicker.now
+import com.android.server.wm.traces.common.AssertionTag
 import com.android.server.wm.traces.common.IScenario
 import com.android.server.wm.traces.common.ScenarioBuilder
 import com.android.server.wm.traces.common.Timestamp
+import com.android.server.wm.traces.common.io.BUFFER_SIZE
+import com.android.server.wm.traces.common.io.FLICKER_IO_TAG
+import com.android.server.wm.traces.common.io.ResultArtifactDescriptor
+import com.android.server.wm.traces.common.io.RunStatus
+import com.android.server.wm.traces.common.io.TraceType
+import com.android.server.wm.traces.common.io.TransitionTimeRange
 import com.android.server.wm.traces.parser.withPerfettoTrace
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
@@ -68,23 +74,24 @@ open class ResultWriter {
     }
 
     /**
-     * Adds [file] to the result artifact
+     * Adds [artifact] to the result artifact
      *
-     * @param traceType used when adding [file] to the result artifact
-     * @param tag used when adding [file] to the result artifact
+     * @param traceType used when adding [artifact] to the result artifact
+     * @param tag used when adding [artifact] to the result artifact
      */
-    fun addTraceResult(traceType: TraceType, file: File, tag: String = AssertionTag.ALL) = apply {
-        Log.d(
-            FLICKER_IO_TAG,
-            "Add trace result file=$file type=$traceType tag=$tag scenario=$scenario"
-        )
-        val fileDescriptor = ResultArtifactDescriptor(traceType, tag)
-        files[fileDescriptor] = file
-    }
+    fun addTraceResult(traceType: TraceType, artifact: File, tag: String = AssertionTag.ALL) =
+        apply {
+            Log.d(
+                FLICKER_IO_TAG,
+                "Add trace result file=$artifact type=$traceType tag=$tag scenario=$scenario"
+            )
+            val fileDescriptor = ResultArtifactDescriptor(traceType, tag)
+            files[fileDescriptor] = artifact
+        }
 
-    private fun addFile(zipOutputStream: ZipOutputStream, file: File, nameInArchive: String) {
-        Log.v(FLICKER_IO_TAG, "Adding $file with name $nameInArchive to zip")
-        val fi = FileInputStream(file)
+    private fun addFile(zipOutputStream: ZipOutputStream, artifact: File, nameInArchive: String) {
+        Log.v(FLICKER_IO_TAG, "Adding $artifact with name $nameInArchive to zip")
+        val fi = FileInputStream(artifact)
         val inputStream = BufferedInputStream(fi, BUFFER_SIZE)
         inputStream.use {
             val entry = ZipEntry(nameInArchive)
@@ -97,7 +104,7 @@ open class ResultWriter {
             }
         }
         zipOutputStream.closeEntry()
-        file.delete()
+        artifact.deleteIfExists()
     }
 
     private fun createZipFile(file: File): ZipOutputStream {
@@ -105,7 +112,7 @@ open class ResultWriter {
     }
 
     /** @return writes the result artifact to disk and returns it */
-    open fun write(): ResultData {
+    open fun write(): IResultData {
         return withPerfettoTrace("write") {
             val outputDir = outputDir
             requireNotNull(outputDir) { "Output dir not configured" }
@@ -121,8 +128,12 @@ open class ResultWriter {
             val dstFile = outputDir.resolve(newFileName)
             Log.d(FLICKER_IO_TAG, "Writing artifact file $dstFile")
             createZipFile(dstFile).use { zipOutputStream ->
-                files.forEach { (descriptor, file) ->
-                    addFile(zipOutputStream, file, nameInArchive = descriptor.fileNameInArtifact)
+                files.forEach { (descriptor, artifact) ->
+                    addFile(
+                        zipOutputStream,
+                        artifact,
+                        nameInArchive = descriptor.fileNameInArtifact
+                    )
                 }
             }
 

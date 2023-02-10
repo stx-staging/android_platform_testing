@@ -16,7 +16,7 @@
 
 package com.android.server.wm.flicker.runner
 
-import com.android.server.wm.flicker.FLICKER_TAG
+import com.android.server.wm.traces.common.FLICKER_TAG
 
 internal const val FLICKER_RUNNER_TAG = "$FLICKER_TAG-Runner"
 const val EMPTY_TRANSITIONS_ERROR = "A flicker test must include transitions to run"

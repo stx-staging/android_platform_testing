@@ -23,7 +23,7 @@ import android.platform.test.rule.UnlockScreenRule
 import com.android.server.wm.flicker.IFlickerTestData
 import com.android.server.wm.flicker.datastore.CachedResultWriter
 import com.android.server.wm.flicker.helpers.MessagingAppHelper
-import com.android.server.wm.flicker.io.ResultData
+import com.android.server.wm.flicker.io.IResultData
 import com.android.server.wm.flicker.io.ResultWriter
 import com.android.server.wm.flicker.rules.ChangeDisplayOrientationRule
 import com.android.server.wm.flicker.rules.LaunchAppRule
@@ -43,7 +43,7 @@ class TransitionRunner(
     private val resultWriter: ResultWriter = CachedResultWriter()
 ) {
     /** Executes [flicker] transition and returns the result */
-    fun execute(flicker: IFlickerTestData, description: Description?): ResultData {
+    fun execute(flicker: IFlickerTestData, description: Description?): IResultData {
         return withPerfettoTrace("TransitionRunner:execute") {
             resultWriter.forScenario(scenario).withOutputDir(flicker.outputDir)
 

@@ -16,9 +16,9 @@
 
 package com.android.server.wm.flicker.service.extractors
 
-import com.android.server.wm.flicker.io.IReader
 import com.android.server.wm.flicker.service.ScenarioInstance
 import com.android.server.wm.flicker.service.config.FaasScenarioType
+import com.android.server.wm.traces.common.io.IReader
 
 class EntireTraceExtractor(val type: FaasScenarioType) : IScenarioExtractor {
     override fun extract(reader: IReader): List<ScenarioInstance> {

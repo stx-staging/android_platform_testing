@@ -16,12 +16,12 @@
 
 package com.android.server.wm.flicker.datastore
 
-import com.android.server.wm.flicker.io.ResultData
+import com.android.server.wm.flicker.io.IResultData
 import com.android.server.wm.flicker.io.ResultWriter
 
 /** Result writer that adds data of a [scenario] to the [DataStore] */
 class CachedResultWriter : ResultWriter() {
-    override fun write(): ResultData {
+    override fun write(): IResultData {
         val result = super.write()
         DataStore.addResult(scenario, result)
         return result

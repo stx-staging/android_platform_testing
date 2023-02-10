@@ -18,9 +18,7 @@ package com.android.server.wm.flicker.service
 
 import android.util.Log
 import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
-import com.android.server.wm.flicker.FLICKER_TAG
-import com.android.server.wm.flicker.io.IReader
-import com.android.server.wm.flicker.io.ResultData
+import com.android.server.wm.flicker.io.IResultData
 import com.android.server.wm.flicker.io.ResultReaderWithLru
 import com.android.server.wm.flicker.io.ResultWriter
 import com.android.server.wm.flicker.monitor.EventLogMonitor
@@ -28,8 +26,10 @@ import com.android.server.wm.flicker.monitor.LayersTraceMonitor
 import com.android.server.wm.flicker.monitor.TransactionsTraceMonitor
 import com.android.server.wm.flicker.monitor.TransitionsTraceMonitor
 import com.android.server.wm.flicker.monitor.WindowManagerTraceMonitor
+import com.android.server.wm.traces.common.FLICKER_TAG
 import com.android.server.wm.traces.common.Scenario
 import com.android.server.wm.traces.common.ScenarioBuilder
+import com.android.server.wm.traces.common.io.IReader
 import java.io.File
 
 class FlickerServiceTracesCollector(
@@ -38,7 +38,7 @@ class FlickerServiceTracesCollector(
         ScenarioBuilder().forClass(FlickerServiceTracesCollector::class.java.simpleName).build()
 ) : ITracesCollector {
 
-    private var result: ResultData? = null
+    private var result: IResultData? = null
 
     private val traceMonitors =
         listOf(

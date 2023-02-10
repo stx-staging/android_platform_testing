@@ -16,8 +16,10 @@
 
 package com.android.server.wm.flicker.io
 
-import com.android.server.wm.flicker.RunStatus
 import com.android.server.wm.flicker.Utils
+import com.android.server.wm.traces.common.Timestamp
+import com.android.server.wm.traces.common.io.RunStatus
+import com.android.server.wm.traces.common.io.TransitionTimeRange
 import java.io.File
 
 /**
@@ -33,35 +35,29 @@ open class ResultData(
     _transitionTimeRange: TransitionTimeRange,
     _executionError: Throwable?,
     _runStatus: RunStatus
-) {
-    var artifact: File = _artifact
+) : IResultData {
+    final override var artifact: File = _artifact
         private set
-    var transitionTimeRange: TransitionTimeRange = _transitionTimeRange
+    final override var transitionTimeRange: TransitionTimeRange = _transitionTimeRange
         private set
-    var executionError: Throwable? = _executionError
+    final override var executionError: Throwable? = _executionError
         private set
-    var runStatus: RunStatus = _runStatus
+    final override var runStatus: RunStatus = _runStatus
         private set
 
-    open fun getArtifactBytes(): ByteArray = artifact.readBytes()
+    /** {@inheritDoc} */
+    override fun getArtifactBytes(): ByteArray = artifact.readBytes()
 
-    protected fun getNewFilePath(newStatus: RunStatus): File {
-        val currTestName = artifact.name.dropWhile { it != '_' }
-        return artifact.resolveSibling("${newStatus.prefix}_$currTestName")
-    }
-
-    /** updates the artifact status to [newStatus] */
-    internal open fun updateStatus(newStatus: RunStatus) = apply {
-        val currFile = artifact
-        require(RunStatus.fromFile(currFile) != RunStatus.UNDEFINED) {
-            "File name should start with a value from `RunStatus`, instead it was $currFile"
-        }
-        val newFile = getNewFilePath(newStatus)
-        if (currFile != newFile) {
-            Utils.moveFile(currFile, newFile)
-            artifact = newFile
-            runStatus = newStatus
-        }
+    /** {@inheritDoc} */
+    override fun slice(startTimestamp: Timestamp, endTimestamp: Timestamp) = apply {
+        require(startTimestamp.hasAllTimestamps)
+        require(endTimestamp.hasAllTimestamps)
+        return ResultData(
+            artifact,
+            TransitionTimeRange(startTimestamp, endTimestamp),
+            executionError,
+            runStatus
+        )
     }
 
     override fun toString(): String = buildString {
@@ -73,5 +69,19 @@ open class ResultData(
             append(it.message)
         }
         append(") ")
+    }
+
+    /** {@inheritDoc} */
+    override fun updateStatus(newStatus: RunStatus) = apply {
+        val currFile = artifact
+        require(RunStatus.fromFileName(currFile.name) != RunStatus.UNDEFINED) {
+            "File name should start with a value from `RunStatus`, instead it was $currFile"
+        }
+        val newFile = getNewFilePath(newStatus)
+        if (currFile != newFile) {
+            Utils.moveFile(currFile, newFile)
+            artifact = newFile
+            runStatus = newStatus
+        }
     }
 }

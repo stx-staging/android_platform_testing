@@ -18,12 +18,17 @@ package com.android.server.wm.flicker.io
 
 import android.util.Log
 import androidx.annotation.VisibleForTesting
-import com.android.server.wm.flicker.AssertionTag
 import com.android.server.wm.flicker.TraceConfig
 import com.android.server.wm.flicker.TraceConfigs
+import com.android.server.wm.traces.common.AssertionTag
 import com.android.server.wm.traces.common.Timestamp
 import com.android.server.wm.traces.common.events.CujTrace
 import com.android.server.wm.traces.common.events.EventLog
+import com.android.server.wm.traces.common.io.BUFFER_SIZE
+import com.android.server.wm.traces.common.io.FLICKER_IO_TAG
+import com.android.server.wm.traces.common.io.IReader
+import com.android.server.wm.traces.common.io.ResultArtifactDescriptor
+import com.android.server.wm.traces.common.io.TraceType
 import com.android.server.wm.traces.common.layers.LayersTrace
 import com.android.server.wm.traces.common.parser.events.EventLogParser
 import com.android.server.wm.traces.common.transactions.TransactionsTrace
@@ -48,10 +53,10 @@ import java.util.zip.ZipInputStream
  * @param result to read from
  * @param traceConfig
  */
-open class ResultReader(internal var result: ResultData, internal val traceConfig: TraceConfigs) :
+open class ResultReader(internal var result: IResultData, internal val traceConfig: TraceConfigs) :
     IReader {
-    override val artifact
-        get() = result.artifact
+    override val artifactPath: String
+        get() = result.artifact.absolutePath
     override val runStatus
         get() = result.runStatus
     internal val transitionTimeRange
@@ -121,7 +126,7 @@ open class ResultReader(internal var result: ResultData, internal val traceConfi
         readFromZip(ResultArtifactDescriptor(traceType, tag))
 
     /**
-     * @return a [WindowManagerTrace] from the dump associated to [tag]
+     * {@inheritDoc}
      * @throws IOException if the artifact file doesn't exist or can't be read
      */
     @Throws(IOException::class)
@@ -133,7 +138,7 @@ open class ResultReader(internal var result: ResultData, internal val traceConfi
     }
 
     /**
-     * @return a [WindowManagerTrace] for the part of the trace we want to run the assertions on
+     * {@inheritDoc}
      * @throws IOException if the artifact file doesn't exist or can't be read
      */
     @Throws(IOException::class)
@@ -161,7 +166,7 @@ open class ResultReader(internal var result: ResultData, internal val traceConfi
     }
 
     /**
-     * @return a [LayersTrace] for the part of the trace we want to run the assertions on
+     * {@inheritDoc}
      * @throws IOException if the artifact file doesn't exist or can't be read
      */
     @Throws(IOException::class)
@@ -189,7 +194,7 @@ open class ResultReader(internal var result: ResultData, internal val traceConfi
     }
 
     /**
-     * @return a [LayersTrace] from the dump associated to [tag]
+     * {@inheritDoc}
      * @throws IOException if the artifact file doesn't exist or can't be read
      */
     @Throws(IOException::class)
@@ -200,7 +205,7 @@ open class ResultReader(internal var result: ResultData, internal val traceConfi
     }
 
     /**
-     * @return a [TransactionsTrace] for the part of the trace we want to run the assertions on
+     * {@inheritDoc}
      * @throws IOException if the artifact file doesn't exist or can't be read
      */
     @Throws(IOException::class)
@@ -217,7 +222,7 @@ open class ResultReader(internal var result: ResultData, internal val traceConfi
     }
 
     /**
-     * @return a [TransitionsTrace] for the part of the trace we want to run the assertions on
+     * {@inheritDoc}
      * @throws IOException if the artifact file doesn't exist or can't be read
      */
     @Throws(IOException::class)
@@ -237,7 +242,7 @@ open class ResultReader(internal var result: ResultData, internal val traceConfi
     }
 
     /**
-     * @return an [EventLog] for the part of the trace we want to run the assertions on
+     * {@inheritDoc}
      * @throws IOException if the artifact file doesn't exist or can't be read
      */
     @Throws(IOException::class)
@@ -250,7 +255,7 @@ open class ResultReader(internal var result: ResultData, internal val traceConfi
     }
 
     /**
-     * @return a [CujTrace] for the part of the trace we want to run the assertions on
+     * {@inheritDoc}
      * @throws IOException if the artifact file doesn't exist or can't be read
      */
     @Throws(IOException::class)
@@ -258,15 +263,7 @@ open class ResultReader(internal var result: ResultData, internal val traceConfi
 
     /** @return an [IReader] for the subsection of the trace we are reading in this reader */
     override fun slice(startTimestamp: Timestamp, endTimestamp: Timestamp): ResultReader {
-        require(startTimestamp.hasAllTimestamps)
-        require(endTimestamp.hasAllTimestamps)
-        val slicedResult =
-            ResultData(
-                result.artifact,
-                TransitionTimeRange(startTimestamp, endTimestamp),
-                result.executionError,
-                result.runStatus
-            )
+        val slicedResult = result.slice(startTimestamp, endTimestamp)
         return ResultReader(slicedResult, traceConfig)
     }
 

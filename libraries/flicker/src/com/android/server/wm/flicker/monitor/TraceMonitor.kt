@@ -18,7 +18,7 @@ package com.android.server.wm.flicker.monitor
 
 import com.android.server.wm.flicker.Utils
 import com.android.server.wm.flicker.io.ResultWriter
-import com.android.server.wm.flicker.io.TraceType
+import com.android.server.wm.traces.common.io.TraceType
 import java.io.File
 
 /**

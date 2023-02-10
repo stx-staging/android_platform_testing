@@ -16,8 +16,8 @@
 
 package com.android.server.wm.flicker.service.extractors
 
-import com.android.server.wm.flicker.io.IReader
 import com.android.server.wm.flicker.service.IScenarioInstance
+import com.android.server.wm.traces.common.io.IReader
 
 interface IScenarioExtractor {
     fun extract(reader: IReader): List<IScenarioInstance>

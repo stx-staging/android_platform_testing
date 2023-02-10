@@ -21,13 +21,13 @@ import android.support.test.uiautomator.UiDevice
 import androidx.test.platform.app.InstrumentationRegistry
 import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
-import com.android.server.wm.flicker.RunStatus
 import com.android.server.wm.flicker.deleteIfExists
 import com.android.server.wm.flicker.io.ResultReader
-import com.android.server.wm.flicker.io.TraceType
 import com.android.server.wm.flicker.newTestResultWriter
 import com.android.server.wm.flicker.outputFileName
 import com.android.server.wm.traces.common.DeviceTraceDump
+import com.android.server.wm.traces.common.io.RunStatus
+import com.android.server.wm.traces.common.io.TraceType
 import com.android.server.wm.traces.parser.DeviceDumpParser
 import com.google.common.truth.Truth
 import org.junit.After

@@ -23,7 +23,7 @@ import android.util.Log
 import android.view.WindowManager
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
-import com.android.server.wm.flicker.FLICKER_TAG
+import com.android.server.wm.traces.common.FLICKER_TAG
 import com.android.server.wm.traces.common.service.PlatformConsts
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerStateHelper
 import com.android.server.wm.traces.parser.withPerfettoTrace

@@ -18,7 +18,6 @@ package com.android.server.wm.flicker.service
 
 import android.device.collectors.DataRecord
 import com.android.server.wm.InitRule
-import com.android.server.wm.flicker.io.IReader
 import com.android.server.wm.flicker.io.ParsedTracesReader
 import com.android.server.wm.flicker.service.assertors.AssertionResult
 import com.android.server.wm.flicker.service.assertors.IAssertionResult
@@ -26,6 +25,7 @@ import com.android.server.wm.flicker.service.assertors.IFaasAssertion
 import com.android.server.wm.flicker.utils.KotlinMockito
 import com.android.server.wm.flicker.utils.MockLayersTraceBuilder
 import com.android.server.wm.flicker.utils.MockWindowManagerTraceBuilder
+import com.android.server.wm.traces.common.io.IReader
 import com.android.server.wm.traces.common.service.AssertionInvocationGroup
 import com.android.server.wm.traces.common.transition.TransitionsTrace
 import com.google.common.truth.Truth

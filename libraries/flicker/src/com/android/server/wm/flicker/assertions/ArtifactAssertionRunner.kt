@@ -17,10 +17,10 @@
 package com.android.server.wm.flicker.assertions
 
 import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
-import com.android.server.wm.flicker.RunStatus
-import com.android.server.wm.flicker.io.IReader
-import com.android.server.wm.flicker.io.ResultData
+import com.android.server.wm.flicker.io.IResultData
 import com.android.server.wm.flicker.io.ResultReaderWithLru
+import com.android.server.wm.traces.common.io.IReader
+import com.android.server.wm.traces.common.io.RunStatus
 
 /**
  * Helper class to run an assertion on a flicker artifact
@@ -30,7 +30,7 @@ import com.android.server.wm.flicker.io.ResultReaderWithLru
  * @param subjectsParser helper class to convert a result into flicker subjects
  */
 class ArtifactAssertionRunner(
-    private val result: ResultData,
+    private val result: IResultData,
     resultReader: IReader = ResultReaderWithLru(result, DEFAULT_TRACE_CONFIG),
     subjectsParser: SubjectsParser = SubjectsParser(resultReader)
 ) : BaseAssertionRunner(resultReader, subjectsParser) {

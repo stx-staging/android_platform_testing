@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 The Android Open Source Project
+ * Copyright (C) 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.io
+package com.android.server.wm.traces.common.io
 
-import androidx.annotation.VisibleForTesting
-import com.android.server.wm.flicker.AssertionTag
+import com.android.server.wm.traces.common.AssertionTag
 
 /** Descriptor for files inside flicker result artifacts */
-class ResultArtifactDescriptor
-internal constructor(
+class ResultArtifactDescriptor(
     /** Trace or dump type */
-    @VisibleForTesting val traceType: TraceType,
+    val traceType: TraceType,
     /** If the trace/dump is associated with a tag */
-    @VisibleForTesting val tag: String = AssertionTag.ALL
+    val tag: String = AssertionTag.ALL
 ) {
     private val isTagTrace: Boolean
         get() = tag != AssertionTag.ALL
@@ -72,9 +70,5 @@ internal constructor(
             val fileName = tagSplit.last()
             return ResultArtifactDescriptor(TraceType.fromFileName(fileName), tag)
         }
-
-        @VisibleForTesting
-        fun newTestInstance(traceType: TraceType, tag: String = AssertionTag.ALL) =
-            ResultArtifactDescriptor(traceType, tag)
     }
 }

@@ -17,7 +17,7 @@
 package com.android.server.wm.flicker.monitor
 
 import android.view.WindowManagerGlobal
-import com.android.server.wm.flicker.io.TraceType
+import com.android.server.wm.traces.common.io.TraceType
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 import java.io.File
 

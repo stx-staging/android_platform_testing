@@ -20,8 +20,8 @@ import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
 import com.android.server.wm.flicker.TEST_SCENARIO
 import com.android.server.wm.flicker.TestTraces
-import com.android.server.wm.flicker.io.TraceType
 import com.android.server.wm.flicker.newTestResultWriter
+import com.android.server.wm.traces.common.io.TraceType
 import com.google.common.truth.Truth
 import org.junit.Before
 import org.junit.ClassRule

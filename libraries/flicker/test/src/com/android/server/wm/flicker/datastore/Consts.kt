@@ -16,10 +16,11 @@
 
 package com.android.server.wm.flicker.datastore
 
-import com.android.server.wm.flicker.RunStatus
 import com.android.server.wm.flicker.getDefaultFlickerOutputDir
 import com.android.server.wm.flicker.io.ResultData
-import com.android.server.wm.flicker.io.TransitionTimeRange
+import com.android.server.wm.traces.common.Timestamp
+import com.android.server.wm.traces.common.io.RunStatus
+import com.android.server.wm.traces.common.io.TransitionTimeRange
 
 object Consts {
     internal const val FAILURE = "Expected failure"
@@ -27,7 +28,7 @@ object Consts {
     internal val TEST_RESULT =
         ResultData(
             _artifact = getDefaultFlickerOutputDir(),
-            _transitionTimeRange = TransitionTimeRange.EMPTY,
+            _transitionTimeRange = TransitionTimeRange(Timestamp.EMPTY, Timestamp.EMPTY),
             _executionError = null,
             _runStatus = RunStatus.RUN_EXECUTED
         )
@@ -35,7 +36,7 @@ object Consts {
     internal val RESULT_FAILURE =
         ResultData(
             _artifact = getDefaultFlickerOutputDir(),
-            _transitionTimeRange = TransitionTimeRange.EMPTY,
+            _transitionTimeRange = TransitionTimeRange(Timestamp.EMPTY, Timestamp.EMPTY),
             _executionError = null,
             _runStatus = RunStatus.RUN_EXECUTED
         )

@@ -18,6 +18,7 @@ package com.android.server.wm.flicker.io
 
 import com.android.server.wm.flicker.TestTraces
 import com.android.server.wm.traces.common.Timestamp
+import com.android.server.wm.traces.common.io.TraceType
 
 /** Tests for [ResultReader] parsing [TraceType.SF] */
 class ResultReaderTestParseLayers : BaseResultReaderTestParseTrace() {

@@ -16,12 +16,12 @@
 
 package com.android.server.wm.flicker.runner
 
-import com.android.server.wm.flicker.io.ResultData
+import com.android.server.wm.flicker.io.IResultData
 import com.android.server.wm.traces.common.Timestamp
 import com.google.common.truth.Truth
 
 object TestUtils {
-    internal fun validateTransitionTime(result: ResultData) {
+    internal fun validateTransitionTime(result: IResultData) {
         val startTime = result.transitionTimeRange.start
         val endTime = result.transitionTimeRange.end
         validateTimeGreaterThan(startTime, "Start time", Timestamp.MIN)
@@ -29,7 +29,7 @@ object TestUtils {
         validateTimeGreaterThan(Timestamp.MAX, "End time", endTime)
     }
 
-    internal fun validateTransitionTimeIsEmpty(result: ResultData) {
+    internal fun validateTransitionTimeIsEmpty(result: IResultData) {
         val startTime = result.transitionTimeRange.start
         val endTime = result.transitionTimeRange.end
         validateEqualTo(startTime, "Start time", Timestamp.MIN)

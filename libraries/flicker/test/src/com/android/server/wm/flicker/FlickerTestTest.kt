@@ -21,7 +21,8 @@ import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.datastore.CachedResultReader
 import com.android.server.wm.flicker.datastore.DataStore
 import com.android.server.wm.flicker.io.ResultReader
-import com.android.server.wm.flicker.io.TraceType
+import com.android.server.wm.traces.common.io.RunStatus
+import com.android.server.wm.traces.common.io.TraceType
 import com.google.common.truth.Truth
 import java.io.File
 import org.junit.Before

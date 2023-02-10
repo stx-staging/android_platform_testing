@@ -19,9 +19,9 @@ package com.android.server.wm.flicker.runner
 import android.app.Instrumentation
 import android.platform.test.rule.ArtifactSaver
 import android.util.Log
-import com.android.server.wm.flicker.FLICKER_TAG
 import com.android.server.wm.flicker.io.ResultWriter
 import com.android.server.wm.flicker.monitor.ITransitionMonitor
+import com.android.server.wm.traces.common.FLICKER_TAG
 import com.android.server.wm.traces.common.IScenario
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerStateHelper
 import com.android.server.wm.traces.parser.withPerfettoTrace

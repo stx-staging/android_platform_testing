@@ -18,9 +18,9 @@ package com.android.server.wm.flicker.assertions
 
 import android.annotation.SuppressLint
 import com.android.server.wm.flicker.TestTraces
-import com.android.server.wm.flicker.io.TraceType
 import com.android.server.wm.flicker.traces.FlickerTraceSubject
 import com.android.server.wm.traces.common.Timestamp
+import com.android.server.wm.traces.common.io.TraceType
 
 @SuppressLint("VisibleForTests")
 class SubjectsParserTestParseLayers : BaseSubjectsParserTestParse() {

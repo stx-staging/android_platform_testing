@@ -20,8 +20,8 @@ import android.content.Context
 import android.os.SystemClock
 import android.util.Log
 import androidx.annotation.VisibleForTesting
-import com.android.server.wm.flicker.FLICKER_TAG
-import com.android.server.wm.flicker.io.TraceType
+import com.android.server.wm.traces.common.FLICKER_TAG
+import com.android.server.wm.traces.common.io.TraceType
 import java.io.File
 
 /** Captures screen contents and saves it as a mp4 video file. */

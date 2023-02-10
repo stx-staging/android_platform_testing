@@ -28,8 +28,8 @@ import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
 import com.android.server.wm.flicker.getDefaultFlickerOutputDir
 import com.android.server.wm.flicker.io.ResultReader
-import com.android.server.wm.flicker.io.TraceType
 import com.android.server.wm.flicker.newTestResultWriter
+import com.android.server.wm.traces.common.io.TraceType
 import com.google.common.truth.Truth
 import org.junit.After
 import org.junit.Before

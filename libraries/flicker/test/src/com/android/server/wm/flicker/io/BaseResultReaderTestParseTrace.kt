@@ -18,7 +18,6 @@ package com.android.server.wm.flicker.io
 
 import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
-import com.android.server.wm.flicker.RunStatus
 import com.android.server.wm.flicker.TestTraces
 import com.android.server.wm.flicker.assertExceptionMessage
 import com.android.server.wm.flicker.assertThrows
@@ -27,6 +26,8 @@ import com.android.server.wm.flicker.newTestResultWriter
 import com.android.server.wm.flicker.outputFileName
 import com.android.server.wm.traces.common.ITrace
 import com.android.server.wm.traces.common.Timestamp
+import com.android.server.wm.traces.common.io.RunStatus
+import com.android.server.wm.traces.common.io.TraceType
 import com.google.common.truth.Truth
 import java.io.File
 import org.junit.Before

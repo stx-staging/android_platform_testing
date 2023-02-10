@@ -26,8 +26,8 @@ import android.os.SystemClock
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.WindowManager
-import com.android.server.wm.flicker.FLICKER_TAG
 import com.android.server.wm.flicker.deleteIfExists
+import com.android.server.wm.traces.common.FLICKER_TAG
 import java.io.File
 import java.io.FileOutputStream
 import java.nio.ByteBuffer

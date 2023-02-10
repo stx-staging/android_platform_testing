@@ -18,15 +18,16 @@ package com.android.server.wm.flicker.assertions
 
 import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
-import com.android.server.wm.flicker.RunStatus
 import com.android.server.wm.flicker.deleteIfExists
 import com.android.server.wm.flicker.io.ResultReader
 import com.android.server.wm.flicker.io.ResultWriter
-import com.android.server.wm.flicker.io.TraceType
 import com.android.server.wm.flicker.newTestResultWriter
 import com.android.server.wm.flicker.outputFileName
 import com.android.server.wm.flicker.traces.FlickerTraceSubject
+import com.android.server.wm.traces.common.AssertionTag
 import com.android.server.wm.traces.common.Timestamp
+import com.android.server.wm.traces.common.io.RunStatus
+import com.android.server.wm.traces.common.io.TraceType
 import com.google.common.truth.Truth
 import java.io.File
 import org.junit.Before

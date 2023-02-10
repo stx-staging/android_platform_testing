@@ -22,9 +22,9 @@ import android.device.collectors.DataRecord
 import android.util.Log
 import androidx.test.platform.app.InstrumentationRegistry
 import com.android.internal.annotations.VisibleForTesting
-import com.android.server.wm.flicker.FLICKER_TAG
 import com.android.server.wm.flicker.runner.ExecutionError
 import com.android.server.wm.flicker.service.assertors.IAssertionResult
+import com.android.server.wm.traces.common.FLICKER_TAG
 import com.android.server.wm.traces.common.service.AssertionInvocationGroup
 import org.junit.runner.Description
 import org.junit.runner.Result
@@ -121,7 +121,7 @@ class FlickerServiceResultsCollector(
         }
 
         val reader = tracesCollector.getResultReader()
-        dataRecord.addStringMetric(WINSCOPE_FILE_PATH_KEY, reader.artifact.toString())
+        dataRecord.addStringMetric(WINSCOPE_FILE_PATH_KEY, reader.artifactPath)
         Log.i(LOG_TAG, "Processing traces")
         val results = flickerService.process(reader)
         Log.i(LOG_TAG, "Got ${results.size} results")

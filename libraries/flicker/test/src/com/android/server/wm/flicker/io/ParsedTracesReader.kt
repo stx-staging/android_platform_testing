@@ -16,15 +16,16 @@
 
 package com.android.server.wm.flicker.io
 
-import com.android.server.wm.flicker.RunStatus
 import com.android.server.wm.traces.common.Timestamp
 import com.android.server.wm.traces.common.events.CujTrace
 import com.android.server.wm.traces.common.events.EventLog
+import com.android.server.wm.traces.common.io.IReader
+import com.android.server.wm.traces.common.io.RunStatus
+import com.android.server.wm.traces.common.io.TraceType
 import com.android.server.wm.traces.common.layers.LayersTrace
 import com.android.server.wm.traces.common.transactions.TransactionsTrace
 import com.android.server.wm.traces.common.transition.TransitionsTrace
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
-import java.io.File
 
 /** Reads parsed traces from in memory objects */
 class ParsedTracesReader(
@@ -34,9 +35,9 @@ class ParsedTracesReader(
     private val transactionsTrace: TransactionsTrace? = null,
     private val eventLog: EventLog? = null
 ) : IReader {
-    override val artifact: File? = null
-    override val runStatus: RunStatus = RunStatus.UNDEFINED
-    override val executionError: Throwable? = null
+    override val artifactPath = ""
+    override val runStatus = RunStatus.UNDEFINED
+    override val executionError = null
 
     override fun readLayersTrace(): LayersTrace? = layersTrace
 

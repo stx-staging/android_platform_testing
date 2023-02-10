@@ -19,10 +19,11 @@ package com.android.server.wm.flicker.integration
 import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
 import com.android.server.wm.flicker.FlickerTest
-import com.android.server.wm.flicker.RunStatus
 import com.android.server.wm.flicker.TEST_SCENARIO
 import com.android.server.wm.flicker.datastore.CachedResultReader
+import com.android.server.wm.traces.common.io.RunStatus
 import com.google.common.truth.Truth
+import java.io.File
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.ClassRule
@@ -72,7 +73,8 @@ class AssertionErrorTest {
 
     private fun assertArtifactExists() {
         val reader = CachedResultReader(TEST_SCENARIO, DEFAULT_TRACE_CONFIG)
-        Truth.assertWithMessage("Files exist").that(reader.artifact?.exists() ?: false).isTrue()
+        val file = File(reader.artifactPath)
+        Truth.assertWithMessage("Files exist").that(file.exists()).isTrue()
     }
 
     companion object {

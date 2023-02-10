@@ -18,12 +18,12 @@ package com.android.server.wm.flicker.monitor
 
 import android.util.Log
 import com.android.compatibility.common.util.SystemUtil
-import com.android.server.wm.flicker.FLICKER_TAG
 import com.android.server.wm.flicker.helpers.SECOND_AS_NANOSECONDS
-import com.android.server.wm.flicker.io.TraceType
 import com.android.server.wm.flicker.now
+import com.android.server.wm.traces.common.FLICKER_TAG
 import com.android.server.wm.traces.common.Timestamp
 import com.android.server.wm.traces.common.events.EventLog
+import com.android.server.wm.traces.common.io.TraceType
 import java.io.File
 import java.io.FileOutputStream
 

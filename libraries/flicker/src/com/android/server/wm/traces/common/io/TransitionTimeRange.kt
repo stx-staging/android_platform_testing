@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 The Android Open Source Project
+ * Copyright (C) 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.io
+package com.android.server.wm.traces.common.io
 
-import com.android.server.wm.flicker.FLICKER_TAG
+import com.android.server.wm.traces.common.Timestamp
 
-const val WINSCOPE_EXT = ".winscope"
-internal const val FLICKER_IO_TAG = "$FLICKER_TAG-IO"
-internal const val BUFFER_SIZE = 2048
+/** Representation of a transition interval */
+data class TransitionTimeRange(val start: Timestamp, val end: Timestamp)

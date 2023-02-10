@@ -17,11 +17,11 @@
 package com.android.server.wm
 
 import android.annotation.SuppressLint
-import com.android.server.wm.flicker.RunStatus
 import com.android.server.wm.flicker.datastore.DataStore
 import com.android.server.wm.flicker.deleteIfExists
 import com.android.server.wm.flicker.outputFileName
 import com.android.server.wm.traces.common.Cache
+import com.android.server.wm.traces.common.io.RunStatus
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement

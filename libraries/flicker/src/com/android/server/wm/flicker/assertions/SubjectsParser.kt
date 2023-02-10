@@ -17,13 +17,13 @@
 package com.android.server.wm.flicker.assertions
 
 import androidx.annotation.VisibleForTesting
-import com.android.server.wm.flicker.AssertionTag
-import com.android.server.wm.flicker.io.IReader
 import com.android.server.wm.flicker.traces.eventlog.EventLogSubject
 import com.android.server.wm.flicker.traces.layers.LayerTraceEntrySubject
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 import com.android.server.wm.flicker.traces.windowmanager.WindowManagerStateSubject
 import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
+import com.android.server.wm.traces.common.AssertionTag
+import com.android.server.wm.traces.common.io.IReader
 import com.android.server.wm.traces.common.layers.LayerTraceEntry
 import com.android.server.wm.traces.common.layers.LayersTrace
 import com.android.server.wm.traces.common.transition.TransitionsTrace

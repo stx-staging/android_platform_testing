@@ -17,11 +17,11 @@
 package com.android.server.wm.flicker.service.assertors.factories
 
 import com.android.server.wm.InitRule
-import com.android.server.wm.flicker.io.IReader
 import com.android.server.wm.flicker.service.ScenarioInstance
 import com.android.server.wm.flicker.service.config.FaasScenarioType
 import com.android.server.wm.flicker.service.config.FlickerServiceConfig
 import com.android.server.wm.traces.common.Timestamp
+import com.android.server.wm.traces.common.io.IReader
 import com.android.server.wm.traces.common.service.PlatformConsts
 import com.google.common.truth.Truth
 import org.junit.ClassRule

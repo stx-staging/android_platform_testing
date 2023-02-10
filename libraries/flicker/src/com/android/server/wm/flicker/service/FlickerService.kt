@@ -17,9 +17,7 @@
 package com.android.server.wm.flicker.service
 
 import android.util.Log
-import com.android.server.wm.flicker.FLICKER_TAG
 import com.android.server.wm.flicker.helpers.isShellTransitionsEnabled
-import com.android.server.wm.flicker.io.IReader
 import com.android.server.wm.flicker.service.assertors.IAssertionResult
 import com.android.server.wm.flicker.service.assertors.factories.AssertionFactory
 import com.android.server.wm.flicker.service.assertors.factories.CombinedAssertionFactory
@@ -30,7 +28,9 @@ import com.android.server.wm.flicker.service.assertors.runners.IAssertionRunner
 import com.android.server.wm.flicker.service.config.FlickerServiceConfig
 import com.android.server.wm.flicker.service.extractors.CombinedScenarioExtractor
 import com.android.server.wm.flicker.service.extractors.IScenarioExtractor
+import com.android.server.wm.traces.common.FLICKER_TAG
 import com.android.server.wm.traces.common.errors.ErrorTrace
+import com.android.server.wm.traces.common.io.IReader
 import com.android.server.wm.traces.parser.withPerfettoTrace
 
 /** Contains the logic for Flicker as a Service. */

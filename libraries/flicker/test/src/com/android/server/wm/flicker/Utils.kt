@@ -23,7 +23,6 @@ import androidx.test.uiautomator.UiDevice
 import com.android.server.wm.flicker.datastore.CachedResultWriter
 import com.android.server.wm.flicker.io.ResultReader
 import com.android.server.wm.flicker.io.ResultWriter
-import com.android.server.wm.flicker.io.WINSCOPE_EXT
 import com.android.server.wm.flicker.monitor.EventLogMonitor
 import com.android.server.wm.flicker.monitor.ITransitionMonitor
 import com.android.server.wm.flicker.monitor.LayersTraceMonitor
@@ -36,6 +35,8 @@ import com.android.server.wm.traces.common.IScenario
 import com.android.server.wm.traces.common.ScenarioBuilder
 import com.android.server.wm.traces.common.Timestamp
 import com.android.server.wm.traces.common.events.EventLog
+import com.android.server.wm.traces.common.io.RunStatus
+import com.android.server.wm.traces.common.io.WINSCOPE_EXT
 import com.android.server.wm.traces.common.layers.LayersTrace
 import com.android.server.wm.traces.common.parser.events.EventLogParser
 import com.android.server.wm.traces.common.transactions.TransactionsTrace

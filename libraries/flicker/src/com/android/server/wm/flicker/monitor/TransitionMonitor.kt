@@ -18,7 +18,7 @@ package com.android.server.wm.flicker.monitor
 
 import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
 import com.android.server.wm.flicker.deleteIfExists
-import com.android.server.wm.flicker.io.ResultData
+import com.android.server.wm.flicker.io.IResultData
 import com.android.server.wm.flicker.io.ResultReader
 import com.android.server.wm.flicker.io.ResultWriter
 import com.android.server.wm.traces.common.ScenarioBuilder
@@ -37,7 +37,7 @@ abstract class TransitionMonitor : TraceMonitor() {
                 "Trace already running. " + "This is likely due to chained 'withTracing' calls."
             )
         }
-        val result: ResultData
+        val result: IResultData
         try {
             this.start()
             predicate()

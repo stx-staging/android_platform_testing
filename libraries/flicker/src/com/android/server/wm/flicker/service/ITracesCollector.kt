@@ -16,7 +16,7 @@
 
 package com.android.server.wm.flicker.service
 
-import com.android.server.wm.flicker.io.IReader
+import com.android.server.wm.traces.common.io.IReader
 
 interface ITracesCollector {
     fun start()

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 The Android Open Source Project
+ * Copyright (C) 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker
+package com.android.server.wm.traces.common.io
 
-import java.io.File
-
+/** Possible status of a flicker ru */
 enum class RunStatus(val prefix: String, val isFailure: Boolean) {
     UNDEFINED("UNDEFINED", false),
     RUN_EXECUTED("EXECUTED", false),
@@ -27,8 +26,8 @@ enum class RunStatus(val prefix: String, val isFailure: Boolean) {
     ASSERTION_FAILED("FAIL", true);
 
     companion object {
-        fun fromFile(file: File): RunStatus =
-            when (file.name.takeWhile { it != '_' }) {
+        fun fromFileName(fileName: String): RunStatus =
+            when (fileName.takeWhile { it != '_' }) {
                 RUN_EXECUTED.prefix -> RUN_EXECUTED
                 ASSERTION_SUCCESS.prefix -> ASSERTION_SUCCESS
                 RUN_FAILED.prefix -> RUN_FAILED

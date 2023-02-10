@@ -18,6 +18,7 @@ package com.android.server.wm.flicker.io
 
 import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.assertThrows
+import com.android.server.wm.traces.common.io.TraceType
 import com.google.common.truth.Truth
 import org.junit.ClassRule
 import org.junit.FixMethodOrder

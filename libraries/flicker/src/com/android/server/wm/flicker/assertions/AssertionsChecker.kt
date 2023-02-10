@@ -17,7 +17,7 @@
 package com.android.server.wm.flicker.assertions
 
 import android.util.Log
-import com.android.server.wm.flicker.FLICKER_TAG
+import com.android.server.wm.traces.common.FLICKER_TAG
 import com.android.server.wm.traces.common.assertions.CompoundAssertion
 import kotlin.math.max
 

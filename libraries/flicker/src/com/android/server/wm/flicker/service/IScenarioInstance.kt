@@ -16,9 +16,9 @@
 
 package com.android.server.wm.flicker.service
 
-import com.android.server.wm.flicker.io.IReader
 import com.android.server.wm.flicker.service.config.FaasScenarioType
 import com.android.server.wm.traces.common.IScenario
+import com.android.server.wm.traces.common.io.IReader
 import com.android.server.wm.traces.common.transition.Transition
 
 interface IScenarioInstance : IScenario {

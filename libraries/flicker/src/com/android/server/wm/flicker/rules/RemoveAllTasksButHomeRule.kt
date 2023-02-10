@@ -19,7 +19,7 @@ package com.android.server.wm.flicker.rules
 import android.app.ActivityTaskManager
 import android.app.WindowConfiguration
 import android.util.Log
-import com.android.server.wm.flicker.FLICKER_TAG
+import com.android.server.wm.traces.common.FLICKER_TAG
 import com.android.server.wm.traces.parser.withPerfettoTrace
 import org.junit.rules.TestWatcher
 import org.junit.runner.Description

@@ -18,6 +18,7 @@ package com.android.server.wm.flicker.io
 
 import com.android.server.wm.flicker.TestTraces
 import com.android.server.wm.traces.common.Timestamp
+import com.android.server.wm.traces.common.io.TraceType
 import org.junit.FixMethodOrder
 import org.junit.runners.MethodSorters
 

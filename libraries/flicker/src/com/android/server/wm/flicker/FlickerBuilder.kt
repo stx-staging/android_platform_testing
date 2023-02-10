@@ -19,7 +19,6 @@ package com.android.server.wm.flicker
 import android.app.Instrumentation
 import androidx.test.uiautomator.UiDevice
 import com.android.server.wm.flicker.helpers.isShellTransitionsEnabled
-import com.android.server.wm.flicker.io.TraceType
 import com.android.server.wm.flicker.monitor.EventLogMonitor
 import com.android.server.wm.flicker.monitor.ITransitionMonitor
 import com.android.server.wm.flicker.monitor.LayersTraceMonitor
@@ -28,6 +27,7 @@ import com.android.server.wm.flicker.monitor.ScreenRecorder
 import com.android.server.wm.flicker.monitor.TransactionsTraceMonitor
 import com.android.server.wm.flicker.monitor.TransitionsTraceMonitor
 import com.android.server.wm.flicker.monitor.WindowManagerTraceMonitor
+import com.android.server.wm.traces.common.io.TraceType
 import com.android.server.wm.traces.common.layers.BaseLayerTraceEntry
 import com.android.server.wm.traces.common.layers.LayersTrace
 import com.android.server.wm.traces.common.transactions.TransactionsTrace

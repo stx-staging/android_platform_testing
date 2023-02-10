@@ -17,13 +17,13 @@
 package com.android.server.wm.flicker.datastore
 
 import androidx.annotation.VisibleForTesting
-import com.android.server.wm.flicker.io.ResultData
+import com.android.server.wm.flicker.io.IResultData
 import com.android.server.wm.flicker.service.assertors.IAssertionResult
 import com.android.server.wm.traces.common.IScenario
 
 /** In memory data store for flicker transitions, assertions and results */
 object DataStore {
-    private val cachedResults = mutableMapOf<IScenario, ResultData>()
+    private val cachedResults = mutableMapOf<IScenario, IResultData>()
     private val cachedFlickerServiceAssertions = mutableMapOf<IScenario, List<IAssertionResult>>()
 
     @VisibleForTesting
@@ -41,7 +41,7 @@ object DataStore {
      * @throws IllegalStateException is [scenario] already exists in the data store
      */
     @Throws(IllegalStateException::class)
-    fun addResult(scenario: IScenario, result: ResultData) {
+    fun addResult(scenario: IScenario, result: IResultData) {
         if (containsResult(scenario)) {
             error("Result for $scenario already in data store")
         }
@@ -54,7 +54,7 @@ object DataStore {
      * @throws IllegalStateException is [scenario] doesn't exist in the data store
      */
     @Throws(IllegalStateException::class)
-    fun replaceResult(scenario: IScenario, newResult: ResultData) {
+    fun replaceResult(scenario: IScenario, newResult: IResultData) {
         if (!containsResult(scenario)) {
             error("Result for $scenario not in data store")
         }
@@ -67,7 +67,7 @@ object DataStore {
      * @throws IllegalStateException is [scenario] doesn't exist in the data store
      */
     @Throws(IllegalStateException::class)
-    fun getResult(scenario: IScenario): ResultData =
+    fun getResult(scenario: IScenario): IResultData =
         cachedResults[scenario] ?: error("No value for $scenario")
 
     /** @return if the store has results for [scenario] */

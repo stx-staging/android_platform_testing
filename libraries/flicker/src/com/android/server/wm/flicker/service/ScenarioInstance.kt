@@ -16,10 +16,10 @@
 
 package com.android.server.wm.flicker.service
 
-import com.android.server.wm.flicker.io.IReader
 import com.android.server.wm.flicker.service.config.FaasScenarioType
 import com.android.server.wm.traces.common.Timestamp
 import com.android.server.wm.traces.common.events.CujType
+import com.android.server.wm.traces.common.io.IReader
 import com.android.server.wm.traces.common.service.PlatformConsts
 import com.android.server.wm.traces.common.transition.Transition
 

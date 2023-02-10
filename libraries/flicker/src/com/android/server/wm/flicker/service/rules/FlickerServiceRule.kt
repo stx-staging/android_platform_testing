@@ -19,11 +19,11 @@ package com.android.server.wm.flicker.service.rules
 import android.platform.test.rule.TestWatcher
 import android.util.Log
 import androidx.test.platform.app.InstrumentationRegistry
-import com.android.server.wm.flicker.FLICKER_TAG
 import com.android.server.wm.flicker.getDefaultFlickerOutputDir
 import com.android.server.wm.flicker.service.FlickerServiceResultsCollector
 import com.android.server.wm.flicker.service.FlickerServiceTracesCollector
 import com.android.server.wm.flicker.service.IFlickerServiceResultsCollector
+import com.android.server.wm.traces.common.FLICKER_TAG
 import org.junit.AssumptionViolatedException
 import org.junit.runner.Description
 import org.junit.runner.notification.Failure

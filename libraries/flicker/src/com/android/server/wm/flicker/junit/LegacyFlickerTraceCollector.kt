@@ -19,9 +19,9 @@ package com.android.server.wm.flicker.junit
 import android.util.Log
 import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
 import com.android.server.wm.flicker.datastore.CachedResultReader
-import com.android.server.wm.flicker.io.IReader
 import com.android.server.wm.flicker.service.ITracesCollector
 import com.android.server.wm.traces.common.IScenario
+import com.android.server.wm.traces.common.io.IReader
 
 class LegacyFlickerTraceCollector(private val scenario: IScenario) : ITracesCollector {
     override fun start() {}

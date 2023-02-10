@@ -16,9 +16,10 @@
 
 package com.android.server.wm.flicker.io
 
-import android.annotation.SuppressLint
 import com.android.server.wm.InitRule
-import com.android.server.wm.flicker.AssertionTag
+import com.android.server.wm.traces.common.AssertionTag
+import com.android.server.wm.traces.common.io.ResultArtifactDescriptor
+import com.android.server.wm.traces.common.io.TraceType
 import com.google.common.truth.Truth
 import org.junit.ClassRule
 import org.junit.FixMethodOrder
@@ -26,7 +27,6 @@ import org.junit.Test
 import org.junit.runners.MethodSorters
 
 /** Tests for [ResultArtifactDescriptor] */
-@SuppressLint("VisibleForTests")
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class ResultArtifactDescriptorTest {
     @Test
@@ -97,7 +97,7 @@ class ResultArtifactDescriptorTest {
     }
 
     private fun buildTaggedName(traceType: TraceType): String =
-        ResultArtifactDescriptor.newTestInstance(traceType, TEST_TAG).fileNameInArtifact
+        ResultArtifactDescriptor(traceType, TEST_TAG).fileNameInArtifact
 
     private fun parseDescriptorAndValidateType(
         fileNameInArtifact: String,
@@ -113,7 +113,7 @@ class ResultArtifactDescriptorTest {
     }
 
     private fun createDescriptorAndValidateFileName(traceType: TraceType) {
-        val descriptor = ResultArtifactDescriptor.newTestInstance(traceType)
+        val descriptor = ResultArtifactDescriptor(traceType)
         Truth.assertWithMessage("Result file name")
             .that(descriptor.fileNameInArtifact)
             .isEqualTo(traceType.fileName)
@@ -121,7 +121,7 @@ class ResultArtifactDescriptorTest {
 
     private fun createDescriptorAndValidateFileNameWithTag(traceType: TraceType) {
         val tag = "testTag"
-        val descriptor = ResultArtifactDescriptor.newTestInstance(traceType, TEST_TAG)
+        val descriptor = ResultArtifactDescriptor(traceType, TEST_TAG)
         val subject =
             Truth.assertWithMessage("Result file name").that(descriptor.fileNameInArtifact)
         subject.startsWith(tag)

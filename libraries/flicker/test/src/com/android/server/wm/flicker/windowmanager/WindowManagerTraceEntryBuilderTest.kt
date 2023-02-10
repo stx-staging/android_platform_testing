@@ -17,7 +17,6 @@
 package com.android.server.wm.flicker.windowmanager
 
 import com.android.server.wm.InitRule
-import com.android.server.wm.traces.common.Timestamp
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTraceEntryBuilder
 import com.android.server.wm.traces.common.windowmanager.windows.ConfigurationContainer
 import com.android.server.wm.traces.common.windowmanager.windows.KeyguardControllerState

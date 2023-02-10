@@ -16,8 +16,8 @@
 
 package com.android.server.wm.flicker.assertions
 
-import com.android.server.wm.flicker.RunStatus
-import com.android.server.wm.flicker.io.IReader
+import com.android.server.wm.traces.common.io.IReader
+import com.android.server.wm.traces.common.io.RunStatus
 
 /**
  * Helper class to run an assertions

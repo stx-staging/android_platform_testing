@@ -6,13 +6,13 @@ import com.android.internal.jank.EventLogTags
 import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
 import com.android.server.wm.flicker.io.ResultReader
-import com.android.server.wm.flicker.io.TraceType
 import com.android.server.wm.flicker.newTestResultWriter
 import com.android.server.wm.flicker.now
 import com.android.server.wm.traces.common.events.CujEvent
 import com.android.server.wm.traces.common.events.CujType
 import com.android.server.wm.traces.common.events.EventLog.Companion.MAGIC_NUMBER
 import com.android.server.wm.traces.common.events.FocusEvent
+import com.android.server.wm.traces.common.io.TraceType
 import com.google.common.truth.Truth
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

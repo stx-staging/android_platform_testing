@@ -16,22 +16,21 @@
 
 package com.android.server.wm.flicker.assertions
 
-import com.android.server.wm.flicker.AssertionTag
-import com.android.server.wm.flicker.io.IReader
 import com.android.server.wm.flicker.traces.FlickerSubjectException
+import com.android.server.wm.traces.common.AssertionTag
+import com.android.server.wm.traces.common.io.IReader
 import java.io.ByteArrayOutputStream
-import java.io.File
 import java.io.PrintStream
 
 class FlickerAssertionErrorBuilder {
     private var error: Throwable? = null
-    private var artifactPath: File? = null
+    private var artifactPath: String = ""
     private var tag = ""
 
     fun fromError(error: Throwable): FlickerAssertionErrorBuilder = apply { this.error = error }
 
     fun withReader(reader: IReader): FlickerAssertionErrorBuilder = apply {
-        artifactPath = reader.artifact
+        artifactPath = reader.artifactPath
     }
 
     fun atTag(_tag: String): FlickerAssertionErrorBuilder = apply {
@@ -71,9 +70,9 @@ class FlickerAssertionErrorBuilder {
 
     private val traceFileMessage
         get() = buildString {
-            artifactPath?.let {
+            if (artifactPath.isNotEmpty()) {
                 append("\t")
-                append(it)
+                append(artifactPath)
             }
         }
 
