@@ -16,7 +16,6 @@
 
 package com.android.server.wm.flicker.traces.layers
 
-import com.android.server.wm.flicker.assertions.Assertion
 import com.android.server.wm.flicker.assertions.Fact
 import com.android.server.wm.flicker.traces.FlickerTraceSubject
 import com.android.server.wm.flicker.traces.region.RegionTraceSubject
@@ -229,7 +228,7 @@ class LayersTraceSubject(
     operator fun invoke(
         name: String,
         isOptional: Boolean = false,
-        assertion: Assertion<LayerTraceEntrySubject>
+        assertion: (LayerTraceEntrySubject) -> Unit
     ): LayersTraceSubject = apply { addAssertion(name, isOptional, assertion) }
 
     fun hasFrameSequence(name: String, frameNumbers: Iterable<Long>): LayersTraceSubject =

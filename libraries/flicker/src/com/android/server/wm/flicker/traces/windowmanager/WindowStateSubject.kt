@@ -16,7 +16,6 @@
 
 package com.android.server.wm.flicker.traces.windowmanager
 
-import com.android.server.wm.flicker.assertions.Assertion
 import com.android.server.wm.flicker.assertions.Fact
 import com.android.server.wm.flicker.assertions.FlickerSubject
 import com.android.server.wm.flicker.traces.region.RegionSubject
@@ -63,7 +62,7 @@ class WindowStateSubject(
     override val selfFacts = listOf(Fact("Window title", "${windowState?.title ?: windowTitle}"))
 
     /** If the [windowState] exists, executes a custom [assertion] on the current subject */
-    operator fun invoke(assertion: Assertion<WindowState>): WindowStateSubject = apply {
+    operator fun invoke(assertion: (WindowState) -> Unit): WindowStateSubject = apply {
         windowState ?: return exists()
         assertion(this.windowState)
     }

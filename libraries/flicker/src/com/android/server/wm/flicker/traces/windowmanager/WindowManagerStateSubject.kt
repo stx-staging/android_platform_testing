@@ -17,7 +17,6 @@
 package com.android.server.wm.flicker.traces.windowmanager
 
 import androidx.annotation.VisibleForTesting
-import com.android.server.wm.flicker.assertions.Assertion
 import com.android.server.wm.flicker.assertions.Fact
 import com.android.server.wm.flicker.assertions.FlickerSubject
 import com.android.server.wm.flicker.traces.region.RegionSubject
@@ -80,7 +79,7 @@ class WindowManagerStateSubject(
         get() = subjects.filter { wmState.visibleAppWindows.contains(it.windowState) }
 
     /** Executes a custom [assertion] on the current subject */
-    operator fun invoke(assertion: Assertion<WindowManagerState>): WindowManagerStateSubject =
+    operator fun invoke(assertion: (WindowManagerState) -> Unit): WindowManagerStateSubject =
         apply {
             assertion(this.wmState)
         }

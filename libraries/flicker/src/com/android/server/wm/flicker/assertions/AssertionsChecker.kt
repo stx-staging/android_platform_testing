@@ -18,6 +18,7 @@ package com.android.server.wm.flicker.assertions
 
 import android.util.Log
 import com.android.server.wm.flicker.FLICKER_TAG
+import com.android.server.wm.traces.common.assertions.CompoundAssertion
 import kotlin.math.max
 
 /**
@@ -35,22 +36,14 @@ class AssertionsChecker<T : FlickerSubject> {
     internal fun isEmpty() = assertions.isEmpty()
 
     /** Add [assertion] to a new [CompoundAssertion] block. */
-    fun add(name: String, isOptional: Boolean = false, assertion: Assertion<T>) {
+    fun add(name: String, isOptional: Boolean = false, assertion: (T) -> Unit) {
         assertions.add(CompoundAssertion(assertion, name, isOptional))
     }
 
     /** Append [assertion] to the last existing set of assertions. */
-    fun append(name: String, isOptional: Boolean = false, assertion: Assertion<T>) {
+    fun append(name: String, isOptional: Boolean = false, assertion: (T) -> Unit) {
         assertions.last().add(assertion, name, isOptional)
     }
-
-    /**
-     * Filters trace entries then runs assertions returning a list of failures.
-     *
-     * @param entries list of entries to perform assertions on
-     * @return list of failed assertion results
-     */
-    fun test(entries: List<T>): Unit = assertChanges(entries)
 
     /**
      * Steps through each trace entry checking if provided assertions are true in the order they are
@@ -63,13 +56,15 @@ class AssertionsChecker<T : FlickerSubject> {
      * It is also possible to ignore failures on initial elements, until the first assertion passes,
      * this allows the trace to be recorded for longer periods, and the checks to happen only after
      * some time.
+     *
+     * @param entries list of entries to perform assertions on
+     * @return list of failed assertion results
      */
-    fun assertChanges(entries: List<T>) {
+    fun test(entries: List<T>) {
         if (assertions.isEmpty() || entries.isEmpty()) {
             return
         }
 
-        val failures = mutableListOf<Throwable>()
         var entryIndex = 0
         var assertionIndex = 0
         var lastPassedAssertionIndex = -1
@@ -111,12 +106,12 @@ class AssertionsChecker<T : FlickerSubject> {
             }
         }
         // Didn't pass any assertions
-        if (lastPassedAssertionIndex == -1 && assertions.isNotEmpty() && failures.isEmpty()) {
+        if (lastPassedAssertionIndex == -1 && assertions.isNotEmpty()) {
             entries.first().fail("Assertion never passed", assertions.first())
         }
 
         val untestedAssertions = assertions.drop(assertionIndex + 1)
-        if (failures.isEmpty() && untestedAssertions.any { !it.isOptional }) {
+        if (untestedAssertions.any { !it.isOptional }) {
             val passedAssertionsFacts = assertions.take(assertionIndex).map { Fact("Passed", it) }
             val untestedAssertionsFacts = untestedAssertions.map { Fact("Untested", it) }
             val trace = assertionTrace.map { Fact("Trace", it) }
@@ -146,7 +141,7 @@ class AssertionsChecker<T : FlickerSubject> {
             return false
         }
         assertions.forEachIndexed { index, assertion ->
-            if (!assertion.isEqual(other.assertions[index])) {
+            if (assertion != other.assertions[index]) {
                 return false
             }
         }

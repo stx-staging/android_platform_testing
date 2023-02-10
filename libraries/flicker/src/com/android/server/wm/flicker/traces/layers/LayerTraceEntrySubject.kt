@@ -16,7 +16,6 @@
 
 package com.android.server.wm.flicker.traces.layers
 
-import com.android.server.wm.flicker.assertions.Assertion
 import com.android.server.wm.flicker.assertions.Fact
 import com.android.server.wm.flicker.assertions.FlickerSubject
 import com.android.server.wm.flicker.traces.region.RegionSubject
@@ -59,7 +58,7 @@ class LayerTraceEntrySubject(
     val subjects by lazy { entry.flattenedLayers.map { LayerSubject(this, timestamp, it) } }
 
     /** Executes a custom [assertion] on the current subject */
-    operator fun invoke(assertion: Assertion<BaseLayerTraceEntry>): LayerTraceEntrySubject = apply {
+    operator fun invoke(assertion: (BaseLayerTraceEntry) -> Unit): LayerTraceEntrySubject = apply {
         assertion(this.entry)
     }
 

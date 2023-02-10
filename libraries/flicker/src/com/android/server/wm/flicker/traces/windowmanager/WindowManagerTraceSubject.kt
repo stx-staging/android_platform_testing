@@ -17,7 +17,6 @@
 package com.android.server.wm.flicker.traces.windowmanager
 
 import androidx.annotation.VisibleForTesting
-import com.android.server.wm.flicker.assertions.Assertion
 import com.android.server.wm.flicker.assertions.Fact
 import com.android.server.wm.flicker.traces.FlickerTraceSubject
 import com.android.server.wm.flicker.traces.region.RegionTraceSubject
@@ -565,7 +564,7 @@ class WindowManagerTraceSubject(
     operator fun invoke(
         name: String,
         isOptional: Boolean = false,
-        assertion: Assertion<WindowManagerStateSubject>
+        assertion: (WindowManagerStateSubject) -> Unit
     ): WindowManagerTraceSubject = apply { addAssertion(name, isOptional, assertion) }
 
     /** Run the assertions for all trace entries within the specified time range */

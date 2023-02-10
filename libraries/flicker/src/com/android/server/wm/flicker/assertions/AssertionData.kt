@@ -16,12 +16,10 @@
 
 package com.android.server.wm.flicker.assertions
 
-import androidx.annotation.VisibleForTesting
 import kotlin.reflect.KClass
 
 /** Class containing basic data about an assertion */
-data class AssertionData
-internal constructor(
+data class AssertionData(
     /** Segment of the trace where the assertion will be applied (e.g., start, end). */
     val tag: String,
     /** Expected run result type */
@@ -50,14 +48,5 @@ internal constructor(
         append("', assertion='")
         append(assertion)
         append(")")
-    }
-
-    companion object {
-        @VisibleForTesting
-        fun newTestInstance(
-            tag: String,
-            expectedSubjectClass: KClass<out FlickerSubject>,
-            assertion: FlickerSubject.() -> Unit
-        ) = AssertionData(tag, expectedSubjectClass, assertion)
     }
 }

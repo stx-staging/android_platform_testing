@@ -16,7 +16,6 @@
 
 package com.android.server.wm.flicker.traces
 
-import com.android.server.wm.flicker.assertions.Assertion
 import com.android.server.wm.flicker.assertions.AssertionsChecker
 import com.android.server.wm.flicker.assertions.Fact
 import com.android.server.wm.flicker.assertions.FlickerSubject
@@ -53,7 +52,7 @@ abstract class FlickerTraceSubject<EntrySubject : FlickerSubject> : FlickerSubje
     protected fun addAssertion(
         name: String,
         isOptional: Boolean = false,
-        assertion: Assertion<EntrySubject>
+        assertion: (EntrySubject) -> Unit
     ) {
         if (newAssertionBlock) {
             assertionsChecker.add(name, isOptional, assertion)
