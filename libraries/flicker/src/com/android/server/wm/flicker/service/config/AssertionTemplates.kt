@@ -30,6 +30,11 @@ import com.android.server.wm.flicker.service.assertors.assertions.AppWindowBecom
 import com.android.server.wm.flicker.service.assertors.assertions.AppWindowBecomesVisible
 import com.android.server.wm.flicker.service.assertors.assertions.AppWindowCoversFullScreenAtEnd
 import com.android.server.wm.flicker.service.assertors.assertions.AppWindowCoversFullScreenAtStart
+import com.android.server.wm.flicker.service.assertors.assertions.AppWindowIsInvisibleAtEnd
+import com.android.server.wm.flicker.service.assertors.assertions.AppWindowIsInvisibleAtStart
+import com.android.server.wm.flicker.service.assertors.assertions.AppWindowIsTopWindowAtStart
+import com.android.server.wm.flicker.service.assertors.assertions.AppWindowIsVisibleAtEnd
+import com.android.server.wm.flicker.service.assertors.assertions.AppWindowIsVisibleAtStart
 import com.android.server.wm.flicker.service.assertors.assertions.AppWindowOnTopAtEnd
 import com.android.server.wm.flicker.service.assertors.assertions.AppWindowOnTopAtStart
 import com.android.server.wm.flicker.service.assertors.assertions.EntireScreenCoveredAlways

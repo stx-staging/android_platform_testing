@@ -85,6 +85,16 @@ object FlickerServiceConfig {
                         ),
                     assertionTemplates = LAUNCHER_QUICK_SWITCH_ASSERTIONS
                 )
+            FaasScenarioType.LAUNCHER_APP_LAUNCH_FROM_RECENTS ->
+                ScenarioConfig(
+                    extractor =
+                        TaggedScenarioExtractor(
+                            targetTag = CujType.CUJ_LAUNCHER_APP_LAUNCH_FROM_RECENTS,
+                            type,
+                            transitionMatcher = TransitionMatcher(OPEN_APP_TRANSITION_FILTER)
+                        ),
+                    assertionTemplates = APP_LAUNCH_FROM_HOME_ASSERTIONS
+                )
         }
 
     fun getExtractors(): List<IScenarioExtractor> {
