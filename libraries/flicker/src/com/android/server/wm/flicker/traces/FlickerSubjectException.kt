@@ -17,7 +17,6 @@
 package com.android.server.wm.flicker.traces
 
 import com.android.server.wm.flicker.assertions.FlickerSubject
-import com.android.server.wm.flicker.helpers.format
 import com.android.server.wm.traces.common.Timestamp
 import com.android.server.wm.traces.common.assertions.Fact
 
@@ -39,7 +38,7 @@ class FlickerSubjectException(
 
         appendLine()
         appendLine("Where?")
-        appendLine(timestamp.format().prependIndent("\t"))
+        appendLine(timestamp.toString().prependIndent("\t") ?: "")
 
         appendLine()
         appendLine("Facts")

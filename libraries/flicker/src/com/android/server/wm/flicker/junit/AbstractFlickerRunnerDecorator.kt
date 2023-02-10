@@ -70,7 +70,7 @@ abstract class AbstractFlickerRunnerDecorator(
     /** Validate that the test has one method annotated with [FlickerBuilderProvider] */
     private fun internalDoValidateInstanceMethods(): List<Throwable> {
         val errors = mutableListOf<Throwable>()
-        val methods = Utils.getCandidateProviderMethods(testClass)
+        val methods = getCandidateProviderMethods(testClass)
 
         if (methods.isEmpty() || methods.size > 1) {
             val prefix = if (methods.isEmpty()) "One" else "Only one"
@@ -123,11 +123,16 @@ abstract class AbstractFlickerRunnerDecorator(
 
     private val providerMethod: FrameworkMethod
         get() =
-            Utils.getCandidateProviderMethods(testClass).firstOrNull()
+            getCandidateProviderMethods(testClass).firstOrNull()
                 ?: error("Provider method not found")
 
     private fun getFlickerBuilder(test: Any): FlickerBuilder {
         Log.v(FLICKER_TAG, "Obtaining flicker builder for $testClass")
         return providerMethod.invokeExplosively(test) as FlickerBuilder
+    }
+
+    companion object {
+        private fun getCandidateProviderMethods(testClass: TestClass): List<FrameworkMethod> =
+            testClass.getAnnotatedMethods(FlickerBuilderProvider::class.java) ?: emptyList()
     }
 }

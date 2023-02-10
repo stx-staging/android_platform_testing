@@ -19,17 +19,70 @@ package com.android.server.wm.traces.common
 import kotlin.math.max
 
 /**
- * Time class with all available timestamp types
+ * Time interface with all available timestamp types
  *
  * @param elapsedNanos Nanoseconds since boot, including time spent in sleep.
  * @param systemUptimeNanos Nanoseconds since boot, not counting time spent in deep sleep
  * @param unixNanos Nanoseconds since Unix epoch
  */
-data class Timestamp(
-    val elapsedNanos: Long = NULL_TIMESTAMP,
-    val systemUptimeNanos: Long = NULL_TIMESTAMP,
-    val unixNanos: Long = NULL_TIMESTAMP,
+data class Timestamp
+internal constructor(
+    val elapsedNanos: Long = 0L,
+    val systemUptimeNanos: Long = 0L,
+    val unixNanos: Long = 0L,
+    private val realTimestampFormatter: (Long) -> String
 ) : Comparable<Timestamp> {
+    val hasElapsedTimestamp = elapsedNanos != 0L
+    val hasSystemUptimeTimestamp = systemUptimeNanos != 0L
+    val hasUnixTimestamp = unixNanos != 0L
+    val isEmpty = !hasElapsedTimestamp && !hasSystemUptimeTimestamp && !hasUnixTimestamp
+    val hasAllTimestamps = hasUnixTimestamp && hasSystemUptimeTimestamp && hasElapsedTimestamp
+
+    fun unixNanosToLogFormat(): String {
+        val seconds = unixNanos / SECOND_AS_NANOSECONDS
+        val nanos = unixNanos % SECOND_AS_NANOSECONDS
+        return "$seconds.${nanos.toString().padStart(9, '0')}"
+    }
+
+    override fun toString(): String {
+        return when {
+            isEmpty -> "<NO TIMESTAMP>"
+            hasUnixTimestamp -> "${realTimestampFormatter(unixNanos)} (${unixNanos}ns)"
+            hasSystemUptimeTimestamp ->
+                "${formatElapsedTimestamp(systemUptimeNanos)} (${systemUptimeNanos}ns)"
+            hasElapsedTimestamp -> "${formatElapsedTimestamp(elapsedNanos)} (${elapsedNanos}ns)"
+            else -> error("Timestamp had no valid timestamps sets")
+        }
+    }
+
+    operator fun minus(nanos: Long): Timestamp {
+        val elapsedNanos = max(this.elapsedNanos - nanos, 0L)
+        val systemUptimeNanos = max(this.systemUptimeNanos - nanos, 0L)
+        val unixNanos = max(this.unixNanos - nanos, 0L)
+        return Timestamp(elapsedNanos, systemUptimeNanos, unixNanos, realTimestampFormatter)
+    }
+
+    operator fun minus(timestamp: Timestamp): Timestamp {
+        val elapsedNanos =
+            if (this.hasElapsedTimestamp && timestamp.hasElapsedTimestamp) {
+                this.elapsedNanos - timestamp.elapsedNanos
+            } else {
+                0L
+            }
+        val systemUptimeNanos =
+            if (this.hasSystemUptimeTimestamp && timestamp.hasSystemUptimeTimestamp) {
+                this.systemUptimeNanos - timestamp.systemUptimeNanos
+            } else {
+                0L
+            }
+        val unixNanos =
+            if (this.hasUnixTimestamp && timestamp.hasUnixTimestamp) {
+                this.unixNanos - timestamp.unixNanos
+            } else {
+                0L
+            }
+        return Timestamp(elapsedNanos, systemUptimeNanos, unixNanos, realTimestampFormatter)
+    }
 
     enum class PreferredType {
         ELAPSED,
@@ -41,32 +94,14 @@ data class Timestamp(
     // The preferred and most accurate time type to use when running Timestamp operations or
     // comparisons
     private val preferredType: PreferredType
-        get() {
-            if (elapsedNanos != NULL_TIMESTAMP && systemUptimeNanos != NULL_TIMESTAMP) {
-                return PreferredType.ANY
+        get() =
+            when {
+                hasElapsedTimestamp && hasSystemUptimeTimestamp -> PreferredType.ANY
+                hasElapsedTimestamp -> PreferredType.ELAPSED
+                hasSystemUptimeTimestamp -> PreferredType.SYSTEM_UPTIME
+                hasUnixTimestamp -> PreferredType.UNIX
+                else -> error("No valid timestamp available")
             }
-
-            // We assume that elapsedNanos and systemUptimeNanos are more accurate in traces, so we
-            // prefer those
-            if (elapsedNanos != NULL_TIMESTAMP) {
-                return PreferredType.ELAPSED
-            }
-            if (systemUptimeNanos != NULL_TIMESTAMP) {
-                return PreferredType.SYSTEM_UPTIME
-            }
-            if (unixNanos != NULL_TIMESTAMP) {
-                return PreferredType.UNIX
-            }
-
-            throw RuntimeException("No valid timestamp available")
-        }
-
-    val hasAllTimestamps: Boolean =
-        this.elapsedNanos != NULL_TIMESTAMP &&
-            this.systemUptimeNanos != NULL_TIMESTAMP &&
-            this.unixNanos != NULL_TIMESTAMP
-
-    val hasUnixTimestamp: Boolean = unixNanos != NULL_TIMESTAMP
 
     override fun compareTo(other: Timestamp): Int {
         var useType = PreferredType.ANY
@@ -78,100 +113,57 @@ data class Timestamp(
             useType = this.preferredType
         }
 
-        when (useType) {
-            PreferredType.ELAPSED -> {
-                return when {
-                    this.elapsedNanos > other.elapsedNanos -> 1
-                    this.elapsedNanos < other.elapsedNanos -> -1
-                    else -> 0
-                }
-            }
-            PreferredType.SYSTEM_UPTIME -> {
-                return when {
-                    this.systemUptimeNanos > other.systemUptimeNanos -> 1
-                    this.systemUptimeNanos < other.systemUptimeNanos -> -1
-                    else -> 0
-                }
-            }
+        return when (useType) {
+            PreferredType.ELAPSED -> this.elapsedNanos.compareTo(other.elapsedNanos)
+            PreferredType.SYSTEM_UPTIME -> this.systemUptimeNanos.compareTo(other.systemUptimeNanos)
             PreferredType.UNIX,
             PreferredType.ANY -> {
-                // Continue to code below to be handled
+                when {
+                    // If preferred timestamps don't match then comparing UNIX timestamps is
+                    // probably most accurate
+                    this.hasUnixTimestamp && other.hasUnixTimestamp ->
+                        this.unixNanos.compareTo(other.unixNanos)
+                    // Assumes timestamps are collected from the same device
+                    this.hasElapsedTimestamp && other.hasElapsedTimestamp ->
+                        this.elapsedNanos.compareTo(other.elapsedNanos)
+                    this.hasSystemUptimeTimestamp && other.hasSystemUptimeTimestamp ->
+                        this.systemUptimeNanos.compareTo(other.systemUptimeNanos)
+                    else -> error("Timestamps $this and $other are not comparable")
+                }
             }
         }
-
-        // If preferred timestamps don't match then comparing UNIX timestamps is probably most
-        // accurate
-        if (this.unixNanos != NULL_TIMESTAMP && other.unixNanos != NULL_TIMESTAMP) {
-            return when {
-                this.unixNanos > other.unixNanos -> 1
-                this.unixNanos < other.unixNanos -> -1
-                else -> 0
-            }
-        }
-
-        // Assumes timestamps are collected from the same device
-        if (this.elapsedNanos != NULL_TIMESTAMP && other.elapsedNanos != NULL_TIMESTAMP) {
-            return when {
-                this.elapsedNanos > other.elapsedNanos -> 1
-                this.elapsedNanos < other.elapsedNanos -> -1
-                else -> 0
-            }
-        }
-
-        if (this.systemUptimeNanos != NULL_TIMESTAMP && other.elapsedNanos != NULL_TIMESTAMP) {
-            return when {
-                this.systemUptimeNanos > other.elapsedNanos -> 1
-                this.systemUptimeNanos < other.elapsedNanos -> -1
-                else -> 0
-            }
-        }
-
-        throw Throwable("Timestamps are not comparable no common timestamp types to compare.")
-    }
-
-    operator fun minus(nanos: Long): Timestamp {
-        val elapsedNanos = max(this.elapsedNanos - nanos, NULL_TIMESTAMP)
-        val systemUptimeNanos = max(this.systemUptimeNanos - nanos, NULL_TIMESTAMP)
-        val unixNanos = max(this.unixNanos - nanos, NULL_TIMESTAMP)
-        return Timestamp(elapsedNanos, systemUptimeNanos, unixNanos)
-    }
-
-    operator fun minus(timestamp: Timestamp): Timestamp {
-        val elapsedNanos =
-            if (this.elapsedNanos != NULL_TIMESTAMP && timestamp.elapsedNanos != NULL_TIMESTAMP) {
-                this.elapsedNanos - timestamp.elapsedNanos
-            } else {
-                NULL_TIMESTAMP
-            }
-        val systemUptimeNanos =
-            if (
-                this.systemUptimeNanos != NULL_TIMESTAMP &&
-                    timestamp.systemUptimeNanos != NULL_TIMESTAMP
-            ) {
-                this.systemUptimeNanos - timestamp.systemUptimeNanos
-            } else {
-                NULL_TIMESTAMP
-            }
-        val unixNanos =
-            if (this.unixNanos != NULL_TIMESTAMP && timestamp.unixNanos != NULL_TIMESTAMP) {
-                this.unixNanos - timestamp.unixNanos
-            } else {
-                NULL_TIMESTAMP
-            }
-        return Timestamp(elapsedNanos, systemUptimeNanos, unixNanos)
     }
 
     companion object {
-        fun from(elapsedNanos: Long, elapsedOffsetNanos: Long): Timestamp {
-            return Timestamp(
-                elapsedNanos = elapsedNanos,
-                unixNanos = elapsedNanos + elapsedOffsetNanos
-            )
-        }
+        fun formatElapsedTimestamp(timestampNs: Long): String {
+            var remainingNs = timestampNs
+            val prettyTimestamp = StringBuilder()
 
-        const val NULL_TIMESTAMP = 0L
-        val EMPTY = Timestamp(NULL_TIMESTAMP, NULL_TIMESTAMP, NULL_TIMESTAMP)
-        val MIN = Timestamp(1, 1, 1)
-        val MAX = Timestamp(Long.MAX_VALUE, Long.MAX_VALUE, Long.MAX_VALUE)
+            val timeUnitToNanoSeconds =
+                mapOf(
+                    "d" to DAY_AS_NANOSECONDS,
+                    "h" to HOUR_AS_NANOSECONDS,
+                    "m" to MINUTE_AS_NANOSECONDS,
+                    "s" to SECOND_AS_NANOSECONDS,
+                    "ms" to MILLISECOND_AS_NANOSECONDS,
+                    "ns" to 1,
+                )
+
+            for ((timeUnit, ns) in timeUnitToNanoSeconds) {
+                val convertedTime = remainingNs / ns
+                remainingNs %= ns
+                if (prettyTimestamp.isEmpty() && convertedTime == 0L) {
+                    // Trailing 0 unit
+                    continue
+                }
+                prettyTimestamp.append("$convertedTime$timeUnit")
+            }
+
+            if (prettyTimestamp.isEmpty()) {
+                return "0ns"
+            }
+
+            return prettyTimestamp.toString()
+        }
     }
 }

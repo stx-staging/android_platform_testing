@@ -18,7 +18,7 @@ package com.android.server.wm.flicker.datastore
 
 import com.android.server.wm.flicker.getDefaultFlickerOutputDir
 import com.android.server.wm.flicker.io.ResultData
-import com.android.server.wm.traces.common.Timestamp
+import com.android.server.wm.traces.common.TimestampFactory
 import com.android.server.wm.traces.common.io.RunStatus
 import com.android.server.wm.traces.common.io.TransitionTimeRange
 
@@ -28,7 +28,8 @@ object Consts {
     internal val TEST_RESULT =
         ResultData(
             _artifact = getDefaultFlickerOutputDir(),
-            _transitionTimeRange = TransitionTimeRange(Timestamp.EMPTY, Timestamp.EMPTY),
+            _transitionTimeRange =
+                TransitionTimeRange(TimestampFactory.empty(), TimestampFactory.empty()),
             _executionError = null,
             _runStatus = RunStatus.RUN_EXECUTED
         )
@@ -36,7 +37,8 @@ object Consts {
     internal val RESULT_FAILURE =
         ResultData(
             _artifact = getDefaultFlickerOutputDir(),
-            _transitionTimeRange = TransitionTimeRange(Timestamp.EMPTY, Timestamp.EMPTY),
+            _transitionTimeRange =
+                TransitionTimeRange(TimestampFactory.empty(), TimestampFactory.empty()),
             _executionError = null,
             _runStatus = RunStatus.RUN_EXECUTED
         )

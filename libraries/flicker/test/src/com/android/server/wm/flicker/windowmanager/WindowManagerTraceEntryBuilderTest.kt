@@ -17,6 +17,7 @@
 package com.android.server.wm.flicker.windowmanager
 
 import com.android.server.wm.InitRule
+import com.android.server.wm.traces.common.TimestampFactory
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTraceEntryBuilder
 import com.android.server.wm.traces.common.windowmanager.windows.ConfigurationContainer
 import com.android.server.wm.traces.common.windowmanager.windows.KeyguardControllerState
@@ -78,7 +79,7 @@ class WindowManagerTraceEntryBuilderTest {
 
         Truth.assertThat(entry.timestamp.elapsedNanos).isEqualTo(100)
         Truth.assertThat(entry.timestamp.systemUptimeNanos)
-            .isEqualTo(Timestamp.EMPTY.systemUptimeNanos)
+            .isEqualTo(TimestampFactory.empty().systemUptimeNanos)
         Truth.assertThat(entry.timestamp.unixNanos).isEqualTo(600)
     }
 
@@ -110,8 +111,8 @@ class WindowManagerTraceEntryBuilderTest {
 
         Truth.assertThat(entry.timestamp.elapsedNanos).isEqualTo(100)
         Truth.assertThat(entry.timestamp.systemUptimeNanos)
-            .isEqualTo(Timestamp.EMPTY.systemUptimeNanos)
-        Truth.assertThat(entry.timestamp.unixNanos).isEqualTo(Timestamp.EMPTY.unixNanos)
+            .isEqualTo(TimestampFactory.empty().systemUptimeNanos)
+        Truth.assertThat(entry.timestamp.unixNanos).isEqualTo(TimestampFactory.empty().unixNanos)
     }
 
     companion object {

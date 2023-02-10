@@ -54,10 +54,7 @@ data class TransitionsTrace(override val entries: Array<Transition>) :
     }
 
     override fun slice(startTimestamp: Timestamp, endTimestamp: Timestamp): TransitionsTrace {
-        require(
-            startTimestamp.elapsedNanos != Timestamp.NULL_TIMESTAMP &&
-                endTimestamp.elapsedNanos != Timestamp.NULL_TIMESTAMP
-        )
+        require(startTimestamp.hasElapsedTimestamp && endTimestamp.hasElapsedTimestamp)
         return sliceElapsed(startTimestamp.elapsedNanos, endTimestamp.elapsedNanos)
     }
 

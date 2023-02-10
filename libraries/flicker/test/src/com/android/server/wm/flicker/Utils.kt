@@ -33,7 +33,7 @@ import com.android.server.wm.flicker.monitor.WindowManagerTraceMonitor
 import com.android.server.wm.flicker.traces.FlickerSubjectException
 import com.android.server.wm.traces.common.IScenario
 import com.android.server.wm.traces.common.ScenarioBuilder
-import com.android.server.wm.traces.common.Timestamp
+import com.android.server.wm.traces.common.TimestampFactory
 import com.android.server.wm.traces.common.events.EventLog
 import com.android.server.wm.traces.common.io.RunStatus
 import com.android.server.wm.traces.common.io.WINSCOPE_EXT
@@ -85,8 +85,8 @@ internal fun readWmTraceFromFile(
         WindowManagerTraceParser(legacyTrace)
             .parse(
                 readAsset(relativePath),
-                Timestamp(elapsedNanos = from),
-                Timestamp(elapsedNanos = to),
+                TimestampFactory.from(elapsedNanos = from),
+                TimestampFactory.from(elapsedNanos = to),
                 addInitialEntry,
                 clearCache = false
             )

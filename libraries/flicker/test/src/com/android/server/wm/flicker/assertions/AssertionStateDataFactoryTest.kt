@@ -20,6 +20,7 @@ import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.traces.eventlog.EventLogSubject
 import com.android.server.wm.flicker.traces.layers.LayerTraceEntrySubject
 import com.android.server.wm.flicker.traces.windowmanager.WindowManagerStateSubject
+import com.android.server.wm.traces.common.AssertionTag
 import com.google.common.truth.Truth
 import kotlin.reflect.KClass
 import org.junit.ClassRule

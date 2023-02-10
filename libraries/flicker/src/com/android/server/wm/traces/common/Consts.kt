@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 The Android Open Source Project
+ * Copyright (C) 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.junit
+package com.android.server.wm.traces.common
 
-import org.junit.runners.model.FrameworkMethod
-import org.junit.runners.model.TestClass
-
-object Utils {
-    internal fun getCandidateProviderMethods(testClass: TestClass): List<FrameworkMethod> =
-        testClass.getAnnotatedMethods(FlickerBuilderProvider::class.java) ?: emptyList()
-}
+const val FLICKER_TAG = "FLICKER"
+const val MILLISECOND_AS_NANOSECONDS: Long = 1000000
+const val SECOND_AS_NANOSECONDS: Long = 1000000000
+const val MINUTE_AS_NANOSECONDS: Long = 60000000000
+const val HOUR_AS_NANOSECONDS: Long = 3600000000000
+const val DAY_AS_NANOSECONDS: Long = 86400000000000

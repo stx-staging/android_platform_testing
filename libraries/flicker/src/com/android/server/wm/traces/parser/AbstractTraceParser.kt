@@ -18,6 +18,7 @@ package com.android.server.wm.traces.parser
 
 import com.android.server.wm.traces.common.Cache
 import com.android.server.wm.traces.common.Timestamp
+import com.android.server.wm.traces.common.TimestampFactory
 import com.android.server.wm.traces.common.Utils
 import com.android.server.wm.traces.common.parser.AbstractParser
 
@@ -36,8 +37,8 @@ abstract class AbstractTraceParser<
     override fun parse(bytes: ByteArray, clearCache: Boolean): OutputTypeTrace {
         return parse(
             bytes,
-            from = Timestamp.MIN,
-            to = Timestamp.MAX,
+            from = TimestampFactory.min(),
+            to = TimestampFactory.max(),
             addInitialEntry = true,
             clearCache = clearCache
         )
@@ -46,15 +47,20 @@ abstract class AbstractTraceParser<
     override fun parse(input: InputTypeTrace, clearCache: Boolean): OutputTypeTrace {
         return parse(
             input,
-            from = Timestamp.MIN,
-            to = Timestamp.MAX,
+            from = TimestampFactory.min(),
+            to = TimestampFactory.max(),
             addInitialEntry = true,
             clearCache = clearCache
         )
     }
 
     override fun doParse(input: InputTypeTrace): OutputTypeTrace {
-        return doParse(input, from = Timestamp.MIN, to = Timestamp.MAX, addInitialEntry = true)
+        return doParse(
+            input,
+            from = TimestampFactory.min(),
+            to = TimestampFactory.max(),
+            addInitialEntry = true
+        )
     }
 
     /**

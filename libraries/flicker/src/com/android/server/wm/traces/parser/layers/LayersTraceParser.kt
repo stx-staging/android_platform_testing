@@ -26,6 +26,7 @@ import com.android.server.wm.traces.common.Rect
 import com.android.server.wm.traces.common.RectF
 import com.android.server.wm.traces.common.Size
 import com.android.server.wm.traces.common.Timestamp
+import com.android.server.wm.traces.common.TimestampFactory
 import com.android.server.wm.traces.common.layers.HwcCompositionType
 import com.android.server.wm.traces.common.layers.Layer
 import com.android.server.wm.traces.common.layers.LayerTraceEntry
@@ -44,7 +45,7 @@ class LayersTraceParser(
     AbstractTraceParser<
         Layerstrace.LayersTraceFileProto, Layerstrace.LayersTraceProto, LayerTraceEntry, LayersTrace
     >() {
-    private var realToElapsedTimeOffsetNanos = Timestamp.NULL_TIMESTAMP
+    private var realToElapsedTimeOffsetNanos = 0L
 
     override val traceName: String = "Layers Trace"
 
@@ -59,8 +60,8 @@ class LayersTraceParser(
     ): List<Layerstrace.LayersTraceProto> = input.entryList
 
     override fun getTimestamp(entry: Layerstrace.LayersTraceProto): Timestamp {
-        require(legacyTrace || realToElapsedTimeOffsetNanos != Timestamp.NULL_TIMESTAMP)
-        return Timestamp(
+        require(legacyTrace || realToElapsedTimeOffsetNanos != 0L)
+        return TimestampFactory.from(
             systemUptimeNanos = entry.elapsedRealtimeNanos,
             unixNanos = entry.elapsedRealtimeNanos + realToElapsedTimeOffsetNanos
         )
@@ -199,7 +200,7 @@ class LayersTraceParser(
             }
         }
 
-        fun Common.RectProto?.toRect(): Rect =
+        private fun Common.RectProto?.toRect(): Rect =
             Rect.from(this?.left ?: 0, this?.top ?: 0, this?.right ?: 0, this?.bottom ?: 0)
     }
 }

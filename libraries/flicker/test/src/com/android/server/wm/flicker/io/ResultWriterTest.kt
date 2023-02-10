@@ -28,7 +28,7 @@ import com.android.server.wm.flicker.getDefaultFlickerOutputDir
 import com.android.server.wm.flicker.newTestResultWriter
 import com.android.server.wm.flicker.outputFileName
 import com.android.server.wm.traces.common.ScenarioBuilder
-import com.android.server.wm.traces.common.Timestamp
+import com.android.server.wm.traces.common.TimestampFactory
 import com.android.server.wm.traces.common.io.RunStatus
 import com.android.server.wm.traces.common.io.TraceType
 import com.google.common.truth.Truth
@@ -63,10 +63,10 @@ class ResultWriterTest {
         Truth.assertWithMessage("File exists").that(path.exists()).isTrue()
         Truth.assertWithMessage("Transition start time")
             .that(result.transitionTimeRange.start)
-            .isEqualTo(Timestamp.MIN)
+            .isEqualTo(TimestampFactory.min())
         Truth.assertWithMessage("Transition end time")
             .that(result.transitionTimeRange.end)
-            .isEqualTo(Timestamp.MAX)
+            .isEqualTo(TimestampFactory.max())
         val reader = ResultReader(result, DEFAULT_TRACE_CONFIG)
         Truth.assertWithMessage("File count").that(reader.countFiles()).isEqualTo(0)
     }

@@ -17,22 +17,19 @@
 package com.android.server.wm.flicker.traces.eventlog
 
 import com.android.server.wm.flicker.assertions.FlickerSubject
-import com.android.server.wm.flicker.helpers.format
-import com.android.server.wm.traces.common.Timestamp
+import com.android.server.wm.traces.common.TimestampFactory
 import com.android.server.wm.traces.common.assertions.Fact
 import com.android.server.wm.traces.common.events.EventLog
 import com.android.server.wm.traces.common.events.FocusEvent
 
 /** Truth subject for [FocusEvent] objects. */
 class EventLogSubject(val eventLog: EventLog) : FlickerSubject() {
-    override val timestamp = Timestamp.EMPTY
+    override val timestamp = TimestampFactory.empty()
     override val parent = null
     override val selfFacts by lazy {
-        val firstTimestamp = eventLog.entries.firstOrNull()?.timestamp ?: Timestamp.EMPTY
-        val lastTimestamp = eventLog.entries.lastOrNull()?.timestamp ?: Timestamp.EMPTY
         listOf(
-            Fact("Trace start", firstTimestamp.format()),
-            Fact("Trace end", lastTimestamp.format())
+            Fact("Trace start", "${eventLog.entries.firstOrNull()?.timestamp}"),
+            Fact("Trace end", "${eventLog.entries.lastOrNull()?.timestamp}")
         )
     }
 

@@ -17,10 +17,12 @@
 package com.android.server.wm
 
 import android.annotation.SuppressLint
+import com.android.server.wm.flicker.Utils
 import com.android.server.wm.flicker.datastore.DataStore
 import com.android.server.wm.flicker.deleteIfExists
 import com.android.server.wm.flicker.outputFileName
 import com.android.server.wm.traces.common.Cache
+import com.android.server.wm.traces.common.TimestampFactory
 import com.android.server.wm.traces.common.io.RunStatus
 import org.junit.rules.TestRule
 import org.junit.runner.Description
@@ -30,6 +32,7 @@ import org.junit.runners.model.Statement
 @SuppressLint("VisibleForTests")
 class InitRule : TestRule {
     override fun apply(base: Statement, description: Description?): Statement {
+        TimestampFactory.setRealTimestampFormatter { Utils.formatRealTimestamp(it) }
         DataStore.clear()
         Cache.clear()
         RunStatus.ALL.forEach { outputFileName(it).deleteIfExists() }

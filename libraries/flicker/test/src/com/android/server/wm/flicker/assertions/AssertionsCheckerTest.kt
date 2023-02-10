@@ -22,6 +22,7 @@ import com.android.server.wm.flicker.assertThrows
 import com.android.server.wm.flicker.traces.FlickerSubjectException
 import com.android.server.wm.traces.common.ITraceEntry
 import com.android.server.wm.traces.common.Timestamp
+import com.android.server.wm.traces.common.TimestampFactory
 import com.android.server.wm.traces.common.assertions.Fact
 import com.google.common.truth.Truth
 import org.junit.ClassRule
@@ -145,10 +146,8 @@ class AssertionsCheckerTest {
     }
 
     private class SimpleEntrySubject(private val entry: SimpleEntry) : FlickerSubject() {
-        override val timestamp: Timestamp
-            get() = Timestamp.EMPTY
-        override val parent: FlickerSubject?
-            get() = null
+        override val timestamp = TimestampFactory.empty()
+        override val parent = null
         override val selfFacts = listOf(Fact("SimpleEntry", entry.mData.toString()))
 
         fun isData42() = apply { check { "data is 42" }.that(entry.mData).isEqual(42) }
@@ -175,7 +174,9 @@ class AssertionsCheckerTest {
          */
         private fun getTestEntries(vararg data: Int): List<SimpleEntrySubject> =
             data.indices.map {
-                SimpleEntrySubject(SimpleEntry(Timestamp(elapsedNanos = it.toLong()), data[it]))
+                SimpleEntrySubject(
+                    SimpleEntry(TimestampFactory.from(elapsedNanos = it.toLong()), data[it])
+                )
             }
         @ClassRule @JvmField val initRule = InitRule()
     }

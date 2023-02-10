@@ -16,7 +16,6 @@
 
 package com.android.server.wm.flicker.service.assertors
 
-import com.android.server.wm.flicker.helpers.format
 import com.android.server.wm.flicker.service.ScenarioInstance
 import com.android.server.wm.traces.common.assertions.Fact
 import com.android.server.wm.traces.common.layers.LayersTrace
@@ -29,10 +28,10 @@ data class FaasData(
 ) {
     fun toFacts(): Collection<Fact> {
         return mutableListOf(
-                Fact("Extracted from WM trace start", entireWmTrace.first().timestamp.format()),
-                Fact("Extracted from WM trace end", entireWmTrace.first().timestamp.format()),
-                Fact("Extracted from SF trace start", entireLayersTrace.first().timestamp.format()),
-                Fact("Extracted from SF trace end", entireLayersTrace.first().timestamp.format()),
+                Fact("Extracted from WM trace start", entireWmTrace.first().timestamp),
+                Fact("Extracted from WM trace end", entireWmTrace.first().timestamp),
+                Fact("Extracted from SF trace start", entireLayersTrace.first().timestamp),
+                Fact("Extracted from SF trace end", entireLayersTrace.first().timestamp),
                 Fact("Scenario description", scenarioInstance.description),
                 Fact("Scenario rotation", scenarioInstance.startRotation),
                 Fact("Scenario start", "${scenarioInstance.startTimestamp}"),

@@ -18,6 +18,7 @@ package com.android.server.wm.traces.parser.transition
 
 import com.android.server.wm.shell.nano.TransitionTraceProto
 import com.android.server.wm.traces.common.Timestamp
+import com.android.server.wm.traces.common.TimestampFactory
 import com.android.server.wm.traces.common.WindowingMode
 import com.android.server.wm.traces.common.transition.Transition
 import com.android.server.wm.traces.common.transition.Transition.Companion.Type
@@ -51,7 +52,7 @@ class TransitionsTraceParser :
     ): List<com.android.server.wm.shell.nano.Transition> = input.sentTransitions.toList()
 
     override fun getTimestamp(entry: com.android.server.wm.shell.nano.Transition): Timestamp {
-        return Timestamp(elapsedNanos = entry.createTimeNs)
+        return TimestampFactory.from(elapsedNanos = entry.createTimeNs)
     }
 
     override fun onBeforeParse(input: TransitionTraceProto) {}
@@ -64,8 +65,8 @@ class TransitionsTraceParser :
             }
 
         return Transition(
-            start = Timestamp(elapsedNanos = entry.createTimeNs),
-            sendTime = Timestamp(elapsedNanos = entry.sendTimeNs),
+            start = TimestampFactory.from(elapsedNanos = entry.createTimeNs),
+            sendTime = TimestampFactory.from(elapsedNanos = entry.sendTimeNs),
             startTransactionId = entry.startTransactionId,
             finishTransactionId = entry.finishTransactionId,
             changes = changes,

@@ -18,20 +18,17 @@ package com.android.server.wm.flicker.traces
 
 import com.android.server.wm.flicker.assertions.AssertionsChecker
 import com.android.server.wm.flicker.assertions.FlickerSubject
-import com.android.server.wm.flicker.helpers.format
-import com.android.server.wm.traces.common.Timestamp
+import com.android.server.wm.traces.common.TimestampFactory
 import com.android.server.wm.traces.common.assertions.Fact
 
 /** Base subject for flicker trace assertions */
 abstract class FlickerTraceSubject<EntrySubject : FlickerSubject> : FlickerSubject() {
     override val timestamp
-        get() = subjects.firstOrNull()?.timestamp ?: Timestamp.EMPTY
+        get() = subjects.firstOrNull()?.timestamp ?: TimestampFactory.empty()
     override val selfFacts by lazy {
-        val firstTimestamp = subjects.firstOrNull()?.timestamp ?: Timestamp.EMPTY
-        val lastTimestamp = subjects.lastOrNull()?.timestamp ?: Timestamp.EMPTY
         listOf(
-            Fact("Trace start", firstTimestamp.format()),
-            Fact("Trace end", lastTimestamp.format())
+            Fact("Trace start", subjects.firstOrNull()?.timestamp),
+            Fact("Trace end", subjects.lastOrNull()?.timestamp)
         )
     }
 

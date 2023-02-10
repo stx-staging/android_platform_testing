@@ -16,14 +16,13 @@
 
 package com.android.server.wm.flicker.assertions
 
-import androidx.annotation.VisibleForTesting
 import com.android.server.wm.flicker.traces.FlickerSubjectException
 import com.android.server.wm.traces.common.Timestamp
 import com.android.server.wm.traces.common.assertions.Fact
 
 /** Base subject for flicker assertions */
 abstract class FlickerSubject {
-    @VisibleForTesting abstract val timestamp: Timestamp
+    abstract val timestamp: Timestamp
     protected abstract val parent: FlickerSubject?
 
     protected abstract val selfFacts: List<Fact>
@@ -92,6 +91,6 @@ abstract class FlickerSubject {
     }
 
     companion object {
-        @VisibleForTesting @JvmStatic val ASSERTION_TAG = "Assertion"
+        const val ASSERTION_TAG = "Assertion"
     }
 }

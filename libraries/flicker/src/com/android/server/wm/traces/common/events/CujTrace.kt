@@ -18,6 +18,7 @@ package com.android.server.wm.traces.common.events
 
 import com.android.server.wm.traces.common.ITrace
 import com.android.server.wm.traces.common.Timestamp
+import com.android.server.wm.traces.common.TimestampFactory
 
 class CujTrace(override val entries: Array<Cuj>) : ITrace<Cuj>, List<Cuj> by entries.toList() {
 
@@ -57,7 +58,7 @@ class CujTrace(override val entries: Array<Cuj>) : ITrace<Cuj>, List<Cuj> by ent
 
                 val closingEvent =
                     listOf(matchingCancelEvent, matchingEndEvent).minBy {
-                        it?.timestamp ?: Timestamp.MAX
+                        it?.timestamp ?: TimestampFactory.max()
                     }
                         ?: error("Should have found one matching closing event")
                 val canceled = closingEvent.type == CujEvent.Companion.Type.CANCEL

@@ -17,7 +17,7 @@
 package com.android.server.wm.flicker.layers
 
 import com.android.server.wm.InitRule
-import com.android.server.wm.traces.common.Timestamp
+import com.android.server.wm.traces.common.TimestampFactory
 import com.android.server.wm.traces.common.layers.LayerTraceEntryBuilder
 import com.google.common.truth.Truth
 import org.junit.ClassRule
@@ -45,7 +45,8 @@ class LayerTraceEntryBuilderTest {
         Truth.assertThat(entry.elapsedTimestamp).isEqualTo(100)
         Truth.assertThat(entry.clockTimestamp).isEqualTo(600)
 
-        Truth.assertThat(entry.timestamp.elapsedNanos).isEqualTo(Timestamp.EMPTY.elapsedNanos)
+        Truth.assertThat(entry.timestamp.elapsedNanos)
+            .isEqualTo(TimestampFactory.empty().elapsedNanos)
         Truth.assertThat(entry.timestamp.systemUptimeNanos).isEqualTo(100)
         Truth.assertThat(entry.timestamp.unixNanos).isEqualTo(600)
     }
@@ -62,9 +63,10 @@ class LayerTraceEntryBuilderTest {
         Truth.assertThat(entry.elapsedTimestamp).isEqualTo(100)
         Truth.assertThat(entry.clockTimestamp).isEqualTo(null)
 
-        Truth.assertThat(entry.timestamp.elapsedNanos).isEqualTo(Timestamp.EMPTY.elapsedNanos)
+        Truth.assertThat(entry.timestamp.elapsedNanos)
+            .isEqualTo(TimestampFactory.empty().elapsedNanos)
         Truth.assertThat(entry.timestamp.systemUptimeNanos).isEqualTo(100)
-        Truth.assertThat(entry.timestamp.unixNanos).isEqualTo(Timestamp.EMPTY.unixNanos)
+        Truth.assertThat(entry.timestamp.unixNanos).isEqualTo(TimestampFactory.empty().unixNanos)
     }
 
     companion object {

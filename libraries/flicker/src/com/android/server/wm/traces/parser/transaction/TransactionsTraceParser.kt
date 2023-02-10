@@ -20,6 +20,7 @@ import android.surfaceflinger.proto.Transactions
 import android.surfaceflinger.proto.Transactions.TransactionState
 import android.surfaceflinger.proto.Transactions.TransactionTraceFile
 import com.android.server.wm.traces.common.Timestamp
+import com.android.server.wm.traces.common.TimestampFactory
 import com.android.server.wm.traces.common.transactions.Transaction
 import com.android.server.wm.traces.common.transactions.TransactionsTrace
 import com.android.server.wm.traces.common.transactions.TransactionsTraceEntry
@@ -34,7 +35,7 @@ class TransactionsTraceParser :
         TransactionsTraceEntry,
         TransactionsTrace
     >() {
-    private var timestampOffset = Timestamp.NULL_TIMESTAMP
+    private var timestampOffset = 0L
     override val traceName: String = "Transactions trace"
 
     override fun onBeforeParse(input: TransactionTraceFile) {
@@ -42,8 +43,8 @@ class TransactionsTraceParser :
     }
 
     override fun getTimestamp(entry: Transactions.TransactionTraceEntry): Timestamp {
-        require(timestampOffset != Timestamp.NULL_TIMESTAMP)
-        return Timestamp(
+        require(timestampOffset != 0L)
+        return TimestampFactory.from(
             elapsedNanos = entry.elapsedRealtimeNanos,
             unixNanos = entry.elapsedRealtimeNanos + timestampOffset
         )
@@ -62,7 +63,7 @@ class TransactionsTraceParser :
         val transactions = parseTransactionsProto(entry.transactionsList)
         val transactionsTraceEntry =
             TransactionsTraceEntry(
-                Timestamp.from(
+                TimestampFactory.from(
                     elapsedNanos = entry.elapsedRealtimeNanos,
                     elapsedOffsetNanos = timestampOffset
                 ),

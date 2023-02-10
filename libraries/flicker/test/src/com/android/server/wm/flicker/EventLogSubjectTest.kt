@@ -20,7 +20,7 @@ import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.assertions.SubjectsParser
 import com.android.server.wm.flicker.io.ParsedTracesReader
 import com.android.server.wm.flicker.traces.eventlog.EventLogSubject
-import com.android.server.wm.traces.common.Timestamp
+import com.android.server.wm.traces.common.TimestampFactory
 import com.android.server.wm.traces.common.events.EventLog
 import com.android.server.wm.traces.common.events.FocusEvent
 import org.junit.ClassRule
@@ -38,7 +38,7 @@ class EventLogSubjectTest {
                     EventLog(
                         arrayOf(
                             FocusEvent(
-                                Timestamp(unixNanos = 0),
+                                TimestampFactory.from(unixNanos = 0),
                                 "WinB",
                                 FocusEvent.Type.GAINED,
                                 "test",
@@ -47,7 +47,7 @@ class EventLogSubjectTest {
                                 0
                             ),
                             FocusEvent(
-                                Timestamp(unixNanos = 0),
+                                TimestampFactory.from(unixNanos = 0),
                                 "test WinA window",
                                 FocusEvent.Type.LOST,
                                 "test",
@@ -56,7 +56,7 @@ class EventLogSubjectTest {
                                 0
                             ),
                             FocusEvent(
-                                Timestamp(unixNanos = 0),
+                                TimestampFactory.from(unixNanos = 0),
                                 "WinB",
                                 FocusEvent.Type.LOST,
                                 "test",
@@ -65,7 +65,7 @@ class EventLogSubjectTest {
                                 0
                             ),
                             FocusEvent(
-                                Timestamp(unixNanos = 0),
+                                TimestampFactory.from(unixNanos = 0),
                                 "test WinC",
                                 FocusEvent.Type.GAINED,
                                 "test",

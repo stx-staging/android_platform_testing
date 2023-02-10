@@ -23,6 +23,7 @@ import com.android.server.wm.traces.common.AssertionTag
 import com.android.server.wm.traces.common.IScenario
 import com.android.server.wm.traces.common.ScenarioBuilder
 import com.android.server.wm.traces.common.Timestamp
+import com.android.server.wm.traces.common.TimestampFactory
 import com.android.server.wm.traces.common.io.BUFFER_SIZE
 import com.android.server.wm.traces.common.io.FLICKER_IO_TAG
 import com.android.server.wm.traces.common.io.ResultArtifactDescriptor
@@ -43,8 +44,8 @@ open class ResultWriter {
     protected var scenario: IScenario = ScenarioBuilder().createEmptyScenario()
     private var runStatus: RunStatus = RunStatus.UNDEFINED
     private val files = mutableMapOf<ResultArtifactDescriptor, File>()
-    private var transitionStartTime = Timestamp.MIN
-    private var transitionEndTime = Timestamp.MAX
+    private var transitionStartTime = TimestampFactory.min()
+    private var transitionEndTime = TimestampFactory.max()
     private var executionError: Throwable? = null
     private var outputDir: File? = null
 

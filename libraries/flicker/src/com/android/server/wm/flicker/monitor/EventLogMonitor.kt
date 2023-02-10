@@ -18,7 +18,6 @@ package com.android.server.wm.flicker.monitor
 
 import android.util.Log
 import com.android.compatibility.common.util.SystemUtil
-import com.android.server.wm.flicker.helpers.SECOND_AS_NANOSECONDS
 import com.android.server.wm.flicker.now
 import com.android.server.wm.traces.common.FLICKER_TAG
 import com.android.server.wm.traces.common.Timestamp
@@ -44,8 +43,7 @@ open class EventLogMonitor : TransitionMonitor() {
     override fun doStop(): File {
         require(isEnabled) { "Trace not running" }
         isEnabled = false
-        val sinceTime =
-            nanosToLogFormat(traceStartTime?.unixNanos ?: error("Missing start timestamp"))
+        val sinceTime = traceStartTime?.unixNanosToLogFormat() ?: error("Missing start timestamp")
 
         traceStartTime = null
         val outputFile = File.createTempFile(TraceType.EVENT_LOG.fileName, "")
@@ -61,11 +59,5 @@ open class EventLogMonitor : TransitionMonitor() {
         }
 
         return outputFile
-    }
-
-    private fun nanosToLogFormat(timestampNanos: Long): String {
-        val seconds = timestampNanos / SECOND_AS_NANOSECONDS
-        val nanos = timestampNanos % SECOND_AS_NANOSECONDS
-        return "$seconds.${nanos.toString().padStart(9, '0')}"
     }
 }

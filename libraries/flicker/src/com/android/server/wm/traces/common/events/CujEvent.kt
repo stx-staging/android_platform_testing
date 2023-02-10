@@ -17,7 +17,13 @@
 package com.android.server.wm.traces.common.events
 
 import com.android.server.wm.traces.common.Timestamp
+import com.android.server.wm.traces.common.TimestampFactory
 
+/**
+ * Represents a CUJ Event from the [EventLog]
+ *
+ * {@inheritDoc}
+ */
 class CujEvent(
     timestamp: Timestamp,
     val cuj: CujType,
@@ -43,7 +49,7 @@ class CujEvent(
         tag: String,
         data: String
     ) : this(
-        Timestamp(
+        TimestampFactory.from(
             elapsedNanos = getElapsedTimestampFromData(data),
             systemUptimeNanos = getSystemUptimeNanosFromData(data),
             unixNanos = timestamp.unixNanos

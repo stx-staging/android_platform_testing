@@ -20,7 +20,7 @@ import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.service.ScenarioInstance
 import com.android.server.wm.flicker.service.config.FaasScenarioType
 import com.android.server.wm.flicker.service.config.FlickerServiceConfig
-import com.android.server.wm.traces.common.Timestamp
+import com.android.server.wm.traces.common.TimestampFactory
 import com.android.server.wm.traces.common.io.IReader
 import com.android.server.wm.traces.common.service.PlatformConsts
 import com.google.common.truth.Truth
@@ -45,8 +45,8 @@ class AssertionFactoryTest {
                 type = type,
                 startRotation = PlatformConsts.Rotation.ROTATION_0,
                 endRotation = PlatformConsts.Rotation.ROTATION_0,
-                startTimestamp = Timestamp.MIN,
-                endTimestamp = Timestamp.MAX,
+                startTimestamp = TimestampFactory.min(),
+                endTimestamp = TimestampFactory.max(),
                 reader = Mockito.mock(IReader::class.java)
             )
         val assertions = factory.generateAssertionsFor(scenarioInstance)

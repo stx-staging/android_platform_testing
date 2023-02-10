@@ -17,9 +17,7 @@
 package com.android.server.wm.traces.common.layers
 
 import com.android.server.wm.traces.common.RectF
-import com.android.server.wm.traces.common.Timestamp
-import com.android.server.wm.traces.common.Timestamp.Companion.NULL_TIMESTAMP
-import kotlin.js.JsName
+import com.android.server.wm.traces.common.TimestampFactory
 
 /**
  * Represents a single Layer trace entry.
@@ -37,13 +35,9 @@ class LayerTraceEntry(
     _rootLayers: Array<Layer>,
 ) : BaseLayerTraceEntry() {
     override val timestamp =
-        Timestamp(
-            systemUptimeNanos = elapsedTimestamp,
-            unixNanos = clockTimestamp ?: NULL_TIMESTAMP
-        )
+        TimestampFactory.from(systemUptimeNanos = elapsedTimestamp, unixNanos = clockTimestamp)
     override val flattenedLayers: Array<Layer> = fillFlattenedLayers(_rootLayers)
 
-    @JsName("fillFlattenedLayers")
     private fun fillFlattenedLayers(rootLayers: Array<Layer>): Array<Layer> {
         val layers = mutableListOf<Layer>()
         val roots = rootLayers.fillOcclusionState().toMutableList()
@@ -69,7 +63,6 @@ class LayerTraceEntry(
         return traverseList
     }
 
-    @JsName("fillOcclusionState")
     private fun Array<Layer>.fillOcclusionState(): Array<Layer> {
         val traversalList = topDownTraversal().reversed()
 

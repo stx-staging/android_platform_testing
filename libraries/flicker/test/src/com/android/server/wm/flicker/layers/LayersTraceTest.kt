@@ -22,7 +22,7 @@ import com.android.server.wm.flicker.assertThrows
 import com.android.server.wm.flicker.readLayerTraceFromFile
 import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 import com.android.server.wm.traces.common.Cache
-import com.android.server.wm.traces.common.Timestamp
+import com.android.server.wm.traces.common.TimestampFactory
 import com.android.server.wm.traces.common.component.matchers.ComponentNameMatcher
 import com.android.server.wm.traces.common.layers.LayersTrace
 import com.google.common.truth.Truth
@@ -67,7 +67,8 @@ class LayersTraceTest {
     @Test
     fun canTestLayerOccludedByAppLayerHasVisibleRegion() {
         val trace = readLayerTraceFromFile("layers_trace_occluded.pb", legacyTrace = true)
-        val entry = trace.getEntryExactlyAt(Timestamp(systemUptimeNanos = 1700382131522L))
+        val entry =
+            trace.getEntryExactlyAt(TimestampFactory.from(systemUptimeNanos = 1700382131522L))
         val component =
             ComponentNameMatcher("", "com.android.server.wm.flicker.testapp.SimpleActivity#0")
         val layer = entry.getLayerWithBuffer(component)
@@ -94,7 +95,8 @@ class LayersTraceTest {
         val layerName = "com.android.server.wm.flicker.testapp.SimpleActivity#0"
         val component = ComponentNameMatcher("", layerName)
         val trace = readLayerTraceFromFile("layers_trace_occluded.pb", legacyTrace = true)
-        val entry = trace.getEntryExactlyAt(Timestamp(systemUptimeNanos = 1700382131522L))
+        val entry =
+            trace.getEntryExactlyAt(TimestampFactory.from(systemUptimeNanos = 1700382131522L))
         val layer = entry.getLayerWithBuffer(component)
         val occludedBy = layer?.occludedBy ?: emptyArray()
         val partiallyOccludedBy = layer?.partiallyOccludedBy ?: emptyArray()

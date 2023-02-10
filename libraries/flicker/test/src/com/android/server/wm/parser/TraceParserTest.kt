@@ -20,6 +20,7 @@ import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.utils.MockWindowManagerTraceBuilder
 import com.android.server.wm.flicker.utils.MockWindowStateBuilder
 import com.android.server.wm.traces.common.Timestamp
+import com.android.server.wm.traces.common.TimestampFactory
 import com.android.server.wm.traces.parser.AbstractTraceParser
 import com.google.common.truth.Truth
 import org.junit.ClassRule
@@ -30,7 +31,7 @@ class TraceParserTest {
     @Test
     fun canSliceWithAllBefore() {
         testSliceUsingElapsedTimestamp(
-            Timestamp.MIN.elapsedNanos,
+            TimestampFactory.min().elapsedNanos,
             mockTraceForSliceTests.first().timestamp.elapsedNanos - 1,
             listOf<Long>()
         )
@@ -44,8 +45,8 @@ class TraceParserTest {
             MockTraceParser(mockTraceForSliceTests)
                 .parse(
                     mockTraceForSliceTests,
-                    Timestamp(elapsedNanos = from),
-                    Timestamp(elapsedNanos = to),
+                    TimestampFactory.from(elapsedNanos = from),
+                    TimestampFactory.from(elapsedNanos = to),
                     addInitialEntry = false
                 )
         Truth.assertThat(splitLayersTraceWithoutInitialEntry).isEmpty()
@@ -54,8 +55,8 @@ class TraceParserTest {
             MockTraceParser(mockTraceForSliceTests)
                 .parse(
                     mockTraceForSliceTests,
-                    Timestamp(elapsedNanos = from),
-                    Timestamp(elapsedNanos = to),
+                    TimestampFactory.from(elapsedNanos = from),
+                    TimestampFactory.from(elapsedNanos = to),
                     addInitialEntry = true
                 )
         Truth.assertThat(splitLayersTraceWithInitialEntry).hasSize(1)
@@ -242,8 +243,8 @@ class TraceParserTest {
             MockTraceParser(mockTraceForSliceTests)
                 .parse(
                     mockTraceForSliceTests,
-                    Timestamp(elapsedNanos = from),
-                    Timestamp(elapsedNanos = to),
+                    TimestampFactory.from(elapsedNanos = from),
+                    TimestampFactory.from(elapsedNanos = to),
                     addInitialEntry = false
                 )
         Truth.assertThat(splitLayersTrace.map { it.timestamp.elapsedNanos }).isEqualTo(expected)
@@ -254,8 +255,8 @@ class TraceParserTest {
             MockTraceParser(mockTraceForSliceTests)
                 .parse(
                     mockTraceForSliceTests,
-                    Timestamp(elapsedNanos = from),
-                    Timestamp(elapsedNanos = to),
+                    TimestampFactory.from(elapsedNanos = from),
+                    TimestampFactory.from(elapsedNanos = to),
                     addInitialEntry = true
                 )
         Truth.assertThat(splitLayersTraceWithStartEntry.map { it.timestamp.elapsedNanos })

@@ -18,9 +18,14 @@ package com.android.server.wm.flicker
 
 import com.android.compatibility.common.util.SystemUtil
 import com.android.server.wm.flicker.service.assertors.ComponentTypeMatcher
+import com.android.server.wm.traces.common.MILLISECOND_AS_NANOSECONDS
 import com.android.server.wm.traces.common.component.matchers.ComponentNameMatcher
 import com.android.server.wm.traces.common.io.RunStatus
 import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 object Utils {
     private fun renameFile(src: File, dst: File) {
@@ -125,5 +130,16 @@ object Utils {
     fun componentNameMatcherAsStringFromName(str: String): String? {
         val componentMatcher = componentNameMatcherFromName(str)
         return componentMatcher?.componentNameMatcherToString()
+    }
+
+    fun formatRealTimestamp(timestampNs: Long): String {
+        val timestampMs = timestampNs / MILLISECOND_AS_NANOSECONDS
+        val remainderNs = timestampNs % MILLISECOND_AS_NANOSECONDS
+        val date = Date(timestampMs)
+
+        val timeFormatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.ENGLISH)
+        timeFormatter.timeZone = TimeZone.getTimeZone("UTC")
+
+        return "${timeFormatter.format(date)}${remainderNs.toString().padStart(6, '0')}"
     }
 }

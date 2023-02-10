@@ -16,10 +16,10 @@
 
 package com.android.server.wm.flicker.service.extractors
 
-import com.android.server.wm.flicker.helpers.MILLISECOND_AS_NANOSECONDS
 import com.android.server.wm.flicker.service.extractors.TransitionTransforms.inCujRangeFilter
 import com.android.server.wm.flicker.service.extractors.TransitionTransforms.mergeTrampolineTransitions
 import com.android.server.wm.flicker.service.extractors.TransitionTransforms.noOpTransitionsTransform
+import com.android.server.wm.traces.common.MILLISECOND_AS_NANOSECONDS
 import com.android.server.wm.traces.common.events.Cuj
 import com.android.server.wm.traces.common.io.IReader
 import com.android.server.wm.traces.common.transition.Transition
