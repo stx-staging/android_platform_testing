@@ -75,10 +75,17 @@ class TaggedScenarioExtractor(
                     Timestamp.MIN
                 }
 
+            val wmEntryAtTransitionFinished =
+                wmTrace?.first { it.timestamp >= finishTransactionAppliedTimestamp }
+
             val startTimestamp = cujEntry.startTimestamp
             val endTimestamp =
                 Timestamp(
-                    elapsedNanos = cujEntry.endTimestamp.elapsedNanos,
+                    elapsedNanos =
+                        max(
+                            cujEntry.endTimestamp.elapsedNanos,
+                            wmEntryAtTransitionFinished?.timestamp?.elapsedNanos ?: -1L
+                        ),
                     systemUptimeNanos =
                         max(
                             cujEntry.endTimestamp.systemUptimeNanos,
