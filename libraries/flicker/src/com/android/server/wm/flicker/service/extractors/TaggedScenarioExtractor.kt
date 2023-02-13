@@ -31,7 +31,7 @@ class TaggedScenarioExtractor(
 ) : IScenarioExtractor {
     override fun extract(reader: IReader): List<ScenarioInstance> {
 
-        val wmTrace = reader.readWmTrace() ?: error("Missing window manager trace")
+        val wmTrace = reader.readWmTrace()
         val layersTrace = reader.readLayersTrace() ?: error("Missing layers trace")
         val cujTrace = reader.readCujTrace() ?: error("Missing CUJ trace")
 
@@ -93,10 +93,20 @@ class TaggedScenarioExtractor(
 
             ScenarioInstance(
                 type,
-                startRotation = wmTrace.getEntryAt(endTimestamp).policy?.rotation
-                        ?: error("missing rotation in policy"),
-                endRotation = wmTrace.getEntryAt(endTimestamp).policy?.rotation
-                        ?: error("missing rotation in policy"),
+                startRotation =
+                    layersTrace
+                        .getEntryAt(startTimestamp)
+                        .displays
+                        .first { !it.isVirtual && it.layerStackSpace.isNotEmpty }
+                        .transform
+                        .getRotation(),
+                endRotation =
+                    layersTrace
+                        .getEntryAt(endTimestamp)
+                        .displays
+                        .first { !it.isVirtual && it.layerStackSpace.isNotEmpty }
+                        .transform
+                        .getRotation(),
                 startTimestamp = startTimestamp,
                 endTimestamp = endTimestamp,
                 associatedCuj = cujEntry.cuj,
