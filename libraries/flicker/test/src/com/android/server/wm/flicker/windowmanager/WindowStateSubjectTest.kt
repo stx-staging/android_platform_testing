@@ -18,8 +18,6 @@ package com.android.server.wm.flicker.windowmanager
 
 import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.TestComponents
-import com.android.server.wm.flicker.assertThatErrorContainsDebugInfo
-import com.android.server.wm.flicker.assertThrows
 import com.android.server.wm.flicker.readWmTraceFromFile
 import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
 import com.android.server.wm.traces.common.Cache
@@ -39,25 +37,11 @@ class WindowStateSubjectTest {
 
     @Test
     fun exceptionContainsDebugInfoImaginary() {
-        val error =
-            assertThrows<AssertionError> {
-                WindowManagerTraceSubject(trace)
-                    .first()
-                    .windowState(TestComponents.IMAGINARY.className)
-                    .exists()
-            }
-        assertThatErrorContainsDebugInfo(error)
-        Truth.assertThat(error).hasMessageThat().contains(TestComponents.IMAGINARY.className)
-        Truth.assertThat(error).hasMessageThat().contains("Window title")
-    }
-
-    @Test
-    fun exceptionContainsDebugInfoConcrete() {
-        val error =
-            assertThrows<AssertionError> {
-                WindowManagerTraceSubject(trace).first().subjects.first().doesNotExist()
-            }
-        assertThatErrorContainsDebugInfo(error)
+        val foundWindow =
+            WindowManagerTraceSubject(trace).first().windowState(TestComponents.IMAGINARY.className)
+        Truth.assertWithMessage("${TestComponents.IMAGINARY.className} is not found")
+            .that(foundWindow)
+            .isNull()
     }
 
     companion object {

@@ -41,43 +41,24 @@ import com.android.server.wm.traces.common.windowmanager.windows.WindowState
  * ```
  */
 class WindowStateSubject(
-    override val parent: WindowManagerStateSubject?,
+    override val parent: WindowManagerStateSubject,
     override val timestamp: Timestamp,
-    val windowState: WindowState?,
-    private val windowTitle: String? = null
+    val windowState: WindowState
 ) : FlickerSubject() {
-    val isEmpty: Boolean
-        get() = windowState == null
-    val isNotEmpty: Boolean
-        get() = !isEmpty
-    val isVisible: Boolean
-        get() = windowState?.isVisible == true
-    val isInvisible: Boolean
-        get() = windowState?.isVisible == false
-    val name: String
-        get() = windowState?.name ?: windowTitle ?: ""
+    val isVisible: Boolean = windowState.isVisible
+    val isInvisible: Boolean = !windowState.isVisible
+    val name: String = windowState.name
     val frame: RegionSubject
-        get() = RegionSubject(windowState?.frame, this, timestamp)
+        get() = RegionSubject(windowState.frame, this, timestamp)
 
-    override val selfFacts = listOf(Fact("Window title", "${windowState?.title ?: windowTitle}"))
+    override val selfFacts = listOf(Fact("Window title", windowState.title))
 
     /** If the [windowState] exists, executes a custom [assertion] on the current subject */
     operator fun invoke(assertion: (WindowState) -> Unit): WindowStateSubject = apply {
-        windowState ?: return exists()
         assertion(this.windowState)
     }
 
-    /** Asserts that current subject doesn't exist in the window hierarchy */
-    fun doesNotExist(): WindowStateSubject = apply {
-        check { "Window '${windowState?.name}' does not exist" }.that(windowState).isEqual(null)
-    }
-
-    /** Asserts that current subject exists in the window hierarchy */
-    fun exists(): WindowStateSubject = apply {
-        check { "Window '$windowTitle' exists" }.that(windowState).isNotEqual(null)
-    }
-
     override fun toString(): String {
-        return "WindowState:${windowState?.name}"
+        return "WindowState:$name"
     }
 }

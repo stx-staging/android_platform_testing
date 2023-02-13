@@ -96,10 +96,9 @@ class WindowManagerTraceSubject(
      * ```
      * Components to search
      */
-    fun windowStates(componentMatcher: IComponentMatcher): List<WindowStateSubject> =
-        subjects
-            .map { it.windowState { windows -> componentMatcher.windowMatchesAnyOf(windows) } }
-            .filter { it.isNotEmpty }
+    fun windowStates(componentMatcher: IComponentMatcher): List<WindowStateSubject> = windowStates {
+        componentMatcher.windowMatchesAnyOf(it)
+    }
 
     /**
      * @return List of [WindowStateSubject]s matching [predicate] in the order they
@@ -111,9 +110,7 @@ class WindowManagerTraceSubject(
      * To search
      */
     fun windowStates(predicate: (WindowState) -> Boolean): List<WindowStateSubject> {
-        return subjects
-            .map { it.windowState { window -> predicate(window) } }
-            .filter { it.isNotEmpty }
+        return subjects.mapNotNull { it.windowState { window -> predicate(window) } }
     }
 
     /** {@inheritDoc} */

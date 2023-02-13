@@ -101,9 +101,7 @@ class WindowManagerStateSubject(
                 // No filters so use all subjects
                 subjects
             } else {
-                subjects.filter {
-                    it.windowState != null && componentMatcher.windowMatchesAnyOf(it.windowState)
-                }
+                subjects.filter { componentMatcher.windowMatchesAnyOf(it.windowState) }
             }
 
         if (selectedWindows.isEmpty()) {
@@ -112,8 +110,7 @@ class WindowManagerStateSubject(
         }
 
         val visibleWindows = selectedWindows.filter { it.isVisible }
-        val visibleRegions =
-            visibleWindows.mapNotNull { it.windowState?.frameRegion }.toTypedArray()
+        val visibleRegions = visibleWindows.map { it.windowState.frameRegion }.toTypedArray()
         return RegionSubject(visibleRegions, this, timestamp)
     }
 
@@ -158,10 +155,7 @@ class WindowManagerStateSubject(
             wmState.windowStates.indexOfFirst { belowWindowComponentMatcher.windowMatchesAnyOf(it) }
         if (aboveZ >= belowZ) {
             val matchedAboveWindow =
-                subjects.first {
-                    it.windowState != null &&
-                        aboveWindowComponentMatcher.windowMatchesAnyOf(it.windowState)
-                }
+                subjects.first { aboveWindowComponentMatcher.windowMatchesAnyOf(it.windowState) }
             val aboveWindowTitleStr = aboveWindowComponentMatcher.toWindowIdentifier()
             val belowWindowTitleStr = belowWindowComponentMatcher.toWindowIdentifier()
             matchedAboveWindow.fail(
@@ -413,9 +407,7 @@ class WindowManagerStateSubject(
         contains(subjectList, componentMatcher)
 
         val foundWindows =
-            subjectList.filter {
-                it.windowState != null && componentMatcher.windowMatchesAnyOf(it.windowState)
-            }
+            subjectList.filter { componentMatcher.windowMatchesAnyOf(it.windowState) }
 
         val visibleWindows =
             wmState.visibleWindows.filter { visibleWindow ->
@@ -438,9 +430,7 @@ class WindowManagerStateSubject(
         contains(subjectList, componentMatcher)
 
         val foundWindows =
-            subjectList.filter {
-                it.windowState != null && componentMatcher.windowMatchesAnyOf(it.windowState)
-            }
+            subjectList.filter { componentMatcher.windowMatchesAnyOf(it.windowState) }
 
         val visibleWindows =
             wmState.visibleWindows.filter { visibleWindow ->
@@ -459,7 +449,7 @@ class WindowManagerStateSubject(
         subjectList: List<WindowStateSubject>,
         componentMatcher: IComponentMatcher
     ) {
-        val windowStates = subjectList.mapNotNull { it.windowState }
+        val windowStates = subjectList.map { it.windowState }
         check { "Window '${componentMatcher.toWindowIdentifier()}' exists" }
             .that(componentMatcher.windowMatchesAnyOf(windowStates))
             .isEqual(true)
@@ -549,28 +539,16 @@ class WindowManagerStateSubject(
     ): WindowManagerStateSubject =
         containsBelowAppWindow(componentMatcher).isNonAppWindowInvisible(componentMatcher)
 
-    /**
-     * Obtains the first subject with [WindowState.title] containing [name].
-     *
-     * Always returns a subject, event when the layer doesn't exist. To verify if layer actually
-     * exists in the hierarchy use [WindowStateSubject.exists] or [WindowStateSubject.doesNotExist]
-     */
-    fun windowState(name: String): WindowStateSubject =
-        subjects.firstOrNull { it.windowState?.name?.contains(name) == true }
-            ?: WindowStateSubject(this, timestamp, null, name)
+    /** Obtains the first subject with [WindowState.title] containing [name]. */
+    fun windowState(name: String): WindowStateSubject? = windowState { it.name.contains(name) }
 
     /**
      * Obtains the first subject matching [predicate].
      *
-     * Always returns a subject, event when the layer doesn't exist. To verify if layer actually
-     * exists in the hierarchy use [WindowStateSubject.exists] or [WindowStateSubject.doesNotExist]
-     *
      * @param predicate to search for a subject
-     * @param name Name of the subject to use when not found (optional)
      */
-    fun windowState(name: String = "", predicate: (WindowState) -> Boolean): WindowStateSubject =
-        subjects.firstOrNull { it.windowState?.run { predicate(this) } ?: false }
-            ?: WindowStateSubject(this, timestamp, null, name)
+    fun windowState(predicate: (WindowState) -> Boolean): WindowStateSubject? =
+        subjects.firstOrNull { predicate(it.windowState) }
 
     override fun toString(): String {
         return "WindowManagerStateSubject($wmState)"

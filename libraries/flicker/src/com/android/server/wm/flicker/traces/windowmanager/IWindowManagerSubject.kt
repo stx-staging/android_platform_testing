@@ -16,7 +16,6 @@
 
 package com.android.server.wm.flicker.traces.windowmanager
 
-import android.view.Display
 import androidx.annotation.VisibleForTesting
 import com.android.server.wm.traces.common.component.matchers.IComponentMatcher
 import com.android.server.wm.traces.common.service.PlatformConsts
@@ -111,7 +110,7 @@ interface IWindowManagerSubject<WMSubjectType, RegionSubjectType> {
      */
     fun hasRotation(
         rotation: PlatformConsts.Rotation,
-        displayId: Int = Display.DEFAULT_DISPLAY
+        displayId: Int = PlatformConsts.DEFAULT_DISPLAY
     ): WMSubjectType
 
     /**
