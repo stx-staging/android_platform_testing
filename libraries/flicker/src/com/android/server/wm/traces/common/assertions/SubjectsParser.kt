@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.assertions
+package com.android.server.wm.traces.common.assertions
 
-import androidx.annotation.VisibleForTesting
-import com.android.server.wm.flicker.traces.eventlog.EventLogSubject
-import com.android.server.wm.flicker.traces.layers.LayerTraceEntrySubject
-import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
-import com.android.server.wm.flicker.traces.windowmanager.WindowManagerStateSubject
-import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
 import com.android.server.wm.traces.common.AssertionTag
+import com.android.server.wm.traces.common.events.FocusEvent
 import com.android.server.wm.traces.common.io.IReader
 import com.android.server.wm.traces.common.layers.LayerTraceEntry
 import com.android.server.wm.traces.common.layers.LayersTrace
-import com.android.server.wm.traces.common.transition.TransitionsTrace
+import com.android.server.wm.traces.common.subjects.FlickerSubject
+import com.android.server.wm.traces.common.subjects.eventlog.EventLogSubject
+import com.android.server.wm.traces.common.subjects.layers.LayerTraceEntrySubject
+import com.android.server.wm.traces.common.subjects.layers.LayersTraceSubject
+import com.android.server.wm.traces.common.subjects.wm.WindowManagerStateSubject
+import com.android.server.wm.traces.common.subjects.wm.WindowManagerTraceSubject
 import com.android.server.wm.traces.common.windowmanager.WindowManagerState
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 
@@ -107,11 +107,4 @@ open class SubjectsParser(private val resultReader: IReader) {
         val trace = resultReader.readEventLogTrace() ?: return null
         return EventLogSubject(trace)
     }
-
-    /**
-     * A trace of all transitions that ran during the run that can be used by FaaS to determine
-     * which assertion to run and on which parts of the run.
-     */
-    @VisibleForTesting
-    fun readTransitionsTraceForTesting(): TransitionsTrace? = resultReader.readTransitionsTrace()
 }

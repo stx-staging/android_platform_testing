@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The Android Open Source Project
+ * Copyright (C) 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.traces.region
+package com.android.server.wm.traces.common.subjects.region
 
-import androidx.annotation.VisibleForTesting
-import com.android.server.wm.flicker.assertions.FlickerSubject
 import com.android.server.wm.traces.common.Rect
 import com.android.server.wm.traces.common.RectF
 import com.android.server.wm.traces.common.Timestamp
 import com.android.server.wm.traces.common.assertions.Fact
 import com.android.server.wm.traces.common.region.Region
 import com.android.server.wm.traces.common.region.RegionEntry
+import com.android.server.wm.traces.common.subjects.FlickerSubject
 import kotlin.math.abs
 
 /** Subject for [Rect] objects, used to make assertions over behaviors that occur on a rectangle. */
@@ -89,8 +88,6 @@ class RegionSubject(
 
     val region = regionEntry.region
 
-    private val android.graphics.Rect.area
-        get() = this.width() * this.height()
     private val Rect.area
         get() = this.width * this.height
 
@@ -412,7 +409,7 @@ class RegionSubject(
     fun notOverlaps(testRect: Rect): RegionSubject = apply { notOverlaps(Region.from(testRect)) }
 
     /**
-     * Asserts that [region] and [previous] have same aspect ratio, margin of error up to 0.1.
+     * Asserts that [region] and [other] have same aspect ratio, margin of error up to 0.1.
      *
      * @param other Other region
      */
@@ -425,15 +422,11 @@ class RegionSubject(
     }
 
     companion object {
-        @VisibleForTesting const val MSG_ERROR_TOP_POSITION = "Top position"
-
-        @VisibleForTesting const val MSG_ERROR_BOTTOM_POSITION = "Bottom position"
-
-        @VisibleForTesting const val MSG_ERROR_LEFT_POSITION = "Left position"
-
-        @VisibleForTesting const val MSG_ERROR_RIGHT_POSITION = "Right position"
-
-        @VisibleForTesting const val MSG_ERROR_AREA = "Rect area"
+        const val MSG_ERROR_TOP_POSITION = "Top position"
+        const val MSG_ERROR_BOTTOM_POSITION = "Bottom position"
+        const val MSG_ERROR_LEFT_POSITION = "Left position"
+        const val MSG_ERROR_RIGHT_POSITION = "Right position"
+        const val MSG_ERROR_AREA = "Rect area"
 
         private fun mergeRegions(regions: Array<Region>): Region {
             val result = Region.EMPTY

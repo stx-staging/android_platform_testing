@@ -21,11 +21,7 @@ import com.android.server.wm.flicker.TestComponents
 import com.android.server.wm.flicker.assertFailureFact
 import com.android.server.wm.flicker.assertThatErrorContainsDebugInfo
 import com.android.server.wm.flicker.assertThrows
-import com.android.server.wm.flicker.assertions.FlickerSubject
 import com.android.server.wm.flicker.readLayerTraceFromFile
-import com.android.server.wm.flicker.traces.FlickerSubjectException
-import com.android.server.wm.flicker.traces.layers.LayerTraceEntrySubject
-import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 import com.android.server.wm.flicker.utils.MockLayerBuilder
 import com.android.server.wm.flicker.utils.MockLayerTraceEntryBuilder
 import com.android.server.wm.traces.common.Cache
@@ -33,6 +29,10 @@ import com.android.server.wm.traces.common.Rect
 import com.android.server.wm.traces.common.component.matchers.ComponentNameMatcher
 import com.android.server.wm.traces.common.component.matchers.OrComponentMatcher
 import com.android.server.wm.traces.common.region.Region
+import com.android.server.wm.traces.common.subjects.FlickerSubject
+import com.android.server.wm.traces.common.subjects.FlickerSubjectException
+import com.android.server.wm.traces.common.subjects.layers.LayerTraceEntrySubject
+import com.android.server.wm.traces.common.subjects.layers.LayersTraceSubject
 import com.google.common.truth.Truth
 import org.junit.Before
 import org.junit.ClassRule

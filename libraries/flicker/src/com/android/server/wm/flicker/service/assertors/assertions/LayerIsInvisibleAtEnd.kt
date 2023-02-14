@@ -18,7 +18,7 @@ package com.android.server.wm.flicker.service.assertors.assertions
 
 import com.android.server.wm.flicker.service.IScenarioInstance
 import com.android.server.wm.flicker.service.assertors.ComponentTemplate
-import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
+import com.android.server.wm.traces.common.subjects.layers.LayersTraceSubject
 
 /** Checks if the [componentMatcher] layer is invisible at the end of the transition */
 class LayerIsInvisibleAtEnd(component: ComponentTemplate) :

@@ -17,6 +17,8 @@
 package com.android.server.wm.flicker.assertions
 
 import com.android.server.wm.traces.common.AssertionTag
+import com.android.server.wm.traces.common.assertions.AssertionData
+import com.android.server.wm.traces.common.subjects.FlickerSubject
 import kotlin.reflect.KClass
 
 /**

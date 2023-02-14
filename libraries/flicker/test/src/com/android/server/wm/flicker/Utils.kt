@@ -30,7 +30,6 @@ import com.android.server.wm.flicker.monitor.ScreenRecorder
 import com.android.server.wm.flicker.monitor.TransactionsTraceMonitor
 import com.android.server.wm.flicker.monitor.TransitionsTraceMonitor
 import com.android.server.wm.flicker.monitor.WindowManagerTraceMonitor
-import com.android.server.wm.flicker.traces.FlickerSubjectException
 import com.android.server.wm.traces.common.IScenario
 import com.android.server.wm.traces.common.ScenarioBuilder
 import com.android.server.wm.traces.common.TimestampFactory
@@ -39,6 +38,7 @@ import com.android.server.wm.traces.common.io.RunStatus
 import com.android.server.wm.traces.common.io.WINSCOPE_EXT
 import com.android.server.wm.traces.common.layers.LayersTrace
 import com.android.server.wm.traces.common.parser.events.EventLogParser
+import com.android.server.wm.traces.common.subjects.FlickerSubjectException
 import com.android.server.wm.traces.common.transactions.TransactionsTrace
 import com.android.server.wm.traces.common.transition.TransitionsTrace
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace

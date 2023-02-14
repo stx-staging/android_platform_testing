@@ -18,7 +18,7 @@ package com.android.server.wm.flicker.service.assertors.assertions
 
 import com.android.server.wm.flicker.service.IScenarioInstance
 import com.android.server.wm.flicker.service.assertors.AssertionTemplate
-import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
+import com.android.server.wm.traces.common.subjects.wm.WindowManagerTraceSubject
 
 /**
  * Checks that all windows that are visible on the trace, are visible for at least 2 consecutive

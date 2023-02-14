@@ -16,8 +16,10 @@
 
 package com.android.server.wm.flicker.assertions
 
-import com.android.server.wm.flicker.traces.FlickerTraceSubject
 import com.android.server.wm.traces.common.AssertionTag
+import com.android.server.wm.traces.common.assertions.AssertionData
+import com.android.server.wm.traces.common.subjects.FlickerSubject
+import com.android.server.wm.traces.common.subjects.FlickerTraceSubject
 import kotlin.reflect.KClass
 
 /**
@@ -40,7 +42,7 @@ class AssertionDataFactory(
         assertion: (FlickerTraceSubject<FlickerSubject>) -> Unit
     ): AssertionData {
         val closedAssertion: FlickerTraceSubject<FlickerSubject>.() -> Unit = {
-            require(isAssertionsEmpty()) { "Subject was already used to execute assertions" }
+            require(!hasAssertions()) { "Subject was already used to execute assertions" }
             assertion(this)
             forAllEntries()
         }

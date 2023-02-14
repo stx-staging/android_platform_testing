@@ -17,10 +17,10 @@
 package com.android.server.wm.flicker.service.assertors
 
 import com.android.server.wm.flicker.service.IScenarioInstance
-import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
-import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
 import com.android.server.wm.traces.common.service.AssertionInvocationGroup
 import com.android.server.wm.traces.common.service.AssertionInvocationGroup.NON_BLOCKING
+import com.android.server.wm.traces.common.subjects.layers.LayersTraceSubject
+import com.android.server.wm.traces.common.subjects.wm.WindowManagerTraceSubject
 
 /** Base class for a FaaS assertion */
 abstract class AssertionTemplate : IAssertionTemplate {

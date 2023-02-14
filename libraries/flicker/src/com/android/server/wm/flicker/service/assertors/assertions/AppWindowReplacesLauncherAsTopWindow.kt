@@ -19,8 +19,8 @@ package com.android.server.wm.flicker.service.assertors.assertions
 import com.android.server.wm.flicker.service.IScenarioInstance
 import com.android.server.wm.flicker.service.assertors.ComponentTemplate
 import com.android.server.wm.flicker.service.assertors.Components
-import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
 import com.android.server.wm.traces.common.component.matchers.ComponentNameMatcher
+import com.android.server.wm.traces.common.subjects.wm.WindowManagerTraceSubject
 
 /**
  * Checks that [Components.LAUNCHER] is the top visible app window at the start of the transition

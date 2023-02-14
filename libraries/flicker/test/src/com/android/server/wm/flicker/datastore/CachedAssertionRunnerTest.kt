@@ -20,13 +20,13 @@ import android.annotation.SuppressLint
 import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.TEST_SCENARIO
 import com.android.server.wm.flicker.assertExceptionMessage
-import com.android.server.wm.flicker.assertions.AssertionData
-import com.android.server.wm.flicker.assertions.FlickerSubject
 import com.android.server.wm.flicker.monitor.EventLogMonitor
 import com.android.server.wm.flicker.newTestResultWriter
-import com.android.server.wm.flicker.traces.eventlog.EventLogSubject
 import com.android.server.wm.traces.common.AssertionTag
+import com.android.server.wm.traces.common.assertions.AssertionData
 import com.android.server.wm.traces.common.io.RunStatus
+import com.android.server.wm.traces.common.subjects.FlickerSubject
+import com.android.server.wm.traces.common.subjects.eventlog.EventLogSubject
 import com.google.common.truth.Truth
 import org.junit.Before
 import org.junit.ClassRule

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The Android Open Source Project
+ * Copyright (C) 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.traces.windowmanager
+package com.android.server.wm.traces.common.subjects.wm
 
-import com.android.server.wm.flicker.assertions.FlickerSubject
-import com.android.server.wm.flicker.traces.region.RegionSubject
 import com.android.server.wm.traces.common.Timestamp
 import com.android.server.wm.traces.common.assertions.Fact
+import com.android.server.wm.traces.common.subjects.FlickerSubject
+import com.android.server.wm.traces.common.subjects.region.RegionSubject
 import com.android.server.wm.traces.common.windowmanager.windows.WindowState
 
 /**

@@ -18,7 +18,7 @@ package com.android.server.wm.flicker.service.assertors.assertions
 
 import com.android.server.wm.flicker.service.IScenarioInstance
 import com.android.server.wm.flicker.service.assertors.ComponentTemplate
-import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
+import com.android.server.wm.traces.common.subjects.layers.LayersTraceSubject
 
 /** Checks that the visible region of [getWindowState] always reduces during the animation */
 class AppLayerReduces(component: ComponentTemplate) : AssertionTemplateWithComponent(component) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The Android Open Source Project
+ * Copyright (C) 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.server.wm.flicker.traces.layers
+package com.android.server.wm.traces.common.subjects.layers
 
-import android.graphics.Point
-import com.android.server.wm.flicker.assertions.FlickerSubject
-import com.android.server.wm.flicker.traces.region.RegionSubject
 import com.android.server.wm.traces.common.Size
 import com.android.server.wm.traces.common.Timestamp
 import com.android.server.wm.traces.common.assertions.Fact
 import com.android.server.wm.traces.common.layers.Layer
+import com.android.server.wm.traces.common.subjects.FlickerSubject
+import com.android.server.wm.traces.common.subjects.region.RegionSubject
 
 /**
  * Subject for [Layer] objects, used to make assertions over behaviors that occur on a single layer
@@ -73,15 +72,8 @@ class LayerSubject(
     /** If the [layer] exists, executes a custom [assertion] on the current subject */
     operator fun invoke(assertion: (Layer) -> Unit): LayerSubject = apply { assertion(this.layer) }
 
-    @Deprecated("Prefer hasBufferSize(bounds)")
-    fun hasBufferSize(expected: Point): LayerSubject = apply {
-        val bounds = Size.from(expected.x, expected.y)
-        hasBufferSize(bounds)
-    }
-
     /**
-     * Asserts that current subject has an [Layer.activeBuffer] with width equals to [Point.x] and
-     * height equals to [Point.y]
+     * Asserts that current subject has an [Layer.activeBuffer]
      *
      * @param expected expected buffer size
      */
@@ -91,13 +83,13 @@ class LayerSubject(
     }
 
     /**
-     * Asserts that current subject has an [Layer.screenBounds] with width equals to [Point.x] and
-     * height equals to [Point.y]
+     * Asserts that current subject has an [Layer.screenBounds]
      *
      * @param size expected layer bounds size
      */
-    fun hasLayerSize(size: Point): LayerSubject = apply {
-        val layerSize = Point(layer.screenBounds.width.toInt(), layer.screenBounds.height.toInt())
+    fun hasLayerSize(size: Size): LayerSubject = apply {
+        val layerSize =
+            Size.from(layer.screenBounds.width.toInt(), layer.screenBounds.height.toInt())
         check { "Number of layers" }.that(layerSize).isEqual(size)
     }
 

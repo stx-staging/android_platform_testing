@@ -19,11 +19,13 @@ package com.android.server.wm.flicker.assertions
 import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.assertFailureFact
 import com.android.server.wm.flicker.assertThrows
-import com.android.server.wm.flicker.traces.FlickerSubjectException
 import com.android.server.wm.traces.common.ITraceEntry
 import com.android.server.wm.traces.common.Timestamp
 import com.android.server.wm.traces.common.TimestampFactory
+import com.android.server.wm.traces.common.assertions.AssertionsChecker
 import com.android.server.wm.traces.common.assertions.Fact
+import com.android.server.wm.traces.common.subjects.FlickerSubject
+import com.android.server.wm.traces.common.subjects.FlickerSubjectException
 import com.google.common.truth.Truth
 import org.junit.ClassRule
 import org.junit.FixMethodOrder

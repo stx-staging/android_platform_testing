@@ -17,11 +17,12 @@
 package com.android.server.wm.flicker.assertions
 
 import com.android.server.wm.flicker.io.ResultReader
-import com.android.server.wm.flicker.traces.eventlog.EventLogSubject
-import com.android.server.wm.flicker.traces.layers.LayerTraceEntrySubject
-import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
-import com.android.server.wm.flicker.traces.windowmanager.WindowManagerStateSubject
-import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
+import com.android.server.wm.traces.common.assertions.SubjectsParser
+import com.android.server.wm.traces.common.subjects.eventlog.EventLogSubject
+import com.android.server.wm.traces.common.subjects.layers.LayerTraceEntrySubject
+import com.android.server.wm.traces.common.subjects.layers.LayersTraceSubject
+import com.android.server.wm.traces.common.subjects.wm.WindowManagerStateSubject
+import com.android.server.wm.traces.common.subjects.wm.WindowManagerTraceSubject
 
 /** Wrapper for [SubjectsParser] with looser visibility */
 class TestSubjectsParser(resultReader: ResultReader) : SubjectsParser(resultReader) {

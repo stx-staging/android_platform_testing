@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The Android Open Source Project
+ * Copyright (C) 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.traces.layers
+package com.android.server.wm.traces.common.subjects.layers
 
-import com.android.server.wm.flicker.traces.FlickerTraceSubject
-import com.android.server.wm.flicker.traces.region.RegionTraceSubject
 import com.android.server.wm.traces.common.assertions.Fact
 import com.android.server.wm.traces.common.component.matchers.ComponentNameMatcher
 import com.android.server.wm.traces.common.component.matchers.EdgeExtensionComponentMatcher
@@ -25,6 +23,8 @@ import com.android.server.wm.traces.common.component.matchers.IComponentMatcher
 import com.android.server.wm.traces.common.layers.Layer
 import com.android.server.wm.traces.common.layers.LayersTrace
 import com.android.server.wm.traces.common.region.RegionTrace
+import com.android.server.wm.traces.common.subjects.FlickerTraceSubject
+import com.android.server.wm.traces.common.subjects.region.RegionTraceSubject
 
 /**
  * Subject for [LayersTrace] objects, used to make assertions over behaviors that occur throughout a
@@ -100,7 +100,6 @@ class LayersTraceSubject(
         subjects.mapNotNull { it.layer { layer -> predicate(layer) } }
 
     /** Checks that all visible layers are shown for more than one consecutive entry */
-    @JvmOverloads
     fun visibleLayersShownMoreThanOneConsecutiveEntry(
         ignoreLayers: List<IComponentMatcher> =
             listOf(
@@ -224,7 +223,6 @@ class LayersTraceSubject(
     }
 
     /** Executes a custom [assertion] on the current subject */
-    @JvmOverloads
     operator fun invoke(
         name: String,
         isOptional: Boolean = false,

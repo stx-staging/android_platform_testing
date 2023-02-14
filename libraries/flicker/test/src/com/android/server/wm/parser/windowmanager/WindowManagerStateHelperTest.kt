@@ -22,7 +22,6 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.readWmTraceFromDumpFile
 import com.android.server.wm.flicker.readWmTraceFromFile
-import com.android.server.wm.flicker.traces.windowmanager.WindowManagerStateSubject
 import com.android.server.wm.traces.common.ActiveBuffer
 import com.android.server.wm.traces.common.Cache
 import com.android.server.wm.traces.common.Color
@@ -39,6 +38,7 @@ import com.android.server.wm.traces.common.layers.LayerTraceEntryBuilder
 import com.android.server.wm.traces.common.layers.Transform
 import com.android.server.wm.traces.common.region.Region
 import com.android.server.wm.traces.common.service.PlatformConsts
+import com.android.server.wm.traces.common.subjects.wm.WindowManagerStateSubject
 import com.android.server.wm.traces.common.windowmanager.WindowManagerState
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerStateHelper

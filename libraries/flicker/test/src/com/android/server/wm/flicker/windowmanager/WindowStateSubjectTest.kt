@@ -19,8 +19,8 @@ package com.android.server.wm.flicker.windowmanager
 import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.TestComponents
 import com.android.server.wm.flicker.readWmTraceFromFile
-import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
 import com.android.server.wm.traces.common.Cache
+import com.android.server.wm.traces.common.subjects.wm.WindowManagerTraceSubject
 import com.google.common.truth.Truth
 import org.junit.Before
 import org.junit.ClassRule

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The Android Open Source Project
+ * Copyright (C) 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.traces.windowmanager
+package com.android.server.wm.traces.common.subjects.wm
 
-import androidx.annotation.VisibleForTesting
-import com.android.server.wm.flicker.assertions.FlickerSubject
-import com.android.server.wm.flicker.traces.region.RegionSubject
 import com.android.server.wm.traces.common.assertions.Fact
 import com.android.server.wm.traces.common.component.matchers.ComponentNameMatcher
 import com.android.server.wm.traces.common.component.matchers.IComponentMatcher
 import com.android.server.wm.traces.common.region.Region
 import com.android.server.wm.traces.common.service.PlatformConsts
+import com.android.server.wm.traces.common.subjects.FlickerSubject
+import com.android.server.wm.traces.common.subjects.region.RegionSubject
 import com.android.server.wm.traces.common.windowmanager.WindowManagerState
 import com.android.server.wm.traces.common.windowmanager.windows.WindowState
 
@@ -273,9 +272,10 @@ class WindowManagerStateSubject(
         apply {
             // Check existence of activity
             val activity = wmState.getActivitiesForWindow(componentMatcher).firstOrNull()
-            assert(activity != null) {
-                "Activity exists for window ${componentMatcher.toWindowIdentifier()}"
-            }
+            check { "\"Activity for window ${componentMatcher.toWindowIdentifier()} exists" }
+                .that(activity)
+                .isNotNull()
+
             // Check existence of window.
             contains(componentMatcher)
         }
@@ -285,7 +285,7 @@ class WindowManagerStateSubject(
         rotation: PlatformConsts.Rotation,
         displayId: Int
     ): WindowManagerStateSubject = apply {
-        assert(rotation == wmState.getRotation(displayId)) { "Rotation is $rotation" }
+        check { "hasRotation" }.that(wmState.getRotation(displayId)).isEqual(rotation)
     }
 
     /** {@inheritDoc} */
@@ -336,7 +336,6 @@ class WindowManagerStateSubject(
     }
 
     /** {@inheritDoc} */
-    @VisibleForTesting
     override fun isValid(): WindowManagerStateSubject = apply {
         check { "Stacks count" }.that(wmState.stackCount).isGreater(0)
         // TODO: Update when keyguard will be shown on multiple displays

@@ -18,7 +18,7 @@ package com.android.server.wm.flicker.service.assertors.assertions
 
 import com.android.server.wm.flicker.service.IScenarioInstance
 import com.android.server.wm.flicker.service.assertors.ComponentTemplate
-import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
+import com.android.server.wm.traces.common.subjects.wm.WindowManagerTraceSubject
 
 /** Checks that [component] starts not on top and moves to top during the transition */
 open class WindowMovesToTop(component: ComponentTemplate) :

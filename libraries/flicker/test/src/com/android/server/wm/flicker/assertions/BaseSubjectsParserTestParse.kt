@@ -23,11 +23,12 @@ import com.android.server.wm.flicker.io.ResultReader
 import com.android.server.wm.flicker.io.ResultWriter
 import com.android.server.wm.flicker.newTestResultWriter
 import com.android.server.wm.flicker.outputFileName
-import com.android.server.wm.flicker.traces.FlickerTraceSubject
 import com.android.server.wm.traces.common.AssertionTag
 import com.android.server.wm.traces.common.Timestamp
 import com.android.server.wm.traces.common.io.RunStatus
 import com.android.server.wm.traces.common.io.TraceType
+import com.android.server.wm.traces.common.subjects.FlickerSubject
+import com.android.server.wm.traces.common.subjects.FlickerTraceSubject
 import com.google.common.truth.Truth
 import java.io.File
 import org.junit.Before

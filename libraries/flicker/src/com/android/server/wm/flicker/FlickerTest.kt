@@ -16,27 +16,27 @@
 
 package com.android.server.wm.flicker
 
-import com.android.server.wm.flicker.assertions.AssertionData
 import com.android.server.wm.flicker.assertions.AssertionDataFactory
 import com.android.server.wm.flicker.assertions.AssertionStateDataFactory
 import com.android.server.wm.flicker.assertions.BaseAssertionRunner
-import com.android.server.wm.flicker.assertions.FlickerSubject
-import com.android.server.wm.flicker.assertions.SubjectsParser
 import com.android.server.wm.flicker.datastore.CachedAssertionRunner
 import com.android.server.wm.flicker.datastore.CachedResultReader
-import com.android.server.wm.flicker.traces.FlickerTraceSubject
-import com.android.server.wm.flicker.traces.eventlog.EventLogSubject
-import com.android.server.wm.flicker.traces.layers.LayerTraceEntrySubject
-import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
-import com.android.server.wm.flicker.traces.region.RegionTraceSubject
-import com.android.server.wm.flicker.traces.windowmanager.WindowManagerStateSubject
-import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
 import com.android.server.wm.traces.common.AssertionTag
 import com.android.server.wm.traces.common.IScenario
 import com.android.server.wm.traces.common.Scenario
 import com.android.server.wm.traces.common.ScenarioBuilder
+import com.android.server.wm.traces.common.assertions.AssertionData
+import com.android.server.wm.traces.common.assertions.SubjectsParser
 import com.android.server.wm.traces.common.component.matchers.IComponentMatcher
 import com.android.server.wm.traces.common.io.IReader
+import com.android.server.wm.traces.common.subjects.FlickerSubject
+import com.android.server.wm.traces.common.subjects.FlickerTraceSubject
+import com.android.server.wm.traces.common.subjects.eventlog.EventLogSubject
+import com.android.server.wm.traces.common.subjects.layers.LayerTraceEntrySubject
+import com.android.server.wm.traces.common.subjects.layers.LayersTraceSubject
+import com.android.server.wm.traces.common.subjects.region.RegionTraceSubject
+import com.android.server.wm.traces.common.subjects.wm.WindowManagerStateSubject
+import com.android.server.wm.traces.common.subjects.wm.WindowManagerTraceSubject
 import com.android.server.wm.traces.parser.withPerfettoTrace
 
 /** Specification of a flicker test for JUnit ParameterizedRunner class */
@@ -260,10 +260,10 @@ data class FlickerTest(
         componentMatcher: IComponentMatcher,
         assertion: RegionTraceSubject.() -> Unit
     ): AssertionData {
-        val closedAssertion: (WindowManagerTraceSubject) -> Unit = {
-            require(it.isAssertionsEmpty()) { "Subject was already used to execute assertions" }
+        val closedAssertion: WindowManagerTraceSubject.() -> Unit = {
+            require(!hasAssertions()) { "Subject was already used to execute assertions" }
             // convert WindowManagerTraceSubject to RegionTraceSubject
-            val regionTraceSubject = it.visibleRegion(componentMatcher)
+            val regionTraceSubject = visibleRegion(componentMatcher)
             // add assertions to the regionTraceSubject's AssertionChecker
             assertion(regionTraceSubject)
             // loop through all entries to validate assertions
@@ -281,7 +281,7 @@ data class FlickerTest(
         assertion: RegionTraceSubject.() -> Unit
     ): AssertionData {
         val closedAssertion: LayersTraceSubject.() -> Unit = {
-            require(isAssertionsEmpty()) { "Subject was already used to execute assertions" }
+            require(!hasAssertions()) { "Subject was already used to execute assertions" }
             // convert LayersTraceSubject to RegionTraceSubject
             val regionTraceSubject = visibleRegion(componentMatcher, useCompositionEngineRegionOnly)
 

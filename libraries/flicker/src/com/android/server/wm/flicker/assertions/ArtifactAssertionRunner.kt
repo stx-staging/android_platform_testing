@@ -19,6 +19,7 @@ package com.android.server.wm.flicker.assertions
 import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
 import com.android.server.wm.flicker.io.IResultData
 import com.android.server.wm.flicker.io.ResultReaderWithLru
+import com.android.server.wm.traces.common.assertions.SubjectsParser
 import com.android.server.wm.traces.common.io.IReader
 import com.android.server.wm.traces.common.io.RunStatus
 

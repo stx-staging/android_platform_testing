@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.assertions
+package com.android.server.wm.traces.common.subjects
 
 /** Subject builder for flicker checks */
 data class CheckSubjectBuilder(

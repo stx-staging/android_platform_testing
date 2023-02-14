@@ -16,36 +16,28 @@
 
 package com.android.server.wm.flicker.assertions
 
-import android.annotation.SuppressLint
 import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
-import com.android.server.wm.flicker.assertThrows
 import com.android.server.wm.flicker.deleteIfExists
 import com.android.server.wm.flicker.io.ResultReader
 import com.android.server.wm.flicker.newTestResultWriter
 import com.android.server.wm.flicker.outputFileName
+import com.android.server.wm.traces.common.AssertionTag
+import com.android.server.wm.traces.common.assertions.SubjectsParser
 import com.android.server.wm.traces.common.io.RunStatus
-import java.io.FileNotFoundException
-import org.junit.Before
+import com.google.common.truth.Truth
 import org.junit.ClassRule
 import org.junit.Test
 
 /** Tests for [SubjectsParser] */
-@SuppressLint("VisibleForTests")
 class SubjectsParserTest {
-    @Before
-    fun setup() {
-        outputFileName(RunStatus.RUN_EXECUTED).deleteIfExists()
-    }
 
     @Test
-    fun failFileNotFound() {
+    fun isEmptyWhenFileNotFound() {
         val data = newTestResultWriter().write()
         outputFileName(RunStatus.RUN_EXECUTED).deleteIfExists()
         val parser = SubjectsParser(ResultReader(data, DEFAULT_TRACE_CONFIG))
-        assertThrows<FileNotFoundException> {
-            parser.readTransitionsTraceForTesting() ?: error("Should have failed")
-        }
+        Truth.assertWithMessage("Is empty").that(parser.getSubjects(AssertionTag.ALL)).isEmpty()
     }
 
     companion object {

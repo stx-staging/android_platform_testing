@@ -18,10 +18,10 @@ package com.android.server.wm.flicker.layers
 
 import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.readLayerTraceFromFile
-import com.android.server.wm.flicker.traces.layers.LayerSubject
-import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 import com.android.server.wm.traces.common.Cache
 import com.android.server.wm.traces.common.Size
+import com.android.server.wm.traces.common.subjects.layers.LayerSubject
+import com.android.server.wm.traces.common.subjects.layers.LayersTraceSubject
 import com.google.common.truth.Truth
 import org.junit.Before
 import org.junit.ClassRule

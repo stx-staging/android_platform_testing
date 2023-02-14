@@ -19,10 +19,10 @@ package com.android.server.wm.flicker.service.assertors.assertions
 import com.android.server.wm.flicker.helpers.WindowUtils
 import com.android.server.wm.flicker.service.IScenarioInstance
 import com.android.server.wm.flicker.service.assertors.AssertionTemplate
-import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 import com.android.server.wm.traces.common.component.matchers.ComponentNameMatcher
 import com.android.server.wm.traces.common.region.Region
 import com.android.server.wm.traces.common.service.PlatformConsts
+import com.android.server.wm.traces.common.subjects.layers.LayersTraceSubject
 
 /**
  * Checks if the [ComponentNameMatcher.STATUS_BAR] layer is placed at the correct position at the

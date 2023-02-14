@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The Android Open Source Project
+ * Copyright (C) 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.traces
+package com.android.server.wm.traces.common.subjects
 
-import com.android.server.wm.flicker.assertions.AssertionsChecker
-import com.android.server.wm.flicker.assertions.FlickerSubject
 import com.android.server.wm.traces.common.TimestampFactory
+import com.android.server.wm.traces.common.assertions.AssertionsChecker
 import com.android.server.wm.traces.common.assertions.Fact
 
 /** Base subject for flicker trace assertions */
@@ -37,7 +36,7 @@ abstract class FlickerTraceSubject<EntrySubject : FlickerSubject> : FlickerSubje
 
     abstract val subjects: List<EntrySubject>
 
-    internal fun isAssertionsEmpty() = assertionsChecker.isEmpty()
+    fun hasAssertions() = !assertionsChecker.isEmpty()
 
     /**
      * Adds a new assertion block (if preceded by [then]) or appends an assertion to the latest

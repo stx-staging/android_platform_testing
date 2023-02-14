@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The Android Open Source Project
+ * Copyright (C) 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.traces.windowmanager
+package com.android.server.wm.traces.common.subjects.wm
 
-import androidx.annotation.VisibleForTesting
-import com.android.server.wm.flicker.traces.FlickerTraceSubject
-import com.android.server.wm.flicker.traces.region.RegionTraceSubject
 import com.android.server.wm.traces.common.assertions.Fact
 import com.android.server.wm.traces.common.component.matchers.ComponentNameMatcher
 import com.android.server.wm.traces.common.component.matchers.IComponentMatcher
 import com.android.server.wm.traces.common.region.RegionTrace
 import com.android.server.wm.traces.common.service.PlatformConsts
+import com.android.server.wm.traces.common.subjects.FlickerTraceSubject
+import com.android.server.wm.traces.common.subjects.region.RegionTraceSubject
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 import com.android.server.wm.traces.common.windowmanager.windows.WindowState
 
@@ -522,7 +521,6 @@ class WindowManagerTraceSubject(
         addAssertion("isRecentsActivityVisible", isOptional) { it.isRecentsActivityVisible() }
     }
 
-    @VisibleForTesting
     override fun isValid(): WindowManagerTraceSubject = apply {
         addAssertion("isValid") { it.isValid() }
     }
@@ -557,7 +555,6 @@ class WindowManagerTraceSubject(
     }
 
     /** Executes a custom [assertion] on the current subject */
-    @JvmOverloads
     operator fun invoke(
         name: String,
         isOptional: Boolean = false,

@@ -16,11 +16,11 @@
 
 package com.android.server.wm.flicker.assertions
 
-import com.android.server.wm.flicker.traces.layers.LayerTraceEntrySubject
-import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
-import com.android.server.wm.flicker.traces.windowmanager.WindowManagerStateSubject
-import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
 import com.android.server.wm.traces.common.AssertionTag
+import com.android.server.wm.traces.common.subjects.layers.LayerTraceEntrySubject
+import com.android.server.wm.traces.common.subjects.layers.LayersTraceSubject
+import com.android.server.wm.traces.common.subjects.wm.WindowManagerStateSubject
+import com.android.server.wm.traces.common.subjects.wm.WindowManagerTraceSubject
 import org.junit.Test
 
 /** Tests for [AssertionDataFactoryTest] */

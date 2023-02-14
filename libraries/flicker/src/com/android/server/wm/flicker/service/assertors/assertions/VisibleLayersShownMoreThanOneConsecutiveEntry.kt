@@ -18,7 +18,7 @@ package com.android.server.wm.flicker.service.assertors.assertions
 
 import com.android.server.wm.flicker.service.IScenarioInstance
 import com.android.server.wm.flicker.service.assertors.AssertionTemplate
-import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
+import com.android.server.wm.traces.common.subjects.layers.LayersTraceSubject
 
 /**
  * Checks that all layers that are visible on the trace, are visible for at least 2 consecutive

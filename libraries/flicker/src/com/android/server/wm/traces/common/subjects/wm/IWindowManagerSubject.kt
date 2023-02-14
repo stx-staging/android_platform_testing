@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 The Android Open Source Project
+ * Copyright (C) 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.traces.windowmanager
+package com.android.server.wm.traces.common.subjects.wm
 
-import androidx.annotation.VisibleForTesting
 import com.android.server.wm.traces.common.component.matchers.IComponentMatcher
 import com.android.server.wm.traces.common.service.PlatformConsts
 import com.android.server.wm.traces.common.windowmanager.windows.Activity
@@ -147,7 +146,7 @@ interface IWindowManagerSubject<WMSubjectType, RegionSubjectType> {
      * - a front window
      * - a focused app
      */
-    @VisibleForTesting fun isValid(): WMSubjectType
+    fun isValid(): WMSubjectType
 
     /**
      * Asserts the state contains a visible [WindowState] matching [componentMatcher].

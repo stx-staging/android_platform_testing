@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The Android Open Source Project
+ * Copyright (C) 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.traces.region
+package com.android.server.wm.traces.common.subjects.region
 
-import com.android.server.wm.flicker.assertions.FlickerSubject
-import com.android.server.wm.flicker.traces.FlickerTraceSubject
 import com.android.server.wm.traces.common.Rect
 import com.android.server.wm.traces.common.region.Region
 import com.android.server.wm.traces.common.region.RegionTrace
+import com.android.server.wm.traces.common.subjects.FlickerSubject
+import com.android.server.wm.traces.common.subjects.FlickerTraceSubject
 
 class RegionTraceSubject(val trace: RegionTrace, override val parent: FlickerSubject?) :
     FlickerTraceSubject<RegionSubject>() {

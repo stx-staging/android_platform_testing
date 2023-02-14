@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.assertions
+package com.android.server.wm.traces.common.subjects
 
 import com.android.server.wm.traces.common.assertions.Fact
 
@@ -33,6 +33,18 @@ data class CheckSubject<T>(
     fun isNotEqual(expectedValue: T?) {
         if (actualValue == expectedValue) {
             failWithFactForExpectedValue(Fact("expected to be different from", expectedValue))
+        }
+    }
+
+    fun isNull() {
+        if (actualValue != null) {
+            failWithFactForExpectedValue(Fact("expected to be", null))
+        }
+    }
+
+    fun isNotNull() {
+        if (actualValue == null) {
+            failWithFactForExpectedValue(Fact("expected not to be", null))
         }
     }
 

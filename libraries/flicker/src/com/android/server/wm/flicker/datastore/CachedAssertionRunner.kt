@@ -18,8 +18,8 @@ package com.android.server.wm.flicker.datastore
 
 import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
 import com.android.server.wm.flicker.assertions.BaseAssertionRunner
-import com.android.server.wm.flicker.assertions.SubjectsParser
 import com.android.server.wm.traces.common.IScenario
+import com.android.server.wm.traces.common.assertions.SubjectsParser
 import com.android.server.wm.traces.common.io.RunStatus
 
 /**

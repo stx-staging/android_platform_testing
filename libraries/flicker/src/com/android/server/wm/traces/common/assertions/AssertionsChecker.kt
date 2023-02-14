@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The Android Open Source Project
+ * Copyright (C) 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.assertions
+package com.android.server.wm.traces.common.assertions
 
-import android.util.Log
-import com.android.server.wm.traces.common.FLICKER_TAG
-import com.android.server.wm.traces.common.assertions.CompoundAssertion
-import com.android.server.wm.traces.common.assertions.Fact
+import com.android.server.wm.traces.common.subjects.FlickerSubject
 import kotlin.math.max
 
 /**
@@ -77,7 +74,7 @@ class AssertionsChecker<T : FlickerSubject> {
                 val log =
                     "${assertionIndex + 1}/${assertions.size}:[${currentAssertion.name}]\t" +
                         "Entry: ${entryIndex + 1}/${entries.size} $currEntry"
-                Log.v(FLICKER_TAG, "Checking Assertion: $log")
+                // nataniel Log.v(FLICKER_TAG, "Checking Assertion: $log")
                 assertionTrace.add(log)
                 currentAssertion.invoke(currEntry)
                 lastPassedAssertionIndex = assertionIndex

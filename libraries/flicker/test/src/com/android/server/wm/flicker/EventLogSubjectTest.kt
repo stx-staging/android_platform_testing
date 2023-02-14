@@ -17,12 +17,12 @@
 package com.android.server.wm.flicker
 
 import com.android.server.wm.InitRule
-import com.android.server.wm.flicker.assertions.SubjectsParser
 import com.android.server.wm.flicker.io.ParsedTracesReader
-import com.android.server.wm.flicker.traces.eventlog.EventLogSubject
 import com.android.server.wm.traces.common.TimestampFactory
+import com.android.server.wm.traces.common.assertions.SubjectsParser
 import com.android.server.wm.traces.common.events.EventLog
 import com.android.server.wm.traces.common.events.FocusEvent
+import com.android.server.wm.traces.common.subjects.eventlog.EventLogSubject
 import org.junit.ClassRule
 import org.junit.Test
 
