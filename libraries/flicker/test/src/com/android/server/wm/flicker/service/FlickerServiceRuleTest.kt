@@ -20,12 +20,12 @@ import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.helpers.isShellTransitionsEnabled
 import com.android.server.wm.flicker.runner.Consts
 import com.android.server.wm.flicker.runner.ExecutionError
-import com.android.server.wm.flicker.service.assertors.AssertionResult
-import com.android.server.wm.flicker.service.assertors.IAssertionResult
-import com.android.server.wm.flicker.service.assertors.IFaasAssertion
 import com.android.server.wm.flicker.service.rules.FlickerServiceRule
 import com.android.server.wm.flicker.utils.KotlinMockito
 import com.android.server.wm.traces.common.service.AssertionInvocationGroup
+import com.android.server.wm.traces.common.service.assertors.AssertionResult
+import com.android.server.wm.traces.common.service.assertors.IAssertionResult
+import com.android.server.wm.traces.common.service.assertors.IFaasAssertion
 import com.google.common.truth.Truth
 import org.junit.Assume
 import org.junit.AssumptionViolatedException

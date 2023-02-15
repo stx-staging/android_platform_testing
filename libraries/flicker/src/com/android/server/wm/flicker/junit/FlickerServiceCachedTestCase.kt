@@ -18,10 +18,10 @@ package com.android.server.wm.flicker.junit
 
 import com.android.server.wm.flicker.datastore.DataStore
 import com.android.server.wm.flicker.service.FlickerServiceResultsCollector
-import com.android.server.wm.flicker.service.assertors.IAssertionResult
 import com.android.server.wm.traces.common.Cache
 import com.android.server.wm.traces.common.IScenario
 import com.android.server.wm.traces.common.service.AssertionInvocationGroup
+import com.android.server.wm.traces.common.service.assertors.IAssertionResult
 import java.lang.reflect.Method
 import org.junit.Assume
 import org.junit.runner.Description

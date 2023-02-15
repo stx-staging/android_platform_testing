@@ -22,10 +22,12 @@ import android.device.collectors.DataRecord
 import androidx.test.platform.app.InstrumentationRegistry
 import com.android.internal.annotations.VisibleForTesting
 import com.android.server.wm.flicker.runner.ExecutionError
-import com.android.server.wm.flicker.service.assertors.IAssertionResult
 import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.FLICKER_TAG
 import com.android.server.wm.traces.common.service.AssertionInvocationGroup
+import com.android.server.wm.traces.common.service.IFlickerService
+import com.android.server.wm.traces.common.service.ITracesCollector
+import com.android.server.wm.traces.common.service.assertors.IAssertionResult
 import org.junit.runner.Description
 import org.junit.runner.Result
 import org.junit.runner.notification.Failure

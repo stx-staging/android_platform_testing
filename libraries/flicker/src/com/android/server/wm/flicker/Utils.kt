@@ -17,7 +17,6 @@
 package com.android.server.wm.flicker
 
 import com.android.compatibility.common.util.SystemUtil
-import com.android.server.wm.flicker.service.assertors.ComponentTypeMatcher
 import com.android.server.wm.traces.common.MILLISECOND_AS_NANOSECONDS
 import com.android.server.wm.traces.common.component.matchers.ComponentNameMatcher
 import com.android.server.wm.traces.common.io.RunStatus
@@ -107,17 +106,11 @@ object Utils {
     }
 
     fun componentNameMatcherToString(componentNameMatcher: ComponentNameMatcher): String {
-        if (componentNameMatcher is ComponentTypeMatcher) {
-            return "Components.${componentNameMatcher.componentBuilder.name}"
-        }
         return "ComponentNameMatcher(\"${componentNameMatcher.packageName}\", " +
             "\"${componentNameMatcher.className}\")"
     }
 
     fun componentNameMatcherToStringSimplified(componentNameMatcher: ComponentNameMatcher): String {
-        if (componentNameMatcher is ComponentTypeMatcher) {
-            return componentNameMatcher.componentBuilder.name
-        }
         var className = componentNameMatcher.className
         val separatedByDots = className.split('.')
         if (separatedByDots.isNotEmpty()) {

@@ -17,7 +17,7 @@
 package com.android.server.wm.flicker.service
 
 import com.android.server.wm.flicker.runner.ExecutionError
-import com.android.server.wm.flicker.service.assertors.IAssertionResult
+import com.android.server.wm.traces.common.service.assertors.IAssertionResult
 import org.junit.runner.Description
 import org.junit.runner.notification.Failure
 

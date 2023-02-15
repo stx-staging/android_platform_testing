@@ -26,10 +26,10 @@ import com.android.server.wm.flicker.helpers.IS_FAAS_ENABLED
 import com.android.server.wm.flicker.helpers.isShellTransitionsEnabled
 import com.android.server.wm.flicker.service.FlickerService
 import com.android.server.wm.flicker.service.FlickerServiceResultsCollector
-import com.android.server.wm.flicker.service.assertors.IAssertionResult
 import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.FLICKER_TAG
 import com.android.server.wm.traces.common.Scenario
+import com.android.server.wm.traces.common.service.assertors.IAssertionResult
 import org.junit.runner.Description
 import org.junit.runners.model.FrameworkMethod
 import org.junit.runners.model.Statement

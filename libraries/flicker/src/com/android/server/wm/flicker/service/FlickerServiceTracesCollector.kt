@@ -30,6 +30,7 @@ import com.android.server.wm.traces.common.FLICKER_TAG
 import com.android.server.wm.traces.common.Scenario
 import com.android.server.wm.traces.common.ScenarioBuilder
 import com.android.server.wm.traces.common.io.IReader
+import com.android.server.wm.traces.common.service.ITracesCollector
 import java.io.File
 
 class FlickerServiceTracesCollector(

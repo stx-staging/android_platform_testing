@@ -18,8 +18,8 @@ package com.android.server.wm.flicker.datastore
 
 import androidx.annotation.VisibleForTesting
 import com.android.server.wm.flicker.io.IResultData
-import com.android.server.wm.flicker.service.assertors.IAssertionResult
 import com.android.server.wm.traces.common.IScenario
+import com.android.server.wm.traces.common.service.assertors.IAssertionResult
 
 /** In memory data store for flicker transitions, assertions and results */
 object DataStore {

@@ -19,11 +19,12 @@ package com.android.server.wm.flicker.service
 import android.app.Instrumentation
 import androidx.test.platform.app.InstrumentationRegistry
 import com.android.server.wm.InitRule
-import com.android.server.wm.flicker.service.assertors.IFaasAssertion
-import com.android.server.wm.flicker.service.assertors.factories.IAssertionFactory
-import com.android.server.wm.flicker.service.assertors.runners.IAssertionRunner
-import com.android.server.wm.flicker.service.extractors.IScenarioExtractor
 import com.android.server.wm.traces.common.io.IReader
+import com.android.server.wm.traces.common.service.IScenarioInstance
+import com.android.server.wm.traces.common.service.assertors.IFaasAssertion
+import com.android.server.wm.traces.common.service.assertors.factories.IAssertionFactory
+import com.android.server.wm.traces.common.service.assertors.runners.IAssertionRunner
+import com.android.server.wm.traces.common.service.extractors.IScenarioExtractor
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerStateHelper
 import org.junit.ClassRule
 import org.junit.FixMethodOrder
