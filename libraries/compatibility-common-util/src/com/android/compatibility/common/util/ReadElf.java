@@ -48,10 +48,12 @@ public class ReadElf implements AutoCloseable {
     // http://en.wikipedia.org/wiki/Qualcomm_Hexagon
     public static final int EM_QDSP6 = 164;
     public static final int EM_AARCH64 = 183;
+    public static final int EM_RISCV = 243;
 
     public static final String ARCH_ARM = "arm";
     public static final String ARCH_X86 = "x86";
     public static final String ARCH_MIPS = "mips";
+    public static final String ARCH_RISCV = "riscv";
     public static final String ARCH_UNKNOWN = "unknown";
     private static final String RODATA = ".rodata";
 
@@ -653,7 +655,7 @@ public class ReadElf implements AutoCloseable {
                 || mMachine == EM_ARM
                 || mMachine == EM_QDSP6) {
             return 32;
-        } else if (mMachine == EM_AARCH64 || mMachine == EM_X86_64) {
+        } else if (mMachine == EM_AARCH64 || mMachine == EM_X86_64 || mMachine == EM_RISCV) {
             return 64;
         } else {
             return -1;
@@ -667,6 +669,8 @@ public class ReadElf implements AutoCloseable {
             return ARCH_X86;
         } else if (mMachine == EM_MIPS) {
             return ARCH_MIPS;
+        } else if (mMachine == EM_RISCV) {
+            return ARCH_RISCV;
         } else {
             return ARCH_UNKNOWN;
         }
@@ -778,6 +782,7 @@ public class ReadElf implements AutoCloseable {
                 && e_machine != EM_AARCH64
                 && e_machine != EM_ARM
                 && e_machine != EM_MIPS
+                && e_machine != EM_RISCV
                 && e_machine != EM_QDSP6) {
             throw new IOException("Invalid ELF e_machine: " + e_machine + ": " + mPath);
         }
