@@ -17,7 +17,6 @@
 package com.android.server.wm.flicker.junit
 
 import android.os.Bundle
-import android.util.Log
 import androidx.test.platform.app.InstrumentationRegistry
 import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
 import com.android.server.wm.flicker.annotation.FlickerServiceCompatible
@@ -28,9 +27,9 @@ import com.android.server.wm.flicker.helpers.isShellTransitionsEnabled
 import com.android.server.wm.flicker.service.FlickerService
 import com.android.server.wm.flicker.service.FlickerServiceResultsCollector
 import com.android.server.wm.flicker.service.assertors.IAssertionResult
+import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.FLICKER_TAG
 import com.android.server.wm.traces.common.Scenario
-import com.android.server.wm.traces.parser.withPerfettoTrace
 import org.junit.runner.Description
 import org.junit.runners.model.FrameworkMethod
 import org.junit.runners.model.Statement
@@ -76,11 +75,11 @@ class FlickerServiceDecorator(
     override fun getTestMethods(test: Any): List<FrameworkMethod> {
         val result = inner?.getTestMethods(test)?.toMutableList() ?: mutableListOf()
         if (shouldComputeTestMethods()) {
-            withPerfettoTrace(
+            CrossPlatform.log.withTracing(
                 "$FAAS_METRICS_PREFIX getTestMethods ${testClass.javaClass.simpleName}"
             ) {
                 result.addAll(computeFlickerServiceTests(test))
-                Log.d(FLICKER_TAG, "Computed ${result.size} flicker tests")
+                CrossPlatform.log.d(FLICKER_TAG, "Computed ${result.size} flicker tests")
             }
         }
         return result
@@ -136,7 +135,7 @@ class FlickerServiceDecorator(
         for (testFilter in testFilters.split(",")) {
             val filterComponents = testFilter.split("#")
             if (filterComponents.size != 2) {
-                Log.e(
+                CrossPlatform.log.e(
                     LOG_TAG,
                     "Invalid filter-tests instrumentation argument supplied, $testFilter."
                 )

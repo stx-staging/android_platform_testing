@@ -18,9 +18,9 @@ package com.android.server.wm.flicker.runner
 
 import android.app.Instrumentation
 import android.os.Bundle
-import android.util.Log
 import androidx.test.platform.app.InstrumentationRegistry
 import com.android.server.wm.traces.common.ConditionList
+import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.IScenario
 import com.android.server.wm.traces.common.WindowManagerConditionsFactory
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerStateHelper
@@ -46,7 +46,7 @@ object Utils {
     }
 
     internal fun notifyRunnerProgress(scenario: IScenario, msg: String) {
-        Log.d(FLICKER_RUNNER_TAG, "${scenario.key} - $msg")
+        CrossPlatform.log.d(FLICKER_RUNNER_TAG, "${scenario.key} - $msg")
         val results = Bundle()
         results.putString(Instrumentation.REPORT_KEY_STREAMRESULT, "$msg\n")
         instrumentation.sendStatus(1, results)

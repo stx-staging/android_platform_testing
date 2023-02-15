@@ -21,10 +21,10 @@ import android.app.Instrumentation
 import android.app.WindowConfiguration
 import android.os.SystemClock
 import android.os.Trace
-import android.util.Log
 import android.view.Display
 import androidx.test.platform.app.InstrumentationRegistry
 import com.android.server.wm.traces.common.Condition
+import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.DeviceStateDump
 import com.android.server.wm.traces.common.WaitCondition
 import com.android.server.wm.traces.common.WindowManagerConditionsFactory
@@ -120,9 +120,9 @@ constructor(
                 .onLog { msg, isError ->
                     lastMessage = msg
                     if (isError) {
-                        Log.e(LOG_TAG, msg)
+                        CrossPlatform.log.e(LOG_TAG, msg)
                     } else {
-                        Log.d(LOG_TAG, msg)
+                        CrossPlatform.log.d(LOG_TAG, msg)
                     }
                 }
                 .onRetry { SystemClock.sleep(retryIntervalMs) }
@@ -435,10 +435,16 @@ constructor(
                 val activityWindowVisible = matchingWindowStates.isNotEmpty()
 
                 if (!activityWindowVisible) {
-                    Log.i(LOG_TAG, "Activity window not visible: ${activityState.windowIdentifier}")
+                    CrossPlatform.log.i(
+                        LOG_TAG,
+                        "Activity window not visible: ${activityState.windowIdentifier}"
+                    )
                     allActivityWindowsVisible = false
                 } else if (!state.wmState.isActivityVisible(activityState.activityMatcher)) {
-                    Log.i(LOG_TAG, "Activity not visible: ${activityState.activityMatcher}")
+                    CrossPlatform.log.i(
+                        LOG_TAG,
+                        "Activity not visible: ${activityState.activityMatcher}"
+                    )
                     allActivityWindowsVisible = false
                 } else {
                     // Check if window is already the correct state requested by test.
@@ -464,7 +470,7 @@ constructor(
                         break
                     }
                     if (!windowInCorrectState) {
-                        Log.i(LOG_TAG, "Window in incorrect stack: $activityState")
+                        CrossPlatform.log.i(LOG_TAG, "Window in incorrect stack: $activityState")
                         tasksInCorrectStacks = false
                     }
                 }

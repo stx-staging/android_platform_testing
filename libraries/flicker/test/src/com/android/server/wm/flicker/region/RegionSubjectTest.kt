@@ -18,8 +18,8 @@ package com.android.server.wm.flicker.region
 
 import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.assertThrows
+import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.Rect
-import com.android.server.wm.traces.common.TimestampFactory
 import com.android.server.wm.traces.common.subjects.FlickerSubjectException
 import com.android.server.wm.traces.common.subjects.region.RegionSubject
 import com.google.common.truth.Truth
@@ -38,16 +38,16 @@ class RegionSubjectTest {
 
     private fun expectAllFailPositionChange(expectedMessage: String, rectA: Rect, rectB: Rect) {
         assertFail(expectedMessage) {
-            RegionSubject(rectA, timestamp = TimestampFactory.empty()).isHigher(rectB)
+            RegionSubject(rectA, timestamp = CrossPlatform.timestamp.empty()).isHigher(rectB)
         }
         assertFail(expectedMessage) {
-            RegionSubject(rectA, timestamp = TimestampFactory.empty()).isHigherOrEqual(rectB)
+            RegionSubject(rectA, timestamp = CrossPlatform.timestamp.empty()).isHigherOrEqual(rectB)
         }
         assertFail(expectedMessage) {
-            RegionSubject(rectA, timestamp = TimestampFactory.empty()).isLower(rectB)
+            RegionSubject(rectA, timestamp = CrossPlatform.timestamp.empty()).isLower(rectB)
         }
         assertFail(expectedMessage) {
-            RegionSubject(rectA, timestamp = TimestampFactory.empty()).isLowerOrEqual(rectB)
+            RegionSubject(rectA, timestamp = CrossPlatform.timestamp.empty()).isLowerOrEqual(rectB)
         }
     }
 
@@ -55,13 +55,13 @@ class RegionSubjectTest {
     fun detectPositionChangeHigher() {
         val rectA = Rect.from(left = 0, top = 0, right = 1, bottom = 1)
         val rectB = Rect.from(left = 0, top = 1, right = 1, bottom = 2)
-        RegionSubject(rectA, timestamp = TimestampFactory.empty()).isHigher(rectB)
-        RegionSubject(rectA, timestamp = TimestampFactory.empty()).isHigherOrEqual(rectB)
+        RegionSubject(rectA, timestamp = CrossPlatform.timestamp.empty()).isHigher(rectB)
+        RegionSubject(rectA, timestamp = CrossPlatform.timestamp.empty()).isHigherOrEqual(rectB)
         assertFail(RegionSubject.MSG_ERROR_TOP_POSITION) {
-            RegionSubject(rectA, timestamp = TimestampFactory.empty()).isLower(rectB)
+            RegionSubject(rectA, timestamp = CrossPlatform.timestamp.empty()).isLower(rectB)
         }
         assertFail(RegionSubject.MSG_ERROR_TOP_POSITION) {
-            RegionSubject(rectA, timestamp = TimestampFactory.empty()).isLowerOrEqual(rectB)
+            RegionSubject(rectA, timestamp = CrossPlatform.timestamp.empty()).isLowerOrEqual(rectB)
         }
     }
 
@@ -69,13 +69,13 @@ class RegionSubjectTest {
     fun detectPositionChangeLower() {
         val rectA = Rect.from(left = 0, top = 2, right = 1, bottom = 3)
         val rectB = Rect.from(left = 0, top = 0, right = 1, bottom = 1)
-        RegionSubject(rectA, timestamp = TimestampFactory.empty()).isLower(rectB)
-        RegionSubject(rectA, timestamp = TimestampFactory.empty()).isLowerOrEqual(rectB)
+        RegionSubject(rectA, timestamp = CrossPlatform.timestamp.empty()).isLower(rectB)
+        RegionSubject(rectA, timestamp = CrossPlatform.timestamp.empty()).isLowerOrEqual(rectB)
         assertFail(RegionSubject.MSG_ERROR_TOP_POSITION) {
-            RegionSubject(rectA, timestamp = TimestampFactory.empty()).isHigher(rectB)
+            RegionSubject(rectA, timestamp = CrossPlatform.timestamp.empty()).isHigher(rectB)
         }
         assertFail(RegionSubject.MSG_ERROR_TOP_POSITION) {
-            RegionSubject(rectA, timestamp = TimestampFactory.empty()).isHigherOrEqual(rectB)
+            RegionSubject(rectA, timestamp = CrossPlatform.timestamp.empty()).isHigherOrEqual(rectB)
         }
     }
 
@@ -83,13 +83,13 @@ class RegionSubjectTest {
     fun detectPositionChangeEqualHigherLower() {
         val rectA = Rect.from(left = 0, top = 1, right = 1, bottom = 0)
         val rectB = Rect.from(left = 1, top = 1, right = 2, bottom = 0)
-        RegionSubject(rectA, timestamp = TimestampFactory.empty()).isHigherOrEqual(rectB)
-        RegionSubject(rectA, timestamp = TimestampFactory.empty()).isLowerOrEqual(rectB)
+        RegionSubject(rectA, timestamp = CrossPlatform.timestamp.empty()).isHigherOrEqual(rectB)
+        RegionSubject(rectA, timestamp = CrossPlatform.timestamp.empty()).isLowerOrEqual(rectB)
         assertFail(RegionSubject.MSG_ERROR_TOP_POSITION) {
-            RegionSubject(rectA, timestamp = TimestampFactory.empty()).isHigher(rectB)
+            RegionSubject(rectA, timestamp = CrossPlatform.timestamp.empty()).isHigher(rectB)
         }
         assertFail(RegionSubject.MSG_ERROR_TOP_POSITION) {
-            RegionSubject(rectA, timestamp = TimestampFactory.empty()).isLower(rectB)
+            RegionSubject(rectA, timestamp = CrossPlatform.timestamp.empty()).isLower(rectB)
         }
     }
 
@@ -106,10 +106,10 @@ class RegionSubjectTest {
     fun detectCoversAtLeast() {
         val rectA = Rect.from(left = 1, top = 1, right = 2, bottom = 2)
         val rectB = Rect.from(left = 0, top = 0, right = 2, bottom = 2)
-        RegionSubject(rectA, timestamp = TimestampFactory.empty()).coversAtLeast(rectA)
-        RegionSubject(rectB, timestamp = TimestampFactory.empty()).coversAtLeast(rectA)
+        RegionSubject(rectA, timestamp = CrossPlatform.timestamp.empty()).coversAtLeast(rectA)
+        RegionSubject(rectB, timestamp = CrossPlatform.timestamp.empty()).coversAtLeast(rectA)
         assertFail("SkRegion((0,0,2,1)(0,1,1,2))") {
-            RegionSubject(rectA, timestamp = TimestampFactory.empty()).coversAtLeast(rectB)
+            RegionSubject(rectA, timestamp = CrossPlatform.timestamp.empty()).coversAtLeast(rectB)
         }
     }
 
@@ -117,10 +117,10 @@ class RegionSubjectTest {
     fun detectCoversAtMost() {
         val rectA = Rect.from(left = 1, top = 1, right = 2, bottom = 2)
         val rectB = Rect.from(left = 0, top = 0, right = 2, bottom = 2)
-        RegionSubject(rectA, timestamp = TimestampFactory.empty()).coversAtMost(rectA)
-        RegionSubject(rectA, timestamp = TimestampFactory.empty()).coversAtMost(rectB)
+        RegionSubject(rectA, timestamp = CrossPlatform.timestamp.empty()).coversAtMost(rectA)
+        RegionSubject(rectA, timestamp = CrossPlatform.timestamp.empty()).coversAtMost(rectB)
         assertFail("SkRegion((0,0,2,1)(0,1,1,2))") {
-            RegionSubject(rectB, timestamp = TimestampFactory.empty()).coversAtMost(rectA)
+            RegionSubject(rectB, timestamp = CrossPlatform.timestamp.empty()).coversAtMost(rectA)
         }
     }
 
@@ -128,9 +128,9 @@ class RegionSubjectTest {
     fun detectCoversExactly() {
         val rectA = Rect.from(left = 1, top = 1, right = 2, bottom = 2)
         val rectB = Rect.from(left = 0, top = 0, right = 2, bottom = 2)
-        RegionSubject(rectA, timestamp = TimestampFactory.empty()).coversExactly(rectA)
+        RegionSubject(rectA, timestamp = CrossPlatform.timestamp.empty()).coversExactly(rectA)
         assertFail("SkRegion((0,0,2,1)(0,1,1,2))") {
-            RegionSubject(rectA, timestamp = TimestampFactory.empty()).coversExactly(rectB)
+            RegionSubject(rectA, timestamp = CrossPlatform.timestamp.empty()).coversExactly(rectB)
         }
     }
 
@@ -139,10 +139,10 @@ class RegionSubjectTest {
         val rectA = Rect.from(left = 1, top = 1, right = 2, bottom = 2)
         val rectB = Rect.from(left = 0, top = 0, right = 2, bottom = 2)
         val rectC = Rect.from(left = 2, top = 2, right = 3, bottom = 3)
-        RegionSubject(rectA, timestamp = TimestampFactory.empty()).overlaps(rectB)
-        RegionSubject(rectB, timestamp = TimestampFactory.empty()).overlaps(rectA)
+        RegionSubject(rectA, timestamp = CrossPlatform.timestamp.empty()).overlaps(rectB)
+        RegionSubject(rectB, timestamp = CrossPlatform.timestamp.empty()).overlaps(rectA)
         assertFail("Overlap region: SkRegion()") {
-            RegionSubject(rectA, timestamp = TimestampFactory.empty()).overlaps(rectC)
+            RegionSubject(rectA, timestamp = CrossPlatform.timestamp.empty()).overlaps(rectC)
         }
     }
 
@@ -151,10 +151,10 @@ class RegionSubjectTest {
         val rectA = Rect.from(left = 1, top = 1, right = 2, bottom = 2)
         val rectB = Rect.from(left = 2, top = 2, right = 3, bottom = 3)
         val rectC = Rect.from(left = 0, top = 0, right = 2, bottom = 2)
-        RegionSubject(rectA, timestamp = TimestampFactory.empty()).notOverlaps(rectB)
-        RegionSubject(rectB, timestamp = TimestampFactory.empty()).notOverlaps(rectA)
+        RegionSubject(rectA, timestamp = CrossPlatform.timestamp.empty()).notOverlaps(rectB)
+        RegionSubject(rectB, timestamp = CrossPlatform.timestamp.empty()).notOverlaps(rectA)
         assertFail("SkRegion((1,1,2,2))") {
-            RegionSubject(rectA, timestamp = TimestampFactory.empty()).notOverlaps(rectC)
+            RegionSubject(rectA, timestamp = CrossPlatform.timestamp.empty()).notOverlaps(rectC)
         }
     }
 

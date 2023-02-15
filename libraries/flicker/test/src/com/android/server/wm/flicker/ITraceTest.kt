@@ -16,6 +16,7 @@
 
 package com.android.server.wm.flicker
 
+import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.ITrace
 import com.android.server.wm.traces.common.ITraceEntry
 import com.android.server.wm.traces.common.Timestamp
@@ -26,36 +27,47 @@ import org.junit.Test
 class ITraceTest {
     @Test
     fun getEntryExactlyAtTest() {
-        val entry1 = SimpleTraceEntry(Timestamp(1, 1, 1))
-        val entry2 = SimpleTraceEntry(Timestamp(5, 5, 5))
-        val entry3 = SimpleTraceEntry(Timestamp(25, 25, 25))
+        val entry1 = SimpleTraceEntry(CrossPlatform.timestamp.from(1, 1, 1))
+        val entry2 = SimpleTraceEntry(CrossPlatform.timestamp.from(5, 5, 5))
+        val entry3 = SimpleTraceEntry(CrossPlatform.timestamp.from(25, 25, 25))
         val trace = SimpleTrace(arrayOf(entry1, entry2, entry3))
 
-        Truth.assertThat(trace.getEntryExactlyAt(Timestamp(1, 1, 1))).isEqualTo(entry1)
-        Truth.assertThat(trace.getEntryExactlyAt(Timestamp(5, 5, 5))).isEqualTo(entry2)
-        Truth.assertThat(trace.getEntryExactlyAt(Timestamp(25, 25, 25))).isEqualTo(entry3)
+        Truth.assertThat(trace.getEntryExactlyAt(CrossPlatform.timestamp.from(1, 1, 1)))
+            .isEqualTo(entry1)
+        Truth.assertThat(trace.getEntryExactlyAt(CrossPlatform.timestamp.from(5, 5, 5)))
+            .isEqualTo(entry2)
+        Truth.assertThat(trace.getEntryExactlyAt(CrossPlatform.timestamp.from(25, 25, 25)))
+            .isEqualTo(entry3)
 
-        Truth.assertThat(assertThrows<Throwable> { trace.getEntryExactlyAt(Timestamp(6, 6, 6)) })
+        Truth.assertThat(
+                assertThrows<Throwable> {
+                    trace.getEntryExactlyAt(CrossPlatform.timestamp.from(6, 6, 6))
+                }
+            )
             .hasMessageThat()
             .contains("does not exist")
     }
 
     @Test
     fun getEntryAtTest() {
-        val entry1 = SimpleTraceEntry(Timestamp(2, 2, 2))
-        val entry2 = SimpleTraceEntry(Timestamp(5, 5, 5))
-        val entry3 = SimpleTraceEntry(Timestamp(25, 25, 25))
+        val entry1 = SimpleTraceEntry(CrossPlatform.timestamp.from(2, 2, 2))
+        val entry2 = SimpleTraceEntry(CrossPlatform.timestamp.from(5, 5, 5))
+        val entry3 = SimpleTraceEntry(CrossPlatform.timestamp.from(25, 25, 25))
         val trace = SimpleTrace(arrayOf(entry1, entry2, entry3))
 
-        Truth.assertThat(trace.getEntryAt(Timestamp(2, 2, 2))).isEqualTo(entry1)
-        Truth.assertThat(trace.getEntryAt(Timestamp(5, 5, 5))).isEqualTo(entry2)
-        Truth.assertThat(trace.getEntryAt(Timestamp(25, 25, 25))).isEqualTo(entry3)
+        Truth.assertThat(trace.getEntryAt(CrossPlatform.timestamp.from(2, 2, 2))).isEqualTo(entry1)
+        Truth.assertThat(trace.getEntryAt(CrossPlatform.timestamp.from(5, 5, 5))).isEqualTo(entry2)
+        Truth.assertThat(trace.getEntryAt(CrossPlatform.timestamp.from(25, 25, 25)))
+            .isEqualTo(entry3)
 
-        Truth.assertThat(trace.getEntryAt(Timestamp(4, 4, 4))).isEqualTo(entry1)
-        Truth.assertThat(trace.getEntryAt(Timestamp(6, 6, 6))).isEqualTo(entry2)
-        Truth.assertThat(trace.getEntryAt(Timestamp(100, 100, 100))).isEqualTo(entry3)
+        Truth.assertThat(trace.getEntryAt(CrossPlatform.timestamp.from(4, 4, 4))).isEqualTo(entry1)
+        Truth.assertThat(trace.getEntryAt(CrossPlatform.timestamp.from(6, 6, 6))).isEqualTo(entry2)
+        Truth.assertThat(trace.getEntryAt(CrossPlatform.timestamp.from(100, 100, 100)))
+            .isEqualTo(entry3)
 
-        Truth.assertThat(assertThrows<Throwable> { trace.getEntryAt(Timestamp(1, 1, 1)) })
+        Truth.assertThat(
+                assertThrows<Throwable> { trace.getEntryAt(CrossPlatform.timestamp.from(1, 1, 1)) }
+            )
             .hasMessageThat()
             .contains("No entry at or before timestamp")
     }

@@ -22,6 +22,7 @@ import com.android.server.wm.flicker.assertions.BaseAssertionRunner
 import com.android.server.wm.flicker.datastore.CachedAssertionRunner
 import com.android.server.wm.flicker.datastore.CachedResultReader
 import com.android.server.wm.traces.common.AssertionTag
+import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.IScenario
 import com.android.server.wm.traces.common.Scenario
 import com.android.server.wm.traces.common.ScenarioBuilder
@@ -37,7 +38,6 @@ import com.android.server.wm.traces.common.subjects.layers.LayersTraceSubject
 import com.android.server.wm.traces.common.subjects.region.RegionTraceSubject
 import com.android.server.wm.traces.common.subjects.wm.WindowManagerStateSubject
 import com.android.server.wm.traces.common.subjects.wm.WindowManagerTraceSubject
-import com.android.server.wm.traces.parser.withPerfettoTrace
 
 /** Specification of a flicker test for JUnit ParameterizedRunner class */
 data class FlickerTest(
@@ -80,7 +80,7 @@ data class FlickerTest(
      * @param assertion Assertion predicate
      */
     fun assertWmStart(assertion: WindowManagerStateSubject.() -> Unit) {
-        withPerfettoTrace("assertWmStart") {
+        CrossPlatform.log.withTracing("assertWmStart") {
             val assertionData =
                 wmAssertionFactory.createStartStateAssertion(assertion as FlickerSubject.() -> Unit)
             doRunAssertion(assertionData)
@@ -93,7 +93,7 @@ data class FlickerTest(
      * @param assertion Assertion predicate
      */
     fun assertWmEnd(assertion: WindowManagerStateSubject.() -> Unit) {
-        withPerfettoTrace("assertWmEnd") {
+        CrossPlatform.log.withTracing("assertWmEnd") {
             val wrappedAssertion: (WindowManagerStateSubject) -> Unit = { assertion(it) }
             val assertionData =
                 wmAssertionFactory.createEndStateAssertion(
@@ -109,7 +109,7 @@ data class FlickerTest(
      * @param assertion Assertion predicate
      */
     fun assertWm(assertion: WindowManagerTraceSubject.() -> Unit) {
-        withPerfettoTrace("assertWm") {
+        CrossPlatform.log.withTracing("assertWm") {
             val assertionData =
                 wmAssertionFactory.createTraceAssertion(
                     assertion as (FlickerTraceSubject<FlickerSubject>) -> Unit
@@ -124,7 +124,7 @@ data class FlickerTest(
      * @param assertion Assertion predicate
      */
     fun assertWmTag(tag: String, assertion: WindowManagerStateSubject.() -> Unit) {
-        withPerfettoTrace("assertWmTag") {
+        CrossPlatform.log.withTracing("assertWmTag") {
             val assertionData =
                 wmAssertionFactory.createTagAssertion(tag, assertion as FlickerSubject.() -> Unit)
             doRunAssertion(assertionData)
@@ -141,7 +141,7 @@ data class FlickerTest(
         componentMatcher: IComponentMatcher,
         assertion: RegionTraceSubject.() -> Unit
     ) {
-        withPerfettoTrace("assertWmVisibleRegion") {
+        CrossPlatform.log.withTracing("assertWmVisibleRegion") {
             val assertionData = buildWmVisibleRegionAssertion(componentMatcher, assertion)
             doRunAssertion(assertionData)
         }
@@ -153,7 +153,7 @@ data class FlickerTest(
      * @param assertion Assertion predicate
      */
     fun assertLayersStart(assertion: LayerTraceEntrySubject.() -> Unit) {
-        withPerfettoTrace("assertLayersStart") {
+        CrossPlatform.log.withTracing("assertLayersStart") {
             val assertionData =
                 layersAssertionFactory.createStartStateAssertion(
                     assertion as FlickerSubject.() -> Unit
@@ -168,7 +168,7 @@ data class FlickerTest(
      * @param assertion Assertion predicate
      */
     fun assertLayersEnd(assertion: LayerTraceEntrySubject.() -> Unit) {
-        withPerfettoTrace("assertLayersEnd") {
+        CrossPlatform.log.withTracing("assertLayersEnd") {
             val assertionData =
                 layersAssertionFactory.createEndStateAssertion(
                     assertion as FlickerSubject.() -> Unit
@@ -183,7 +183,7 @@ data class FlickerTest(
      * @param assertion Assertion predicate
      */
     fun assertLayers(assertion: LayersTraceSubject.() -> Unit) {
-        withPerfettoTrace("assertLayers") {
+        CrossPlatform.log.withTracing("assertLayers") {
             val assertionData =
                 layersAssertionFactory.createTraceAssertion(
                     assertion as (FlickerTraceSubject<FlickerSubject>) -> Unit
@@ -198,7 +198,7 @@ data class FlickerTest(
      * @param assertion Assertion predicate
      */
     fun assertLayersTag(tag: String, assertion: LayerTraceEntrySubject.() -> Unit) {
-        withPerfettoTrace("assertLayersTag") {
+        CrossPlatform.log.withTracing("assertLayersTag") {
             val assertionData =
                 layersAssertionFactory.createTagAssertion(
                     tag,
@@ -224,7 +224,7 @@ data class FlickerTest(
         useCompositionEngineRegionOnly: Boolean = true,
         assertion: RegionTraceSubject.() -> Unit
     ) {
-        withPerfettoTrace("assertLayersVisibleRegion") {
+        CrossPlatform.log.withTracing("assertLayersVisibleRegion") {
             val assertionData =
                 buildLayersVisibleRegionAssertion(
                     componentMatcher,
@@ -241,7 +241,7 @@ data class FlickerTest(
      * @param assertion Assertion predicate
      */
     fun assertEventLog(assertion: EventLogSubject.() -> Unit) {
-        withPerfettoTrace("assertEventLog") {
+        CrossPlatform.log.withTracing("assertEventLog") {
             val assertionData =
                 eventLogAssertionFactory.createTagAssertion(
                     AssertionTag.ALL,

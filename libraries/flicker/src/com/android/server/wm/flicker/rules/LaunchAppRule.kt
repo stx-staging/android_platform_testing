@@ -17,13 +17,12 @@
 package com.android.server.wm.flicker.rules
 
 import android.app.Instrumentation
-import android.util.Log
 import androidx.test.platform.app.InstrumentationRegistry
 import com.android.server.wm.flicker.helpers.StandardAppHelper
+import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.FLICKER_TAG
 import com.android.server.wm.traces.common.component.matchers.ComponentNameMatcher
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerStateHelper
-import com.android.server.wm.traces.parser.withPerfettoTrace
 import org.junit.rules.TestWatcher
 import org.junit.runner.Description
 
@@ -63,8 +62,8 @@ constructor(
     )
 
     override fun starting(description: Description?) {
-        withPerfettoTrace("LaunchAppRule:finished") {
-            Log.v(FLICKER_TAG, "Launching app $appHelper")
+        CrossPlatform.log.withTracing("LaunchAppRule:finished") {
+            CrossPlatform.log.v(FLICKER_TAG, "Launching app $appHelper")
             appHelper.launchViaIntent()
             appHelper.exit(wmHelper)
         }

@@ -16,7 +16,6 @@
 
 package com.android.server.wm.flicker.service
 
-import android.util.Log
 import com.android.server.wm.flicker.helpers.isShellTransitionsEnabled
 import com.android.server.wm.flicker.service.assertors.IAssertionResult
 import com.android.server.wm.flicker.service.assertors.factories.AssertionFactory
@@ -28,10 +27,10 @@ import com.android.server.wm.flicker.service.assertors.runners.IAssertionRunner
 import com.android.server.wm.flicker.service.config.FlickerServiceConfig
 import com.android.server.wm.flicker.service.extractors.CombinedScenarioExtractor
 import com.android.server.wm.flicker.service.extractors.IScenarioExtractor
+import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.FLICKER_TAG
 import com.android.server.wm.traces.common.errors.ErrorTrace
 import com.android.server.wm.traces.common.io.IReader
-import com.android.server.wm.traces.parser.withPerfettoTrace
 
 /** Contains the logic for Flicker as a Service. */
 class FlickerService(
@@ -51,7 +50,7 @@ class FlickerService(
      * fails and 1 if it passes
      */
     override fun process(reader: IReader): List<IAssertionResult> {
-        withPerfettoTrace("FlickerService#process") {
+        return CrossPlatform.log.withTracing("FlickerService#process") {
             try {
                 require(isShellTransitionsEnabled) {
                     "Shell transitions must be enabled for FaaS to work!"
@@ -60,9 +59,9 @@ class FlickerService(
                 val scenarioInstances = scenarioExtractor.extract(reader)
                 val assertions =
                     scenarioInstances.flatMap { assertionFactory.generateAssertionsFor(it) }
-                return assertionRunner.execute(assertions)
+                assertionRunner.execute(assertions)
             } catch (exception: Throwable) {
-                Log.e("$FLICKER_TAG-ASSERT", "FAILED PROCESSING", exception)
+                CrossPlatform.log.e("$FLICKER_TAG-ASSERT", "FAILED PROCESSING", exception)
                 throw exception
             }
         }

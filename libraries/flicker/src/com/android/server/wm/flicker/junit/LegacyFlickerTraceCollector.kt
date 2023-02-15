@@ -16,10 +16,10 @@
 
 package com.android.server.wm.flicker.junit
 
-import android.util.Log
 import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
 import com.android.server.wm.flicker.datastore.CachedResultReader
 import com.android.server.wm.flicker.service.ITracesCollector
+import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.IScenario
 import com.android.server.wm.traces.common.io.IReader
 
@@ -29,7 +29,7 @@ class LegacyFlickerTraceCollector(private val scenario: IScenario) : ITracesColl
     override fun stop() {}
 
     override fun getResultReader(): IReader {
-        Log.d("FAAS", "LegacyFlickerTraceCollector#getCollectedTraces")
+        CrossPlatform.log.d("FAAS", "LegacyFlickerTraceCollector#getCollectedTraces")
         return CachedResultReader(scenario, DEFAULT_TRACE_CONFIG)
     }
 }

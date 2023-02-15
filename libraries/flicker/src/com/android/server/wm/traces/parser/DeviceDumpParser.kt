@@ -16,6 +16,7 @@
 
 package com.android.server.wm.traces.parser
 
+import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.DeviceStateDump
 import com.android.server.wm.traces.common.DeviceTraceDump
 import com.android.server.wm.traces.common.NullableDeviceStateDump
@@ -51,7 +52,7 @@ class DeviceDumpParser {
             layersTraceData: ByteArray,
             clearCacheAfterParsing: Boolean
         ): NullableDeviceStateDump {
-            return withPerfettoTrace("fromNullableDump") {
+            return CrossPlatform.log.withTracing("fromNullableDump") {
                 NullableDeviceStateDump(
                     wmState =
                         if (wmTraceData.isNotEmpty()) {
@@ -80,7 +81,7 @@ class DeviceDumpParser {
             layersTraceData: ByteArray,
             clearCacheAfterParsing: Boolean
         ): DeviceStateDump {
-            return withPerfettoTrace("fromDump") {
+            return CrossPlatform.log.withTracing("fromDump") {
                 val nullableDump =
                     fromNullableDump(wmTraceData, layersTraceData, clearCacheAfterParsing)
                 DeviceStateDump(
@@ -108,7 +109,7 @@ class DeviceDumpParser {
             layersTraceData: ByteArray,
             clearCache: Boolean
         ): DeviceTraceDump {
-            return withPerfettoTrace("fromTrace") {
+            return CrossPlatform.log.withTracing("fromTrace") {
                 DeviceTraceDump(
                     wmTrace =
                         if (wmTraceData.isNotEmpty()) {

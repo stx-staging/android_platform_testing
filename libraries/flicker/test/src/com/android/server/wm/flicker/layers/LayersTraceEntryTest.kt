@@ -22,7 +22,7 @@ import com.android.server.wm.flicker.assertThatErrorContainsDebugInfo
 import com.android.server.wm.flicker.assertThrows
 import com.android.server.wm.flicker.readLayerTraceFromFile
 import com.android.server.wm.traces.common.Cache
-import com.android.server.wm.traces.common.TimestampFactory
+import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.component.matchers.ComponentNameMatcher
 import com.android.server.wm.traces.common.layers.LayerTraceEntry
 import com.android.server.wm.traces.common.subjects.layers.LayersTraceSubject
@@ -67,7 +67,7 @@ class LayersTraceEntryTest {
             readLayerTraceFromFile("layers_trace_launch_split_screen.pb", legacyTrace = true)
         val visibleLayers =
             trace
-                .getEntryExactlyAt(TimestampFactory.from(systemUptimeNanos = 90480846872160))
+                .getEntryExactlyAt(CrossPlatform.timestamp.from(systemUptimeNanos = 90480846872160))
                 .visibleLayers
         val msg = "Visible Layers:\n" + visibleLayers.joinToString("\n") { "\t" + it.name }
         Truth.assertWithMessage(msg).that(visibleLayers).asList().hasSize(6)
@@ -85,7 +85,7 @@ class LayersTraceEntryTest {
             readLayerTraceFromFile("layers_trace_launch_split_screen.pb", legacyTrace = true)
         val visibleLayers =
             trace
-                .getEntryExactlyAt(TimestampFactory.from(systemUptimeNanos = 90493757372977))
+                .getEntryExactlyAt(CrossPlatform.timestamp.from(systemUptimeNanos = 90493757372977))
                 .visibleLayers
         val msg = "Visible Layers:\n" + visibleLayers.joinToString("\n") { "\t" + it.name }
         Truth.assertWithMessage(msg).that(visibleLayers).asList().hasSize(7)
@@ -104,7 +104,7 @@ class LayersTraceEntryTest {
             readLayerTraceFromFile("layers_trace_launch_split_screen.pb", legacyTrace = true)
         val visibleLayers =
             trace
-                .getEntryExactlyAt(TimestampFactory.from(systemUptimeNanos = 90488463619533))
+                .getEntryExactlyAt(CrossPlatform.timestamp.from(systemUptimeNanos = 90488463619533))
                 .visibleLayers
         val msg = "Visible Layers:\n" + visibleLayers.joinToString("\n") { "\t" + it.name }
         Truth.assertWithMessage(msg).that(visibleLayers).asList().hasSize(10)
@@ -160,7 +160,9 @@ class LayersTraceEntryTest {
         val layersTrace =
             readLayerTraceFromFile("layers_trace_backcolorsurface.pb", legacyTrace = true)
         val entry =
-            layersTrace.getEntryExactlyAt(TimestampFactory.from(systemUptimeNanos = 131954021476))
+            layersTrace.getEntryExactlyAt(
+                CrossPlatform.timestamp.from(systemUptimeNanos = 131954021476)
+            )
         Truth.assertWithMessage("$layerName should not be visible")
             .that(entry.visibleLayers.map { it.name })
             .doesNotContain(layerName)
@@ -217,7 +219,7 @@ class LayersTraceEntryTest {
                 _rootLayers = emptyArray()
             )
         Truth.assertThat(entry.timestamp.elapsedNanos)
-            .isEqualTo(TimestampFactory.empty().elapsedNanos)
+            .isEqualTo(CrossPlatform.timestamp.empty().elapsedNanos)
         Truth.assertThat(entry.timestamp.systemUptimeNanos).isEqualTo(100)
         Truth.assertThat(entry.timestamp.unixNanos).isEqualTo(600)
 
@@ -232,9 +234,10 @@ class LayersTraceEntryTest {
                 _rootLayers = emptyArray()
             )
         Truth.assertThat(entry.timestamp.elapsedNanos)
-            .isEqualTo(TimestampFactory.empty().elapsedNanos)
+            .isEqualTo(CrossPlatform.timestamp.empty().elapsedNanos)
         Truth.assertThat(entry.timestamp.systemUptimeNanos).isEqualTo(100)
-        Truth.assertThat(entry.timestamp.unixNanos).isEqualTo(TimestampFactory.empty().unixNanos)
+        Truth.assertThat(entry.timestamp.unixNanos)
+            .isEqualTo(CrossPlatform.timestamp.empty().unixNanos)
     }
 
     companion object {

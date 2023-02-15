@@ -16,8 +16,8 @@
 
 package com.android.server.wm.traces.common.windowmanager
 
+import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.ITraceEntry
-import com.android.server.wm.traces.common.TimestampFactory
 import com.android.server.wm.traces.common.component.matchers.IComponentMatcher
 import com.android.server.wm.traces.common.service.PlatformConsts
 import com.android.server.wm.traces.common.windowmanager.windows.Activity
@@ -55,7 +55,7 @@ class WindowManagerState(
     @JsName("keyguardControllerState") val keyguardControllerState: KeyguardControllerState
 ) : ITraceEntry {
     override val timestamp =
-        TimestampFactory.from(elapsedNanos = elapsedTimestamp, unixNanos = clockTimestamp)
+        CrossPlatform.timestamp.from(elapsedNanos = elapsedTimestamp, unixNanos = clockTimestamp)
     @JsName("isVisible") val isVisible: Boolean = true
     @JsName("stableId")
     val stableId: String

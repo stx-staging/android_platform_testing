@@ -19,16 +19,15 @@ package com.android.server.wm.flicker.runner
 import android.app.Instrumentation
 import android.platform.test.rule.ArtifactSaver
 import android.util.EventLog
-import android.util.Log
 import com.android.server.wm.flicker.FlickerTag
 import com.android.server.wm.flicker.IFlickerTestData
 import com.android.server.wm.flicker.io.ResultWriter
 import com.android.server.wm.flicker.now
+import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.IScenario
 import com.android.server.wm.traces.common.io.TraceType
 import com.android.server.wm.traces.parser.getCurrentState
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerStateHelper
-import com.android.server.wm.traces.parser.withPerfettoTrace
 import java.io.File
 import org.junit.rules.TestRule
 import org.junit.runner.Description
@@ -57,7 +56,7 @@ class TransitionExecutionRule(
     override fun apply(base: Statement?, description: Description?): Statement {
         return object : Statement() {
             override fun evaluate() {
-                withPerfettoTrace("transition") {
+                CrossPlatform.log.withTracing("transition") {
                     try {
                         Utils.notifyRunnerProgress(scenario, "Running transition $description")
                         doRunBeforeTransition()
@@ -79,9 +78,9 @@ class TransitionExecutionRule(
     }
 
     private fun doRunBeforeTransition() {
-        withPerfettoTrace("doRunBeforeTransition") {
+        CrossPlatform.log.withTracing("doRunBeforeTransition") {
             Utils.notifyRunnerProgress(scenario, "Running doRunBeforeTransition")
-            Log.d(FLICKER_RUNNER_TAG, "doRunBeforeTransition")
+            CrossPlatform.log.d(FLICKER_RUNNER_TAG, "doRunBeforeTransition")
             val now = now()
             resultWriter.setTransitionStartTime(now)
             EventLog.writeEvent(
@@ -96,9 +95,9 @@ class TransitionExecutionRule(
     }
 
     private fun doRunAfterTransition() {
-        withPerfettoTrace("doRunAfterTransition") {
+        CrossPlatform.log.withTracing("doRunAfterTransition") {
             Utils.notifyRunnerProgress(scenario, "Running doRunAfterTransition")
-            Log.d(FLICKER_RUNNER_TAG, "doRunAfterTransition")
+            CrossPlatform.log.d(FLICKER_RUNNER_TAG, "doRunAfterTransition")
             Utils.doWaitForUiStabilize(wmHelper)
             val now = now()
             resultWriter.setTransitionEndTime(now)
@@ -123,7 +122,7 @@ class TransitionExecutionRule(
     }
 
     private fun doCreateTag(tag: String) {
-        withPerfettoTrace("doRunAfterTransition") {
+        CrossPlatform.log.withTracing("doRunAfterTransition") {
             Utils.notifyRunnerProgress(scenario, "Creating tag $tag")
             doValidateTag(tag)
             tags.add(tag)

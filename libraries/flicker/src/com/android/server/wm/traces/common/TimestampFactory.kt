@@ -18,17 +18,11 @@ package com.android.server.wm.traces.common
 
 import kotlin.js.JsName
 
-object TimestampFactory {
-    private var realTimestampFormatter: (Long) -> String = { it.toString() }
+class TimestampFactory(private val realTimestampFormatter: (Long) -> String = { it.toString() }) {
     private val empty by lazy { Timestamp(0L, 0L, 0L, realTimestampFormatter) }
     private val min by lazy { Timestamp(1, 1, 1, realTimestampFormatter) }
     private val max by lazy {
         Timestamp(Long.MAX_VALUE, Long.MAX_VALUE, Long.MAX_VALUE, realTimestampFormatter)
-    }
-
-    @JsName("setRealTimestampFormatter")
-    fun setRealTimestampFormatter(formatter: (Long) -> String) = apply {
-        realTimestampFormatter = formatter
     }
 
     fun min(): Timestamp = min

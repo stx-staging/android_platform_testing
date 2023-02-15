@@ -18,7 +18,9 @@ package com.android.server.wm.flicker.junit
 
 import com.android.server.wm.flicker.FlickerTest
 import com.android.server.wm.flicker.Utils
+import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.TimestampFactory
+import com.android.server.wm.traces.parser.ANDROID_LOGGER
 import org.junit.runner.Runner
 import org.junit.runners.parameterized.ParametersRunnerFactory
 import org.junit.runners.parameterized.TestWithParameters
@@ -29,7 +31,8 @@ import org.junit.runners.parameterized.TestWithParameters
  */
 class FlickerParametersRunnerFactory : ParametersRunnerFactory {
     init {
-        TimestampFactory.setRealTimestampFormatter { Utils.formatRealTimestamp(it) }
+        CrossPlatform.setLogger(ANDROID_LOGGER)
+            .setTimestampFactory(TimestampFactory { Utils.formatRealTimestamp(it) })
     }
 
     override fun createRunnerForTestWithParameters(test: TestWithParameters): Runner {

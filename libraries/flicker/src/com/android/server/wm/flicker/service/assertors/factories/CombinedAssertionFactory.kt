@@ -18,14 +18,14 @@ package com.android.server.wm.flicker.service.assertors.factories
 
 import com.android.server.wm.flicker.service.IScenarioInstance
 import com.android.server.wm.flicker.service.assertors.IFaasAssertion
-import com.android.server.wm.traces.parser.withPerfettoTrace
+import com.android.server.wm.traces.common.CrossPlatform
 
 class CombinedAssertionFactory(private val factories: List<IAssertionFactory>) : IAssertionFactory {
     override fun generateAssertionsFor(
         scenarioInstance: IScenarioInstance
     ): Collection<IFaasAssertion> {
-        withPerfettoTrace("CombinedAssertionFactory#generateAssertionsFor") {
-            return factories.flatMap { it.generateAssertionsFor(scenarioInstance) }
+        return CrossPlatform.log.withTracing("CombinedAssertionFactory#generateAssertionsFor") {
+            factories.flatMap { it.generateAssertionsFor(scenarioInstance) }
         }
     }
 }

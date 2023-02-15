@@ -18,8 +18,8 @@ package com.android.server.wm.traces.parser.windowmanager
 
 import com.android.server.wm.nano.WindowManagerTraceFileProto
 import com.android.server.wm.nano.WindowManagerTraceProto
+import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.Timestamp
-import com.android.server.wm.traces.common.TimestampFactory
 import com.android.server.wm.traces.common.windowmanager.WindowManagerState
 import com.android.server.wm.traces.common.windowmanager.WindowManagerTrace
 import com.android.server.wm.traces.parser.AbstractTraceParser
@@ -44,7 +44,7 @@ open class WindowManagerTraceParser(private val legacyTrace: Boolean = false) :
 
     override fun getTimestamp(entry: WindowManagerTraceProto): Timestamp {
         require(legacyTrace || realToElapsedTimeOffsetNanos != 0L)
-        return TimestampFactory.from(
+        return CrossPlatform.timestamp.from(
             elapsedNanos = entry.elapsedRealtimeNanos,
             unixNanos = entry.elapsedRealtimeNanos + realToElapsedTimeOffsetNanos
         )

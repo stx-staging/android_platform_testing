@@ -16,9 +16,9 @@
 
 package com.android.server.wm.flicker.monitor
 
-import android.util.Log
 import com.android.compatibility.common.util.SystemUtil
 import com.android.server.wm.flicker.now
+import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.FLICKER_TAG
 import com.android.server.wm.traces.common.Timestamp
 import com.android.server.wm.traces.common.events.EventLog
@@ -53,7 +53,7 @@ open class EventLogMonitor : TransitionMonitor() {
             val command =
                 "logcat -b events -v threadtime -v printable -v uid -v nsec " +
                     "-v epoch -t $sinceTime >> $outputFile"
-            Log.d(FLICKER_TAG, "Running '$command'")
+            CrossPlatform.log.d(FLICKER_TAG, "Running '$command'")
             val eventLogString = SystemUtil.runShellCommandOrThrow(command)
             it.write(eventLogString.toByteArray())
         }

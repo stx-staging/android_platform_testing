@@ -24,9 +24,9 @@ import com.android.server.wm.flicker.assertThrows
 import com.android.server.wm.flicker.deleteIfExists
 import com.android.server.wm.flicker.newTestResultWriter
 import com.android.server.wm.flicker.outputFileName
+import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.ITrace
 import com.android.server.wm.traces.common.Timestamp
-import com.android.server.wm.traces.common.TimestampFactory
 import com.android.server.wm.traces.common.io.RunStatus
 import com.android.server.wm.traces.common.io.TraceType
 import com.google.common.truth.Truth
@@ -110,7 +110,9 @@ abstract class BaseResultReaderTestParseTrace {
     @Test
     fun readTraceAndSliceTraceByTimestampAndFailInvalidSize() {
         val result =
-            setupWriter(newTestResultWriter()).setTransitionEndTime(TimestampFactory.min()).write()
+            setupWriter(newTestResultWriter())
+                .setTransitionEndTime(CrossPlatform.timestamp.min())
+                .write()
         val reader = ResultReader(result, DEFAULT_TRACE_CONFIG)
         val exception =
             assertThrows<IllegalArgumentException> {

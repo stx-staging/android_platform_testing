@@ -18,12 +18,12 @@ package com.android.server.wm.flicker.service.assertors.runners
 
 import com.android.server.wm.flicker.service.assertors.IAssertionResult
 import com.android.server.wm.flicker.service.assertors.IFaasAssertion
-import com.android.server.wm.traces.parser.withPerfettoTrace
+import com.android.server.wm.traces.common.CrossPlatform
 
 class AssertionRunner : IAssertionRunner {
     override fun execute(assertions: List<IFaasAssertion>): List<IAssertionResult> {
-        withPerfettoTrace("AssertionRunner#execute") {
-            return assertions.map { it.evaluate() }
+        return CrossPlatform.log.withTracing("AssertionRunner#execute") {
+            assertions.map { it.evaluate() }
         }
     }
 }

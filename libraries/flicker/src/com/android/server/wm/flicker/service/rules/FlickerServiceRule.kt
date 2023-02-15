@@ -17,13 +17,16 @@
 package com.android.server.wm.flicker.service.rules
 
 import android.platform.test.rule.TestWatcher
-import android.util.Log
 import androidx.test.platform.app.InstrumentationRegistry
+import com.android.server.wm.flicker.Utils
 import com.android.server.wm.flicker.getDefaultFlickerOutputDir
 import com.android.server.wm.flicker.service.FlickerServiceResultsCollector
 import com.android.server.wm.flicker.service.FlickerServiceTracesCollector
 import com.android.server.wm.flicker.service.IFlickerServiceResultsCollector
+import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.FLICKER_TAG
+import com.android.server.wm.traces.common.TimestampFactory
+import com.android.server.wm.traces.parser.ANDROID_LOGGER
 import org.junit.AssumptionViolatedException
 import org.junit.runner.Description
 import org.junit.runner.notification.Failure
@@ -51,36 +54,41 @@ constructor(
             ?: true
 ) : TestWatcher() {
 
+    init {
+        CrossPlatform.setLogger(ANDROID_LOGGER)
+            .setTimestampFactory(TimestampFactory { Utils.formatRealTimestamp(it) })
+    }
+
     /** Invoked when a test is about to start */
     public override fun starting(description: Description) {
-        Log.i(LOG_TAG, "Test starting $description")
+        CrossPlatform.log.i(LOG_TAG, "Test starting $description")
         metricsCollector.testStarted(description)
     }
 
     /** Invoked when a test succeeds */
     public override fun succeeded(description: Description) {
-        Log.i(LOG_TAG, "Test succeeded $description")
+        CrossPlatform.log.i(LOG_TAG, "Test succeeded $description")
     }
 
     /** Invoked when a test fails */
     public override fun failed(e: Throwable?, description: Description) {
-        Log.e(LOG_TAG, "$description test failed  with $e")
+        CrossPlatform.log.e(LOG_TAG, "$description test failed  with $e")
         metricsCollector.testFailure(Failure(description, e))
     }
 
     /** Invoked when a test is skipped due to a failed assumption. */
     public override fun skipped(e: AssumptionViolatedException, description: Description) {
-        Log.i(LOG_TAG, "Test skipped $description with $e")
+        CrossPlatform.log.i(LOG_TAG, "Test skipped $description with $e")
         metricsCollector.testSkipped(description)
     }
 
     /** Invoked when a test method finishes (whether passing or failing) */
     public override fun finished(description: Description) {
-        Log.i(LOG_TAG, "Test finished $description")
+        CrossPlatform.log.i(LOG_TAG, "Test finished $description")
         metricsCollector.testFinished(description)
         if (metricsCollector.executionErrors.isNotEmpty()) {
             for (executionError in metricsCollector.executionErrors) {
-                Log.e(LOG_TAG, "FaaS reported execution errors", executionError)
+                CrossPlatform.log.e(LOG_TAG, "FaaS reported execution errors", executionError)
             }
             throw metricsCollector.executionErrors[0]
         }

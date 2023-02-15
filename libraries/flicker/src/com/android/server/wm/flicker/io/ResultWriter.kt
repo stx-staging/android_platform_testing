@@ -16,21 +16,19 @@
 
 package com.android.server.wm.flicker.io
 
-import android.util.Log
 import com.android.server.wm.flicker.deleteIfExists
 import com.android.server.wm.flicker.now
 import com.android.server.wm.traces.common.AssertionTag
+import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.IScenario
 import com.android.server.wm.traces.common.ScenarioBuilder
 import com.android.server.wm.traces.common.Timestamp
-import com.android.server.wm.traces.common.TimestampFactory
 import com.android.server.wm.traces.common.io.BUFFER_SIZE
 import com.android.server.wm.traces.common.io.FLICKER_IO_TAG
 import com.android.server.wm.traces.common.io.ResultArtifactDescriptor
 import com.android.server.wm.traces.common.io.RunStatus
 import com.android.server.wm.traces.common.io.TraceType
 import com.android.server.wm.traces.common.io.TransitionTimeRange
-import com.android.server.wm.traces.parser.withPerfettoTrace
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
 import java.io.File
@@ -44,8 +42,8 @@ open class ResultWriter {
     protected var scenario: IScenario = ScenarioBuilder().createEmptyScenario()
     private var runStatus: RunStatus = RunStatus.UNDEFINED
     private val files = mutableMapOf<ResultArtifactDescriptor, File>()
-    private var transitionStartTime = TimestampFactory.min()
-    private var transitionEndTime = TimestampFactory.max()
+    private var transitionStartTime = CrossPlatform.timestamp.min()
+    private var transitionEndTime = CrossPlatform.timestamp.max()
     private var executionError: Throwable? = null
     private var outputDir: File? = null
 
@@ -82,7 +80,7 @@ open class ResultWriter {
      */
     fun addTraceResult(traceType: TraceType, artifact: File, tag: String = AssertionTag.ALL) =
         apply {
-            Log.d(
+            CrossPlatform.log.d(
                 FLICKER_IO_TAG,
                 "Add trace result file=$artifact type=$traceType tag=$tag scenario=$scenario"
             )
@@ -91,7 +89,7 @@ open class ResultWriter {
         }
 
     private fun addFile(zipOutputStream: ZipOutputStream, artifact: File, nameInArchive: String) {
-        Log.v(FLICKER_IO_TAG, "Adding $artifact with name $nameInArchive to zip")
+        CrossPlatform.log.v(FLICKER_IO_TAG, "Adding $artifact with name $nameInArchive to zip")
         val fi = FileInputStream(artifact)
         val inputStream = BufferedInputStream(fi, BUFFER_SIZE)
         inputStream.use {
@@ -114,7 +112,7 @@ open class ResultWriter {
 
     /** @return writes the result artifact to disk and returns it */
     open fun write(): IResultData {
-        return withPerfettoTrace("write") {
+        return CrossPlatform.log.withTracing("write") {
             val outputDir = outputDir
             requireNotNull(outputDir) { "Output dir not configured" }
             require(!scenario.isEmpty) { "Scenario shouldn't be empty" }
@@ -122,12 +120,12 @@ open class ResultWriter {
             outputDir.mkdirs()
 
             if (runStatus == RunStatus.UNDEFINED) {
-                Log.w(FLICKER_IO_TAG, "Writing result with $runStatus run status")
+                CrossPlatform.log.w(FLICKER_IO_TAG, "Writing result with $runStatus run status")
             }
 
             val newFileName = "${runStatus.prefix}_$scenario.zip"
             val dstFile = outputDir.resolve(newFileName)
-            Log.d(FLICKER_IO_TAG, "Writing artifact file $dstFile")
+            CrossPlatform.log.d(FLICKER_IO_TAG, "Writing artifact file $dstFile")
             createZipFile(dstFile).use { zipOutputStream ->
                 files.forEach { (descriptor, artifact) ->
                     addFile(

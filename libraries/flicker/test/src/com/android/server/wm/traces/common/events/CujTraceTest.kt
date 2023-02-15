@@ -17,7 +17,7 @@
 package com.android.server.wm.traces.common.events
 
 import com.android.server.wm.InitRule
-import com.android.server.wm.traces.common.TimestampFactory
+import com.android.server.wm.traces.common.CrossPlatform
 import com.google.common.truth.Truth
 import org.junit.ClassRule
 import org.junit.Test
@@ -147,7 +147,7 @@ class CujTraceTest {
     }
 
     private fun createCujEvent(timestamp: Long, cuj: CujType, tag: String): CujEvent {
-        return CujEvent(TimestampFactory.from(unixNanos = timestamp), cuj, 0, "root", 0, tag)
+        return CujEvent(CrossPlatform.timestamp.from(unixNanos = timestamp), cuj, 0, "root", 0, tag)
     }
 
     companion object {

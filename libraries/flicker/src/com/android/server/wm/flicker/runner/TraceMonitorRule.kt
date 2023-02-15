@@ -18,13 +18,12 @@ package com.android.server.wm.flicker.runner
 
 import android.app.Instrumentation
 import android.platform.test.rule.ArtifactSaver
-import android.util.Log
 import com.android.server.wm.flicker.io.ResultWriter
 import com.android.server.wm.flicker.monitor.ITransitionMonitor
+import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.FLICKER_TAG
 import com.android.server.wm.traces.common.IScenario
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerStateHelper
-import com.android.server.wm.traces.parser.withPerfettoTrace
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
@@ -59,7 +58,7 @@ class TraceMonitorRule(
     }
 
     private fun doStartMonitors(description: Description?) {
-        withPerfettoTrace("doStartMonitors") {
+        CrossPlatform.log.withTracing("doStartMonitors") {
             Utils.notifyRunnerProgress(scenario, "Starting traces for $description")
             traceMonitors.forEach {
                 try {
@@ -73,7 +72,7 @@ class TraceMonitorRule(
     }
 
     private fun doStopMonitors(description: Description?) {
-        withPerfettoTrace("doStopMonitors") {
+        CrossPlatform.log.withTracing("doStopMonitors") {
             Utils.notifyRunnerProgress(scenario, "Stopping traces for $description")
             val errors =
                 traceMonitors.map {
@@ -85,7 +84,7 @@ class TraceMonitorRule(
                                 Utils.expandDescription(description, "stopTrace"),
                                 e
                             )
-                            Log.e(FLICKER_TAG, "Unable to stop $it", e)
+                            CrossPlatform.log.e(FLICKER_TAG, "Unable to stop $it", e)
                             throw TransitionTracingFailure(e)
                         }
                     }

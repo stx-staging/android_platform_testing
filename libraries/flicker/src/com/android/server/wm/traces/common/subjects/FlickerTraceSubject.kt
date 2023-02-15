@@ -16,14 +16,14 @@
 
 package com.android.server.wm.traces.common.subjects
 
-import com.android.server.wm.traces.common.TimestampFactory
+import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.assertions.AssertionsChecker
 import com.android.server.wm.traces.common.assertions.Fact
 
 /** Base subject for flicker trace assertions */
 abstract class FlickerTraceSubject<EntrySubject : FlickerSubject> : FlickerSubject() {
     override val timestamp
-        get() = subjects.firstOrNull()?.timestamp ?: TimestampFactory.empty()
+        get() = subjects.firstOrNull()?.timestamp ?: CrossPlatform.timestamp.empty()
     override val selfFacts by lazy {
         listOf(
             Fact("Trace start", subjects.firstOrNull()?.timestamp),

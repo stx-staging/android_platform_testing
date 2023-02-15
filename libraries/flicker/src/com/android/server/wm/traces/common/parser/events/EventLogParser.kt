@@ -16,8 +16,8 @@
 
 package com.android.server.wm.traces.common.parser.events
 
+import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.Timestamp
-import com.android.server.wm.traces.common.TimestampFactory
 import com.android.server.wm.traces.common.events.CujEvent
 import com.android.server.wm.traces.common.events.Event
 import com.android.server.wm.traces.common.events.EventLog
@@ -48,7 +48,7 @@ class EventLogParser : AbstractParser<Array<String>, EventLog>() {
                 val (rawTimestamp, uid, pid, tid, priority, tag) = metaData.split("\\s+".toRegex())
 
                 val timestamp =
-                    TimestampFactory.from(unixNanos = rawTimestamp.replace(".", "").toLong())
+                    CrossPlatform.timestamp.from(unixNanos = rawTimestamp.replace(".", "").toLong())
                 parseEvent(timestamp, pid.toInt(), uid, tid.toInt(), tag, eventData)
             }
 
@@ -104,7 +104,7 @@ class EventLogParser : AbstractParser<Array<String>, EventLog>() {
     private fun getTimestampFromRawEntry(entry: String): Timestamp {
         val (metaData, _) = entry.split(":", limit = 2).map { it.trim() }
         val (rawTimestamp, _, _, _, _, _) = metaData.split("\\s+".toRegex())
-        return TimestampFactory.from(unixNanos = rawTimestamp.replace(".", "").toLong())
+        return CrossPlatform.timestamp.from(unixNanos = rawTimestamp.replace(".", "").toLong())
     }
 
     companion object {

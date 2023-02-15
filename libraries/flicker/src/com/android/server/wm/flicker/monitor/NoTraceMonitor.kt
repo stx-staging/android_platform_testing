@@ -17,7 +17,7 @@
 package com.android.server.wm.flicker.monitor
 
 import com.android.server.wm.flicker.io.ResultWriter
-import com.android.server.wm.traces.common.TimestampFactory
+import com.android.server.wm.traces.common.CrossPlatform
 
 /**
  * A monitor that doesn't actually collect any traces and instead get the resultSetter sets the
@@ -29,8 +29,8 @@ class NoTraceMonitor(private val resultSetter: (ResultWriter) -> Unit) : ITransi
     }
 
     override fun stop(writer: ResultWriter) {
-        writer.setTransitionStartTime(TimestampFactory.min())
-        writer.setTransitionEndTime(TimestampFactory.max())
+        writer.setTransitionStartTime(CrossPlatform.timestamp.min())
+        writer.setTransitionEndTime(CrossPlatform.timestamp.max())
         this.resultSetter.invoke(writer)
     }
 }

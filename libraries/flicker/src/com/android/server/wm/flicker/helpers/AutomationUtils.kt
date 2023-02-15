@@ -22,7 +22,6 @@ import android.graphics.Point
 import android.graphics.Rect
 import android.os.RemoteException
 import android.os.SystemClock
-import android.util.Log
 import android.util.Rational
 import android.view.View
 import android.view.ViewConfiguration
@@ -35,6 +34,7 @@ import androidx.test.uiautomator.Until
 import com.android.compatibility.common.util.SystemUtil
 import com.android.server.wm.flicker.helpers.WindowUtils.displayBounds
 import com.android.server.wm.flicker.helpers.WindowUtils.estimateNavigationBarPosition
+import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.WindowManagerConditionsFactory
 import com.android.server.wm.traces.common.component.matchers.ComponentNameMatcher
 import com.android.server.wm.traces.common.service.PlatformConsts
@@ -68,7 +68,7 @@ fun setDefaultWait() {
 /** Checks if the device is running on gestural or 2-button navigation modes */
 fun UiDevice.isQuickstepEnabled(): Boolean {
     val enabled = this.findObject(By.res(SYSTEMUI_PACKAGE, "recent_apps")) == null
-    Log.d(TAG, "Quickstep enabled: $enabled")
+    CrossPlatform.log.d(TAG, "Quickstep enabled: $enabled")
     return enabled
 }
 
@@ -100,7 +100,7 @@ fun UiDevice.openQuickstep(wmHelper: WindowManagerStateHelper) {
             if (navBar != null) {
                 navBar.visibleBounds
             } else {
-                Log.e(TAG, "Could not find nav bar, infer location")
+                CrossPlatform.log.e(TAG, "Could not find nav bar, infer location")
                 estimateNavigationBarPosition(PlatformConsts.Rotation.ROTATION_0)
                     .bounds
                     .toAndroidRect()
@@ -177,7 +177,7 @@ private fun openQuickStepAndLongPressOverviewIcon(
         try {
             device.pressRecentApps()
         } catch (e: RemoteException) {
-            Log.e(TAG, "launchSplitScreen", e)
+            CrossPlatform.log.e(TAG, "launchSplitScreen", e)
         }
     }
     val overviewIconSelector = By.res(device.launcherPackageName, "icon").clazz(View::class.java)
@@ -193,7 +193,7 @@ fun UiDevice.openQuickStepAndClearRecentAppsFromOverview(wmHelper: WindowManager
         try {
             this.pressRecentApps()
         } catch (e: RemoteException) {
-            Log.e(TAG, "launchSplitScreen", e)
+            CrossPlatform.log.e(TAG, "launchSplitScreen", e)
         }
     }
     for (i in 0..9) {

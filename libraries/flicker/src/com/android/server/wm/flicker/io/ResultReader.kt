@@ -16,11 +16,11 @@
 
 package com.android.server.wm.flicker.io
 
-import android.util.Log
 import androidx.annotation.VisibleForTesting
 import com.android.server.wm.flicker.TraceConfig
 import com.android.server.wm.flicker.TraceConfigs
 import com.android.server.wm.traces.common.AssertionTag
+import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.Timestamp
 import com.android.server.wm.traces.common.events.CujTrace
 import com.android.server.wm.traces.common.events.EventLog
@@ -91,7 +91,7 @@ open class ResultReader(internal var result: IResultData, internal val traceConf
 
     @Throws(IOException::class)
     private fun readFromZip(descriptor: ResultArtifactDescriptor): ByteArray? {
-        Log.d(FLICKER_IO_TAG, "Reading descriptor=$descriptor from $result")
+        CrossPlatform.log.d(FLICKER_IO_TAG, "Reading descriptor=$descriptor from $result")
 
         var foundFile = false
         val outByteArray = ByteArrayOutputStream()
@@ -132,7 +132,7 @@ open class ResultReader(internal var result: IResultData, internal val traceConf
     @Throws(IOException::class)
     override fun readWmState(tag: String): WindowManagerTrace? {
         val descriptor = ResultArtifactDescriptor(TraceType.WM_DUMP, tag)
-        Log.d(FLICKER_IO_TAG, "Reading WM trace descriptor=$descriptor from $result")
+        CrossPlatform.log.d(FLICKER_IO_TAG, "Reading WM trace descriptor=$descriptor from $result")
         val traceData = readFromZip(descriptor)
         return traceData?.let { WindowManagerDumpParser().parse(it, clearCache = true) }
     }
@@ -281,11 +281,7 @@ open class ResultReader(internal var result: IResultData, internal val traceConf
     fun hasTraceFile(traceType: TraceType, tag: String = AssertionTag.ALL): Boolean {
         val descriptor = ResultArtifactDescriptor(traceType, tag)
         var found = false
-        forEachFileInZip {
-            Log.v("ABC", "Searching file ${descriptor.fileNameInArtifact} against ${it.name}")
-            found = found || (it.name == descriptor.fileNameInArtifact)
-            Log.v("ABC", "Found = $found")
-        }
+        forEachFileInZip { found = found || (it.name == descriptor.fileNameInArtifact) }
         return found
     }
 }

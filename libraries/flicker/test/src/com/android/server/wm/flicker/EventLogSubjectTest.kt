@@ -18,7 +18,7 @@ package com.android.server.wm.flicker
 
 import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.io.ParsedTracesReader
-import com.android.server.wm.traces.common.TimestampFactory
+import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.assertions.SubjectsParser
 import com.android.server.wm.traces.common.events.EventLog
 import com.android.server.wm.traces.common.events.FocusEvent
@@ -38,7 +38,7 @@ class EventLogSubjectTest {
                     EventLog(
                         arrayOf(
                             FocusEvent(
-                                TimestampFactory.from(unixNanos = 0),
+                                CrossPlatform.timestamp.from(unixNanos = 0),
                                 "WinB",
                                 FocusEvent.Type.GAINED,
                                 "test",
@@ -47,7 +47,7 @@ class EventLogSubjectTest {
                                 0
                             ),
                             FocusEvent(
-                                TimestampFactory.from(unixNanos = 0),
+                                CrossPlatform.timestamp.from(unixNanos = 0),
                                 "test WinA window",
                                 FocusEvent.Type.LOST,
                                 "test",
@@ -56,7 +56,7 @@ class EventLogSubjectTest {
                                 0
                             ),
                             FocusEvent(
-                                TimestampFactory.from(unixNanos = 0),
+                                CrossPlatform.timestamp.from(unixNanos = 0),
                                 "WinB",
                                 FocusEvent.Type.LOST,
                                 "test",
@@ -65,7 +65,7 @@ class EventLogSubjectTest {
                                 0
                             ),
                             FocusEvent(
-                                TimestampFactory.from(unixNanos = 0),
+                                CrossPlatform.timestamp.from(unixNanos = 0),
                                 "test WinC",
                                 FocusEvent.Type.GAINED,
                                 "test",

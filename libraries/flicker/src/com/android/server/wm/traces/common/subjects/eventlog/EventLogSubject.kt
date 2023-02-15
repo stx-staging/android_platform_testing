@@ -16,7 +16,7 @@
 
 package com.android.server.wm.traces.common.subjects.eventlog
 
-import com.android.server.wm.traces.common.TimestampFactory
+import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.assertions.Fact
 import com.android.server.wm.traces.common.events.EventLog
 import com.android.server.wm.traces.common.events.FocusEvent
@@ -24,7 +24,7 @@ import com.android.server.wm.traces.common.subjects.FlickerSubject
 
 /** Truth subject for [FocusEvent] objects. */
 class EventLogSubject(val eventLog: EventLog) : FlickerSubject() {
-    override val timestamp = TimestampFactory.empty()
+    override val timestamp = CrossPlatform.timestamp.empty()
     override val parent = null
     override val selfFacts by lazy {
         listOf(

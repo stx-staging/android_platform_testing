@@ -19,9 +19,9 @@ package com.android.server.wm.flicker.assertions
 import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.assertFailureFact
 import com.android.server.wm.flicker.assertThrows
+import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.ITraceEntry
 import com.android.server.wm.traces.common.Timestamp
-import com.android.server.wm.traces.common.TimestampFactory
 import com.android.server.wm.traces.common.assertions.AssertionsChecker
 import com.android.server.wm.traces.common.assertions.Fact
 import com.android.server.wm.traces.common.subjects.FlickerSubject
@@ -148,7 +148,7 @@ class AssertionsCheckerTest {
     }
 
     private class SimpleEntrySubject(private val entry: SimpleEntry) : FlickerSubject() {
-        override val timestamp = TimestampFactory.empty()
+        override val timestamp = CrossPlatform.timestamp.empty()
         override val parent = null
         override val selfFacts = listOf(Fact("SimpleEntry", entry.mData.toString()))
 
@@ -177,7 +177,7 @@ class AssertionsCheckerTest {
         private fun getTestEntries(vararg data: Int): List<SimpleEntrySubject> =
             data.indices.map {
                 SimpleEntrySubject(
-                    SimpleEntry(TimestampFactory.from(elapsedNanos = it.toLong()), data[it])
+                    SimpleEntry(CrossPlatform.timestamp.from(elapsedNanos = it.toLong()), data[it])
                 )
             }
         @ClassRule @JvmField val initRule = InitRule()

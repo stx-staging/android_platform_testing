@@ -20,9 +20,9 @@ import android.app.Instrumentation
 import android.platform.test.rule.ArtifactSaver
 import com.android.server.wm.flicker.IFlickerTestData
 import com.android.server.wm.flicker.io.ResultWriter
+import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.IScenario
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerStateHelper
-import com.android.server.wm.traces.parser.withPerfettoTrace
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
@@ -62,7 +62,7 @@ class SetupTeardownRule(
 
     @Throws(TransitionSetupFailure::class)
     private fun doRunTransitionSetup(description: Description?) {
-        withPerfettoTrace("doRunTransitionSetup") {
+        CrossPlatform.log.withTracing("doRunTransitionSetup") {
             Utils.notifyRunnerProgress(scenario, "Running transition setup for $description")
             try {
                 setupCommands.forEach { it.invoke(flicker) }
@@ -76,7 +76,7 @@ class SetupTeardownRule(
 
     @Throws(TransitionTeardownFailure::class)
     private fun doRunTransitionTeardown(description: Description?) {
-        withPerfettoTrace("doRunTransitionTeardown") {
+        CrossPlatform.log.withTracing("doRunTransitionTeardown") {
             Utils.notifyRunnerProgress(scenario, "Running transition teardown for $description")
             try {
                 teardownCommands.forEach { it.invoke(flicker) }

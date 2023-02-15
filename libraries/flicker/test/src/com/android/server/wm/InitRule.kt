@@ -22,8 +22,10 @@ import com.android.server.wm.flicker.datastore.DataStore
 import com.android.server.wm.flicker.deleteIfExists
 import com.android.server.wm.flicker.outputFileName
 import com.android.server.wm.traces.common.Cache
+import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.TimestampFactory
 import com.android.server.wm.traces.common.io.RunStatus
+import com.android.server.wm.traces.parser.ANDROID_LOGGER
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
@@ -32,7 +34,8 @@ import org.junit.runners.model.Statement
 @SuppressLint("VisibleForTests")
 class InitRule : TestRule {
     override fun apply(base: Statement, description: Description?): Statement {
-        TimestampFactory.setRealTimestampFormatter { Utils.formatRealTimestamp(it) }
+        CrossPlatform.setLogger(ANDROID_LOGGER)
+            .setTimestampFactory(TimestampFactory { Utils.formatRealTimestamp(it) })
         DataStore.clear()
         Cache.clear()
         RunStatus.ALL.forEach { outputFileName(it).deleteIfExists() }

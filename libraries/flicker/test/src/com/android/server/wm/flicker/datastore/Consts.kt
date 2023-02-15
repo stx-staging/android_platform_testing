@@ -18,7 +18,7 @@ package com.android.server.wm.flicker.datastore
 
 import com.android.server.wm.flicker.getDefaultFlickerOutputDir
 import com.android.server.wm.flicker.io.ResultData
-import com.android.server.wm.traces.common.TimestampFactory
+import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.io.RunStatus
 import com.android.server.wm.traces.common.io.TransitionTimeRange
 
@@ -29,7 +29,10 @@ object Consts {
         ResultData(
             _artifact = getDefaultFlickerOutputDir(),
             _transitionTimeRange =
-                TransitionTimeRange(TimestampFactory.empty(), TimestampFactory.empty()),
+                TransitionTimeRange(
+                    CrossPlatform.timestamp.empty(),
+                    CrossPlatform.timestamp.empty()
+                ),
             _executionError = null,
             _runStatus = RunStatus.RUN_EXECUTED
         )
@@ -38,7 +41,10 @@ object Consts {
         ResultData(
             _artifact = getDefaultFlickerOutputDir(),
             _transitionTimeRange =
-                TransitionTimeRange(TimestampFactory.empty(), TimestampFactory.empty()),
+                TransitionTimeRange(
+                    CrossPlatform.timestamp.empty(),
+                    CrossPlatform.timestamp.empty()
+                ),
             _executionError = null,
             _runStatus = RunStatus.RUN_EXECUTED
         )

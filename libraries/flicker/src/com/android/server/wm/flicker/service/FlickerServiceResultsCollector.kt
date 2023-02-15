@@ -19,11 +19,11 @@ package com.android.server.wm.flicker.service
 import android.app.Instrumentation
 import android.device.collectors.BaseMetricListener
 import android.device.collectors.DataRecord
-import android.util.Log
 import androidx.test.platform.app.InstrumentationRegistry
 import com.android.internal.annotations.VisibleForTesting
 import com.android.server.wm.flicker.runner.ExecutionError
 import com.android.server.wm.flicker.service.assertors.IAssertionResult
+import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.FLICKER_TAG
 import com.android.server.wm.traces.common.service.AssertionInvocationGroup
 import org.junit.runner.Description
@@ -58,7 +58,10 @@ class FlickerServiceResultsCollector(
 
     override fun onTestRunStart(runData: DataRecord, description: Description) {
         errorReportingBlock {
-            Log.i(LOG_TAG, "onTestRunStart :: collectMetricsPerTest = $collectMetricsPerTest")
+            CrossPlatform.log.i(
+                LOG_TAG,
+                "onTestRunStart :: collectMetricsPerTest = $collectMetricsPerTest"
+            )
             if (!collectMetricsPerTest) {
                 hasFailedTest = false
                 tracesCollector.start()
@@ -68,7 +71,10 @@ class FlickerServiceResultsCollector(
 
     override fun onTestStart(testData: DataRecord, description: Description) {
         errorReportingBlock {
-            Log.i(LOG_TAG, "onTestStart :: collectMetricsPerTest = $collectMetricsPerTest")
+            CrossPlatform.log.i(
+                LOG_TAG,
+                "onTestStart :: collectMetricsPerTest = $collectMetricsPerTest"
+            )
             if (collectMetricsPerTest) {
                 hasFailedTest = false
                 tracesCollector.start()
@@ -79,21 +85,24 @@ class FlickerServiceResultsCollector(
 
     override fun onTestFail(testData: DataRecord, description: Description, failure: Failure) {
         errorReportingBlock {
-            Log.i(LOG_TAG, "onTestFail")
+            CrossPlatform.log.i(LOG_TAG, "onTestFail")
             hasFailedTest = true
         }
     }
 
     override fun testSkipped(description: Description) {
         errorReportingBlock {
-            Log.i(LOG_TAG, "testSkipped")
+            CrossPlatform.log.i(LOG_TAG, "testSkipped")
             testSkipped = true
         }
     }
 
     override fun onTestEnd(testData: DataRecord, description: Description) {
         errorReportingBlock {
-            Log.i(LOG_TAG, "onTestEnd :: collectMetricsPerTest = $collectMetricsPerTest")
+            CrossPlatform.log.i(
+                LOG_TAG,
+                "onTestEnd :: collectMetricsPerTest = $collectMetricsPerTest"
+            )
             if (collectMetricsPerTest && !testSkipped) {
                 stopTracingAndCollectFlickerMetrics(testData, description)
             }
@@ -102,7 +111,10 @@ class FlickerServiceResultsCollector(
 
     override fun onTestRunEnd(runData: DataRecord, result: Result) {
         errorReportingBlock {
-            Log.i(LOG_TAG, "onTestRunEnd :: collectMetricsPerTest = $collectMetricsPerTest")
+            CrossPlatform.log.i(
+                LOG_TAG,
+                "onTestRunEnd :: collectMetricsPerTest = $collectMetricsPerTest"
+            )
             if (!collectMetricsPerTest) {
                 stopTracingAndCollectFlickerMetrics(runData)
             }
@@ -113,18 +125,18 @@ class FlickerServiceResultsCollector(
         dataRecord: DataRecord,
         description: Description? = null
     ) {
-        Log.i(LOG_TAG, "Stopping trace collection")
+        CrossPlatform.log.i(LOG_TAG, "Stopping trace collection")
         tracesCollector.stop()
-        Log.i(LOG_TAG, "Stopped trace collection")
+        CrossPlatform.log.i(LOG_TAG, "Stopped trace collection")
         if (reportOnlyForPassingTests && hasFailedTest) {
             return
         }
 
         val reader = tracesCollector.getResultReader()
         dataRecord.addStringMetric(WINSCOPE_FILE_PATH_KEY, reader.artifactPath)
-        Log.i(LOG_TAG, "Processing traces")
+        CrossPlatform.log.i(LOG_TAG, "Processing traces")
         val results = flickerService.process(reader)
-        Log.i(LOG_TAG, "Got ${results.size} results")
+        CrossPlatform.log.i(LOG_TAG, "Got ${results.size} results")
         assertionResults.addAll(results)
         if (description != null) {
             require(assertionResultsByTest[description] == null) {
@@ -158,7 +170,7 @@ class FlickerServiceResultsCollector(
 
         while (it.hasNext()) {
             val (key, result) = it.next()
-            Log.v(LOG_TAG, "Adding metric ${key}_FAILURES = ${result.failures}")
+            CrossPlatform.log.v(LOG_TAG, "Adding metric ${key}_FAILURES = ${result.failures}")
             data.addStringMetric("${key}_FAILURES", "${result.failures}")
         }
     }
@@ -171,7 +183,7 @@ class FlickerServiceResultsCollector(
         try {
             function()
         } catch (e: Throwable) {
-            Log.e(FLICKER_TAG, "Error executing in FlickerServiceResultsCollector", e)
+            CrossPlatform.log.e(FLICKER_TAG, "Error executing in FlickerServiceResultsCollector", e)
             _executionErrors.add(ExecutionError(e))
         }
     }

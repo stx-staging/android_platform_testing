@@ -17,12 +17,12 @@
 package com.android.server.wm.flicker.junit
 
 import android.app.Instrumentation
-import android.util.Log
 import androidx.test.platform.app.InstrumentationRegistry
 import com.android.server.wm.flicker.FlickerBuilder
 import com.android.server.wm.flicker.FlickerTest
 import com.android.server.wm.flicker.datastore.DataStore
 import com.android.server.wm.flicker.runner.TransitionRunner
+import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.FLICKER_TAG
 import com.android.server.wm.traces.common.Scenario
 import java.lang.reflect.Modifier
@@ -107,16 +107,16 @@ abstract class AbstractFlickerRunnerDecorator(
     }
 
     protected fun doRunTransition(test: Any, description: Description?) {
-        Log.d(FLICKER_TAG, "$scenario - Setting up FaaS")
+        CrossPlatform.log.d(FLICKER_TAG, "$scenario - Setting up FaaS")
         val scenario = scenario
         requireNotNull(scenario) { "Expected to have a scenario to run" }
         if (!DataStore.containsResult(scenario)) {
-            Log.v(FLICKER_TAG, "Creating flicker object for $scenario")
+            CrossPlatform.log.v(FLICKER_TAG, "Creating flicker object for $scenario")
             val builder = getFlickerBuilder(test)
-            Log.v(FLICKER_TAG, "Creating flicker object for $scenario")
+            CrossPlatform.log.v(FLICKER_TAG, "Creating flicker object for $scenario")
             val flicker = builder.build()
             val runner = TransitionRunner(scenario, instrumentation)
-            Log.v(FLICKER_TAG, "Running transition for $scenario")
+            CrossPlatform.log.v(FLICKER_TAG, "Running transition for $scenario")
             runner.execute(flicker, description)
         }
     }
@@ -127,7 +127,7 @@ abstract class AbstractFlickerRunnerDecorator(
                 ?: error("Provider method not found")
 
     private fun getFlickerBuilder(test: Any): FlickerBuilder {
-        Log.v(FLICKER_TAG, "Obtaining flicker builder for $testClass")
+        CrossPlatform.log.v(FLICKER_TAG, "Obtaining flicker builder for $testClass")
         return providerMethod.invokeExplosively(test) as FlickerBuilder
     }
 

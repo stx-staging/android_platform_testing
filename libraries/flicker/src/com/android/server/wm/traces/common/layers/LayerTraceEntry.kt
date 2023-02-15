@@ -16,8 +16,8 @@
 
 package com.android.server.wm.traces.common.layers
 
+import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.RectF
-import com.android.server.wm.traces.common.TimestampFactory
 
 /**
  * Represents a single Layer trace entry.
@@ -35,7 +35,10 @@ class LayerTraceEntry(
     _rootLayers: Array<Layer>,
 ) : BaseLayerTraceEntry() {
     override val timestamp =
-        TimestampFactory.from(systemUptimeNanos = elapsedTimestamp, unixNanos = clockTimestamp)
+        CrossPlatform.timestamp.from(
+            systemUptimeNanos = elapsedTimestamp,
+            unixNanos = clockTimestamp
+        )
     override val flattenedLayers: Array<Layer> = fillFlattenedLayers(_rootLayers)
 
     private fun fillFlattenedLayers(rootLayers: Array<Layer>): Array<Layer> {

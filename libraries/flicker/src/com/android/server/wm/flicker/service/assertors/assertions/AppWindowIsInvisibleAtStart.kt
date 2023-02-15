@@ -18,7 +18,7 @@ package com.android.server.wm.flicker.service.assertors.assertions
 
 import com.android.server.wm.flicker.service.IScenarioInstance
 import com.android.server.wm.flicker.service.assertors.ComponentTemplate
-import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
+import com.android.server.wm.traces.common.subjects.wm.WindowManagerTraceSubject
 
 class AppWindowIsInvisibleAtStart(component: ComponentTemplate) :
     AssertionTemplateWithComponent(component) {

@@ -24,9 +24,9 @@ import android.media.MediaFormat
 import android.media.MediaMuxer
 import android.os.SystemClock
 import android.util.DisplayMetrics
-import android.util.Log
 import android.view.WindowManager
 import com.android.server.wm.flicker.deleteIfExists
+import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.FLICKER_TAG
 import java.io.File
 import java.io.FileOutputStream
@@ -76,7 +76,7 @@ class ScreenRecordingRunnable(
     }
 
     override fun run() {
-        Log.d(FLICKER_TAG, "Starting screen recording to file $outputFile")
+        CrossPlatform.log.d(FLICKER_TAG, "Starting screen recording to file $outputFile")
 
         val timestampsUs = mutableListOf<Long>()
         try {
@@ -158,11 +158,11 @@ class ScreenRecordingRunnable(
      */
     private fun writeMetadata(timestampsUs: List<Long>) {
         if (timestampsUs.isEmpty()) {
-            Log.v(FLICKER_TAG, "Not writing winscope metadata (no frames/timestamps)")
+            CrossPlatform.log.v(FLICKER_TAG, "Not writing winscope metadata (no frames/timestamps)")
             return
         }
 
-        Log.v(
+        CrossPlatform.log.v(
             FLICKER_TAG,
             "Writing winscope metadata (size=${timestampsUs.size} " +
                 "(timestamps [us] = ${timestampsUs.first()}-${timestampsUs.last()})"

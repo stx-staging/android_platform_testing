@@ -19,14 +19,13 @@ package com.android.server.wm.flicker.rules
 import android.app.Instrumentation
 import android.content.Context
 import android.os.RemoteException
-import android.util.Log
 import android.view.WindowManager
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
+import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.FLICKER_TAG
 import com.android.server.wm.traces.common.service.PlatformConsts
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerStateHelper
-import com.android.server.wm.traces.parser.withPerfettoTrace
 import org.junit.rules.TestWatcher
 import org.junit.runner.Description
 
@@ -51,8 +50,8 @@ constructor(
     private var initialOrientation = PlatformConsts.Rotation.ROTATION_0
 
     override fun starting(description: Description?) {
-        withPerfettoTrace("ChangeDisplayOrientationRule:starting") {
-            Log.v(
+        CrossPlatform.log.withTracing("ChangeDisplayOrientationRule:starting") {
+            CrossPlatform.log.v(
                 FLICKER_TAG,
                 "Changing display orientation to " +
                     "$targetOrientation ${targetOrientation.description}"
@@ -65,7 +64,7 @@ constructor(
     }
 
     override fun finished(description: Description?) {
-        withPerfettoTrace("ChangeDisplayOrientationRule:finished") {
+        CrossPlatform.log.withTracing("ChangeDisplayOrientationRule:finished") {
             if (resetOrientationAfterTest) {
                 setRotation(initialOrientation, instrumentation, clearCacheAfterParsing)
             }
@@ -98,7 +97,7 @@ constructor(
                     wmHelper.StateSyncBuilder().withRotation(rotation).waitForAndVerify()
                 } else {
                     wmHelper.StateSyncBuilder().withAppTransitionIdle().waitForAndVerify()
-                    Log.v(FLICKER_TAG, "Rotation is not allowed in the state")
+                    CrossPlatform.log.v(FLICKER_TAG, "Rotation is not allowed in the state")
                     return
                 }
 

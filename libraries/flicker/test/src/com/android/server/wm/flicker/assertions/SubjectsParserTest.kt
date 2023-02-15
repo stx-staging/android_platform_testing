@@ -18,6 +18,7 @@ package com.android.server.wm.flicker.assertions
 
 import com.android.server.wm.InitRule
 import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
+import com.android.server.wm.flicker.assertThrows
 import com.android.server.wm.flicker.deleteIfExists
 import com.android.server.wm.flicker.io.ResultReader
 import com.android.server.wm.flicker.newTestResultWriter
@@ -25,7 +26,7 @@ import com.android.server.wm.flicker.outputFileName
 import com.android.server.wm.traces.common.AssertionTag
 import com.android.server.wm.traces.common.assertions.SubjectsParser
 import com.android.server.wm.traces.common.io.RunStatus
-import com.google.common.truth.Truth
+import java.io.FileNotFoundException
 import org.junit.ClassRule
 import org.junit.Test
 
@@ -33,11 +34,11 @@ import org.junit.Test
 class SubjectsParserTest {
 
     @Test
-    fun isEmptyWhenFileNotFound() {
+    fun failFileNotFound() {
         val data = newTestResultWriter().write()
         outputFileName(RunStatus.RUN_EXECUTED).deleteIfExists()
         val parser = SubjectsParser(ResultReader(data, DEFAULT_TRACE_CONFIG))
-        Truth.assertWithMessage("Is empty").that(parser.getSubjects(AssertionTag.ALL)).isEmpty()
+        assertThrows<FileNotFoundException> { parser.getSubjects(AssertionTag.ALL) }
     }
 
     companion object {

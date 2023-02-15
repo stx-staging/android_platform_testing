@@ -45,6 +45,6 @@ class EntireScreenCoveredAlways : AssertionTemplate() {
     }
 
     override fun hashCode(): Int {
-        return javaClass.hashCode()
+        return this::class.hashCode()
     }
 }

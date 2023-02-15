@@ -18,8 +18,8 @@ package com.android.server.wm.flicker.monitor
 
 import android.content.Context
 import android.os.SystemClock
-import android.util.Log
 import androidx.annotation.VisibleForTesting
+import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.FLICKER_TAG
 import com.android.server.wm.traces.common.io.TraceType
 import java.io.File
@@ -58,7 +58,7 @@ constructor(
 
         val recordingThread = newRecordingThread()
         this.recordingThread = recordingThread
-        Log.d(FLICKER_TAG, "Starting screen recording thread")
+        CrossPlatform.log.d(FLICKER_TAG, "Starting screen recording thread")
         recordingThread.start()
 
         var remainingTime = WAIT_TIMEOUT_MS
@@ -73,7 +73,7 @@ constructor(
     override fun doStop(): File {
         require(recordingThread != null) { "Screen recorder was not started" }
 
-        Log.d(FLICKER_TAG, "Stopping screen recording. Storing result in $outputFile")
+        CrossPlatform.log.d(FLICKER_TAG, "Stopping screen recording. Storing result in $outputFile")
         try {
             recordingRunnable?.stop()
             recordingThread?.join()

@@ -29,6 +29,7 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 import com.android.launcher3.tapl.LauncherInstrumentation
 import com.android.server.wm.traces.common.Condition
+import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.DeviceStateDump
 import com.android.server.wm.traces.common.WindowManagerConditionsFactory
 import com.android.server.wm.traces.common.component.matchers.ComponentNameMatcher
@@ -36,7 +37,6 @@ import com.android.server.wm.traces.common.component.matchers.IComponentMatcher
 import com.android.server.wm.traces.common.component.matchers.IComponentNameMatcher
 import com.android.server.wm.traces.common.windowmanager.WindowManagerState
 import com.android.server.wm.traces.parser.windowmanager.WindowManagerStateHelper
-import com.android.server.wm.traces.parser.withPerfettoTrace
 
 /**
  * Class to take advantage of {@code IAppHelper} interface so the same test can be run against first
@@ -107,7 +107,7 @@ open class StandardAppHelper(
 
     /** {@inheritDoc} */
     override fun exit() {
-        withPerfettoTrace("exit") {
+        CrossPlatform.log.withTracing("exit") {
             // Ensure all testing components end up being closed.
             activityManager?.forceStopPackage(packageName)
         }
@@ -115,7 +115,7 @@ open class StandardAppHelper(
 
     /** Exits the activity and wait for activity destroyed */
     fun exit(wmHelper: WindowManagerStateHelper) {
-        withPerfettoTrace("${this::class.simpleName}#exitAndWait") {
+        CrossPlatform.log.withTracing("${this::class.simpleName}#exitAndWait") {
             exit()
             waitForActivityDestroyed(wmHelper)
         }
@@ -143,7 +143,7 @@ open class StandardAppHelper(
         action: String? = null,
         stringExtras: Map<String, String> = mapOf()
     ) {
-        withPerfettoTrace("${this::class.simpleName}#launchAppViaIntent") {
+        CrossPlatform.log.withTracing("${this::class.simpleName}#launchAppViaIntent") {
             val intent = openAppIntent
             intent.action = action
             stringExtras.forEach { intent.putExtra(it.key, it.value) }
@@ -207,7 +207,7 @@ open class StandardAppHelper(
         launchedAppComponentMatcherOverride: IComponentMatcher? = null,
         waitConditions: Array<Condition<DeviceStateDump>> = emptyArray()
     ) {
-        withPerfettoTrace("${this::class.simpleName}#doWaitShown") {
+        CrossPlatform.log.withTracing("${this::class.simpleName}#doWaitShown") {
             val expectedWindow = launchedAppComponentMatcherOverride ?: componentMatcher
             val builder =
                 wmHelper

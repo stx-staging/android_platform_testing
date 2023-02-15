@@ -14,17 +14,13 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.service.extractors
+package com.android.server.wm.traces.common
 
-import com.android.server.wm.flicker.service.IScenarioInstance
-import com.android.server.wm.traces.common.CrossPlatform
-import com.android.server.wm.traces.common.io.IReader
-
-class CombinedScenarioExtractor(private val extractors: List<IScenarioExtractor>) :
-    IScenarioExtractor {
-    override fun extract(reader: IReader): List<IScenarioInstance> {
-        return CrossPlatform.log.withTracing("CombinedScenarioExtractor#extract") {
-            extractors.flatMap { it.extract(reader) }
-        }
-    }
+interface ILogger {
+    fun <T> withTracing(name: String, predicate: () -> T): T
+    fun v(tag: String, msg: String)
+    fun d(tag: String, msg: String)
+    fun i(tag: String, msg: String)
+    fun w(tag: String, msg: String)
+    fun e(tag: String, msg: String, error: Throwable? = null)
 }

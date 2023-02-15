@@ -25,11 +25,11 @@ import com.android.server.wm.flicker.readWmTraceFromFile
 import com.android.server.wm.traces.common.ActiveBuffer
 import com.android.server.wm.traces.common.Cache
 import com.android.server.wm.traces.common.Color
+import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.DeviceStateDump
 import com.android.server.wm.traces.common.Matrix33
 import com.android.server.wm.traces.common.Rect
 import com.android.server.wm.traces.common.RectF
-import com.android.server.wm.traces.common.TimestampFactory
 import com.android.server.wm.traces.common.component.IComponentName
 import com.android.server.wm.traces.common.component.matchers.ComponentNameMatcher
 import com.android.server.wm.traces.common.layers.HwcCompositionType
@@ -330,7 +330,7 @@ class WindowManagerStateHelperTest {
         val initialTimestamp = 69443918698679
         val supplier = trace.asSupplier(startingTimestamp = initialTimestamp)
         val initialEntry =
-            trace.getEntryExactlyAt(TimestampFactory.from(elapsedNanos = initialTimestamp))
+            trace.getEntryExactlyAt(CrossPlatform.timestamp.from(elapsedNanos = initialTimestamp))
         val helper =
             TestWindowManagerStateHelper(
                 initialEntry,

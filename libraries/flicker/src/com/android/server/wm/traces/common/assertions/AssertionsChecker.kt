@@ -74,7 +74,6 @@ class AssertionsChecker<T : FlickerSubject> {
                 val log =
                     "${assertionIndex + 1}/${assertions.size}:[${currentAssertion.name}]\t" +
                         "Entry: ${entryIndex + 1}/${entries.size} $currEntry"
-                // nataniel Log.v(FLICKER_TAG, "Checking Assertion: $log")
                 assertionTrace.add(log)
                 currentAssertion.invoke(currEntry)
                 lastPassedAssertionIndex = assertionIndex

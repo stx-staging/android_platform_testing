@@ -19,9 +19,9 @@
 package com.android.server.wm.flicker
 
 import android.os.SystemClock
+import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.SECOND_AS_NANOSECONDS
 import com.android.server.wm.traces.common.Timestamp
-import com.android.server.wm.traces.common.TimestampFactory
 import java.io.File
 import java.time.Instant
 
@@ -38,7 +38,7 @@ internal fun String.containsAny(vararg values: String): Boolean {
 /** @return the current timestamp as [Timestamp] */
 fun now(): Timestamp {
     val now = Instant.now()
-    return TimestampFactory.from(
+    return CrossPlatform.timestamp.from(
         elapsedNanos = SystemClock.elapsedRealtimeNanos(),
         systemUptimeNanos = SystemClock.uptimeNanos(),
         unixNanos = now.epochSecond * SECOND_AS_NANOSECONDS + now.nano

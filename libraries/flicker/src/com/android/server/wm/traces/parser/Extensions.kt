@@ -23,7 +23,9 @@ import android.content.ComponentName
 import android.os.ParcelFileDescriptor
 import android.os.Trace
 import android.util.Log
+import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.DeviceStateDump
+import com.android.server.wm.traces.common.LoggerBuilder
 import com.android.server.wm.traces.common.NullableDeviceStateDump
 import com.android.server.wm.traces.common.Rect
 import com.android.server.wm.traces.common.component.matchers.ComponentNameMatcher
@@ -31,6 +33,22 @@ import com.android.server.wm.traces.common.layers.BaseLayerTraceEntry
 import com.android.server.wm.traces.common.windowmanager.WindowManagerState
 
 internal const val LOG_TAG = "AMWM_FLICKER"
+
+val ANDROID_LOGGER =
+    LoggerBuilder()
+        .setD { tag, msg -> Log.d(tag, msg) }
+        .setI { tag, msg -> Log.i(tag, msg) }
+        .setW { tag, msg -> Log.w(tag, msg) }
+        .setE { tag, msg, error -> Log.e(tag, msg, error) }
+        .setOnTracing { name, predicate ->
+            try {
+                Trace.beginSection(name)
+                predicate()
+            } finally {
+                Trace.endSection()
+            }
+        }
+        .build()
 
 fun Rect.toAndroidRect(): android.graphics.Rect {
     return android.graphics.Rect(left, top, right, bottom)
@@ -68,7 +86,7 @@ fun getCurrentState(
         throw IllegalArgumentException("No dump specified")
     }
 
-    Log.d(LOG_TAG, "Requesting new device state dump")
+    CrossPlatform.log.d(LOG_TAG, "Requesting new device state dump")
     val wmTraceData =
         if (dumpFlags.and(FLAG_STATE_DUMP_FLAG_WM) > 0) {
             getCurrentWindowManagerState(uiAutomation)
@@ -119,15 +137,6 @@ fun getCurrentStateDump(
         currentStateDump.second,
         clearCacheAfterParsing = clearCacheAfterParsing
     )
-}
-
-inline fun <T> withPerfettoTrace(logMsg: String, predicate: () -> T): T {
-    return try {
-        Trace.beginSection(logMsg)
-        predicate()
-    } finally {
-        Trace.endSection()
-    }
 }
 
 /** Converts an Android [ComponentName] into a flicker [ComponentNameMatcher] */

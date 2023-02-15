@@ -14,17 +14,14 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.service.extractors
+package com.android.server.wm.traces.common
 
-import com.android.server.wm.flicker.service.IScenarioInstance
-import com.android.server.wm.traces.common.CrossPlatform
-import com.android.server.wm.traces.common.io.IReader
+object CrossPlatform {
+    var log: ILogger = LoggerBuilder().build()
+        private set
+    var timestamp: TimestampFactory = TimestampFactory()
+        private set
 
-class CombinedScenarioExtractor(private val extractors: List<IScenarioExtractor>) :
-    IScenarioExtractor {
-    override fun extract(reader: IReader): List<IScenarioInstance> {
-        return CrossPlatform.log.withTracing("CombinedScenarioExtractor#extract") {
-            extractors.flatMap { it.extract(reader) }
-        }
-    }
+    fun setLogger(logger: ILogger) = apply { log = logger }
+    fun setTimestampFactory(factory: TimestampFactory) = apply { timestamp = factory }
 }

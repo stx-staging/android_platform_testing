@@ -16,7 +16,6 @@
 
 package com.android.server.wm.flicker.service
 
-import android.util.Log
 import com.android.server.wm.flicker.DEFAULT_TRACE_CONFIG
 import com.android.server.wm.flicker.io.IResultData
 import com.android.server.wm.flicker.io.ResultReaderWithLru
@@ -26,6 +25,7 @@ import com.android.server.wm.flicker.monitor.LayersTraceMonitor
 import com.android.server.wm.flicker.monitor.TransactionsTraceMonitor
 import com.android.server.wm.flicker.monitor.TransitionsTraceMonitor
 import com.android.server.wm.flicker.monitor.WindowManagerTraceMonitor
+import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.FLICKER_TAG
 import com.android.server.wm.traces.common.Scenario
 import com.android.server.wm.traces.common.ScenarioBuilder
@@ -58,10 +58,10 @@ class FlickerServiceTracesCollector(
 
     override fun stop() {
         reportErrorsBlock("Failed to stop traces") {
-            Log.v(LOG_TAG, "Creating output directory for trace files")
+            CrossPlatform.log.v(LOG_TAG, "Creating output directory for trace files")
             outputDir.mkdirs()
 
-            Log.v(LOG_TAG, "Stopping trace monitors")
+            CrossPlatform.log.v(LOG_TAG, "Stopping trace monitors")
             val writer = ResultWriter().forScenario(scenario).withOutputDir(outputDir)
             traceMonitors.forEach { it.stop(writer) }
             result = writer.write()
@@ -95,7 +95,7 @@ class FlickerServiceTracesCollector(
         try {
             return block()
         } catch (e: Throwable) {
-            Log.e(LOG_TAG, msg, e)
+            CrossPlatform.log.e(LOG_TAG, msg, e)
             throw e
         }
     }

@@ -22,11 +22,11 @@ import android.surfaceflinger.Layers
 import android.surfaceflinger.Layerstrace
 import com.android.server.wm.traces.common.ActiveBuffer
 import com.android.server.wm.traces.common.Color
+import com.android.server.wm.traces.common.CrossPlatform
 import com.android.server.wm.traces.common.Rect
 import com.android.server.wm.traces.common.RectF
 import com.android.server.wm.traces.common.Size
 import com.android.server.wm.traces.common.Timestamp
-import com.android.server.wm.traces.common.TimestampFactory
 import com.android.server.wm.traces.common.layers.HwcCompositionType
 import com.android.server.wm.traces.common.layers.Layer
 import com.android.server.wm.traces.common.layers.LayerTraceEntry
@@ -61,7 +61,7 @@ class LayersTraceParser(
 
     override fun getTimestamp(entry: Layerstrace.LayersTraceProto): Timestamp {
         require(legacyTrace || realToElapsedTimeOffsetNanos != 0L)
-        return TimestampFactory.from(
+        return CrossPlatform.timestamp.from(
             systemUptimeNanos = entry.elapsedRealtimeNanos,
             unixNanos = entry.elapsedRealtimeNanos + realToElapsedTimeOffsetNanos
         )
