@@ -86,7 +86,8 @@ public class AutomotiveConfigConstants {
     public static final String HOME_BOTTOM_CARD = "HOME_BOTTOM_CARD";
     public static final String HOME_TOP_CARD = "HOME_TOP_CARD";
     public static final String HOME_MAP_CARD = "HOME_MAP_CARD";
-    // APP GRID
+
+    // App Grid Constants
     public static final String OPEN_APP_GRID_COMMAND = "OPEN_APP_GRID_COMMAND";
     public static final String APP_GRID_SCROLL_BACKWARD_BUTTON = "APP_GRID_SCROLL_BACKWARD_BUTTON";
     public static final String APP_GRID_SCROLL_FORWARD_BUTTON = "APP_GRID_SCROLL_FORWARD_BUTTON";
@@ -96,9 +97,10 @@ public class AutomotiveConfigConstants {
     public static final String APP_LIST_SCROLL_ELEMENT = "APP_LIST_SCROLL_ELEMENT";
     public static final String APP_LIST_SCROLL_ACTION = "APP_LIST_SCROLL_ACTION";
     public static final String APP_LIST_SCROLL_DIRECTION = "APP_LIST_SCROLL_DIRECTION";
-    // SECURITY_SETTINGS
-    public static final String SECURITY_SETTINGS_SCROLLABLE_ELEMENT =
-            "SECURITY_SETTINGS_SCROLLABLE_ELEMENT";
+
+    // Security Settings  Constants
+    public static final String SECURITY_SETTINGS_SCROLL_ELEMENT =
+            "SECURITY_SETTINGS_SCROLL_ELEMENT";
     public static final String SECURITY_SETTINGS_REMOVE_BUTTON = "SECURITY_SETTINGS_REMOVE_BUTTON";
     public static final String SECURITY_SETTINGS_LOCK_TYPE_NONE =
             "SECURITY_SETTINGS_LOCK_TYPE_NONE";
@@ -117,13 +119,15 @@ public class AutomotiveConfigConstants {
             "SECURITY_SETTINGS_CONTINUE_BUTTON";
     public static final String SECURITY_SETTINGS_CONFIRM_BUTTON =
             "SECURITY_SETTINGS_CONFIRM_BUTTON";
-    public static final String SECURITY_SETTINGS_CHOOSE_LOCK_TYPE = "Choose a lock type";
-    public static final String SECURITY_SCROLL_FORWARD_BUTTON = "SECURITY_SCROLL_FORWARD_BUTTON";
-    public static final String SECURITY_SCROLL_BACKWARD_BUTTON = "SECURITY_SCROLL_BACKWARD_BUTTON";
-    public static final String SECURITY_SCROLL_ACTION = "SECURITY_SCROLL_ACTION";
-    public static final String SECURITY_SCROLL_DIRECTION = "SECURITY_SCROLL_DIRECTION";
+    public static final String SECURITY_SETTINGS_SCROLL_FORWARD =
+            "SECURITY_SETTINGS_SCROLL_FORWARD";
+    public static final String SECURITY_SETTINGS_SCROLL_BACKWARD =
+            "SECURITY_SETTINGS_SCROLL_BACKWARD";
+    public static final String SECURITY_SETTINGS_SCROLL_ACTION = "SECURITY_SETTINGS_SCROLL_ACTION";
+    public static final String SECURITY_SETTINGS_SCROLL_DIRECTION =
+            "SECURITY_SETTINGS_SCROLL_DIRECTION";
 
-    // Lockscreen
+    // Lockscreen App Constants
     public static final String LOCK_SCREEN_PIN_PAD = "LOCK_SCREEN_PIN_PAD";
     public static final String LOCK_SCREEN_ENTER_KEY = "LOCK_SCREEN_ENTER_KEY";
     public static final String LOCK_SCREEN_PACKAGE = "LOCK_SCREEN_PACKAGE";
@@ -177,7 +181,7 @@ public class AutomotiveConfigConstants {
     public static final String SYSTEM_SETTINGS_SCROLL_WAIT_TIME =
             "SYSTEM_SETTINGS_SCROLL_WAIT_TIME";
 
-    // Date and time Constants
+    // Date and time Settings Constants
     public static final String DATE_TIME_SETTINGS_SCROLL_ACTION =
             "DATE_TIME_SETTINGS_SCROLL_ACTION";
     public static final String DATE_TIME_SETTINGS_SCROLL_DIRECTION =
@@ -219,7 +223,7 @@ public class AutomotiveConfigConstants {
     public static final String SOUND_SETTINGS_SCROLL_MARGIN = "SOUND_SETTINGS_SCROLL_MARGIN";
     public static final String SOUND_SETTINGS_SCROLL_WAIT_TIME = "SOUND_SETTINGS_SCROLL_WAIT_TIME";
 
-    // APPINFO SETTINGS CONSTANTS
+    // Setting Constants
     public static final String OPEN_SETTINGS_COMMAND = "OPEN_SETTINGS_COMMAND";
     public static final String STOP_SETTING_APP_COMMAND = "STOP_SETTING_APP_COMMAND";
     public static final String TOGGLE_WIFI = "TOGGLE_WIFI";
@@ -252,7 +256,7 @@ public class AutomotiveConfigConstants {
             "SETTINGS_SUB_SETTING_SCROLL_ELEMENT";
     public static final String SETTINGS_TITLE_TEXT = "SETTINGS_TITLE_TEXT";
 
-    // APPINFO SETTINGS CONSTANTS
+    // App Info Settings Constants
     public static final String APP_INFO_SETTINGS_SCROLL_ACTION = "APP_INFO_SETTINGS_SCROLL_ACTION";
     public static final String APP_INFO_SETTINGS_SCROLL_DIRECTION =
             "APP_INFO_SETTINGS_SCROLL_DIRECTION";
@@ -284,7 +288,7 @@ public class AutomotiveConfigConstants {
     public static final String APP_INFO_SETTINGS_SCROLL_WAIT_TIME =
             "APP_INFO_SETTINGS_SCROLL_WAIT_TIME";
 
-    // Settings User
+    // Settings User Constants
     public static final String USER_SETTINGS_PACKAGE = "USER_SETTINGS_PACKAGE";
     public static final String USER_SETTINGS_SCROLL_ACTION = "USER_SETTINGS_SCROLL_ACTION";
     public static final String USER_SETTINGS_SCROLL_DIRECTION = "USER_SETTINGS_SCROLL_DIRECTION";
