@@ -19,8 +19,8 @@
     "CONTACT_DETAILS_SCROLL_DIRECTION": "VERTICAL",
     "APP_LIST_SCROLL_ACTION": "USE_BUTTON",
     "APP_LIST_SCROLL_DIRECTION": "VERTICAL",
-    "SECURITY_SCROLL_ACTION": "USE_BUTTON",
-    "SECURITY_SCROLL_DIRECTION": "VERTICAL",
+    "SECURITY_SETTINGS_SCROLL_ACTION": "USE_BUTTON",
+    "SECURITY_SETTINGS_SCROLL_DIRECTION": "VERTICAL",
     "NOTIFICATION_LIST_SCROLL_ACTION": "USE_GESTURE",
     "NOTIFICATION_LIST_SCROLL_DIRECTION": "VERTICAL",
     "SYSTEM_SETTINGS_SCROLL_ACTION": "USE_GESTURE",
@@ -354,15 +354,11 @@
       "VALUE": "Continue"
     },
     "SECURITY_SETTINGS_CONFIRM_BUTTON": {
-      "TYPE": "TEXT",
+      "TYPE":"TEXT",
       "VALUE": "Confirm"
     },
-    "SECURITY_SETTINGS": {
-      "TYPE": "TEXT",
-      "VALUE": "SECURITY"
-    },
     "SECURITY_SETTINGS_ENTER_PIN_BUTTON": {
-      "TYPE": "RESOURCE_ID",
+      "TYPE":"RESOURCE_ID",
       "VALUE": "key_enter",
       "PACKAGE": "com.android.car.settings"
     },
@@ -379,17 +375,17 @@
       "TYPE": "TEXT",
       "VALUE": "Remove"
     },
-    "SECURITY_SETTINGS_SCROLLABLE_ELEMENT": {
+    "SECURITY_SETTINGS_SCROLL_ELEMENT": {
       "TYPE": "RESOURCE_ID",
       "VALUE": "car_ui_recycler_view",
       "PACKAGE": "com.android.car.ui.sharedlibrary"
     },
-    "SECURITY_SCROLL_FORWARD_BUTTON": {
+    "SECURITY_SETTINGS_SCROLL_FORWARD": {
       "TYPE": "RESOURCE_ID",
       "VALUE": "car_ui_scrollbar_page_down",
       "PACKAGE": "com.android.car.ui.sharedlibrary"
     },
-    "SECURITY_SCROLL_BACKWARD_BUTTON": {
+    "SECURITY_SETTINGS_SCROLL_BACKWARD": {
       "TYPE": "RESOURCE_ID",
       "VALUE": "car_ui_scrollbar_page_up",
       "PACKAGE": "com.android.car.ui.sharedlibrary"
