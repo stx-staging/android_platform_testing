@@ -105,7 +105,6 @@ public class AutomotiveConfigConstants {
     public static final String SECURITY_SETTINGS_PIN_PAD = "SECURITY_SETTINGS_PIN_PAD";
     public static final String SECURITY_SETTINGS_ENTER_PIN_BUTTON =
             "SECURITY_SETTINGS_ENTER_PIN_BUTTON";
-    public static final String SECURITY_SETTINGS = "SECURITY_SETTINGS";
     public static final String SECURITY_SETTINGS_LOCK_TYPE_PASSWORD =
             "SECURITY_SETTINGS_LOCK_TYPE_PASSWORD";
     public static final String SECURITY_SETTINGS_PACKAGE = "SECURITY_SETTINGS_PACKAGE";
@@ -131,7 +130,6 @@ public class AutomotiveConfigConstants {
     public static final String LOCK_TYPE_PASSWORD = "LOCK_TYPE_PASSWORD";
     public static final String LOCK_TYPE_PIN = "LOCK_TYPE_PIN";
     public static final String LOCK_SCREEN_CONTINUE_BUTTON = "LOCK_SCREEN_CONTINUE_BUTTON";
-    public static final String LOCK_SCREEN_SETTINGS_TEXT = "SECURITY";
 
     // Notification App Constants
     public static final String OPEN_NOTIFICATIONS_COMMAND = "OPEN_NOTIFICATIONS_COMMAND";
@@ -160,7 +158,6 @@ public class AutomotiveConfigConstants {
     public static final String SYSTEM_SETTINGS_SCROLL_BACKWARD_BUTTON =
             "SYSTEM_SETTINGS_SCROLL_BACKWARD_BUTTON";
     public static final String SYSTEM_SETTINGS_SCROLL_ELEMENT = "SYSTEM_SETTINGS_SCROLL_ELEMENT";
-    public static final String SYSTEM_SETTINGS = "SYSTEM";
     public static final String ABOUT_MENU = "ABOUT_MENU";
     public static final String RESET_OPTIONS_MENU = "RESET_OPTIONS_MENU";
     public static final String LANGUAGES_AND_INPUT_MENU = "LANGUAGES_AND_INPUT_MENU";
@@ -224,6 +221,38 @@ public class AutomotiveConfigConstants {
 
     // APPINFO SETTINGS CONSTANTS
     public static final String OPEN_SETTINGS_COMMAND = "OPEN_SETTINGS_COMMAND";
+    public static final String STOP_SETTING_APP_COMMAND = "STOP_SETTING_APP_COMMAND";
+    public static final String TOGGLE_WIFI = "TOGGLE_WIFI";
+    public static final String TOGGLE_HOTSPOT = "TOGGLE_HOTSPOT";
+    public static final String TOGGLE_BLUETOOTH = "TOGGLE_BLUETOOTH";
+    public static final String SEARCH = "SEARCH";
+    public static final String SEARCH_BOX = "SEARCH_BOX";
+    public static final String SEARCH_RESULTS = "SEARCH_RESULTS";
+    public static final String PAGE_TITLE = "PAGE_TITLE";
+    public static final String PERMISSIONS_PAGE_TITLE = "PERMISSIONS_PAGE_TITLE";
+
+    public static final String SOUND_SETTINGS = "OPEN_SOUND_SETTINGS_WORKFLOW";
+    public static final String NETWORK_AND_INTERNET_SETTINGS =
+            "OPEN_NETWORK_AND_INTERNET_SETTINGS_WORKFLOW";
+    public static final String BLUETOOTH_SETTINGS = "OPEN_BLUETOOTH_SETTINGS_WORKFLOW";
+    public static final String SYSTEM_SETTINGS = "OPEN_SYSTEM_SETTINGS_WORKFLOW";
+    public static final String PROFILE_ACCOUNT_SETTINGS = "OPEN_PROFILE_ACCOUNT_SETTINGS_WORKFLOW";
+    public static final String APPS_SETTINGS = "OPEN_APPS_SETTINGS_WORKFLOW";
+    public static final String SECURITY_SETTINGS = "OPEN_SECURITY_SETTINGS_WORKFLOW";
+
+    public static final String SETTINGS_SUB_SETTING_SCROLL_ACTION =
+            "SETTINGS_SUB_SETTING_SCROLL_ACTION";
+    public static final String SETTINGS_SUB_SETTING_SCROLL_DIRECTION =
+            "SETTINGS_SUB_SETTING_SCROLL_DIRECTION";
+    public static final String SETTINGS_SUB_SETTING_SCROLL_BACKWARD_BUTTON =
+            "SETTINGS_SUB_SETTING_SCROLL_BACKWARD_BUTTON";
+    public static final String SETTINGS_SUB_SETTING_SCROLL_FORWARD_BUTTON =
+            "SETTINGS_SUB_SETTING_SCROLL_FORWARD_BUTTON";
+    public static final String SETTINGS_SUB_SETTING_SCROLL_ELEMENT =
+            "SETTINGS_SUB_SETTING_SCROLL_ELEMENT";
+    public static final String SETTINGS_TITLE_TEXT = "SETTINGS_TITLE_TEXT";
+
+    // APPINFO SETTINGS CONSTANTS
     public static final String APP_INFO_SETTINGS_SCROLL_ACTION = "APP_INFO_SETTINGS_SCROLL_ACTION";
     public static final String APP_INFO_SETTINGS_SCROLL_DIRECTION =
             "APP_INFO_SETTINGS_SCROLL_DIRECTION";
