@@ -16,7 +16,19 @@
 
 package android.tools.device.flicker
 
+import android.app.Instrumentation
 import android.tools.common.datatypes.component.ComponentNameMatcher
+import androidx.test.platform.app.InstrumentationRegistry
+import com.android.server.wm.flicker.io.ResultReader
+import com.android.server.wm.flicker.io.ResultWriter
+import com.android.server.wm.flicker.monitor.EventLogMonitor
+import com.android.server.wm.flicker.monitor.LayersTraceMonitor
+import com.android.server.wm.flicker.monitor.ScreenRecorder
+import com.android.server.wm.flicker.monitor.TransactionsTraceMonitor
+import com.android.server.wm.flicker.monitor.TransitionsTraceMonitor
+import com.android.server.wm.flicker.monitor.WindowManagerTraceMonitor
+import com.android.server.wm.traces.common.IScenario
+import com.android.server.wm.traces.common.component.matchers.ComponentNameMatcher
 
 object Utils {
     fun componentMatcherParamsFromName(name: String): Pair<String, String> {
@@ -89,5 +101,33 @@ object Utils {
     fun componentNameMatcherAsStringFromName(str: String): String? {
         val componentMatcher = componentNameMatcherFromName(str)
         return componentMatcher?.componentNameMatcherToString()
+    }
+
+    fun captureTrace(scenario: IScenario, actions: (writer: ResultWriter) -> Unit): ResultReader {
+        val instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation()
+        val writer =
+            ResultWriter()
+                .forScenario(scenario)
+                .withOutputDir(getDefaultFlickerOutputDir())
+                .setRunComplete()
+        val monitors =
+            listOf(
+                ScreenRecorder(instrumentation.targetContext),
+                EventLogMonitor(),
+                TransactionsTraceMonitor(),
+                TransitionsTraceMonitor(),
+                WindowManagerTraceMonitor(),
+                LayersTraceMonitor()
+            )
+        try {
+            monitors.forEach { it.start() }
+            actions.invoke(writer)
+        } finally {
+            monitors.forEach { it.stop() }
+        }
+        monitors.forEach { it.setResult(writer) }
+        val result = writer.write()
+
+        return ResultReader(result, DEFAULT_TRACE_CONFIG)
     }
 }
