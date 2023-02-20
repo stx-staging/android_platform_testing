@@ -28,7 +28,7 @@ typealias TransitionsTransform =
     (transitions: List<Transition>, cujEntry: Cuj, reader: IReader) -> List<Transition>
 
 class TransitionMatcher(
-    private val mainTransform: TransitionsTransform,
+    private val mainTransform: TransitionsTransform = noOpTransitionsTransform,
     private val finalTransform: TransitionsTransform = noOpTransitionsTransform,
     private val associatedTransitionRequired: Boolean = true,
     // Transformations applied, in order, to all transitions the reader returns to end up with the

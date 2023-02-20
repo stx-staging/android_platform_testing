@@ -27,7 +27,7 @@ import kotlin.math.max
 class TaggedScenarioExtractor(
     val targetTag: CujType,
     val type: FaasScenarioType,
-    val transitionMatcher: ITransitionMatcher,
+    val transitionMatcher: ITransitionMatcher = TransitionMatcher(),
     val adjustCuj: (cujEntry: Cuj, reader: IReader) -> Cuj = { cujEntry, reader -> cujEntry }
 ) : IScenarioExtractor {
     override fun extract(reader: IReader): List<ScenarioInstance> {

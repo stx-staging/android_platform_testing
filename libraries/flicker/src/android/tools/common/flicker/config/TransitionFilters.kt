@@ -97,4 +97,37 @@ object TransitionFilters {
             )
         )
     }
+
+    val APP_CLOSE_TO_PIP_TRANSITION_FILTER: TransitionsTransform = { ts, _, _ ->
+        ts.filter { it.type == TransitionType.PIP }
+    }
+
+    val ENTER_SPLIT_SCREEN_FILTER: TransitionsTransform = { ts, _, _ ->
+        ts.filter { isSplitscreenEnterTransition(it) }
+    }
+
+    val EXIT_SPLIT_SCREEN_FILTER: TransitionsTransform = { ts, _, _ ->
+        ts.filter { isSplitscreenExitTransition(it) }
+    }
+
+    val RESIZE_SPLIT_SCREEN_FILTER: TransitionsTransform = { ts, _, _ ->
+        ts.filter { isSplitscreenResizeTransition(it) }
+    }
+
+    fun isSplitscreenEnterTransition(transition: Transition): Boolean {
+        return transition.type == TransitionType.SPLIT_SCREEN_PAIR_OPEN ||
+            transition.type == TransitionType.SPLIT_SCREEN_OPEN_TO_SIDE
+    }
+
+    fun isSplitscreenExitTransition(transition: Transition): Boolean {
+        return transition.type == TransitionType.SPLIT_DISMISS ||
+            transition.type == TransitionType.SPLIT_DISMISS_SNAP
+    }
+
+    fun isSplitscreenResizeTransition(transition: Transition): Boolean {
+        // This transition doesn't have a special type
+        return transition.type == TransitionType.CHANGE &&
+            transition.changes.size == 2 &&
+            transition.changes.all { change -> change.transitMode == TransitionType.CHANGE }
+    }
 }
