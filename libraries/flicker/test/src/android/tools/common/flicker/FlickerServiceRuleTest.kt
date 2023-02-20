@@ -205,6 +205,8 @@ class FlickerServiceRuleTest {
                 object : IFaasAssertion {
                     override val name: String
                         get() = "MockAssertion"
+                    override val scenarioInstance: IScenarioInstance
+                        get() = Mockito.mock(IScenarioInstance::class.java)
                     override val stabilityGroup: AssertionInvocationGroup
                         get() = AssertionInvocationGroup.BLOCKING
                     override fun evaluate(): IAssertionResult {

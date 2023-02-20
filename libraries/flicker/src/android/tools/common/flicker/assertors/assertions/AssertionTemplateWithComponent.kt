@@ -42,6 +42,7 @@ abstract class AssertionTemplateWithComponent(val component: ComponentTemplate) 
     override fun hashCode(): Int {
         var result = super.hashCode()
         result = 31 * result + component.hashCode()
+        result = 31 * result + assertionName.hashCode()
         return result
     }
 }
