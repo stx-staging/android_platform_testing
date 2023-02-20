@@ -19,19 +19,18 @@ package android.tools.device.flicker.junit
 import android.app.Instrumentation
 import android.tools.common.CrossPlatform
 import android.tools.common.FLICKER_TAG
-import android.tools.common.Scenario
 import android.tools.device.flicker.datastore.DataStore
 import android.tools.device.flicker.legacy.FlickerBuilder
 import android.tools.device.flicker.legacy.FlickerTest
 import androidx.test.platform.app.InstrumentationRegistry
+import com.android.server.wm.flicker.FlickerBuilder
+import com.android.server.wm.flicker.FlickerTest
 import java.lang.reflect.Modifier
-import org.junit.runner.Description
 import org.junit.runners.model.FrameworkMethod
 import org.junit.runners.model.TestClass
 
 abstract class AbstractFlickerRunnerDecorator(
     protected val testClass: TestClass,
-    protected val scenario: Scenario?,
     protected val inner: IFlickerJUnitDecorator?
 ) : IFlickerJUnitDecorator {
     protected val instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation()
