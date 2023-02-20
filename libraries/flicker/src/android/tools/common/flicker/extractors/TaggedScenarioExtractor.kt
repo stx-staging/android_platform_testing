@@ -26,8 +26,7 @@ import kotlin.math.max
 class TaggedScenarioExtractor(
     val targetTag: CujType,
     val type: FaasScenarioType,
-    val transitionMatcher: ITransitionMatcher,
-    val associatedTransitionRequired: Boolean = true
+    val transitionMatcher: ITransitionMatcher
 ) : IScenarioExtractor {
     override fun extract(reader: IReader): List<ScenarioInstance> {
 
@@ -60,19 +59,9 @@ class TaggedScenarioExtractor(
                     val transactionsTrace =
                         reader.readTransactionsTrace() ?: error("Missing transactions trace")
                     val finishTransaction =
-                        transactionsTrace.allTransactions.firstOrNull {
-                            it.id == associatedTransition.finishTransactionId
-                        }
-                            ?: error("Finish transaction not found")
-                    require(
-                        layersTrace.entries.first().vSyncId <= finishTransaction.appliedVSyncId &&
-                            finishTransaction.appliedVSyncId <= layersTrace.entries.last().vSyncId
-                    ) {
-                        "Finish transaction not in layer trace"
-                    }
-                    val appliedInLayerEntry =
-                        layersTrace.entries.first { it.vSyncId >= finishTransaction.appliedVSyncId }
-                    appliedInLayerEntry.timestamp
+                        associatedTransition.getFinishTransaction(transactionsTrace)
+                            ?: error("Couldn't find finish transaction")
+                    layersTrace.getEntryForTransaction(finishTransaction).timestamp
                 } else {
                     CrossPlatform.timestamp.min()
                 }

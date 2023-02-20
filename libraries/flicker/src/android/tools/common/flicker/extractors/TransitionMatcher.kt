@@ -16,7 +16,6 @@
 
 package android.tools.common.flicker.extractors
 
-import android.tools.common.MILLISECOND_AS_NANOSECONDS
 import android.tools.common.flicker.extractors.TransitionTransforms.inCujRangeFilter
 import android.tools.common.flicker.extractors.TransitionTransforms.mergeTrampolineTransitions
 import android.tools.common.flicker.extractors.TransitionTransforms.noOpTransitionsTransform
@@ -62,19 +61,26 @@ class TransitionMatcher(
 }
 
 object TransitionTransforms {
-    val inCujRangeFilter: TransitionsTransform = { transitions, cujEntry, _ ->
+    val inCujRangeFilter: TransitionsTransform = { transitions, cujEntry, reader ->
         transitions.filter { transition ->
             val transitionSentWithinCujTags =
                 cujEntry.startTimestamp <= transition.sendTime &&
                     transition.sendTime <= cujEntry.endTimestamp
 
-            // TODO: This threshold should be made more robust. Can fail to match on slower devices.
-            val toleranceNanos = 50 * MILLISECOND_AS_NANOSECONDS
-            val transitionSentJustBeforeCujStart =
-                cujEntry.startTimestamp - toleranceNanos <= transition.sendTime &&
-                    transition.sendTime <= cujEntry.startTimestamp
-
-            return@filter transitionSentWithinCujTags || transitionSentJustBeforeCujStart
+            val transactionsTrace =
+                reader.readTransactionsTrace() ?: error("Missing transactions trace")
+            val layersTrace = reader.readLayersTrace() ?: error("Missing layers trace")
+            val finishTransaction = transition.getFinishTransaction(transactionsTrace)
+            val transitionEndTimestamp =
+                if (finishTransaction != null) {
+                    layersTrace.getEntryForTransaction(finishTransaction).timestamp
+                } else {
+                    transition.finishTime
+                }
+            val cujStartsDuringTransition =
+                transition.sendTime <= cujEntry.startTimestamp &&
+                    cujEntry.startTimestamp <= transitionEndTimestamp
+            return@filter transitionSentWithinCujTags || cujStartsDuringTransition
         }
     }
 

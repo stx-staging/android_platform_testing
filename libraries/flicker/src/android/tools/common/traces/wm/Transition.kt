@@ -19,21 +19,30 @@ package android.tools.common.traces.wm
 import android.tools.common.ITraceEntry
 import android.tools.common.Timestamp
 import android.tools.common.traces.surfaceflinger.Transaction
+import android.tools.common.traces.surfaceflinger.TransactionsTrace
 import kotlin.js.JsName
 
 class Transition(
-    @JsName("start") val start: Timestamp,
+    @JsName("createTime") val createTime: Timestamp,
     @JsName("sendTime") val sendTime: Timestamp,
+    @JsName("finishTime") val finishTime: Timestamp,
     @JsName("startTransactionId") val startTransactionId: Long,
     @JsName("finishTransactionId") val finishTransactionId: Long,
     @JsName("changes") val changes: List<TransitionChange>,
     @JsName("played") val played: Boolean,
     @JsName("aborted") val aborted: Boolean
 ) : ITraceEntry {
-    override val timestamp = start
+    override val timestamp = createTime
 
-    @JsName("startTransaction") val startTransaction: Transaction? = null // TODO: Get
-    @JsName("finishTransaction") val finishTransaction: Transaction? = null // TODO: Get
+    @JsName("getStartTransaction")
+    fun getStartTransaction(transactionsTrace: TransactionsTrace): Transaction? {
+        return transactionsTrace.allTransactions.firstOrNull { it.id == this.startTransactionId }
+    }
+
+    @JsName("getFinishTransaction")
+    fun getFinishTransaction(transactionsTrace: TransactionsTrace): Transaction? {
+        return transactionsTrace.allTransactions.firstOrNull { it.id == this.finishTransactionId }
+    }
 
     @JsName("isIncomplete")
     val isIncomplete: Boolean
@@ -41,8 +50,8 @@ class Transition(
 
     override fun toString(): String =
         "Transition#${hashCode()}" +
-            "(\naborted=$aborted,\nstart=$start,\nsendTime=$sendTime,\n" +
-            "startTransaction=$startTransaction,\nfinishTransaction=$finishTransaction,\n" +
+            "(\naborted=$aborted,\nplayed=$played,\nstart=$createTime,\nsendTime=$sendTime,\n" +
+            "startTransactionId=$startTransactionId,\nfinishTransactionId=$finishTransactionId,\n" +
             "changes=[\n${changes.joinToString(",\n").prependIndent()}\n])"
 
     companion object {

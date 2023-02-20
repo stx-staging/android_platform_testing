@@ -49,7 +49,7 @@ class TransitionsTraceParser :
 
     override fun getEntries(
         input: TransitionTraceProto
-    ): List<com.android.server.wm.shell.nano.Transition> = input.sentTransitions.toList()
+    ): List<com.android.server.wm.shell.nano.Transition> = input.finishedTransitions.toList()
 
     override fun getTimestamp(entry: com.android.server.wm.shell.nano.Transition): Timestamp {
         return CrossPlatform.timestamp.from(elapsedNanos = entry.createTimeNs)
@@ -65,8 +65,9 @@ class TransitionsTraceParser :
             }
 
         return Transition(
-            start = CrossPlatform.timestamp.from(elapsedNanos = entry.createTimeNs),
+            createTime = CrossPlatform.timestamp.from(elapsedNanos = entry.createTimeNs),
             sendTime = CrossPlatform.timestamp.from(elapsedNanos = entry.sendTimeNs),
+            finishTime = CrossPlatform.timestamp.from(elapsedNanos = entry.finishTimeNs),
             startTransactionId = entry.startTransactionId,
             finishTransactionId = entry.finishTransactionId,
             changes = changes,

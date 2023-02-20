@@ -81,15 +81,18 @@ object TransitionFilters {
 
         listOf(
             Transition(
-                start = transitions[0].start,
+                createTime = transitions[0].createTime,
                 sendTime = transitions[0].sendTime,
+                // NOTE: Relies on the implementation detail that the second
+                // finishTransaction is merged into the first and applied.
+                finishTime = transitions[0].finishTime,
                 startTransactionId = transitions[0].startTransactionId,
                 // NOTE: Relies on the implementation detail that the second
                 // finishTransaction is merged into the first and applied.
                 finishTransactionId = transitions[0].finishTransactionId,
                 changes = listOf(closingAppChange, openingAppChange),
                 played = true,
-                aborted = false
+                aborted = false,
             )
         )
     }
