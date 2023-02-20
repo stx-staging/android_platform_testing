@@ -36,11 +36,12 @@ import org.junit.runners.model.FrameworkMethod
 import org.junit.runners.model.Statement
 import org.junit.runners.model.TestClass
 
-class FlickerServiceDecorator(
+class LegacyFlickerServiceDecorator(
     testClass: TestClass,
-    scenario: Scenario?,
+    val scenario: Scenario?,
+    val transitionRunner: ITransitionRunner,
     inner: IFlickerJUnitDecorator?
-) : AbstractFlickerRunnerDecorator(testClass, scenario, inner) {
+) : AbstractFlickerRunnerDecorator(testClass, inner) {
     private val arguments: Bundle = InstrumentationRegistry.getArguments()
     private val flickerService = FlickerService()
     private val metricsCollector: FlickerServiceResultsCollector? =
@@ -62,11 +63,11 @@ class FlickerServiceDecorator(
 
     override fun getChildDescription(method: FrameworkMethod?): Description? {
         requireNotNull(scenario) { "Expected to have a scenario to run" }
-        return if (method is FlickerServiceCachedTestCase) {
+        return if (method?.let { isMethodHandledByDecorator(it) } == true) {
             Description.createTestDescription(
                 testClass.javaClass,
                 "${method.name}[${scenario.description}]",
-                *method.getAnnotations()
+                *method.annotations
             )
         } else {
             inner?.getChildDescription(method)
@@ -90,14 +91,18 @@ class FlickerServiceDecorator(
         return object : Statement() {
             @Throws(Throwable::class)
             override fun evaluate() {
-                if (method is FlickerServiceCachedTestCase) {
+                if (isMethodHandledByDecorator(method)) {
                     val description = getChildDescription(method) ?: error("Missing description")
-                    method.execute(description)
+                    (method as InjectedTestCase).execute(description)
                 } else {
                     inner?.getMethodInvoker(method, test)?.evaluate()
                 }
             }
         }
+    }
+
+    private fun isMethodHandledByDecorator(method: FrameworkMethod): Boolean {
+        return method is InjectedTestCase && method.injectedBy == this
     }
 
     private fun shouldComputeTestMethods(): Boolean {
@@ -168,13 +173,17 @@ class FlickerServiceDecorator(
                 .distinct()
 
         val cachedResultMethod =
-            FlickerServiceCachedTestCase::class.java.getMethod("execute", Description::class.java)
+            InjectedTestCase::class.java.getMethod("execute", Description::class.java)
 
         val flickerServiceAnnotation =
             testClass.annotations.filterIsInstance<FlickerServiceCompatible>().first()
 
         return listOf(
-            CustomInjectedTestCase(cachedResultMethod, "FaaS_DetectedExpectedScenarios") {
+            AnonymousInjectedTestCase(
+                cachedResultMethod,
+                "FaaS_DetectedExpectedScenarios",
+                injectedBy = this
+            ) {
                 Truth.assertThat(detectedScenarios)
                     .containsAtLeastElementsIn(flickerServiceAnnotation.expectedCujs)
             }
@@ -186,7 +195,9 @@ class FlickerServiceDecorator(
                     value,
                     onlyBlocking,
                     metricsCollector,
-                    isLast = aggregateResults.keys.size == idx
+                    isLast = aggregateResults.keys.size == idx,
+                    injectedBy = this,
+                    paramString = scenario.description
                 )
             }
     }
@@ -198,7 +209,11 @@ class FlickerServiceDecorator(
                 this::class.java.simpleName,
                 "computeFlickerServiceTests"
             )
-        this.doRunTransition(test, description)
+
+        Log.d(FLICKER_TAG, "$scenario - Setting up FaaS")
+        if (!DataStore.containsResult(scenario)) {
+            transitionRunner.runTransition(scenario, test, description)
+        }
 
         val reader = CachedResultReader(scenario, DEFAULT_TRACE_CONFIG)
         val results = flickerService.process(reader)
@@ -210,6 +225,6 @@ class FlickerServiceDecorator(
     companion object {
         private const val FAAS_METRICS_PREFIX = "FAAS"
         private const val OPTION_NAME = "filter-tests"
-        private val LOG_TAG = FlickerServiceDecorator::class.java.simpleName
+        private val LOG_TAG = LegacyFlickerServiceDecorator::class.java.simpleName
     }
 }

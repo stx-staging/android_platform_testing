@@ -49,13 +49,13 @@ import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
 
 /**
- * Contains [FlickerBlockJUnit4ClassRunner] tests.
+ * Contains [LegacyFlickerJUnit4ClassRunner] tests.
  *
  * To run this test: `atest FlickerLibTest:FlickerBlockJUnit4ClassRunnerTest`
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @SuppressLint("VisibleForTests")
-class FlickerBlockJUnit4ClassRunnerTest {
+class LegacyFlickerJUnit4ClassRunnerTest {
     @Test
     fun doesNotRunWithEmptyTestParameter() {
         val testClass = TestClass(SimpleFaasTest::class.java)
@@ -327,7 +327,7 @@ class FlickerBlockJUnit4ClassRunnerTest {
 
         private fun createRunner(baseTest: TestWithParameters) =
             FlickerParametersRunnerFactory().createRunnerForTestWithParameters(baseTest)
-                as FlickerBlockJUnit4ClassRunner
+                as LegacyFlickerJUnit4ClassRunner
 
         @ClassRule @JvmField val initRule = InitRule()
     }

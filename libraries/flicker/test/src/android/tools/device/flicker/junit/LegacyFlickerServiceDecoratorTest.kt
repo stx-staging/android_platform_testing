@@ -30,10 +30,11 @@ import org.junit.ClassRule
 import org.junit.Test
 import org.junit.runners.model.TestClass
 import org.junit.runners.parameterized.TestWithParameters
+import org.mockito.Mockito
 
-/** Tests for [FlickerServiceDecorator] */
+/** Tests for [LegacyFlickerServiceDecorator] */
 @SuppressLint("VisibleForTests")
-class FlickerServiceDecoratorTest {
+class LegacyFlickerServiceDecoratorTest {
     @Before
     fun setup() {
         DataStore.clear()
@@ -47,7 +48,14 @@ class FlickerServiceDecoratorTest {
                 TestClass(TestUtils.DummyTestClassValid::class.java),
                 listOf(TestUtils.VALID_ARGS_EMPTY)
             )
-        val decorator = FlickerServiceDecorator(test.testClass, scenario = null, inner = null)
+        val mockTransitionRunner = Mockito.mock(ITransitionRunner::class.java)
+        val decorator =
+            LegacyFlickerServiceDecorator(
+                test.testClass,
+                scenario = null,
+                mockTransitionRunner,
+                inner = null
+            )
         var failures = decorator.doValidateConstructor()
         Truth.assertWithMessage("Failure count").that(failures).isEmpty()
 
@@ -60,13 +68,20 @@ class FlickerServiceDecoratorTest {
         val test =
             TestWithParameters(
                 "test",
-                TestClass(FlickerBlockJUnit4ClassRunnerTest.SimpleFaasTest::class.java),
+                TestClass(LegacyFlickerJUnit4ClassRunnerTest.SimpleFaasTest::class.java),
                 listOf(TestUtils.VALID_ARGS_EMPTY)
             )
-        val decorator = FlickerServiceDecorator(test.testClass, TEST_SCENARIO, inner = null)
+        val mockTransitionRunner = Mockito.mock(ITransitionRunner::class.java)
+        val decorator =
+            LegacyFlickerServiceDecorator(
+                test.testClass,
+                TEST_SCENARIO,
+                mockTransitionRunner,
+                inner = null
+            )
         val methods =
             decorator.getTestMethods(
-                FlickerBlockJUnit4ClassRunnerTest.SimpleFaasTest(FlickerTest())
+                LegacyFlickerJUnit4ClassRunnerTest.SimpleFaasTest(FlickerTest())
             )
         val duplicatedMethods = methods.groupBy { it.name }.filter { it.value.size > 1 }
 
@@ -128,7 +143,14 @@ class FlickerServiceDecoratorTest {
     private fun assertFailProviderMethod(cls: KClass<*>, expectedExceptions: List<String>) {
         val test =
             TestWithParameters("test", TestClass(cls.java), listOf(TestUtils.VALID_ARGS_EMPTY))
-        val decorator = FlickerServiceDecorator(test.testClass, scenario = null, inner = null)
+        val mockTransitionRunner = Mockito.mock(ITransitionRunner::class.java)
+        val decorator =
+            LegacyFlickerServiceDecorator(
+                test.testClass,
+                scenario = null,
+                mockTransitionRunner,
+                inner = null
+            )
         val failures = decorator.doValidateInstanceMethods()
         Truth.assertWithMessage("Failure count").that(failures).hasSize(expectedExceptions.count())
         expectedExceptions.forEachIndexed { idx, expectedException ->
@@ -143,7 +165,14 @@ class FlickerServiceDecoratorTest {
     private fun assertFailConstructor(args: List<Any>) {
         val test =
             TestWithParameters("test", TestClass(TestUtils.DummyTestClassEmpty::class.java), args)
-        val decorator = FlickerServiceDecorator(test.testClass, scenario = null, inner = null)
+        val mockTransitionRunner = Mockito.mock(ITransitionRunner::class.java)
+        val decorator =
+            LegacyFlickerServiceDecorator(
+                test.testClass,
+                scenario = null,
+                mockTransitionRunner,
+                inner = null
+            )
         val failures = decorator.doValidateConstructor()
 
         Truth.assertWithMessage("Failure count").that(failures).hasSize(1)

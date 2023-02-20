@@ -16,10 +16,16 @@
 
 package android.tools.device.flicker.junit
 
+import android.app.Instrumentation
 import android.os.Bundle
 import android.platform.test.util.TestFilter
+import android.tools.common.CrossPlatform
 import android.tools.common.Scenario
 import androidx.test.platform.app.InstrumentationRegistry
+import com.android.server.wm.flicker.FLICKER_TAG
+import com.android.server.wm.flicker.FlickerBuilder
+import com.android.server.wm.flicker.runner.TransitionRunner
+import com.android.server.wm.traces.common.IScenario
 import java.util.Collections
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
@@ -30,9 +36,6 @@ import org.junit.internal.runners.model.EachTestNotifier
 import org.junit.runner.Description
 import org.junit.runner.manipulation.Filter
 import org.junit.runner.manipulation.InvalidOrderingException
-import org.junit.runner.manipulation.NoTestsRemainException
-import org.junit.runner.manipulation.Orderable
-import org.junit.runner.manipulation.Orderer
 import org.junit.runner.manipulation.Sorter
 import org.junit.runner.notification.RunNotifier
 import org.junit.runner.notification.StoppedByUserException
@@ -62,16 +65,46 @@ import org.junit.runners.parameterized.TestWithParameters
  *     CloseAppBackButtonTest#launcherWindowBecomesVisible[ROTATION_90_GESTURAL_NAV]`
  * ```
  */
-class FlickerBlockJUnit4ClassRunner(test: TestWithParameters?, private val scenario: Scenario?) :
+class LegacyFlickerJUnit4ClassRunner(test: TestWithParameters?, private val scenario: Scenario?) :
     BlockJUnit4ClassRunnerWithParameters(test), IFlickerJUnitDecorator {
+
+    private val transitionRunner =
+        object : ITransitionRunner {
+            private val instrumentation: Instrumentation =
+                InstrumentationRegistry.getInstrumentation()
+
+            override fun runTransition(scenario: IScenario, test: Any, description: Description?) {
+                CrossPlatform.log.withTracing("LegacyFlickerJUnit4ClassRunner#runTransition") {
+                    CrossPlatform.log.v(FLICKER_TAG, "Creating flicker object for $scenario")
+                    val builder = getFlickerBuilder(test)
+                    CrossPlatform.log.v(FLICKER_TAG, "Creating flicker object for $scenario")
+                    val flicker = builder.build()
+                    val runner = TransitionRunner(scenario, instrumentation)
+                    CrossPlatform.log.v(FLICKER_TAG, "Running transition for $scenario")
+                    runner.execute(flicker, description)
+                }
+            }
+
+            private val providerMethod: FrameworkMethod
+                get() =
+                    Utils.getCandidateProviderMethods(testClass).firstOrNull()
+                        ?: error("Provider method not found")
+
+            private fun getFlickerBuilder(test: Any): FlickerBuilder {
+                CrossPlatform.log.v(FLICKER_TAG, "Obtaining flicker builder for $testClass")
+                return providerMethod.invokeExplosively(test) as FlickerBuilder
+            }
+        }
 
     private val arguments: Bundle = InstrumentationRegistry.getArguments()
     private val flickerDecorator =
         test?.let {
-            FlickerServiceDecorator(
+            LegacyFlickerServiceDecorator(
                 test.testClass,
                 scenario,
-                inner = LegacyFlickerDecorator(test.testClass, scenario, inner = this)
+                transitionRunner,
+                inner =
+                    LegacyFlickerDecorator(test.testClass, scenario, transitionRunner, inner = this)
             )
         }
 
@@ -207,6 +240,10 @@ class FlickerBlockJUnit4ClassRunner(test: TestWithParameters?, private val scena
     override fun getMethodInvoker(method: FrameworkMethod, test: Any): Statement {
         return super.methodInvoker(method, test)
     }
+
+    override fun shouldRunBeforeOn(method: FrameworkMethod): Boolean = true
+
+    override fun shouldRunAfterOn(method: FrameworkMethod): Boolean = true
 
     /**
      * ********************************************************************************************

@@ -28,6 +28,7 @@ import org.junit.Test
 import org.junit.runners.model.FrameworkMethod
 import org.junit.runners.model.TestClass
 import org.junit.runners.parameterized.TestWithParameters
+import org.mockito.Mockito
 
 /** Tests for [LegacyFlickerDecorator] */
 @SuppressLint("VisibleForTests")
@@ -47,10 +48,13 @@ class LegacyFlickerDecoratorTest {
                 TestClass(TestUtils.DummyTestClassValid::class.java),
                 listOf(TestUtils.VALID_ARGS_EMPTY)
             )
-        val helper = LegacyFlickerDecorator(test.testClass, scenario, inner = null)
+        val mockTransitionRunner = Mockito.mock(ITransitionRunner::class.java)
+        val helper =
+            LegacyFlickerDecorator(test.testClass, scenario, mockTransitionRunner, inner = null)
         Truth.assertWithMessage("Test method count").that(helper.getTestMethods(Any())).isEmpty()
     }
 
+    // TODO: Test on transition runner, instead just check that the transition runner is called here
     @Test
     fun runTransitionAndAddToDatastore() {
         val scenario =
@@ -61,7 +65,9 @@ class LegacyFlickerDecoratorTest {
                 TestClass(TestUtils.DummyTestClassValid::class.java),
                 listOf(TestUtils.VALID_ARGS_EMPTY)
             )
-        val helper = LegacyFlickerDecorator(test.testClass, scenario, inner = null)
+        val mockTransitionRunner = Mockito.mock(ITransitionRunner::class.java)
+        val helper =
+            LegacyFlickerDecorator(test.testClass, scenario, mockTransitionRunner, inner = null)
         TestUtils.executionCount = 0
         val method =
             FrameworkMethod(TestUtils.DummyTestClassValid::class.java.getMethod("dummyExecute"))
