@@ -30,6 +30,7 @@ import android.tools.device.flicker.datastore.DataStore
 import android.tools.device.flicker.isShellTransitionsEnabled
 import android.tools.device.traces.DEFAULT_TRACE_CONFIG
 import androidx.test.platform.app.InstrumentationRegistry
+import com.google.common.truth.Truth
 import org.junit.runner.Description
 import org.junit.runners.model.FrameworkMethod
 import org.junit.runners.model.Statement
@@ -161,18 +162,33 @@ class FlickerServiceDecorator(
         val aggregateResults =
             DataStore.getFlickerServiceResults(scenario).groupBy { it.assertion.name }
 
+        val detectedScenarios =
+            DataStore.getFlickerServiceResults(scenario)
+                .map { it.assertion.scenarioInstance.type }
+                .distinct()
+
         val cachedResultMethod =
             FlickerServiceCachedTestCase::class.java.getMethod("execute", Description::class.java)
-        return aggregateResults.keys.mapIndexed { idx, value ->
-            FlickerServiceCachedTestCase(
-                cachedResultMethod,
-                scenario,
-                value,
-                onlyBlocking,
-                metricsCollector,
-                isLast = aggregateResults.keys.size == idx
-            )
-        }
+
+        val flickerServiceAnnotation =
+            testClass.annotations.filterIsInstance<FlickerServiceCompatible>().first()
+
+        return listOf(
+            CustomInjectedTestCase(cachedResultMethod, "FaaS_DetectedExpectedScenarios") {
+                Truth.assertThat(detectedScenarios)
+                    .containsAtLeastElementsIn(flickerServiceAnnotation.expectedCujs)
+            }
+        ) +
+            aggregateResults.keys.mapIndexed { idx, value ->
+                FlickerServiceCachedTestCase(
+                    cachedResultMethod,
+                    scenario,
+                    value,
+                    onlyBlocking,
+                    metricsCollector,
+                    isLast = aggregateResults.keys.size == idx
+                )
+            }
     }
 
     private fun doRunFlickerService(test: Any): List<IAssertionResult> {
