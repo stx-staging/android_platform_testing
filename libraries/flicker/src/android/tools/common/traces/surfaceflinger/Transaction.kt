@@ -27,11 +27,10 @@ data class Transaction(
     @JsName("postTime") val postTime: Long,
     @JsName("id") val id: Long,
 ) {
-    lateinit var appliedInEntry: TransactionsTraceEntry
-        internal set
+    var appliedInEntry: TransactionsTraceEntry? = null
 
     val appliedVSyncId: Long
-        get() = appliedInEntry.vSyncId
+        get() = appliedInEntry?.vSyncId ?: 0
 
     override fun toString(): String {
         return "Transaction#${hashCode().toString(16)}" +

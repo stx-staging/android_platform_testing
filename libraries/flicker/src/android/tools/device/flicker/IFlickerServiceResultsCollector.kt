@@ -17,12 +17,11 @@
 package android.tools.device.flicker
 
 import android.tools.common.flicker.assertors.IAssertionResult
-import android.tools.device.flicker.legacy.runner.ExecutionError
 import org.junit.runner.Description
 import org.junit.runner.notification.Failure
 
 interface IFlickerServiceResultsCollector {
-    val executionErrors: List<ExecutionError>
+    val executionErrors: List<Throwable>
     fun testStarted(description: Description)
     fun testFailure(failure: Failure)
     fun testSkipped(description: Description)

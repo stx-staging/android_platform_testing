@@ -65,7 +65,7 @@ class TraceMonitorRule(
                     it.start()
                 } catch (e: Throwable) {
                     ArtifactSaver.onError(Utils.expandDescription(description, "startTrace"), e)
-                    throw TransitionTracingFailure(e)
+                    throw e
                 }
             }
         }
@@ -85,7 +85,7 @@ class TraceMonitorRule(
                                 e
                             )
                             CrossPlatform.log.e(FLICKER_TAG, "Unable to stop $it", e)
-                            throw TransitionTracingFailure(e)
+                            throw e
                         }
                     }
                 }

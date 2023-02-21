@@ -64,11 +64,7 @@ class TransitionExecutionRule(
                         base?.evaluate()
                     } catch (e: Throwable) {
                         ArtifactSaver.onError(Utils.expandDescription(description, "transition"), e)
-                        throw if (e is AssertionError) {
-                            e
-                        } else {
-                            TransitionExecutionFailure(e)
-                        }
+                        throw e
                     } finally {
                         doRunAfterTransition()
                     }

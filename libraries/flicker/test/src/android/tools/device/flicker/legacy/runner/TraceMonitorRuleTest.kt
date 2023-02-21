@@ -72,7 +72,7 @@ class TraceMonitorRuleTest {
     @Test
     fun executesWithStartFailure() {
         val failure =
-            assertThrows<TransitionTracingFailure> {
+            assertThrows<IllegalStateException> {
                 val rule = createRule(listOf(monitorWithExceptionStart))
                 rule.apply(base = null, description = Consts.description(this)).evaluate()
             }
@@ -84,7 +84,7 @@ class TraceMonitorRuleTest {
     @Test
     fun executesStartFailureMonitor2() {
         val failure =
-            assertThrows<TransitionTracingFailure> {
+            assertThrows<IllegalStateException> {
                 val rule = createRule(listOf(monitorWithExceptionStart, monitorWithoutException))
                 rule.apply(base = null, description = Consts.description(this)).evaluate()
             }
@@ -96,7 +96,7 @@ class TraceMonitorRuleTest {
     @Test
     fun executesWithStopFailure() {
         val failure =
-            assertThrows<TransitionTracingFailure> {
+            assertThrows<IllegalStateException> {
                 val rule = createRule(listOf(monitorWithExceptionStop))
                 rule.apply(base = null, description = Consts.description(this)).evaluate()
             }
@@ -108,7 +108,7 @@ class TraceMonitorRuleTest {
     @Test
     fun executesStopFailureMonitor2() {
         val failure =
-            assertThrows<TransitionTracingFailure> {
+            assertThrows<IllegalStateException> {
                 val rule = createRule(listOf(monitorWithExceptionStop, monitorWithoutException))
                 rule.apply(base = null, description = Consts.description(this)).evaluate()
             }

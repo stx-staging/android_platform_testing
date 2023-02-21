@@ -21,7 +21,7 @@ import android.app.Instrumentation
 import android.os.SystemClock
 import android.tools.InitRule
 import android.tools.TEST_SCENARIO
-import android.tools.assertExceptionMessageCause
+import android.tools.assertExceptionMessage
 import android.tools.common.io.RunStatus
 import android.tools.createMockedFlicker
 import android.tools.device.flicker.legacy.IFlickerTestData
@@ -115,7 +115,7 @@ class TransitionRunnerTest {
         dummyMonitor.validate()
         TestUtils.validateTransitionTime(result)
         Truth.assertWithMessage("Run status").that(reader.runStatus).isEqualTo(RunStatus.RUN_FAILED)
-        assertExceptionMessageCause(result.executionError, EMPTY_TRANSITIONS_ERROR)
+        assertExceptionMessage(result.executionError, EMPTY_TRANSITIONS_ERROR)
     }
 
     @Test
@@ -136,7 +136,7 @@ class TransitionRunnerTest {
         dummyMonitor.validate()
         TestUtils.validateTransitionTime(result)
         Truth.assertWithMessage("Run status").that(reader.runStatus).isEqualTo(RunStatus.RUN_FAILED)
-        assertExceptionMessageCause(result.executionError, Consts.FAILURE)
+        assertExceptionMessage(result.executionError, Consts.FAILURE)
     }
 
     @Test
@@ -157,7 +157,7 @@ class TransitionRunnerTest {
         dummyMonitor.validate()
         TestUtils.validateTransitionTimeIsEmpty(result)
         Truth.assertWithMessage("Run status").that(reader.runStatus).isEqualTo(RunStatus.RUN_FAILED)
-        assertExceptionMessageCause(result.executionError, Consts.FAILURE)
+        assertExceptionMessage(result.executionError, Consts.FAILURE)
     }
 
     @Test
@@ -178,7 +178,7 @@ class TransitionRunnerTest {
         dummyMonitor.validate()
         TestUtils.validateTransitionTime(result)
         Truth.assertWithMessage("Run status").that(reader.runStatus).isEqualTo(RunStatus.RUN_FAILED)
-        assertExceptionMessageCause(result.executionError, Consts.FAILURE)
+        assertExceptionMessage(result.executionError, Consts.FAILURE)
     }
 
     private fun assertContainsOrNot(value: String, hasValue: Boolean): String? {

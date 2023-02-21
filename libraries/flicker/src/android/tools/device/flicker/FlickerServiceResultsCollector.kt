@@ -25,7 +25,6 @@ import android.tools.common.flicker.AssertionInvocationGroup
 import android.tools.common.flicker.IFlickerService
 import android.tools.common.flicker.ITracesCollector
 import android.tools.common.flicker.assertors.IAssertionResult
-import android.tools.device.flicker.legacy.runner.ExecutionError
 import androidx.test.platform.app.InstrumentationRegistry
 import com.android.internal.annotations.VisibleForTesting
 import org.junit.runner.Description
@@ -46,7 +45,7 @@ class FlickerServiceResultsCollector(
     private var hasFailedTest = false
     private var testSkipped = false
 
-    private val _executionErrors = mutableListOf<ExecutionError>()
+    private val _executionErrors = mutableListOf<Throwable>()
     override val executionErrors
         get() = _executionErrors
 
@@ -186,7 +185,7 @@ class FlickerServiceResultsCollector(
             function()
         } catch (e: Throwable) {
             CrossPlatform.log.e(FLICKER_TAG, "Error executing in FlickerServiceResultsCollector", e)
-            _executionErrors.add(ExecutionError(e))
+            _executionErrors.add(e)
         }
     }
 

@@ -16,6 +16,7 @@
 
 package android.tools.common.flicker.extractors
 
+import android.tools.common.Rotation
 import android.tools.common.flicker.ScenarioInstance
 import android.tools.common.flicker.config.FaasScenarioType
 import android.tools.common.io.IReader
@@ -29,9 +30,9 @@ class EntireTraceExtractor(val type: FaasScenarioType) : IScenarioExtractor {
                 type,
                 startRotation =
                     layersTrace.entries.first().physicalDisplay?.transform?.getRotation()
-                        ?: error("Missing display"),
+                        ?: Rotation.ROTATION_0,
                 endRotation = layersTrace.entries.last().physicalDisplay?.transform?.getRotation()
-                        ?: error("Missing display"),
+                        ?: Rotation.ROTATION_0,
                 startTimestamp = layersTrace.entries.first().timestamp,
                 endTimestamp = layersTrace.entries.last().timestamp,
                 associatedCuj = null,

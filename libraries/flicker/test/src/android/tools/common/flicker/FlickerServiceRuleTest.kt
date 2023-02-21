@@ -23,7 +23,6 @@ import android.tools.common.flicker.assertors.IFaasAssertion
 import android.tools.device.flicker.IFlickerServiceResultsCollector
 import android.tools.device.flicker.isShellTransitionsEnabled
 import android.tools.device.flicker.legacy.runner.Consts
-import android.tools.device.flicker.legacy.runner.ExecutionError
 import android.tools.device.flicker.rules.FlickerServiceRule
 import android.tools.utils.KotlinMockito
 import com.google.common.truth.Truth
@@ -151,7 +150,7 @@ class FlickerServiceRuleTest {
             FlickerServiceRule(mockFlickerServiceResultsCollector, failTestOnFaasFailure = true)
         val mockDescription = Description.createTestDescription("MockClass", "mockTest")
 
-        val executionError = ExecutionError(Throwable(Consts.FAILURE))
+        val executionError = Throwable(Consts.FAILURE)
         `when`(mockFlickerServiceResultsCollector.executionErrors)
             .thenReturn(listOf(executionError))
 

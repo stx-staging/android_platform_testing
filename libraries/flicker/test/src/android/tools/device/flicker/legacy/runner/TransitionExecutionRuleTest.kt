@@ -87,22 +87,22 @@ class TransitionExecutionRuleTest {
     @Test
     fun throwsTransitionFailure() {
         val failure =
-            assertThrows<TransitionExecutionFailure> {
+            assertThrows<IllegalStateException> {
                 val rule = createRule(listOf(throwTransitionError))
                 rule.apply(base = null, description = Consts.description(this)).evaluate()
             }
-        assertExceptionMessageCause(failure, Consts.FAILURE)
+        assertExceptionMessage(failure, Consts.FAILURE)
         Truth.assertWithMessage("Transition executed").that(executed).isFalse()
     }
 
     @Test
     fun throwsTransitionFailureEmptyTransitions() {
         val failure =
-            assertThrows<TransitionExecutionFailure> {
+            assertThrows<IllegalArgumentException> {
                 val rule = createRule(listOf())
                 rule.apply(base = null, description = Consts.description(this)).evaluate()
             }
-        assertExceptionMessageCause(failure, EMPTY_TRANSITIONS_ERROR)
+        assertExceptionMessage(failure, EMPTY_TRANSITIONS_ERROR)
         Truth.assertWithMessage("Transition executed").that(executed).isFalse()
     }
 
@@ -152,7 +152,7 @@ class TransitionExecutionRuleTest {
     fun throwErrorCreateInvalidTagWithSpace() {
         val writer = newTestResultWriter()
         val failure =
-            assertThrows<TransitionExecutionFailure> {
+            assertThrows<IllegalArgumentException> {
                 val rule = createRule(listOf(runInvalidTagSpace), writer)
                 rule.apply(base = null, description = Consts.description(this)).evaluate()
             }
@@ -163,7 +163,7 @@ class TransitionExecutionRuleTest {
     fun throwErrorCreateInvalidTagDuplicate() {
         val writer = newTestResultWriter()
         val failure =
-            assertThrows<TransitionExecutionFailure> {
+            assertThrows<IllegalArgumentException> {
                 val rule = createRule(listOf(runCreateValidTags, runCreateValidTags), writer)
                 rule.apply(base = null, description = Consts.description(this)).evaluate()
             }
@@ -174,7 +174,7 @@ class TransitionExecutionRuleTest {
     fun throwErrorCreateInvalidTagWithUnderscore() {
         val writer = newTestResultWriter()
         val failure =
-            assertThrows<TransitionExecutionFailure> {
+            assertThrows<IllegalArgumentException> {
                 val rule = createRule(listOf(runInvalidTagUnderscore), writer)
                 rule.apply(base = null, description = Consts.description(this)).evaluate()
             }

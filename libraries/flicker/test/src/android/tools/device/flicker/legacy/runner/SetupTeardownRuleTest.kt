@@ -60,7 +60,7 @@ class SetupTeardownRuleTest {
     @Test
     fun throwsSetupFailureAndExecutesTeardown() {
         val failure =
-            assertThrows<TransitionSetupFailure> {
+            assertThrows<IllegalStateException> {
                 val rule = createRule(listOf(throwError, runSetup), listOf(runTeardown))
                 rule.apply(base = null, description = Consts.description(this)).evaluate()
             }
@@ -72,7 +72,7 @@ class SetupTeardownRuleTest {
     @Test
     fun throwsTeardownFailure() {
         val failure =
-            assertThrows<TransitionTeardownFailure> {
+            assertThrows<IllegalStateException> {
                 val rule = createRule(listOf(runSetup), listOf(throwError, runTeardown))
                 rule.apply(base = null, description = Consts.description(this)).evaluate()
             }

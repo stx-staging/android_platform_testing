@@ -60,7 +60,6 @@ class SetupTeardownRule(
         }
     }
 
-    @Throws(TransitionSetupFailure::class)
     private fun doRunTransitionSetup(description: Description?) {
         CrossPlatform.log.withTracing("doRunTransitionSetup") {
             Utils.notifyRunnerProgress(scenario, "Running transition setup for $description")
@@ -69,12 +68,11 @@ class SetupTeardownRule(
                 Utils.doWaitForUiStabilize(wmHelper)
             } catch (e: Throwable) {
                 ArtifactSaver.onError(Utils.expandDescription(description, "setup"), e)
-                throw TransitionSetupFailure(e)
+                throw e
             }
         }
     }
 
-    @Throws(TransitionTeardownFailure::class)
     private fun doRunTransitionTeardown(description: Description?) {
         CrossPlatform.log.withTracing("doRunTransitionTeardown") {
             Utils.notifyRunnerProgress(scenario, "Running transition teardown for $description")
@@ -83,7 +81,7 @@ class SetupTeardownRule(
                 Utils.doWaitForUiStabilize(wmHelper)
             } catch (e: Throwable) {
                 ArtifactSaver.onError(Utils.expandDescription(description, "teardown"), e)
-                throw TransitionTeardownFailure(e)
+                throw e
             }
         }
     }
