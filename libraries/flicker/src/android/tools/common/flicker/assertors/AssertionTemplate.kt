@@ -19,6 +19,7 @@ package android.tools.common.flicker.assertors
 import android.tools.common.flicker.AssertionInvocationGroup
 import android.tools.common.flicker.AssertionInvocationGroup.NON_BLOCKING
 import android.tools.common.flicker.IScenarioInstance
+import android.tools.common.flicker.subject.events.EventLogSubject
 import android.tools.common.flicker.subject.layers.LayersTraceSubject
 import android.tools.common.flicker.subject.wm.WindowManagerTraceSubject
 
@@ -42,6 +43,8 @@ abstract class AssertionTemplate : IAssertionTemplate {
                     scenarioInstance.reader.readWmTrace()?.let { WindowManagerTraceSubject(it) }
                 val layersTraceSubject =
                     scenarioInstance.reader.readLayersTrace()?.let { LayersTraceSubject(it) }
+                val eventLogSubject =
+                    scenarioInstance.reader.readEventLogTrace()?.let { EventLogSubject(it) }
 
                 var assertionError: Throwable? = null
                 try {
@@ -53,6 +56,9 @@ abstract class AssertionTemplate : IAssertionTemplate {
                     }
                     if (wmTraceSubject !== null && layersTraceSubject !== null) {
                         doEvaluate(scenarioInstance, wmTraceSubject, layersTraceSubject)
+                    }
+                    if (eventLogSubject != null) {
+                        doEvaluate(scenarioInstance, eventLogSubject)
                     }
                 } catch (e: Throwable) {
                     assertionError = e
@@ -94,6 +100,14 @@ abstract class AssertionTemplate : IAssertionTemplate {
         wmSubject: WindowManagerTraceSubject,
         layerSubject: LayersTraceSubject
     ) {
+        // Does nothing, unless overridden
+    }
+
+    /**
+     * Evaluates assertions that require the vent log. NOTE: Will not run if the event log traces is
+     * not available.
+     */
+    protected open fun doEvaluate(scenarioInstance: IScenarioInstance, evntlog: EventLogSubject) {
         // Does nothing, unless overridden
     }
 
