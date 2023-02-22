@@ -16,11 +16,10 @@
 
 package android.tools.common.traces.wm
 
-import android.tools.common.traces.wm.Transition.Companion.Type
 import kotlin.js.JsName
 
 class TransitionChange(
-    @JsName("transitMode") val transitMode: Type,
+    @JsName("transitMode") val transitMode: TransitionType,
     @JsName("layerId") val layerId: Int,
     @JsName("windowId") val windowId: Int,
     @JsName("windowingMode") val windowingMode: WindowingMode

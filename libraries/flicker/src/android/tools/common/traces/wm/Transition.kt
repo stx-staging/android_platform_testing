@@ -28,6 +28,7 @@ class Transition(
     @JsName("finishTime") val finishTime: Timestamp,
     @JsName("startTransactionId") val startTransactionId: Long,
     @JsName("finishTransactionId") val finishTransactionId: Long,
+    @JsName("type") val type: TransitionType,
     @JsName("changes") val changes: List<TransitionChange>,
     @JsName("played") val played: Boolean,
     @JsName("aborted") val aborted: Boolean
@@ -50,31 +51,8 @@ class Transition(
 
     override fun toString(): String =
         "Transition#${hashCode()}" +
-            "(\naborted=$aborted,\nplayed=$played,\nstart=$createTime,\nsendTime=$sendTime,\n" +
-            "startTransactionId=$startTransactionId,\nfinishTransactionId=$finishTransactionId,\n" +
-            "changes=[\n${changes.joinToString(",\n").prependIndent()}\n])"
-
-    companion object {
-        enum class Type(val value: Int) {
-            UNDEFINED(-1),
-            NONE(0),
-            OPEN(1),
-            CLOSE(2),
-            TO_FRONT(3),
-            TO_BACK(4),
-            RELAUNCH(5),
-            CHANGE(6),
-            KEYGUARD_GOING_AWAY(7),
-            KEYGUARD_OCCLUDE(8),
-            KEYGUARD_UNOCCLUDE(9),
-            PIP(10),
-            WAKE(11),
-            // START OF CUSTOM TYPES
-            FIRST_CUSTOM(12); // TODO: Add custom types we know about
-
-            companion object {
-                @JsName("fromInt") fun fromInt(value: Int) = values().first { it.value == value }
-            }
-        }
-    }
+            "(\ntype=$type\naborted=$aborted,\nplayed=$played," +
+            "\ncreateTime=$createTime,\nsendTime=$sendTime,\nfinishTime=$finishTime," +
+            "\nstartTransactionId=$startTransactionId,\nfinishTransactionId=$finishTransactionId," +
+            "\nchanges=[\n${changes.joinToString(",\n").prependIndent()}\n])"
 }

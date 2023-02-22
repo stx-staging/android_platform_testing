@@ -21,6 +21,7 @@ import android.tools.common.datatypes.component.FullComponentIdMatcher
 import android.tools.common.datatypes.component.IComponentMatcher
 import android.tools.common.flicker.IScenarioInstance
 import android.tools.common.traces.wm.Transition
+import android.tools.common.traces.wm.TransitionType
 
 object Components {
     val NAV_BAR = ComponentTemplate("Navbar") { ComponentNameMatcher.NAV_BAR }
@@ -46,8 +47,7 @@ object Components {
     private fun openingAppFrom(transition: Transition): IComponentMatcher {
         val targetChanges =
             transition.changes.filter {
-                it.transitMode == Transition.Companion.Type.OPEN ||
-                    it.transitMode == Transition.Companion.Type.TO_FRONT
+                it.transitMode == TransitionType.OPEN || it.transitMode == TransitionType.TO_FRONT
             }
 
         val openingLayerIds = targetChanges.map { it.layerId }
@@ -68,8 +68,7 @@ object Components {
     private fun closingAppFrom(transition: Transition): IComponentMatcher {
         val targetChanges =
             transition.changes.filter {
-                it.transitMode == Transition.Companion.Type.CLOSE ||
-                    it.transitMode == Transition.Companion.Type.TO_BACK
+                it.transitMode == TransitionType.CLOSE || it.transitMode == TransitionType.TO_BACK
             }
 
         val closingLayerIds = targetChanges.map { it.layerId }

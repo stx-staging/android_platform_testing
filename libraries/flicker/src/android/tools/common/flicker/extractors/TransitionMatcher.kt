@@ -22,6 +22,7 @@ import android.tools.common.flicker.extractors.TransitionTransforms.noOpTransiti
 import android.tools.common.io.IReader
 import android.tools.common.traces.events.Cuj
 import android.tools.common.traces.wm.Transition
+import android.tools.common.traces.wm.TransitionType
 
 typealias TransitionsTransform =
     (transitions: List<Transition>, cujEntry: Cuj, reader: IReader) -> List<Transition>
@@ -107,8 +108,8 @@ object TransitionTransforms {
         val candidateTaskLayers =
             firstTransition.changes
                 .filter {
-                    it.transitMode == Transition.Companion.Type.OPEN ||
-                        it.transitMode == Transition.Companion.Type.TO_FRONT
+                    it.transitMode == TransitionType.OPEN ||
+                        it.transitMode == TransitionType.TO_FRONT
                 }
                 .map { it.layerId }
         if (candidateTaskLayers.isEmpty()) {
@@ -131,13 +132,13 @@ object TransitionTransforms {
 
         val candidateTrampolinedActivities =
             secondTransition.changes
-                .filter { it.transitMode == Transition.Companion.Type.CLOSE }
+                .filter { it.transitMode == TransitionType.CLOSE }
                 .map { it.layerId }
         val candidateTargetActivities =
             secondTransition.changes
                 .filter {
-                    it.transitMode == Transition.Companion.Type.OPEN ||
-                        it.transitMode == Transition.Companion.Type.TO_FRONT
+                    it.transitMode == TransitionType.OPEN ||
+                        it.transitMode == TransitionType.TO_FRONT
                 }
                 .map { it.layerId }
         if (candidateTrampolinedActivities.isEmpty() || candidateTargetActivities.isEmpty()) {
