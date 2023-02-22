@@ -23,7 +23,6 @@ import android.tools.common.Scenario
 import android.tools.device.flicker.datastore.DataStore
 import android.tools.device.flicker.legacy.FlickerBuilder
 import android.tools.device.flicker.legacy.FlickerTest
-import android.tools.device.flicker.legacy.runner.TransitionRunner
 import androidx.test.platform.app.InstrumentationRegistry
 import java.lang.reflect.Modifier
 import org.junit.runner.Description
@@ -45,12 +44,20 @@ abstract class AbstractFlickerRunnerDecorator(
         return errors
     }
 
-    final override fun doValidateInstanceMethods(): List<Throwable> {
+    override fun doValidateInstanceMethods(): List<Throwable> {
         val errors = internalDoValidateInstanceMethods().toMutableList()
         if (errors.isEmpty()) {
             inner?.doValidateInstanceMethods()?.let { errors.addAll(it) }
         }
         return errors
+    }
+
+    override fun shouldRunBeforeOn(method: FrameworkMethod): Boolean {
+        return inner?.shouldRunBeforeOn(method) ?: true
+    }
+
+    override fun shouldRunAfterOn(method: FrameworkMethod): Boolean {
+        return inner?.shouldRunAfterOn(method) ?: true
     }
 
     private fun internalDoValidateConstructor(): List<Throwable> {

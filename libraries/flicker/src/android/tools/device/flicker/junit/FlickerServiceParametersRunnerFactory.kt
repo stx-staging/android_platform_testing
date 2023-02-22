@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 The Android Open Source Project
+ * Copyright (C) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,16 @@
 
 package android.tools.device.flicker.junit
 
-import com.android.server.wm.flicker.junit.InjectedTestCase
-import java.lang.reflect.Method
-import org.junit.runner.Description
+import org.junit.runner.Runner
+import org.junit.runners.parameterized.ParametersRunnerFactory
+import org.junit.runners.parameterized.TestWithParameters
 
-class AnonymousInjectedTestCase(
-    method: Method,
-    name: String,
-    injectedBy: IFlickerJUnitDecorator,
-    val assertion: () -> Unit
-) : InjectedTestCase(method, name, injectedBy) {
-    override fun execute(description: Description) {
-        assertion()
+/**
+ * A {@code FlickerRunnerFactory} creates a runner for a single {@link TestWithParameters}. Parses
+ * and executes assertions from a flicker DSL
+ */
+class FlickerServiceParametersRunnerFactory : ParametersRunnerFactory {
+    override fun createRunnerForTestWithParameters(test: TestWithParameters): Runner {
+        return FlickerServiceJUnit4ClassRunnerWithParameters(test)
     }
 }
