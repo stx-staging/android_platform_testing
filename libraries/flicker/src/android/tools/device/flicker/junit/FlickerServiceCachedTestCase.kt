@@ -26,16 +26,17 @@ import java.lang.reflect.Method
 import org.junit.Assume
 import org.junit.runner.Description
 import org.junit.runner.notification.Failure
-import org.junit.runners.model.FrameworkMethod
 
 class FlickerServiceCachedTestCase(
     method: Method,
     scenario: IScenario,
-    internal val assertionName: String,
+    assertionName: String,
     private val onlyBlocking: Boolean,
     private val metricsCollector: FlickerServiceResultsCollector?,
-    private val isLast: Boolean
-) : FrameworkMethod(method) {
+    private val isLast: Boolean,
+    injectedBy: IFlickerJUnitDecorator,
+    paramString: String = ""
+) : InjectedTestCase(method, "FaaS_$assertionName$paramString", injectedBy) {
     private val fullResults =
         DataStore.getFlickerServiceResultsForAssertion(scenario, assertionName)
     private val results: List<IAssertionResult>
@@ -44,13 +45,7 @@ class FlickerServiceCachedTestCase(
                 !onlyBlocking || it.assertion.stabilityGroup == AssertionInvocationGroup.BLOCKING
             }
 
-    override fun invokeExplosively(target: Any?, vararg params: Any?): Any {
-        error("Shouldn't have reached here")
-    }
-
-    override fun getName(): String = "FaaS_$assertionName"
-
-    fun execute(description: Description) {
+    override fun execute(description: Description) {
         val results = results
 
         if (isLast) {
