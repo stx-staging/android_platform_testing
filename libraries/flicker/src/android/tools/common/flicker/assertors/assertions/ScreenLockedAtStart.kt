@@ -14,19 +14,15 @@
  * limitations under the License.
  */
 
-package android.tools.common.flicker.assertors.assertions
+package com.android.server.wm.flicker.service.assertors.assertions
 
-import android.tools.common.flicker.IScenarioInstance
-import android.tools.common.flicker.assertors.ComponentTemplate
-import android.tools.common.flicker.subject.wm.WindowManagerTraceSubject
+import com.android.server.wm.flicker.service.IScenarioInstance
+import com.android.server.wm.flicker.service.assertors.AssertionTemplate
+import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
 
-class AppWindowIsVisibleAtStart(private val component: ComponentTemplate) :
-    AssertionTemplateWithComponent(component) {
-    /** {@inheritDoc} */
-    override fun doEvaluate(
-        scenarioInstance: IScenarioInstance,
-        wmSubject: WindowManagerTraceSubject
-    ) {
-        wmSubject.first().isAppWindowVisible(component.build(scenarioInstance))
+class ScreenLockedAtStart : AssertionTemplate() {
+
+    override fun doEvaluate(scenarioInstance: IScenarioInstance, layersTrace: LayersTraceSubject) {
+        layersTrace.first().isEmpty()
     }
 }

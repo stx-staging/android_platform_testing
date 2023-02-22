@@ -17,7 +17,18 @@
 package android.tools.device.flicker
 
 import android.app.Instrumentation
+import android.tools.common.IScenario
 import android.tools.common.datatypes.component.ComponentNameMatcher
+import android.tools.device.traces.DEFAULT_TRACE_CONFIG
+import android.tools.device.traces.getDefaultFlickerOutputDir
+import android.tools.device.traces.io.ResultReader
+import android.tools.device.traces.io.ResultWriter
+import android.tools.device.traces.monitors.ScreenRecorder
+import android.tools.device.traces.monitors.events.EventLogMonitor
+import android.tools.device.traces.monitors.surfaceflinger.LayersTraceMonitor
+import android.tools.device.traces.monitors.surfaceflinger.TransactionsTraceMonitor
+import android.tools.device.traces.monitors.wm.TransitionsTraceMonitor
+import android.tools.device.traces.monitors.wm.WindowManagerTraceMonitor
 import androidx.test.platform.app.InstrumentationRegistry
 import com.android.server.wm.flicker.io.ResultReader
 import com.android.server.wm.flicker.io.ResultWriter
@@ -31,22 +42,6 @@ import com.android.server.wm.traces.common.IScenario
 import com.android.server.wm.traces.common.component.matchers.ComponentNameMatcher
 
 object Utils {
-    fun componentMatcherParamsFromName(name: String): Pair<String, String> {
-        var packageName = ""
-        var className = ""
-        if (name.contains("/")) {
-            if (name.contains("#")) {
-                name.removeSuffix("#")
-            }
-            val splitString = name.split('/')
-            packageName = splitString[0]
-            className = splitString[1]
-        } else {
-            className = name
-        }
-        return Pair(packageName, className)
-    }
-
     fun componentNameMatcherHardcoded(str: String): ComponentNameMatcher? {
         return when (true) {
             str.contains("NavigationBar0") -> ComponentNameMatcher.NAV_BAR

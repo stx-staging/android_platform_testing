@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 The Android Open Source Project
+ * Copyright (C) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,24 @@
  * limitations under the License.
  */
 
-package android.tools.common.flicker.assertors.assertions
+package com.android.server.wm.flicker.service.assertors.assertions
 
-import android.tools.common.flicker.IScenarioInstance
-import android.tools.common.flicker.assertors.ComponentTemplate
-import android.tools.common.flicker.subject.wm.WindowManagerTraceSubject
+import com.android.server.wm.flicker.service.IScenarioInstance
+import com.android.server.wm.flicker.service.assertors.ComponentTemplate
+import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
 
-/** Checks if the [component] window is visible at the end of the transition */
-class NonAppWindowIsVisibleAtStart(private val component: ComponentTemplate) :
+/**
+ * Checks that the app layer doesn't exist or is invisible at the start of the transition, but is
+ * created and/or becomes visible during the transition.
+ */
+class WindowBecomesPinned(private val component: ComponentTemplate) :
     AssertionTemplateWithComponent(component) {
     /** {@inheritDoc} */
     override fun doEvaluate(
         scenarioInstance: IScenarioInstance,
         wmSubject: WindowManagerTraceSubject
     ) {
-        wmSubject.first().isNonAppWindowVisible(component.build(scenarioInstance))
+        val component = component.build(scenarioInstance)
+        wmSubject.isNotPinned(component).then().isPinned(component).forAllEntries()
     }
 }
