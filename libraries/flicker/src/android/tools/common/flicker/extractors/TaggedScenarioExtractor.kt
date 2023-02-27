@@ -20,13 +20,15 @@ import android.tools.common.CrossPlatform
 import android.tools.common.flicker.ScenarioInstance
 import android.tools.common.flicker.config.FaasScenarioType
 import android.tools.common.io.IReader
+import android.tools.common.traces.events.Cuj
 import android.tools.common.traces.events.CujType
 import kotlin.math.max
 
 class TaggedScenarioExtractor(
     val targetTag: CujType,
     val type: FaasScenarioType,
-    val transitionMatcher: ITransitionMatcher
+    val transitionMatcher: ITransitionMatcher,
+    val adjustCuj: (cujEntry: Cuj, reader: IReader) -> Cuj = { cujEntry, reader -> cujEntry }
 ) : IScenarioExtractor {
     override fun extract(reader: IReader): List<ScenarioInstance> {
 
@@ -35,7 +37,10 @@ class TaggedScenarioExtractor(
         val cujTrace = reader.readCujTrace() ?: error("Missing CUJ trace")
 
         val targetCujEntries =
-            cujTrace.entries.filter { it.cuj === targetTag }.filter { !it.canceled }
+            cujTrace.entries
+                .filter { it.cuj === targetTag }
+                .filter { !it.canceled }
+                .map { adjustCuj(it, reader) }
 
         if (targetCujEntries.isEmpty()) {
             // No scenarios to extract here
