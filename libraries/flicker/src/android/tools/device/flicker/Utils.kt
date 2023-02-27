@@ -30,16 +30,6 @@ import android.tools.device.traces.monitors.surfaceflinger.TransactionsTraceMoni
 import android.tools.device.traces.monitors.wm.TransitionsTraceMonitor
 import android.tools.device.traces.monitors.wm.WindowManagerTraceMonitor
 import androidx.test.platform.app.InstrumentationRegistry
-import com.android.server.wm.flicker.io.ResultReader
-import com.android.server.wm.flicker.io.ResultWriter
-import com.android.server.wm.flicker.monitor.EventLogMonitor
-import com.android.server.wm.flicker.monitor.LayersTraceMonitor
-import com.android.server.wm.flicker.monitor.ScreenRecorder
-import com.android.server.wm.flicker.monitor.TransactionsTraceMonitor
-import com.android.server.wm.flicker.monitor.TransitionsTraceMonitor
-import com.android.server.wm.flicker.monitor.WindowManagerTraceMonitor
-import com.android.server.wm.traces.common.IScenario
-import com.android.server.wm.traces.common.component.matchers.ComponentNameMatcher
 
 object Utils {
     fun componentNameMatcherHardcoded(str: String): ComponentNameMatcher? {
@@ -118,9 +108,8 @@ object Utils {
             monitors.forEach { it.start() }
             actions.invoke(writer)
         } finally {
-            monitors.forEach { it.stop() }
+            monitors.forEach { it.stop(writer) }
         }
-        monitors.forEach { it.setResult(writer) }
         val result = writer.write()
 
         return ResultReader(result, DEFAULT_TRACE_CONFIG)

@@ -16,10 +16,9 @@
 
 package android.tools.common.flicker.assertors.assertions
 
-import com.android.server.wm.flicker.service.IScenarioInstance
-import com.android.server.wm.flicker.service.assertors.ComponentTemplate
-import com.android.server.wm.flicker.traces.windowmanager.WindowManagerTraceSubject
-import com.google.common.truth.Truth
+import android.tools.common.flicker.IScenarioInstance
+import android.tools.common.flicker.assertors.ComponentTemplate
+import android.tools.common.flicker.subject.wm.WindowManagerTraceSubject
 
 /**
  * Checks that the app layer doesn't exist or is invisible at the start of the transition, but is
@@ -34,11 +33,10 @@ class HasAtMostOneWindowMatching(private val component: ComponentTemplate) :
     ) {
         wmSubject
             .invoke("HasAtMostOneWindowMatching") {
+                val matcher = component.build(scenarioInstance)
                 val windowCount =
-                    it.wmState.windowStates.count { window ->
-                        component.build(scenarioInstance).windowMatchesAnyOf(window)
-                    }
-                Truth.assertThat(windowCount).isAtMost(1)
+                    it.wmState.windowStates.count { window -> matcher.windowMatchesAnyOf(window) }
+                require(windowCount <= 1) { "Matched more than 1 $matcher" }
             }
             .forAllEntries()
     }

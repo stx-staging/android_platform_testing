@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.annotation
+package android.tools.device.flicker.annotation
 
-import com.android.server.wm.flicker.service.config.FaasScenarioType
+import android.tools.common.flicker.config.FaasScenarioType
 
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)

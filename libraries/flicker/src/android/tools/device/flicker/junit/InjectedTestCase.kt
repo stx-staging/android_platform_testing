@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.junit
+package android.tools.device.flicker.junit
 
 import java.lang.reflect.Method
 import org.junit.runner.Description

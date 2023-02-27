@@ -18,6 +18,7 @@ package android.tools.common.traces.surfaceflinger
 
 import android.tools.common.datatypes.Rect
 import android.tools.common.datatypes.Size
+import android.tools.common.traces.wm.DisplayContent
 import android.tools.common.withCache
 import kotlin.js.JsExport
 import kotlin.js.JsName

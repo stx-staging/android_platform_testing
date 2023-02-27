@@ -16,7 +16,7 @@
 
 package android.tools.device.flicker.annotation
 
-import com.android.server.wm.flicker.service.config.FaasScenarioType
+import android.tools.common.flicker.config.FaasScenarioType
 
 /**
  * Annotate your Flicker test class with this annotation to enable Flicker as a Service on the

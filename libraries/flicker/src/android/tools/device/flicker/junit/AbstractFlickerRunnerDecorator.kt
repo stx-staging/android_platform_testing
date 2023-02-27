@@ -19,12 +19,9 @@ package android.tools.device.flicker.junit
 import android.app.Instrumentation
 import android.tools.common.CrossPlatform
 import android.tools.common.FLICKER_TAG
-import android.tools.device.flicker.datastore.DataStore
 import android.tools.device.flicker.legacy.FlickerBuilder
 import android.tools.device.flicker.legacy.FlickerTest
 import androidx.test.platform.app.InstrumentationRegistry
-import com.android.server.wm.flicker.FlickerBuilder
-import com.android.server.wm.flicker.FlickerTest
 import java.lang.reflect.Modifier
 import org.junit.runners.model.FrameworkMethod
 import org.junit.runners.model.TestClass
@@ -110,21 +107,6 @@ abstract class AbstractFlickerRunnerDecorator(
         }
 
         return errors
-    }
-
-    protected fun doRunTransition(test: Any, description: Description?) {
-        CrossPlatform.log.d(FLICKER_TAG, "$scenario - Setting up FaaS")
-        val scenario = scenario
-        requireNotNull(scenario) { "Expected to have a scenario to run" }
-        if (!DataStore.containsResult(scenario)) {
-            CrossPlatform.log.v(FLICKER_TAG, "Creating flicker object for $scenario")
-            val builder = getFlickerBuilder(test)
-            CrossPlatform.log.v(FLICKER_TAG, "Creating flicker object for $scenario")
-            val flicker = builder.build()
-            val runner = TransitionRunner(scenario, instrumentation)
-            CrossPlatform.log.v(FLICKER_TAG, "Running transition for $scenario")
-            runner.execute(flicker, description)
-        }
     }
 
     private val providerMethod: FrameworkMethod

@@ -36,7 +36,7 @@ internal constructor(
     _extraConfig: Map<String, Any?>,
     override val description: String
 ) : IScenario {
-    val extraConfig = _extraConfig.toMutableMap()
+    internal val extraConfig = _extraConfig.toMutableMap()
 
     override val isEmpty = testClass.isEmpty()
 

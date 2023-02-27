@@ -16,11 +16,11 @@
 
 package android.tools.common.flicker.assertors.assertions
 
-import com.android.server.wm.flicker.service.IScenarioInstance
-import com.android.server.wm.flicker.service.assertors.ComponentTemplate
-import com.android.server.wm.flicker.traces.eventlog.EventLogSubject
-import com.android.server.wm.traces.common.component.matchers.ComponentNameMatcher
-import com.android.server.wm.traces.common.component.matchers.IComponentNameMatcher
+import android.tools.common.datatypes.component.ComponentNameMatcher
+import android.tools.common.datatypes.component.IComponentNameMatcher
+import android.tools.common.flicker.IScenarioInstance
+import android.tools.common.flicker.assertors.ComponentTemplate
+import android.tools.common.flicker.subject.events.EventLogSubject
 
 val ANY_MATCH_COMPONENT = ComponentTemplate("ANY") { _ -> ComponentNameMatcher("", "") }
 

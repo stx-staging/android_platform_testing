@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.junit
+package android.tools.device.flicker.junit
 
-import com.android.server.wm.traces.common.IScenario
+import android.tools.common.IScenario
 import org.junit.runner.Description
 
 interface ITransitionRunner {

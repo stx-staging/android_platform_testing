@@ -20,15 +20,18 @@ import android.app.Instrumentation
 import android.os.Bundle
 import android.platform.test.util.TestFilter
 import android.tools.common.CrossPlatform
+import android.tools.common.FLICKER_TAG
+import android.tools.common.IScenario
 import android.tools.common.Scenario
+import android.tools.device.flicker.legacy.FlickerBuilder
+import android.tools.device.flicker.legacy.runner.TransitionRunner
 import androidx.test.platform.app.InstrumentationRegistry
-import com.android.server.wm.flicker.FLICKER_TAG
-import com.android.server.wm.flicker.FlickerBuilder
-import com.android.server.wm.flicker.runner.TransitionRunner
-import com.android.server.wm.traces.common.IScenario
 import java.util.Collections
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
+import kotlin.Comparator
+import kotlin.collections.ArrayList
+import kotlin.collections.LinkedHashMap
 import org.junit.FixMethodOrder
 import org.junit.Ignore
 import org.junit.internal.AssumptionViolatedException
@@ -36,12 +39,16 @@ import org.junit.internal.runners.model.EachTestNotifier
 import org.junit.runner.Description
 import org.junit.runner.manipulation.Filter
 import org.junit.runner.manipulation.InvalidOrderingException
+import org.junit.runner.manipulation.NoTestsRemainException
+import org.junit.runner.manipulation.Orderable
+import org.junit.runner.manipulation.Orderer
 import org.junit.runner.manipulation.Sorter
 import org.junit.runner.notification.RunNotifier
 import org.junit.runner.notification.StoppedByUserException
 import org.junit.runners.model.FrameworkMethod
 import org.junit.runners.model.RunnerScheduler
 import org.junit.runners.model.Statement
+import org.junit.runners.model.TestClass
 import org.junit.runners.parameterized.BlockJUnit4ClassRunnerWithParameters
 import org.junit.runners.parameterized.TestWithParameters
 
@@ -87,7 +94,7 @@ class LegacyFlickerJUnit4ClassRunner(test: TestWithParameters?, private val scen
 
             private val providerMethod: FrameworkMethod
                 get() =
-                    Utils.getCandidateProviderMethods(testClass).firstOrNull()
+                    getCandidateProviderMethods(testClass).firstOrNull()
                         ?: error("Provider method not found")
 
             private fun getFlickerBuilder(test: Any): FlickerBuilder {
@@ -95,6 +102,9 @@ class LegacyFlickerJUnit4ClassRunner(test: TestWithParameters?, private val scen
                 return providerMethod.invokeExplosively(test) as FlickerBuilder
             }
         }
+
+    private fun getCandidateProviderMethods(testClass: TestClass): List<FrameworkMethod> =
+        testClass.getAnnotatedMethods(FlickerBuilderProvider::class.java) ?: emptyList()
 
     private val arguments: Bundle = InstrumentationRegistry.getArguments()
     private val flickerDecorator =

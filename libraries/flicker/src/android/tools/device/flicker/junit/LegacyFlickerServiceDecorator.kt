@@ -210,7 +210,6 @@ class LegacyFlickerServiceDecorator(
                 "computeFlickerServiceTests"
             )
 
-        Log.d(FLICKER_TAG, "$scenario - Setting up FaaS")
         if (!DataStore.containsResult(scenario)) {
             transitionRunner.runTransition(scenario, test, description)
         }

@@ -17,8 +17,7 @@
 package android.tools.device.flicker.junit
 
 import android.tools.common.Scenario
-import com.android.server.wm.flicker.Scenario
-import com.android.server.wm.flicker.datastore.DataStore
+import android.tools.device.flicker.datastore.DataStore
 import org.junit.runner.Description
 import org.junit.runners.model.FrameworkMethod
 import org.junit.runners.model.Statement

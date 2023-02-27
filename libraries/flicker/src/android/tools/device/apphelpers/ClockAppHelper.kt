@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.helpers
+package android.tools.device.apphelpers
 
 import android.app.Instrumentation
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.provider.AlarmClock
-import com.android.server.wm.traces.common.component.matchers.ComponentNameMatcher
+import android.tools.common.datatypes.component.ComponentNameMatcher
 
 /** Helper to launch the Camera app. */
 class ClockAppHelper

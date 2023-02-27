@@ -16,7 +16,6 @@
 
 package android.tools.device.flicker.junit
 
-import com.android.server.wm.flicker.junit.InjectedTestCase
 import java.lang.reflect.Method
 import org.junit.runner.Description
 

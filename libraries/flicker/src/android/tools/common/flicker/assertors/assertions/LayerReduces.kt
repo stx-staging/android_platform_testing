@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.android.server.wm.flicker.service.assertors.assertions
+package android.tools.common.flicker.assertors.assertions
 
-import com.android.server.wm.flicker.service.IScenarioInstance
-import com.android.server.wm.flicker.service.assertors.ComponentTemplate
-import com.android.server.wm.flicker.traces.layers.LayersTraceSubject
+import android.tools.common.flicker.IScenarioInstance
+import android.tools.common.flicker.assertors.ComponentTemplate
+import android.tools.common.flicker.subject.layers.LayersTraceSubject
 
 class LayerReduces(private val component: ComponentTemplate) :
     AssertionTemplateWithComponent(component) {
