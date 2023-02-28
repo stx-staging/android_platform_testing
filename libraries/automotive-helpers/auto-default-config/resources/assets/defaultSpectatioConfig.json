@@ -613,17 +613,17 @@
     "SOUND_SETTINGS_SCROLL_ELEMENT": {
       "TYPE": "RESOURCE_ID",
       "VALUE": "car_ui_internal_recycler_view",
-      "PACKAGE": "com.android.car.ui.sharedlibrary"
+      "PACKAGE": "com.android.car.settings"
     },
     "SOUND_SETTINGS_SCROLL_FORWARD_BUTTON": {
       "TYPE": "RESOURCE_ID",
       "VALUE": "car_ui_scrollbar_page_down",
-      "PACKAGE": "com.android.car.ui.sharedlibrary"
+      "PACKAGE": "com.android.car.settings"
     },
     "SOUND_SETTINGS_SCROLL_BACKWARD_BUTTON": {
       "TYPE": "RESOURCE_ID",
       "VALUE": "car_ui_scrollbar_page_up",
-      "PACKAGE": "com.android.car.ui.sharedlibrary"
+      "PACKAGE": "com.android.car.settings"
     },
     "SOUND_SETTINGS_SAVE_BUTTON": {
       "TYPE": "DESCRIPTION",
