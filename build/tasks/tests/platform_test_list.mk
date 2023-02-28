@@ -94,6 +94,7 @@ platform_tests += \
     SmokeTest \
     SmokeTestApp \
     SysAppJankTestsWear \
+    SystemUpdatesUtil \
     TouchLatencyJankTestWear \
     trace_config.textproto \
     trace_config_detailed.textproto \
