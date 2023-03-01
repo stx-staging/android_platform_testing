@@ -16,6 +16,7 @@
 
 package android.tools.device.flicker.junit
 
+import android.platform.test.rule.ArtifactSaver
 import android.tools.common.IScenario
 import android.tools.common.ScenarioBuilder
 import android.tools.common.io.IReader
@@ -122,12 +123,15 @@ class FlickerServiceDecorator(
         return object : Statement() {
             @Throws(Throwable::class)
             override fun evaluate() {
+                val description = getChildDescription(method) ?: error("Missing description")
                 if (isMethodHandledByDecorator(method)) {
-                    val description = getChildDescription(method) ?: error("Missing description")
                     (method as InjectedTestCase).execute(description)
                 } else {
                     if (innerMethodsResults.containsKey(method)) {
-                        innerMethodsResults[method]?.let { throw it }
+                        innerMethodsResults[method]?.let {
+                            ArtifactSaver.onError(description, it)
+                            throw it
+                        }
                     } else {
                         inner?.getMethodInvoker(method, test)?.evaluate()
                     }
