@@ -54,7 +54,7 @@ class AssertionFactoryTest {
         Truth.assertThat(assertions.map { it.name })
             .containsExactlyElementsIn(
                 FlickerServiceConfig.getScenarioConfigFor(type = type).assertionTemplates.map {
-                    it.assertionName
+                    "$type::${it.assertionName}"
                 }
             )
     }

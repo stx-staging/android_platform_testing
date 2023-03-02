@@ -26,6 +26,7 @@ import android.tools.common.Scenario
 import android.tools.device.flicker.legacy.FlickerBuilder
 import android.tools.device.flicker.legacy.runner.TransitionRunner
 import androidx.test.platform.app.InstrumentationRegistry
+import com.google.common.annotations.VisibleForTesting
 import java.util.Collections
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
@@ -75,7 +76,8 @@ import org.junit.runners.parameterized.TestWithParameters
 class LegacyFlickerJUnit4ClassRunner(test: TestWithParameters?, private val scenario: Scenario?) :
     BlockJUnit4ClassRunnerWithParameters(test), IFlickerJUnitDecorator {
 
-    private val transitionRunner =
+    @VisibleForTesting
+    val transitionRunner =
         object : ITransitionRunner {
             private val instrumentation: Instrumentation =
                 InstrumentationRegistry.getInstrumentation()

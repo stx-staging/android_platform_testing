@@ -28,6 +28,7 @@ import android.tools.device.flicker.legacy.IFlickerTestData
 import android.tools.device.traces.DEFAULT_TRACE_CONFIG
 import android.tools.device.traces.io.ResultReader
 import android.tools.device.traces.io.ResultWriter
+import android.tools.device.traces.monitors.TraceMonitor
 import android.tools.device.traces.parsers.WindowManagerStateHelper
 import android.tools.newTestResultWriter
 import androidx.test.platform.app.InstrumentationRegistry
@@ -192,6 +193,8 @@ class TransitionExecutionRuleTest {
         ): TransitionExecutionRule {
             val instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation()
             val mockedFlicker = Mockito.mock(AbstractFlickerTestData::class.java)
+            val mockedMonitor = Mockito.mock(TraceMonitor::class.java)
+            Mockito.`when`(mockedFlicker.traceMonitors).thenReturn(listOf(mockedMonitor))
             return TransitionExecutionRule(
                 mockedFlicker,
                 writer,

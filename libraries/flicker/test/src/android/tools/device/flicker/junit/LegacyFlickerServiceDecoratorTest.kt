@@ -71,12 +71,12 @@ class LegacyFlickerServiceDecoratorTest {
                 TestClass(LegacyFlickerJUnit4ClassRunnerTest.SimpleFaasTest::class.java),
                 listOf(TestUtils.VALID_ARGS_EMPTY)
             )
-        val mockTransitionRunner = Mockito.mock(ITransitionRunner::class.java)
+        val transitionRunner = LegacyFlickerJUnit4ClassRunner(test, TEST_SCENARIO).transitionRunner
         val decorator =
             LegacyFlickerServiceDecorator(
                 test.testClass,
                 TEST_SCENARIO,
-                mockTransitionRunner,
+                transitionRunner,
                 inner = null
             )
         val methods =

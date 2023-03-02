@@ -54,9 +54,8 @@ class LegacyFlickerDecoratorTest {
         Truth.assertWithMessage("Test method count").that(helper.getTestMethods(Any())).isEmpty()
     }
 
-    // TODO: Test on transition runner, instead just check that the transition runner is called here
     @Test
-    fun runTransitionAndAddToDatastore() {
+    fun callsTransitionRunnerToRunTransition() {
         val scenario =
             ScenarioBuilder().forClass(TestUtils.DummyTestClassValid::class.java.name).build()
         val test =
@@ -66,13 +65,42 @@ class LegacyFlickerDecoratorTest {
                 listOf(TestUtils.VALID_ARGS_EMPTY)
             )
         val mockTransitionRunner = Mockito.mock(ITransitionRunner::class.java)
-        val helper =
+        val decorator =
             LegacyFlickerDecorator(test.testClass, scenario, mockTransitionRunner, inner = null)
         TestUtils.executionCount = 0
         val method =
             FrameworkMethod(TestUtils.DummyTestClassValid::class.java.getMethod("dummyExecute"))
+        val description = decorator.getChildDescription(method)
+        val invokerTest = TestUtils.DummyTestClassValid(FlickerTest())
+        decorator
+            .getMethodInvoker(
+                method,
+                test = invokerTest,
+            )
+            .evaluate()
+
+        Mockito.verify(mockTransitionRunner).runTransition(scenario, invokerTest, description)
+    }
+
+    @Test
+    fun legacyTransitionRunnerRunsTransitionOnceAndCachesToDatastore() {
+        val scenario =
+            ScenarioBuilder().forClass(TestUtils.DummyTestClassValid::class.java.name).build()
+        val test =
+            TestWithParameters(
+                "test",
+                TestClass(TestUtils.DummyTestClassValid::class.java),
+                listOf(TestUtils.VALID_ARGS_EMPTY)
+            )
+        val transitionRunner = LegacyFlickerJUnit4ClassRunner(test, scenario).transitionRunner
+
+        val decorator =
+            LegacyFlickerDecorator(test.testClass, scenario, transitionRunner, inner = null)
+        TestUtils.executionCount = 0
+        val method =
+            FrameworkMethod(TestUtils.DummyTestClassValid::class.java.getMethod("dummyExecute"))
         repeat(3) {
-            helper
+            decorator
                 .getMethodInvoker(
                     method,
                     test = TestUtils.DummyTestClassValid(FlickerTest()),

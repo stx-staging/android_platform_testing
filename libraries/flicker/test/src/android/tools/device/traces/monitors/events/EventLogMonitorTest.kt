@@ -324,7 +324,8 @@ class EventLogMonitorTest : TraceMonitorTest<EventLogMonitor>() {
             CujType.CUJ_NOTIFICATION_APP_START.ordinal,
             now.unixNanos,
             now.elapsedNanos,
-            now.systemUptimeNanos
+            now.systemUptimeNanos,
+            ""
         )
         now = now()
         EventLogTags.writeJankCujEventsEndRequest(
@@ -352,7 +353,8 @@ class EventLogMonitorTest : TraceMonitorTest<EventLogMonitor>() {
             CujType.CUJ_LAUNCHER_QUICK_SWITCH.ordinal,
             now.unixNanos,
             now.elapsedNanos,
-            now.systemUptimeNanos
+            now.systemUptimeNanos,
+            ""
         )
         now = now()
         EventLogTags.writeJankCujEventsEndRequest(
@@ -397,7 +399,8 @@ class EventLogMonitorTest : TraceMonitorTest<EventLogMonitor>() {
             unknownCujId,
             now.unixNanos,
             now.elapsedNanos,
-            now.systemUptimeNanos
+            now.systemUptimeNanos,
+            ""
         )
         now = now()
         EventLogTags.writeJankCujEventsEndRequest(
