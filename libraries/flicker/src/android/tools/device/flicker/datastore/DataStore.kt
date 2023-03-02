@@ -17,14 +17,16 @@
 package android.tools.device.flicker.datastore
 
 import android.tools.common.IScenario
-import android.tools.common.flicker.assertors.IAssertionResult
+import android.tools.common.flicker.IScenarioInstance
+import android.tools.common.flicker.assertors.IFaasAssertion
 import android.tools.device.traces.io.IResultData
 import androidx.annotation.VisibleForTesting
 
 /** In memory data store for flicker transitions, assertions and results */
 object DataStore {
     private val cachedResults = mutableMapOf<IScenario, IResultData>()
-    private val cachedFlickerServiceAssertions = mutableMapOf<IScenario, List<IAssertionResult>>()
+    private val cachedFlickerServiceAssertions =
+        mutableMapOf<IScenario, Map<IScenarioInstance, Collection<IFaasAssertion>>>()
 
     @VisibleForTesting
     fun clear() {
@@ -73,25 +75,20 @@ object DataStore {
     fun containsFlickerServiceResult(scenario: IScenario): Boolean =
         cachedFlickerServiceAssertions.containsKey(scenario)
 
-    fun addFlickerServiceResults(scenario: IScenario, results: List<IAssertionResult>) {
+    fun addFlickerServiceAssertions(
+        scenario: IScenario,
+        groupedAssertions: Map<IScenarioInstance, Collection<IFaasAssertion>>
+    ) {
         if (containsFlickerServiceResult(scenario)) {
             error("Result for $scenario already in data store")
         }
-        cachedFlickerServiceAssertions[scenario] = results
+        cachedFlickerServiceAssertions[scenario] = groupedAssertions
     }
 
-    fun getFlickerServiceResults(scenario: IScenario): List<IAssertionResult> {
+    fun getFlickerServiceAssertions(
+        scenario: IScenario
+    ): Map<IScenarioInstance, Collection<IFaasAssertion>> {
         return cachedFlickerServiceAssertions[scenario]
             ?: error("No flicker service results for $scenario")
-    }
-
-    fun getFlickerServiceResultsForAssertion(
-        scenario: IScenario,
-        assertionName: String
-    ): List<IAssertionResult> {
-        return cachedFlickerServiceAssertions[scenario]?.filter {
-            it.assertion.name == assertionName
-        }
-            ?: error("Assertion with name $assertionName not found for scenario $scenario")
     }
 }

@@ -19,8 +19,8 @@ package android.tools.device.flicker.junit
 import android.os.Bundle
 import android.tools.common.CrossPlatform
 import android.tools.common.FLICKER_TAG
+import android.tools.common.IScenario
 import android.tools.common.Scenario
-import android.tools.common.flicker.assertors.IAssertionResult
 import android.tools.device.flicker.FlickerService
 import android.tools.device.flicker.FlickerServiceResultsCollector
 import android.tools.device.flicker.IS_FAAS_ENABLED
@@ -80,7 +80,8 @@ class LegacyFlickerServiceDecorator(
             CrossPlatform.log.withTracing(
                 "$FAAS_METRICS_PREFIX getTestMethods ${testClass.javaClass.simpleName}"
             ) {
-                result.addAll(computeFlickerServiceTests(test))
+                requireNotNull(scenario) { "Expected to have a scenario to run" }
+                result.addAll(computeFlickerServiceTests(test, scenario))
                 CrossPlatform.log.d(FLICKER_TAG, "Computed ${result.size} flicker tests")
             }
         }
@@ -159,66 +160,43 @@ class LegacyFlickerServiceDecorator(
      * Runs the flicker transition to collect the traces and run FaaS on them to get the FaaS
      * results and then create functional test results for each of them.
      */
-    private fun computeFlickerServiceTests(test: Any): List<FrameworkMethod> {
-        requireNotNull(scenario) { "Expected to have a scenario to run" }
-        if (!DataStore.containsFlickerServiceResult(scenario)) {
-            this.doRunFlickerService(test)
+    private fun computeFlickerServiceTests(
+        test: Any,
+        testScenario: IScenario
+    ): List<InjectedTestCase> {
+        if (!DataStore.containsResult(testScenario)) {
+            val description =
+                Description.createTestDescription(
+                    this::class.java.simpleName,
+                    "computeFlickerServiceTests"
+                )
+            transitionRunner.runTransition(testScenario, test, description)
         }
-        val aggregateResults =
-            DataStore.getFlickerServiceResults(scenario).groupBy { it.assertion.name }
+        val reader = CachedResultReader(testScenario, DEFAULT_TRACE_CONFIG)
 
-        val detectedScenarios =
-            DataStore.getFlickerServiceResults(scenario)
-                .map { it.assertion.scenarioInstance.type }
-                .distinct()
+        val faasTestCases =
+            FlickerServiceDecorator.getFaasTestCase(testScenario, "", reader, flickerService, this)
 
-        val cachedResultMethod =
-            InjectedTestCase::class.java.getMethod("execute", Description::class.java)
+        val expectedScenarios =
+            testClass.annotations.filterIsInstance<FlickerServiceCompatible>().first().expectedCujs
 
-        val flickerServiceAnnotation =
-            testClass.annotations.filterIsInstance<FlickerServiceCompatible>().first()
-
-        return listOf(
+        val detectedScenarioTestCase =
             AnonymousInjectedTestCase(
-                cachedResultMethod,
+                FlickerServiceDecorator.getCachedResultMethod(),
                 "FaaS_DetectedExpectedScenarios",
                 injectedBy = this
             ) {
-                Truth.assertThat(detectedScenarios)
-                    .containsAtLeastElementsIn(flickerServiceAnnotation.expectedCujs)
+                Truth.assertThat(
+                        FlickerServiceDecorator.getDetectedScenarios(
+                            testScenario,
+                            reader,
+                            flickerService
+                        )
+                    )
+                    .containsAtLeastElementsIn(expectedScenarios)
             }
-        ) +
-            aggregateResults.keys.mapIndexed { idx, value ->
-                FlickerServiceCachedTestCase(
-                    cachedResultMethod,
-                    scenario,
-                    value,
-                    onlyBlocking,
-                    metricsCollector,
-                    isLast = aggregateResults.keys.size == idx,
-                    injectedBy = this,
-                    paramString = scenario.description
-                )
-            }
-    }
 
-    private fun doRunFlickerService(test: Any): List<IAssertionResult> {
-        requireNotNull(scenario) { "Expected to have a scenario to run" }
-        val description =
-            Description.createTestDescription(
-                this::class.java.simpleName,
-                "computeFlickerServiceTests"
-            )
-
-        if (!DataStore.containsResult(scenario)) {
-            transitionRunner.runTransition(scenario, test, description)
-        }
-
-        val reader = CachedResultReader(scenario, DEFAULT_TRACE_CONFIG)
-        val results = flickerService.process(reader)
-
-        DataStore.addFlickerServiceResults(scenario, results)
-        return results
+        return faasTestCases + listOf(detectedScenarioTestCase)
     }
 
     companion object {

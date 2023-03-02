@@ -146,14 +146,20 @@ class CujTraceTest {
         Truth.assertThat(trace.entries).hasLength(0)
     }
 
-    private fun createCujEvent(timestamp: Long, cuj: CujType, type: String): CujEvent {
+    private fun createCujEvent(
+        timestamp: Long,
+        cuj: CujType,
+        type: String,
+        tag: String? = null
+    ): CujEvent {
         return CujEvent(
             CrossPlatform.timestamp.from(unixNanos = timestamp),
             cuj,
             0,
             "root",
             0,
-            type
+            type,
+            tag,
         )
     }
 

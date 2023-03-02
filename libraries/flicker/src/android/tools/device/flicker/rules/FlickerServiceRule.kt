@@ -144,11 +144,7 @@ constructor(
         val flickerTestAnnotation: FlickerTest? =
             description.annotations.filterIsInstance<FlickerTest>().firstOrNull()
         if (failTestOnFaasFailure && flickerTestAnnotation != null) {
-            val detectedScenarios =
-                metricsCollector
-                    .resultsForTest(description)
-                    .map { it.assertion.scenarioInstance.type }
-                    .distinct()
+            val detectedScenarios = metricsCollector.detectedScenariosForTest(description)
             Truth.assertThat(detectedScenarios)
                 .containsAtLeastElementsIn(flickerTestAnnotation.expected)
         }

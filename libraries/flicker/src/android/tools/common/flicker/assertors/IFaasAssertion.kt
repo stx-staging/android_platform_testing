@@ -17,11 +17,9 @@
 package android.tools.common.flicker.assertors
 
 import android.tools.common.flicker.AssertionInvocationGroup
-import android.tools.common.flicker.IScenarioInstance
 
 interface IFaasAssertion {
     val name: String
-    val scenarioInstance: IScenarioInstance
     val stabilityGroup: AssertionInvocationGroup
 
     fun evaluate(): IAssertionResult
