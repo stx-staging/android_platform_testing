@@ -382,17 +382,17 @@
     "SECURITY_SETTINGS_SCROLL_ELEMENT": {
       "TYPE": "RESOURCE_ID",
       "VALUE": "car_ui_recycler_view",
-      "PACKAGE": "com.android.car.ui.sharedlibrary"
+      "PACKAGE": "com.android.car.settings"
     },
     "SECURITY_SETTINGS_SCROLL_FORWARD": {
       "TYPE": "RESOURCE_ID",
       "VALUE": "car_ui_scrollbar_page_down",
-      "PACKAGE": "com.android.car.ui.sharedlibrary"
+      "PACKAGE": "com.android.car.settings"
     },
     "SECURITY_SETTINGS_SCROLL_BACKWARD": {
       "TYPE": "RESOURCE_ID",
       "VALUE": "car_ui_scrollbar_page_up",
-      "PACKAGE": "com.android.car.ui.sharedlibrary"
+      "PACKAGE": "com.android.car.settings"
     },
     "APP_INFO_SETTINGS_VIEW_ALL": {
       "TYPE": "TEXT_CONTAINS",
@@ -401,17 +401,17 @@
     "APP_INFO_SETTINGS_SCROLL_ELEMENT": {
       "TYPE": "RESOURCE_ID",
       "VALUE": "car_ui_internal_recycler_view",
-      "PACKAGE": "com.android.car.ui.sharedlibrary"
+      "PACKAGE": "com.android.car.settings"
     },
     "APP_INFO_SETTINGS_SCROLL_FORWARD_BUTTON": {
       "TYPE": "RESOURCE_ID",
       "VALUE": "car_ui_scrollbar_page_down",
-      "PACKAGE": "com.android.car.ui.sharedlibrary"
+      "PACKAGE": "com.android.car.settings"
     },
     "APP_INFO_SETTINGS_SCROLL_BACKWARD_BUTTON": {
       "TYPE": "RESOURCE_ID",
       "VALUE": "car_ui_scrollbar_page_up",
-      "PACKAGE": "com.android.car.ui.sharedlibrary"
+      "PACKAGE": "com.android.car.settings"
     },
     "APP_INFO_SETTINGS_ENABLE_DISABLE_BUTTON": {
       "TYPE": "RESOURCE_ID",
@@ -593,17 +593,17 @@
     "SYSTEM_SETTINGS_SCROLL_ELEMENT": {
       "TYPE": "RESOURCE_ID",
       "VALUE": "car_ui_internal_recycler_view",
-      "PACKAGE": "com.android.car.ui.sharedlibrary"
+      "PACKAGE": "com.android.car.settings"
     },
     "SYSTEM_SETTINGS_SCROLL_FORWARD_BUTTON": {
       "TYPE": "RESOURCE_ID",
       "VALUE": "car_ui_scrollbar_page_down",
-      "PACKAGE": "com.android.car.ui.sharedlibrary"
+      "PACKAGE": "com.android.car.settings"
     },
     "SYSTEM_SETTINGS_SCROLL_BACKWARD_BUTTON": {
       "TYPE": "RESOURCE_ID",
       "VALUE": "car_ui_scrollbar_page_up",
-      "PACKAGE": "com.android.car.ui.sharedlibrary"
+      "PACKAGE": "com.android.car.settings"
     },
     "SOUND_SETTINGS_SCROLL_ELEMENT": {
       "TYPE": "RESOURCE_ID",
@@ -651,17 +651,17 @@
     "DATE_TIME_SETTINGS_SCROLL_FORWARD_BUTTON": {
       "TYPE": "RESOURCE_ID",
       "VALUE": "car_ui_scrollbar_page_down",
-      "PACKAGE": "com.android.car.ui.sharedlibrary"
+      "PACKAGE": "com.android.car.settings"
     },
     "DATE_TIME_SETTINGS_SCROLL_BACKWARD_BUTTON": {
       "TYPE": "RESOURCE_ID",
       "VALUE": "car_ui_scrollbar_page_up",
-      "PACKAGE": "com.android.car.ui.sharedlibrary"
+      "PACKAGE": "com.android.car.settings"
     },
     "DATE_TIME_SETTINGS_SCROLL_ELEMENT": {
       "TYPE": "RESOURCE_ID",
       "VALUE": "car_ui_internal_recycler_view",
-      "PACKAGE": "com.android.car.ui.sharedlibrary"
+      "PACKAGE": "com.android.car.settings"
     },
     "USER_SETTINGS_ADD_PROFILE": {
       "TYPE": "TEXT",
@@ -694,17 +694,17 @@
     "USER_SETTINGS_SCROLL_FORWARD": {
       "TYPE": "RESOURCE_ID",
       "VALUE": "car_ui_scrollbar_page_down",
-      "PACKAGE": "com.android.car.ui.sharedlibrary"
+      "PACKAGE": "com.android.car.settings"
     },
     "USER_SETTINGS_SCROLL_BACKWARD": {
       "TYPE": "RESOURCE_ID",
       "VALUE": "car_ui_scrollbar_page_up",
-      "PACKAGE": "com.android.car.ui.sharedlibrary"
+      "PACKAGE": "com.android.car.settings"
     },
     "USER_SETTINGS_SCROLL_ELEMENT": {
       "TYPE": "RESOURCE_ID",
       "VALUE": "car_ui_internal_recycler_view",
-      "PACKAGE": "com.android.car.ui.sharedlibrary"
+      "PACKAGE": "com.android.car.settings"
     },
     "USER_SETTINGS_MANAGE_OTHER_PROFILES": {
       "TYPE": "TEXT",
@@ -746,17 +746,17 @@
     "ACCOUNT_SETTINGS_SCROLL_BACKWARD_BUTTON": {
       "TYPE": "RESOURCE_ID",
       "VALUE": "car_ui_scrollbar_page_up",
-      "PACKAGE": "com.android.car.ui.sharedlibrary"
+      "PACKAGE": "com.android.car.settings"
     },
     "ACCOUNT_SETTINGS_SCROLL_FORWARD_BUTTON": {
       "TYPE": "RESOURCE_ID",
       "VALUE": "car_ui_scrollbar_page_down",
-      "PACKAGE": "com.android.car.ui.sharedlibrary"
+      "PACKAGE": "com.android.car.settings"
     },
     "ACCOUNT_SETTINGS_SCROLL_ELEMENT": {
       "TYPE": "RESOURCE_ID",
       "VALUE": "car_ui_internal_recycler_view",
-      "PACKAGE": "com.android.car.ui.sharedlibrary"
+      "PACKAGE": "com.android.car.settings"
     },
     "PLAY_PAUSE_BUTTON": {
       "TYPE": "RESOURCE_ID",
@@ -967,7 +967,7 @@
           "SCROLL_ELEMENT": {
             "TYPE": "RESOURCE_ID",
             "VALUE": "car_ui_recycler_view",
-            "PACKAGE": "com.android.car.ui.sharedlibrary"
+            "PACKAGE": "com.android.car.settings"
           }
         }
       }
@@ -1002,7 +1002,7 @@
           "SCROLL_ELEMENT": {
             "TYPE": "RESOURCE_ID",
             "VALUE": "car_ui_recycler_view",
-            "PACKAGE": "com.android.car.ui.sharedlibrary"
+            "PACKAGE": "com.android.car.settings"
           }
         }
       }
@@ -1037,7 +1037,7 @@
           "SCROLL_ELEMENT": {
             "TYPE": "RESOURCE_ID",
             "VALUE": "car_ui_recycler_view",
-            "PACKAGE": "com.android.car.ui.sharedlibrary"
+            "PACKAGE": "com.android.car.settings"
           }
         }
       }
@@ -1072,7 +1072,7 @@
           "SCROLL_ELEMENT": {
             "TYPE": "RESOURCE_ID",
             "VALUE": "car_ui_recycler_view",
-            "PACKAGE": "com.android.car.ui.sharedlibrary"
+            "PACKAGE": "com.android.car.settings"
           }
         }
       }
@@ -1107,7 +1107,7 @@
           "SCROLL_ELEMENT": {
             "TYPE": "RESOURCE_ID",
             "VALUE": "car_ui_recycler_view",
-            "PACKAGE": "com.android.car.ui.sharedlibrary"
+            "PACKAGE": "com.android.car.settings"
           }
         }
       }
@@ -1142,7 +1142,7 @@
           "SCROLL_ELEMENT": {
             "TYPE": "RESOURCE_ID",
             "VALUE": "car_ui_recycler_view",
-            "PACKAGE": "com.android.car.ui.sharedlibrary"
+            "PACKAGE": "com.android.car.settings"
           },
           "SCROLL_MARGIN": "8",
           "SCROLL_WAIT_TIME":"3"
@@ -1179,7 +1179,7 @@
           "SCROLL_ELEMENT": {
             "TYPE": "RESOURCE_ID",
             "VALUE": "car_ui_recycler_view",
-            "PACKAGE": "com.android.car.ui.sharedlibrary"
+            "PACKAGE": "com.android.car.settings"
           }
         }
       }
@@ -1214,7 +1214,7 @@
           "SCROLL_ELEMENT": {
             "TYPE": "RESOURCE_ID",
             "VALUE": "car_ui_recycler_view",
-            "PACKAGE": "com.android.car.ui.sharedlibrary"
+            "PACKAGE": "com.android.car.settings"
           },
           "SCROLL_MARGIN": "8",
           "SCROLL_WAIT_TIME":"3"
@@ -1251,7 +1251,7 @@
           "SCROLL_ELEMENT": {
             "TYPE": "RESOURCE_ID",
             "VALUE": "car_ui_recycler_view",
-            "PACKAGE": "com.android.car.ui.sharedlibrary"
+            "PACKAGE": "com.android.car.settings"
           }
         }
       },
@@ -1270,7 +1270,7 @@
           "SCROLL_ELEMENT": {
             "TYPE": "RESOURCE_ID",
             "VALUE": "car_ui_internal_recycler_view",
-            "PACKAGE": "com.android.car.ui.sharedlibrary"
+            "PACKAGE": "com.android.car.settings"
           }
         }
       }
