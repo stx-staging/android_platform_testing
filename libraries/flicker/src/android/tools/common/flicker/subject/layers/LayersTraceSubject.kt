@@ -107,6 +107,7 @@ class LayersTraceSubject(
                 ComponentNameMatcher.SPLASH_SCREEN,
                 ComponentNameMatcher.SNAPSHOT,
                 ComponentNameMatcher.IME_SNAPSHOT,
+                ComponentNameMatcher.PIP_CONTENT_OVERLAY,
                 EdgeExtensionComponentMatcher()
             )
     ): LayersTraceSubject = apply {
