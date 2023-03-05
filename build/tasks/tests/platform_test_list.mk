@@ -97,6 +97,7 @@ platform_tests += \
     TouchLatencyJankTestWear \
     trace_config.textproto \
     trace_config_detailed.textproto \
+    trace_config_detailed_heapdump.textproto \
     trace_config_experimental.textproto \
     trace_config_multi_user_cuj_tests.textproto \
     UbSystemUiJankTests \
