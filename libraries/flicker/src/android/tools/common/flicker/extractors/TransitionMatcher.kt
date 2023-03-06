@@ -19,6 +19,7 @@ package android.tools.common.flicker.extractors
 import android.tools.common.flicker.extractors.TransitionTransforms.inCujRangeFilter
 import android.tools.common.flicker.extractors.TransitionTransforms.mergeTrampolineTransitions
 import android.tools.common.flicker.extractors.TransitionTransforms.noOpTransitionsTransform
+import android.tools.common.flicker.extractors.TransitionTransforms.permissionDialogFilter
 import android.tools.common.io.IReader
 import android.tools.common.traces.events.Cuj
 import android.tools.common.traces.wm.Transition
@@ -34,7 +35,13 @@ class TransitionMatcher(
     // Transformations applied, in order, to all transitions the reader returns to end up with the
     // targeted transition.
     private val transforms: List<TransitionsTransform> =
-        listOf(mainTransform, inCujRangeFilter, mergeTrampolineTransitions, finalTransform)
+        listOf(
+            mainTransform,
+            inCujRangeFilter,
+            permissionDialogFilter,
+            mergeTrampolineTransitions,
+            finalTransform
+        )
 ) : ITransitionMatcher {
     override fun getTransition(cujEntry: Cuj, reader: IReader): Transition? {
         val transitionsTrace = reader.readTransitionsTrace() ?: error("Missing transitions trace")
@@ -85,8 +92,15 @@ object TransitionTransforms {
         }
     }
 
+    val permissionDialogFilter: TransitionsTransform = { transitions, _, reader ->
+        transitions.filter { isPermissionDialogOpenTransition(it, reader) }
+    }
+
     val mergeTrampolineTransitions: TransitionsTransform = { transitions, _, reader ->
-        require(transitions.size <= 2)
+        require(transitions.size <= 2) {
+            "Got to merging trampoline transitions with more than 2 transitions left :: " +
+                "${transitions.joinToString()}"
+        }
         if (
             transitions.size == 2 &&
                 isTrampolinedOpenTransition(transitions[0], transitions[1], reader)
@@ -99,6 +113,26 @@ object TransitionTransforms {
     }
 
     val noOpTransitionsTransform: TransitionsTransform = { transitions, _, _ -> transitions }
+
+    private fun isPermissionDialogOpenTransition(transition: Transition, reader: IReader): Boolean {
+        if (transition.changes.size != 1) {
+            return false
+        }
+
+        val change = transition.changes[0]
+        if (transition.type != TransitionType.OPEN || change.transitMode != TransitionType.OPEN) {
+            return false
+        }
+
+        val layersTrace = reader.readLayersTrace() ?: error("Missing layers trace")
+        val layers =
+            layersTrace.entries.flatMap { it.flattenedLayers.asList() }.distinctBy { it.id }
+
+        val candidateLayer =
+            layers.firstOrNull { it.id == change.layerId }
+                ?: error("Open layer from $transition not found in layers trace")
+        return candidateLayer.name.contains("permissioncontroller")
+    }
 
     private fun isTrampolinedOpenTransition(
         firstTransition: Transition,
