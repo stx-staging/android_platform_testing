@@ -16,7 +16,6 @@
 
 package android.tools.device.flicker
 
-import android.app.Instrumentation
 import android.tools.common.IScenario
 import android.tools.common.datatypes.component.ComponentNameMatcher
 import android.tools.device.traces.DEFAULT_TRACE_CONFIG
@@ -24,6 +23,7 @@ import android.tools.device.traces.getDefaultFlickerOutputDir
 import android.tools.device.traces.io.ResultReader
 import android.tools.device.traces.io.ResultWriter
 import android.tools.device.traces.monitors.ScreenRecorder
+import android.tools.device.traces.monitors.TraceMonitor
 import android.tools.device.traces.monitors.events.EventLogMonitor
 import android.tools.device.traces.monitors.surfaceflinger.LayersTraceMonitor
 import android.tools.device.traces.monitors.surfaceflinger.TransactionsTraceMonitor
@@ -88,28 +88,27 @@ object Utils {
         return componentMatcher?.componentNameMatcherToString()
     }
 
-    fun captureTrace(scenario: IScenario, actions: (writer: ResultWriter) -> Unit): ResultReader {
-        val instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation()
+    fun captureTrace(
+        scenario: IScenario,
+        monitors: List<TraceMonitor> =
+            listOf(
+                TransitionsTraceMonitor(),
+                TransactionsTraceMonitor(),
+                WindowManagerTraceMonitor(),
+                LayersTraceMonitor(),
+                EventLogMonitor(),
+                ScreenRecorder(InstrumentationRegistry.getInstrumentation().targetContext)
+            ),
+        actions: (writer: ResultWriter) -> Unit
+    ): ResultReader {
         val writer =
             ResultWriter()
                 .forScenario(scenario)
                 .withOutputDir(getDefaultFlickerOutputDir())
                 .setRunComplete()
-        val monitors =
-            listOf(
-                ScreenRecorder(instrumentation.targetContext),
-                EventLogMonitor(),
-                TransactionsTraceMonitor(),
-                TransitionsTraceMonitor(),
-                WindowManagerTraceMonitor(),
-                LayersTraceMonitor()
-            )
-        try {
-            monitors.forEach { it.start() }
-            actions.invoke(writer)
-        } finally {
-            monitors.forEach { it.stop(writer) }
-        }
+        monitors.fold({ actions.invoke(writer) }) { action, monitor ->
+            { monitor.withTracing(writer) { action() } }
+        }()
         val result = writer.write()
 
         return ResultReader(result, DEFAULT_TRACE_CONFIG)
