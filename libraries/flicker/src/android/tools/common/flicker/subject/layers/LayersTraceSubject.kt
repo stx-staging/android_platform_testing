@@ -19,6 +19,7 @@ package android.tools.common.flicker.subject.layers
 import android.tools.common.datatypes.component.ComponentNameMatcher
 import android.tools.common.datatypes.component.EdgeExtensionComponentMatcher
 import android.tools.common.datatypes.component.IComponentMatcher
+import android.tools.common.datatypes.component.IComponentNameMatcher
 import android.tools.common.flicker.assertions.Fact
 import android.tools.common.flicker.subject.FlickerTraceSubject
 import android.tools.common.flicker.subject.region.RegionTraceSubject
@@ -170,8 +171,9 @@ class LayersTraceSubject(
         }
 
     /** {@inheritDoc} */
-    override fun isSplashScreenVisibleFor(componentMatcher: IComponentMatcher): LayersTraceSubject =
-        isSplashScreenVisibleFor(componentMatcher, isOptional = false)
+    override fun isSplashScreenVisibleFor(
+        componentMatcher: IComponentNameMatcher
+    ): LayersTraceSubject = isSplashScreenVisibleFor(componentMatcher, isOptional = false)
 
     /** {@inheritDoc} */
     override fun hasColor(componentMatcher: IComponentMatcher): LayersTraceSubject = apply {
@@ -197,7 +199,7 @@ class LayersTraceSubject(
 
     /** See [isSplashScreenVisibleFor] */
     fun isSplashScreenVisibleFor(
-        componentMatcher: IComponentMatcher,
+        componentMatcher: IComponentNameMatcher,
         isOptional: Boolean
     ): LayersTraceSubject = apply {
         addAssertion(
