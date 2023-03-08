@@ -73,7 +73,6 @@ abstract class TraceMonitor : ITransitionMonitor {
             predicate()
         } finally {
             this.stop(writer)
-            result = writer.write()
         }
     }
 

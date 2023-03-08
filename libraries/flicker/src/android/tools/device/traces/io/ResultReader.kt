@@ -53,10 +53,12 @@ import java.util.zip.ZipInputStream
  * @param result to read from
  * @param traceConfig
  */
-open class ResultReader(internal var result: IResultData, internal val traceConfig: TraceConfigs) :
-    IReader {
+open class ResultReader(_result: IResultData, internal val traceConfig: TraceConfigs) : IReader {
+    @VisibleForTesting
+    var result = _result
+        internal set
     override val artifactPath: String
-        get() = result.artifact.absolutePath
+        get() = result.artifact.file.absolutePath
     override val runStatus
         get() = result.runStatus
     internal val transitionTimeRange

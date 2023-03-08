@@ -14,52 +14,44 @@
  * limitations under the License.
  */
 
-package android.tools.device.flicker.datastore
+package android.tools.common.io
 
 import android.tools.TEST_SCENARIO
-import android.tools.common.CrossPlatform
-import android.tools.common.io.ResultArtifactDescriptor
-import android.tools.common.io.RunStatus
-import android.tools.common.io.TransitionTimeRange
+import android.tools.device.traces.deleteIfExists
 import android.tools.device.traces.getDefaultFlickerOutputDir
 import android.tools.device.traces.io.Artifact
-import android.tools.device.traces.io.ResultData
+import com.google.common.truth.Truth
 import java.io.File
+import org.junit.After
+import org.junit.Test
 
-object Consts {
-    internal const val FAILURE = "Expected failure"
-
-    internal val TEST_RESULT =
-        ResultData(
-            _artifact =
+class RunStatusTest {
+    @Test
+    fun fromFileNameGetsCorrectStatus() {
+        for (status in RunStatus.values()) {
+            val artifact =
                 Artifact(
-                    RunStatus.RUN_EXECUTED,
+                    status,
                     TEST_SCENARIO,
                     getDefaultFlickerOutputDir(),
                     emptyMap<ResultArtifactDescriptor, File>()
-                ),
-            _transitionTimeRange =
-                TransitionTimeRange(
-                    CrossPlatform.timestamp.empty(),
-                    CrossPlatform.timestamp.empty()
-                ),
-            _executionError = null
-        )
+                )
+            val statusFromFile = RunStatus.fromFileName(artifact.file.name)
+            Truth.assertThat(statusFromFile).isEqualTo(status)
+        }
+    }
 
-    internal val RESULT_FAILURE =
-        ResultData(
-            _artifact =
+    @After
+    fun cleanUp() {
+        for (status in RunStatus.values()) {
+            val artifact =
                 Artifact(
-                    RunStatus.RUN_EXECUTED,
+                    status,
                     TEST_SCENARIO,
                     getDefaultFlickerOutputDir(),
                     emptyMap<ResultArtifactDescriptor, File>()
-                ),
-            _transitionTimeRange =
-                TransitionTimeRange(
-                    CrossPlatform.timestamp.empty(),
-                    CrossPlatform.timestamp.empty()
-                ),
-            _executionError = null
-        )
+                )
+            artifact.deleteIfExists()
+        }
+    }
 }

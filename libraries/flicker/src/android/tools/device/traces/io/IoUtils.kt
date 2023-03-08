@@ -42,7 +42,7 @@ object IoUtils {
     }
 
     fun addStatusToFileName(traceFile: File, status: RunStatus) {
-        val newFileName = "${status.prefix}_${traceFile.name}"
+        val newFileName = "${status.prefix}__${traceFile.name}"
         val dst = traceFile.resolveSibling(newFileName)
         renameFile(traceFile, dst)
     }
