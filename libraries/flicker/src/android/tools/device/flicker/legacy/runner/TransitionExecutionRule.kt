@@ -109,6 +109,7 @@ class TransitionExecutionRule(
     }
 
     private fun doValidate() {
+        require(flicker.traceMonitors.isNotEmpty()) { NO_MONITORS_ERROR }
         require(commands.isNotEmpty() || flicker.traceMonitors.all { it is NoTraceMonitor }) {
             EMPTY_TRANSITIONS_ERROR
         }
