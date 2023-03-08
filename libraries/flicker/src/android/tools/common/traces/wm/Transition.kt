@@ -18,6 +18,7 @@ package android.tools.common.traces.wm
 
 import android.tools.common.ITraceEntry
 import android.tools.common.Timestamp
+import android.tools.common.io.IReader
 import android.tools.common.traces.surfaceflinger.Transaction
 import android.tools.common.traces.surfaceflinger.TransactionsTrace
 import kotlin.js.JsName
@@ -49,10 +50,29 @@ class Transition(
     val isIncomplete: Boolean
         get() = !played || aborted
 
-    override fun toString(): String =
-        "Transition#${hashCode()}" +
-            "(\ntype=$type\naborted=$aborted,\nplayed=$played," +
-            "\ncreateTime=$createTime,\nsendTime=$sendTime,\nfinishTime=$finishTime," +
-            "\nstartTransactionId=$startTransactionId,\nfinishTransactionId=$finishTransactionId," +
-            "\nchanges=[\n${changes.joinToString(",\n").prependIndent()}\n])"
+    override fun toString(): String = Formatter(null).format(this)
+
+    class Formatter(val reader: IReader?) {
+        private val changeFormatter = TransitionChange.Formatter(reader)
+
+        fun format(transition: Transition): String = buildString {
+            appendLine("Transition#${hashCode()}(")
+            appendLine("type=${transition.type},")
+            appendLine("aborted=${transition.aborted},")
+            appendLine("played=${transition.played},")
+            appendLine("createTime=${transition.createTime},")
+            appendLine("sendTime=${transition.sendTime},")
+            appendLine("finishTime=${transition.finishTime},")
+            appendLine("startTransactionId=${transition.startTransactionId},")
+            appendLine("finishTransactionId=${transition.finishTransactionId},")
+            appendLine("changes=[")
+            appendLine(
+                transition.changes
+                    .joinToString(",\n") { changeFormatter.format(it) }
+                    .prependIndent()
+            )
+            appendLine("]")
+            appendLine(")")
+        }
+    }
 }

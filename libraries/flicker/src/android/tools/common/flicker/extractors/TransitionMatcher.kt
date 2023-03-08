@@ -57,7 +57,9 @@ class TransitionMatcher(
             "Required an associated transition for " +
                 "${cujEntry.cuj.name}(${cujEntry.startTimestamp},${cujEntry.endTimestamp}) " +
                 "but no transition left after all filters from: " +
-                "[\n${transitionsTrace.entries.joinToString(",\n").prependIndent()}\n]!"
+                "[\n${transitionsTrace.entries.joinToString(",\n") {
+                    Transition.Formatter(reader).format(it)
+                }.prependIndent()}\n]!"
         }
 
         require(!associatedTransitionRequired || matchedTransitions.size == 1) {
@@ -93,13 +95,13 @@ object TransitionTransforms {
     }
 
     val permissionDialogFilter: TransitionsTransform = { transitions, _, reader ->
-        transitions.filter { isPermissionDialogOpenTransition(it, reader) }
+        transitions.filter { !isPermissionDialogOpenTransition(it, reader) }
     }
 
     val mergeTrampolineTransitions: TransitionsTransform = { transitions, _, reader ->
         require(transitions.size <= 2) {
             "Got to merging trampoline transitions with more than 2 transitions left :: " +
-                "${transitions.joinToString()}"
+                transitions.joinToString { Transition.Formatter(reader).format(it) }
         }
         if (
             transitions.size == 2 &&
