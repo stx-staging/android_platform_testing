@@ -49,22 +49,17 @@ import java.util.zip.ZipOutputStream
 
 class Artifact(
     runStatus: RunStatus,
-    scenario: IScenario,
+    private val scenario: IScenario,
     outputDir: File,
     files: Map<ResultArtifactDescriptor, File>
 ) {
-    final var file: File
+    final lateinit var file: File
         private set
 
     init {
         require(!scenario.isEmpty) { "Scenario shouldn't be empty" }
-        // Ensure output directory exists
-        outputDir.mkdirs()
 
-        val newFileName = "${runStatus.prefix}__$scenario.zip"
-        file = outputDir.resolve(newFileName)
-        CrossPlatform.log.d(FLICKER_IO_TAG, "Writing artifact file $file")
-        createZipFile(file).use { zipOutputStream ->
+        createZipFile(outputDir, runStatus, scenario).use { zipOutputStream ->
             files.forEach { (descriptor, artifact) ->
                 addFile(zipOutputStream, artifact, nameInArchive = descriptor.fileNameInArtifact)
             }
@@ -86,14 +81,36 @@ class Artifact(
         }
     }
 
-    private fun createZipFile(file: File): ZipOutputStream {
+    private fun createZipFile(
+        outputDir: File,
+        runStatus: RunStatus,
+        scenario: IScenario
+    ): ZipOutputStream {
+        // Ensure output directory exists
+        outputDir.mkdirs()
+
+        val newFileName = runStatus.generateArchiveNameFor(scenario)
+        this.file = outputDir.resolve(newFileName)
+
+        require(!existsArchiveFor(outputDir, scenario)) {
+            val files = file.parentFile.listFiles()
+            "An archive for $scenario already exists in ${file.parentFile.absolutePath}. " +
+                "Directory contains ${files.joinToString { it.absolutePath }}"
+        }
+
+        CrossPlatform.log.d(FLICKER_IO_TAG, "Creating artifact archive at $file")
         return ZipOutputStream(BufferedOutputStream(FileOutputStream(file), BUFFER_SIZE))
+    }
+
+    private fun existsArchiveFor(outputDir: File, scenario: IScenario): Boolean {
+        return RunStatus.values().any {
+            outputDir.resolve(it.generateArchiveNameFor(scenario)).exists()
+        }
     }
 
     /** updates the artifact status to [newStatus] */
     private fun getNewFilePath(newStatus: RunStatus): File {
-        val currTestName = file.name.dropWhile { it != '_' }
-        return file.resolveSibling("${newStatus.prefix}__$currTestName")
+        return file.resolveSibling(newStatus.generateArchiveNameFor(scenario))
     }
 
     private fun addFile(zipOutputStream: ZipOutputStream, artifact: File, nameInArchive: String) {
