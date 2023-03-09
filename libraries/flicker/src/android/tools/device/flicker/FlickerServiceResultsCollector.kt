@@ -198,11 +198,6 @@ class FlickerServiceResultsCollector(
         }
     }
 
-    override fun testContainsFlicker(description: Description): Boolean {
-        val resultsForTest = resultsForTest(description)
-        return resultsForTest.any { it.failed }
-    }
-
     override fun resultsForTest(description: Description): Collection<IAssertionResult> {
         val resultsForTest = assertionResultsByTest[description]
         requireNotNull(resultsForTest) { "No results set for test $description" }

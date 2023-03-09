@@ -113,8 +113,6 @@ class FlickerServiceRuleTest {
         val assertionError = Throwable("Some assertion error")
         `when`(mockFlickerServiceResultsCollector.resultsForTest(mockDescription))
             .thenReturn(listOf(mockFailureAssertionResult(assertionError)))
-        `when`(mockFlickerServiceResultsCollector.testContainsFlicker(mockDescription))
-            .thenReturn(true)
 
         testRule.starting(mockDescription)
         testRule.succeeded(mockDescription)
@@ -135,8 +133,6 @@ class FlickerServiceRuleTest {
         val assertionError = Throwable("Some assertion error")
         `when`(mockFlickerServiceResultsCollector.resultsForTest(mockDescription))
             .thenReturn(listOf(mockFailureAssertionResult(assertionError)))
-        `when`(mockFlickerServiceResultsCollector.testContainsFlicker(mockDescription))
-            .thenReturn(true)
 
         testRule.starting(mockDescription)
         testRule.succeeded(mockDescription)

@@ -137,7 +137,7 @@ constructor(
             }
             throw metricsCollector.executionErrors[0]
         }
-        if (failTestOnFaasFailure && metricsCollector.testContainsFlicker(description)) {
+        if (failTestOnFaasFailure && testContainsFlicker(description)) {
             throw metricsCollector.resultsForTest(description).first { it.failed }.assertionError
                 ?: error("Unexpectedly missing assertion error")
         }
@@ -148,6 +148,11 @@ constructor(
             Truth.assertThat(detectedScenarios)
                 .containsAtLeastElementsIn(flickerTestAnnotation.expected)
         }
+    }
+
+    private fun testContainsFlicker(description: Description): Boolean {
+        val resultsForTest = metricsCollector.resultsForTest(description)
+        return resultsForTest.any { it.failed }
     }
 
     companion object {

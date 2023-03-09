@@ -27,7 +27,6 @@ interface IFlickerServiceResultsCollector {
     fun testFailure(failure: Failure)
     fun testSkipped(description: Description)
     fun testFinished(description: Description)
-    fun testContainsFlicker(description: Description): Boolean
     fun resultsForTest(description: Description): Collection<IAssertionResult>
     fun detectedScenariosForTest(description: Description): Collection<FaasScenarioType>
 }
