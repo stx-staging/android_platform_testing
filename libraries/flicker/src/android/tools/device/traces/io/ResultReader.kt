@@ -43,6 +43,7 @@ import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.io.FileNotFoundException
 import java.io.IOException
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
@@ -69,6 +70,23 @@ open class ResultReader(_result: IResultData, internal val traceConfig: TraceCon
         get() = result.executionError
 
     private fun withZipFile(predicate: (ZipInputStream) -> Unit) {
+        if (!result.artifact.file.exists()) {
+            val directory = result.artifact.file.parentFile.absolutePath
+            val files =
+                try {
+                    result.artifact.file.parentFile
+                        .listFiles()
+                        ?.filterNot { it.isDirectory }
+                        ?.map { it.absolutePath }
+                } catch (e: Throwable) {
+                    null
+                }
+            throw FileNotFoundException(
+                "${result.artifact.file} could not be found! " +
+                    "Found ${files?.joinToString()?.ifEmpty { "no files" }} in '$directory'."
+            )
+        }
+
         val zipInputStream =
             ZipInputStream(
                 BufferedInputStream(ByteArrayInputStream(result.getArtifactBytes()), BUFFER_SIZE)

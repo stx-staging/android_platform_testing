@@ -93,9 +93,17 @@ class Artifact(
         this.file = outputDir.resolve(newFileName)
 
         require(!existsArchiveFor(outputDir, scenario)) {
-            val files = file.parentFile.listFiles()
+            val files =
+                try {
+                    file.parentFile
+                        .listFiles()
+                        ?.filterNot { it.isDirectory }
+                        ?.map { it.absolutePath }
+                } catch (e: Throwable) {
+                    null
+                }
             "An archive for $scenario already exists in ${file.parentFile.absolutePath}. " +
-                "Directory contains ${files.joinToString { it.absolutePath }}"
+                "Directory contains ${files?.joinToString()?.ifEmpty { "no files" }}"
         }
 
         CrossPlatform.log.d(FLICKER_IO_TAG, "Creating artifact archive at $file")
