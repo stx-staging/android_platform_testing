@@ -49,14 +49,6 @@ enum class RunStatus(val prefix: String, val isFailure: Boolean) {
             }
         }
 
-        val ALL: List<RunStatus> =
-            listOf(
-                UNDEFINED,
-                RUN_EXECUTED,
-                ASSERTION_SUCCESS,
-                RUN_FAILED,
-                PARSING_FAILURE,
-                ASSERTION_FAILED
-            )
+        val ALL: List<RunStatus> = RunStatus.values().toList()
     }
 }

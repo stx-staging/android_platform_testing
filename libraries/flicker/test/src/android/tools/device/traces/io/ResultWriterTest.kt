@@ -17,7 +17,7 @@
 package android.tools.device.traces.io
 
 import android.annotation.SuppressLint
-import android.tools.InitRule
+import android.tools.CleanFlickerEnvironmentRule
 import android.tools.TEST_SCENARIO
 import android.tools.TestTraces
 import android.tools.assertExceptionMessage
@@ -35,6 +35,7 @@ import com.google.common.truth.Truth
 import java.io.File
 import org.junit.ClassRule
 import org.junit.FixMethodOrder
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runners.MethodSorters
 
@@ -42,6 +43,7 @@ import org.junit.runners.MethodSorters
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @SuppressLint("VisibleForTests")
 class ResultWriterTest {
+
     @Test
     fun cannotWriteFileWithoutScenario() {
         val exception =
@@ -200,6 +202,6 @@ class ResultWriterTest {
                 .contains(status.prefix)
         }
 
-        @ClassRule @JvmField val initRule = InitRule()
+        @Rule @ClassRule @JvmField val cleanFlickerEnvironmentRule = CleanFlickerEnvironmentRule()
     }
 }

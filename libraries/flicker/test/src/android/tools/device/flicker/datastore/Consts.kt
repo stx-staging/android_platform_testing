@@ -29,15 +29,17 @@ import java.io.File
 object Consts {
     internal const val FAILURE = "Expected failure"
 
+    private val artifact =
+        Artifact(
+            RunStatus.RUN_EXECUTED,
+            TEST_SCENARIO,
+            getDefaultFlickerOutputDir(),
+            emptyMap<ResultArtifactDescriptor, File>()
+        )
+
     internal val TEST_RESULT =
         ResultData(
-            _artifact =
-                Artifact(
-                    RunStatus.RUN_EXECUTED,
-                    TEST_SCENARIO,
-                    getDefaultFlickerOutputDir(),
-                    emptyMap<ResultArtifactDescriptor, File>()
-                ),
+            _artifact = artifact,
             _transitionTimeRange =
                 TransitionTimeRange(
                     CrossPlatform.timestamp.empty(),
@@ -48,13 +50,7 @@ object Consts {
 
     internal val RESULT_FAILURE =
         ResultData(
-            _artifact =
-                Artifact(
-                    RunStatus.RUN_EXECUTED,
-                    TEST_SCENARIO,
-                    getDefaultFlickerOutputDir(),
-                    emptyMap<ResultArtifactDescriptor, File>()
-                ),
+            _artifact = artifact,
             _transitionTimeRange =
                 TransitionTimeRange(
                     CrossPlatform.timestamp.empty(),

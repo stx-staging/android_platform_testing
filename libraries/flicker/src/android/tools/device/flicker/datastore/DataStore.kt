@@ -24,14 +24,30 @@ import androidx.annotation.VisibleForTesting
 
 /** In memory data store for flicker transitions, assertions and results */
 object DataStore {
-    private val cachedResults = mutableMapOf<IScenario, IResultData>()
-    private val cachedFlickerServiceAssertions =
+    private var cachedResults = mutableMapOf<IScenario, IResultData>()
+    private var cachedFlickerServiceAssertions =
         mutableMapOf<IScenario, Map<IScenarioInstance, Collection<IFaasAssertion>>>()
+
+    data class Backup(
+        val cachedResults: MutableMap<IScenario, IResultData>,
+        val cachedFlickerServiceAssertions:
+            MutableMap<IScenario, Map<IScenarioInstance, Collection<IFaasAssertion>>>
+    )
 
     @VisibleForTesting
     fun clear() {
-        cachedResults.clear()
-        cachedFlickerServiceAssertions.clear()
+        cachedResults = mutableMapOf<IScenario, IResultData>()
+        cachedFlickerServiceAssertions =
+            mutableMapOf<IScenario, Map<IScenarioInstance, Collection<IFaasAssertion>>>()
+    }
+
+    fun backup(): Backup {
+        return Backup(cachedResults.toMutableMap(), cachedFlickerServiceAssertions.toMutableMap())
+    }
+
+    fun restore(backup: DataStore.Backup) {
+        cachedResults = backup.cachedResults
+        cachedFlickerServiceAssertions = backup.cachedFlickerServiceAssertions
     }
 
     /** @return if the store has results for [scenario] */

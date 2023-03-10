@@ -17,7 +17,7 @@
 package android.tools.common.flicker
 
 import android.device.collectors.DataRecord
-import android.tools.InitRule
+import android.tools.CleanFlickerEnvironmentRule
 import android.tools.common.flicker.assertors.AssertionResult
 import android.tools.common.flicker.assertors.IAssertionResult
 import android.tools.common.flicker.assertors.IFaasAssertion
@@ -217,6 +217,6 @@ class FlickerServiceResultsCollectorTest {
                 assertionError = null
             )
 
-        @ClassRule @JvmField val initRule = InitRule()
+        @ClassRule @JvmField val cleanFlickerEnvironmentRule = CleanFlickerEnvironmentRule()
     }
 }

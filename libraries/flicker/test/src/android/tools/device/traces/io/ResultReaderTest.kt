@@ -16,7 +16,7 @@
 
 package android.tools.device.traces.io
 
-import android.tools.InitRule
+import android.tools.CleanFlickerEnvironmentRule
 import android.tools.assertThrows
 import android.tools.common.CrossPlatform
 import android.tools.common.io.RunStatus
@@ -67,6 +67,6 @@ class ResultReaderTest {
     }
 
     companion object {
-        @ClassRule @JvmField val initRule = InitRule()
+        @ClassRule @JvmField val cleanFlickerEnvironmentRule = CleanFlickerEnvironmentRule()
     }
 }

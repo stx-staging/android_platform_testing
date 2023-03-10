@@ -19,7 +19,7 @@ package android.tools.device.flicker.junit
 import android.annotation.SuppressLint
 import android.app.Instrumentation
 import android.platform.test.annotations.FlakyTest
-import android.tools.InitRule
+import android.tools.CleanFlickerEnvironmentRule
 import android.tools.device.apphelpers.BrowserAppHelper
 import android.tools.device.flicker.IS_FAAS_ENABLED
 import android.tools.device.flicker.annotation.FlickerServiceCompatible
@@ -329,6 +329,6 @@ class LegacyFlickerJUnit4ClassRunnerTest {
             FlickerParametersRunnerFactory().createRunnerForTestWithParameters(baseTest)
                 as LegacyFlickerJUnit4ClassRunner
 
-        @ClassRule @JvmField val initRule = InitRule()
+        @ClassRule @JvmField val cleanFlickerEnvironmentRule = CleanFlickerEnvironmentRule()
     }
 }

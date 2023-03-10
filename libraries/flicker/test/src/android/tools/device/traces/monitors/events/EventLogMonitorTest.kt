@@ -16,7 +16,7 @@
 
 package android.tools.device.traces.monitors.events
 
-import android.tools.InitRule
+import android.tools.CleanFlickerEnvironmentRule
 import android.tools.common.io.TraceType
 import android.tools.common.traces.events.CujEvent
 import android.tools.common.traces.events.CujType
@@ -432,6 +432,6 @@ class EventLogMonitorTest : TraceMonitorTest<EventLogMonitor>() {
     private companion object {
         const val INPUT_FOCUS_TAG = 62001
 
-        @ClassRule @JvmField val initRule = InitRule()
+        @ClassRule @JvmField val cleanFlickerEnvironmentRule = CleanFlickerEnvironmentRule()
     }
 }

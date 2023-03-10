@@ -16,7 +16,7 @@
 
 package android.tools.common.flicker.assertors.factories
 
-import android.tools.InitRule
+import android.tools.CleanFlickerEnvironmentRule
 import android.tools.common.CrossPlatform
 import android.tools.common.Rotation
 import android.tools.common.flicker.ScenarioInstance
@@ -60,6 +60,6 @@ class AssertionFactoryTest {
     }
 
     companion object {
-        @ClassRule @JvmField val initRule = InitRule()
+        @ClassRule @JvmField val cleanFlickerEnvironmentRule = CleanFlickerEnvironmentRule()
     }
 }
