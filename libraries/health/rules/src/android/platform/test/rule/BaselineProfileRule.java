@@ -74,12 +74,14 @@ public class BaselineProfileRule extends TestWatcher {
                                             // without a try-catch statement.
                                             try {
                                                 base.evaluate();
-                                                return Unit.INSTANCE;
                                             } catch (Throwable e) {
-                                                throw new RuntimeException(
-                                                        "Caught checked exception in parent"
-                                                                + " statement.",
+                                                Log.e(
+                                                        LOG_TAG,
+                                                        "Caught checked exception in parent "
+                                                                + "statement.",
                                                         e);
+                                            } finally {
+                                                return Unit.INSTANCE;
                                             }
                                         });
                             }
