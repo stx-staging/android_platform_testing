@@ -48,19 +48,24 @@ class TransitionMatcher(
 
         val completeTransitions = transitionsTrace.entries.filter { !it.isIncomplete }
 
+        var appliedTransformsCount = 0
         val matchedTransitions =
             transforms.fold(completeTransitions) { transitions, transform ->
-                transform(transitions, cujEntry, reader)
-            }
+                val remainingTransitions = transform(transitions, cujEntry, reader)
 
-        require(!associatedTransitionRequired || matchedTransitions.isNotEmpty()) {
-            "Required an associated transition for " +
-                "${cujEntry.cuj.name}(${cujEntry.startTimestamp},${cujEntry.endTimestamp}) " +
-                "but no transition left after all filters from: " +
-                "[\n${transitionsTrace.entries.joinToString(",\n") {
-                    Transition.Formatter(reader).format(it)
-                }.prependIndent()}\n]!"
-        }
+                appliedTransformsCount++
+                require(!associatedTransitionRequired || remainingTransitions.isNotEmpty()) {
+                    "Required an associated transition for ${cujEntry.cuj.name}" +
+                        "(${cujEntry.startTimestamp},${cujEntry.endTimestamp}) " +
+                        "but no transition left after $appliedTransformsCount/${transforms.size} " +
+                        "filters from: " +
+                        "[\n${transitionsTrace.entries.joinToString(",\n") {
+                            Transition.Formatter(reader).format(it)
+                        }.prependIndent()}\n]!"
+                }
+
+                remainingTransitions
+            }
 
         require(!associatedTransitionRequired || matchedTransitions.size == 1) {
             "Got too many associated transitions expected only 1."
@@ -73,6 +78,10 @@ class TransitionMatcher(
 object TransitionTransforms {
     val inCujRangeFilter: TransitionsTransform = { transitions, cujEntry, reader ->
         transitions.filter { transition ->
+            val transitionCreatedWithinCujTags =
+                cujEntry.startTimestamp <= transition.createTime &&
+                    transition.createTime <= cujEntry.endTimestamp
+
             val transitionSentWithinCujTags =
                 cujEntry.startTimestamp <= transition.sendTime &&
                     transition.sendTime <= cujEntry.endTimestamp
@@ -90,7 +99,9 @@ object TransitionTransforms {
             val cujStartsDuringTransition =
                 transition.sendTime <= cujEntry.startTimestamp &&
                     cujEntry.startTimestamp <= transitionEndTimestamp
-            return@filter transitionSentWithinCujTags || cujStartsDuringTransition
+            return@filter transitionCreatedWithinCujTags ||
+                transitionSentWithinCujTags ||
+                cujStartsDuringTransition
         }
     }
 
