@@ -20,7 +20,6 @@ import android.tools.common.ScenarioBuilder
 import android.tools.common.io.TraceType
 import android.tools.device.traces.DEFAULT_TRACE_CONFIG
 import android.tools.device.traces.deleteIfExists
-import android.tools.device.traces.io.IResultData
 import android.tools.device.traces.io.IoUtils
 import android.tools.device.traces.io.ResultReader
 import android.tools.device.traces.io.ResultWriter
@@ -33,7 +32,21 @@ import java.io.File
 abstract class TraceMonitor : ITransitionMonitor {
     abstract val isEnabled: Boolean
     abstract val traceType: TraceType
+    protected abstract fun doStart()
     protected abstract fun doStop(): File
+
+    final override fun start() {
+        validateStart()
+        doStart()
+    }
+
+    open fun validateStart() {
+        if (this.isEnabled) {
+            throw UnsupportedOperationException(
+                "Trace already running. " + "This is likely due to chained 'withTracing' calls."
+            )
+        }
+    }
 
     /** Stops monitor. */
     final override fun stop(writer: ResultWriter) {
@@ -62,12 +75,6 @@ abstract class TraceMonitor : ITransitionMonitor {
      * @throws UnsupportedOperationException If tracing is already activated
      */
     fun withTracing(writer: ResultWriter, predicate: () -> Unit) {
-        if (this.isEnabled) {
-            throw UnsupportedOperationException(
-                "Trace already running. " + "This is likely due to chained 'withTracing' calls."
-            )
-        }
-        val result: IResultData
         try {
             this.start()
             predicate()
