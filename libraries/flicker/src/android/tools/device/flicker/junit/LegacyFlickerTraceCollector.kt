@@ -32,4 +32,8 @@ class LegacyFlickerTraceCollector(private val scenario: IScenario) : ITracesColl
         CrossPlatform.log.d("FAAS", "LegacyFlickerTraceCollector#stop")
         return CachedResultReader(scenario, DEFAULT_TRACE_CONFIG)
     }
+
+    override fun cleanup() {
+        CrossPlatform.log.d("FAAS", "LegacyFlickerTraceCollector#cleanup")
+    }
 }
