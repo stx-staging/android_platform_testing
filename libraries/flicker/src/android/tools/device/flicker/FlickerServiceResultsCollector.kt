@@ -148,7 +148,6 @@ class FlickerServiceResultsCollector(
             return
         }
 
-        dataRecord.addStringMetric(WINSCOPE_FILE_PATH_KEY, reader.artifactPath)
         CrossPlatform.log.i(LOG_TAG, "Processing traces")
         val scenarios = flickerService.detectScenarios(reader)
         val assertions = flickerService.generateAssertions(scenarios)
@@ -171,6 +170,7 @@ class FlickerServiceResultsCollector(
         } else {
             reader.artifact.updateStatus(RunStatus.ASSERTION_SUCCESS)
         }
+        dataRecord.addStringMetric(WINSCOPE_FILE_PATH_KEY, reader.artifactPath)
         val aggregatedResults = processFlickerResults(results)
         collectMetrics(dataRecord, aggregatedResults)
     }
