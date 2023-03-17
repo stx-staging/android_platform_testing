@@ -303,7 +303,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.NOTIFICATION_SHADE_EXPAND_COLLAPSE_LOCK ->
                 ScenarioConfig(
@@ -314,7 +315,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.NOTIFICATION_SHADE_SCROLL_FLING ->
                 ScenarioConfig(
@@ -325,7 +327,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.NOTIFICATION_SHADE_ROW_EXPAND ->
                 ScenarioConfig(
@@ -336,7 +339,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.NOTIFICATION_SHADE_ROW_SWIPE ->
                 ScenarioConfig(
@@ -347,7 +351,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.NOTIFICATION_SHADE_QS_EXPAND_COLLAPSE ->
                 ScenarioConfig(
@@ -358,7 +363,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.NOTIFICATION_SHADE_QS_SCROLL_SWIPE ->
                 ScenarioConfig(
@@ -369,7 +375,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.NOTIFICATION_HEADS_UP_APPEAR ->
                 ScenarioConfig(
@@ -380,7 +387,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.NOTIFICATION_HEADS_UP_DISAPPEAR ->
                 ScenarioConfig(
@@ -391,7 +399,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.NOTIFICATION_ADD ->
                 ScenarioConfig(
@@ -402,7 +411,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.NOTIFICATION_REMOVE ->
                 ScenarioConfig(
@@ -413,7 +423,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.LOCKSCREEN_PASSWORD_APPEAR ->
                 ScenarioConfig(
@@ -424,7 +435,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.LOCKSCREEN_PATTERN_APPEAR ->
                 ScenarioConfig(
@@ -435,7 +447,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.LOCKSCREEN_PIN_APPEAR ->
                 ScenarioConfig(
@@ -446,7 +459,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.LOCKSCREEN_PASSWORD_DISAPPEAR ->
                 ScenarioConfig(
@@ -457,7 +471,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.LOCKSCREEN_PATTERN_DISAPPEAR ->
                 ScenarioConfig(
@@ -468,7 +483,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.LOCKSCREEN_PIN_DISAPPEAR ->
                 ScenarioConfig(
@@ -479,7 +495,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.LAUNCHER_OPEN_ALL_APPS ->
                 ScenarioConfig(
@@ -490,7 +507,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.LAUNCHER_ALL_APPS_SCROLL ->
                 ScenarioConfig(
@@ -501,7 +519,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.SETTINGS_PAGE_SCROLL ->
                 ScenarioConfig(
@@ -512,7 +531,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.PIP_TRANSITION ->
                 ScenarioConfig(
@@ -523,7 +543,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.WALLPAPER_TRANSITION ->
                 ScenarioConfig(
@@ -534,7 +555,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.USER_SWITCH ->
                 ScenarioConfig(
@@ -545,7 +567,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.SPLASHSCREEN_AVD ->
                 ScenarioConfig(
@@ -556,7 +579,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.SPLASHSCREEN_EXIT_ANIM ->
                 ScenarioConfig(
@@ -567,7 +591,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.SCREEN_OFF ->
                 ScenarioConfig(
@@ -578,7 +603,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.SCREEN_OFF_SHOW_AOD ->
                 ScenarioConfig(
@@ -589,7 +615,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.ONE_HANDED_ENTER_TRANSITION ->
                 ScenarioConfig(
@@ -600,7 +627,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.ONE_HANDED_EXIT_TRANSITION ->
                 ScenarioConfig(
@@ -611,7 +639,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.UNFOLD_ANIM ->
                 ScenarioConfig(
@@ -622,7 +651,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.SUW_LOADING_TO_SHOW_INFO_WITH_ACTIONS ->
                 ScenarioConfig(
@@ -633,7 +663,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.SUW_SHOW_FUNCTION_SCREEN_WITH_ACTIONS ->
                 ScenarioConfig(
@@ -644,7 +675,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.SUW_LOADING_TO_NEXT_FLOW ->
                 ScenarioConfig(
@@ -655,7 +687,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.SUW_LOADING_SCREEN_FOR_STATUS ->
                 ScenarioConfig(
@@ -666,7 +699,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.SETTINGS_SLIDER ->
                 ScenarioConfig(
@@ -677,7 +711,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.TAKE_SCREENSHOT ->
                 ScenarioConfig(
@@ -688,7 +723,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.VOLUME_CONTROL ->
                 ScenarioConfig(
@@ -699,7 +735,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.BIOMETRIC_PROMPT_TRANSITION ->
                 ScenarioConfig(
@@ -710,7 +747,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.SETTINGS_TOGGLE ->
                 ScenarioConfig(
@@ -721,7 +759,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.SHADE_DIALOG_OPEN ->
                 ScenarioConfig(
@@ -732,7 +771,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.USER_DIALOG_OPEN ->
                 ScenarioConfig(
@@ -743,7 +783,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.TASKBAR_EXPAND ->
                 ScenarioConfig(
@@ -754,7 +795,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.TASKBAR_COLLAPSE ->
                 ScenarioConfig(
@@ -765,7 +807,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.SHADE_CLEAR_ALL ->
                 ScenarioConfig(
@@ -776,7 +819,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.LAUNCHER_UNLOCK_ENTRANCE_ANIMATION ->
                 ScenarioConfig(
@@ -787,7 +831,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.LOCKSCREEN_OCCLUSION ->
                 ScenarioConfig(
@@ -798,7 +843,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.RECENTS_SCROLLING ->
                 ScenarioConfig(
@@ -809,7 +855,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.LAUNCHER_CLOSE_ALL_APPS_SWIPE ->
                 ScenarioConfig(
@@ -820,18 +867,8 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
-                )
-            FaasScenarioType.LAUNCHER_CLOSE_ALL_APPS_TO_HOME ->
-                ScenarioConfig(
-                    extractor =
-                        TaggedScenarioExtractor(
-                            targetTag = CujType.CUJ_LAUNCHER_CLOSE_ALL_APPS_TO_HOME,
-                            type,
-                            transitionMatcher =
-                                TransitionMatcher(associatedTransitionRequired = false),
-                        ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
             FaasScenarioType.IME_INSETS_ANIMATION ->
                 ScenarioConfig(
@@ -842,16 +879,24 @@ object FlickerServiceConfig {
                             transitionMatcher =
                                 TransitionMatcher(associatedTransitionRequired = false),
                         ),
-                    assertionTemplates = COMMON_ASSERTIONS // TODO: Add specific assertions
+                    assertionTemplates = COMMON_ASSERTIONS, // TODO: Add specific assertions
+                    enabled = false,
                 )
         }
 
-    fun getExtractors(): List<IScenarioExtractor> {
-        return FaasScenarioType.values().map { getScenarioConfigFor(it).extractor }
+    fun getExtractors(enabledOnly: Boolean = true): List<IScenarioExtractor> {
+        val scenarios: Collection<FaasScenarioType> =
+            if (enabledOnly) {
+                FaasScenarioType.values().filter { getScenarioConfigFor(it).enabled }
+            } else {
+                FaasScenarioType.values().asList()
+            }
+        return scenarios.map { getScenarioConfigFor(it).extractor }
     }
 }
 
 data class ScenarioConfig(
     val extractor: IScenarioExtractor,
-    val assertionTemplates: Collection<IAssertionTemplate>
+    val assertionTemplates: Collection<IAssertionTemplate>,
+    val enabled: Boolean = true
 )
