@@ -38,6 +38,7 @@ private constructor(
     val idStr: String
         get() = id.toString()
     @JsName("isOff") val isOff = layerStackId == BLANK_LAYER_STACK
+    @JsName("isOn") val isOn = !isOff
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
