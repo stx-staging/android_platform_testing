@@ -30,7 +30,6 @@ class RegionTraceSubject(val trace: RegionTrace, override val parent: FlickerSub
     FlickerTraceSubject<RegionSubject>(), IRegionSubject {
 
     override val subjects by lazy { trace.entries.map { RegionSubject(it, this, it.timestamp) } }
-    override val selfFacts: List<Fact> = emptyList()
 
     private val componentsAsString =
         if (trace.components == null) {

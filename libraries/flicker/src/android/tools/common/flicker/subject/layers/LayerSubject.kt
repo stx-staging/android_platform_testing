@@ -19,7 +19,6 @@ import android.tools.common.Timestamp
 import android.tools.common.datatypes.Size
 import android.tools.common.flicker.assertions.Fact
 import android.tools.common.flicker.subject.FlickerSubject
-import android.tools.common.flicker.subject.exceptions.InvalidPropertyException
 import android.tools.common.flicker.subject.region.RegionSubject
 import android.tools.common.traces.surfaceflinger.Layer
 
@@ -98,10 +97,7 @@ class LayerSubject(
     /** Asserts that current subject has an [Layer.effectiveScalingMode] equals to [expected] */
     @Throws(AssertionError::class)
     fun hasScalingMode(expected: Int): LayerSubject = apply {
-        val actualScalingMode = layer.effectiveScalingMode
-        check(actualScalingMode == expected) {
-            "Scaling mode. Actual: $actualScalingMode, expected: $expected"
-        }
+        check { "Scaling mode" }.that(layer.effectiveScalingMode).isEqual(expected)
     }
 
     /**
@@ -112,9 +108,7 @@ class LayerSubject(
         // see Transform::getOrientation
         val bufferTransformType = layer.bufferTransform.type ?: 0
         val actualOrientation = (bufferTransformType shr 8) and 0xFF
-        check(actualOrientation == expected) {
-            "Buffer orientation. Actual: $actualOrientation, expected: $expected"
-        }
+        check { "Buffer orientation" }.that(actualOrientation).isEqual(expected)
     }
 
     override fun toString(): String {

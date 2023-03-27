@@ -21,7 +21,6 @@ import android.content.Context
 import android.tools.common.CrossPlatform
 import android.tools.common.IScenario
 import android.tools.common.ScenarioBuilder
-import android.tools.common.flicker.subject.FlickerSubjectException
 import android.tools.common.io.RunStatus
 import android.tools.common.io.WINSCOPE_EXT
 import android.tools.common.parsers.events.EventLogParser
@@ -54,7 +53,6 @@ import android.tools.device.traces.parsers.wm.WindowManagerTraceParser
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import com.google.common.io.ByteStreams
-import com.google.common.truth.StringSubject
 import com.google.common.truth.Truth
 import java.io.File
 import java.io.FileInputStream
@@ -200,36 +198,14 @@ inline fun <reified ExceptionType> assertThrows(r: () -> Unit): ExceptionType {
     error("Expected exception ${ExceptionType::class.java}, but nothing was thrown")
 }
 
-fun assertFailureFact(
-    failure: FlickerSubjectException,
-    factKey: String,
-    factIndex: Int = 0
-): StringSubject {
-    val matchingFacts = failure.facts.filter { it.key == factKey }
-
-    if (factIndex >= matchingFacts.size) {
-        val message = buildString {
-            appendLine("Cannot find failure fact with key '$factKey' and index $factIndex")
-            appendLine()
-            appendLine("Available facts:")
-            failure.facts.forEach { appendLine(it.toString()) }
-        }
-        throw AssertionError(message)
-    }
-
-    return Truth.assertThat(matchingFacts[factIndex].value)
+inline fun assertFail(expectedMessage: String, predicate: () -> Any) {
+    val error = assertThrows<AssertionError> { predicate() }
+    Truth.assertThat(error).hasMessageThat().contains(expectedMessage)
 }
 
-fun assertThatErrorContainsDebugInfo(error: Throwable, withBlameEntry: Boolean = true) {
+fun assertThatErrorContainsDebugInfo(error: Throwable) {
     Truth.assertThat(error).hasMessageThat().contains("What?")
     Truth.assertThat(error).hasMessageThat().contains("Where?")
-    Truth.assertThat(error).hasMessageThat().contains("Facts")
-    Truth.assertThat(error).hasMessageThat().contains("Trace start")
-    Truth.assertThat(error).hasMessageThat().contains("Trace end")
-
-    if (withBlameEntry) {
-        Truth.assertThat(error).hasMessageThat().contains("State")
-    }
 }
 
 fun assertArchiveContainsFiles(archivePath: File, expectedFiles: List<String>) {

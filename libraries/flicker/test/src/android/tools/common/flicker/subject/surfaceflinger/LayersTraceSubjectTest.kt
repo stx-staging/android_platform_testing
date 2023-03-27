@@ -18,12 +18,12 @@ package android.tools.common.flicker.subject.surfaceflinger
 
 import android.tools.CleanFlickerEnvironmentRule
 import android.tools.TestComponents
-import android.tools.assertFailureFact
+import android.tools.assertFail
+import android.tools.assertThatErrorContainsDebugInfo
 import android.tools.assertThrows
 import android.tools.common.Cache
 import android.tools.common.datatypes.Region
 import android.tools.common.datatypes.component.ComponentNameMatcher
-import android.tools.common.flicker.subject.FlickerSubjectException
 import android.tools.common.flicker.subject.layers.LayersTraceSubject
 import android.tools.common.traces.surfaceflinger.LayersTrace
 import android.tools.readLayerTraceFromFile
@@ -52,24 +52,20 @@ class LayersTraceSubjectTest {
             readLayerTraceFromFile("layers_trace_launch_split_screen.pb", legacyTrace = true)
         val error =
             assertThrows<AssertionError> { LayersTraceSubject(layersTraceEntries).isEmpty() }
-        Truth.assertThat(error).hasMessageThat().contains("Trace start")
-        Truth.assertThat(error).hasMessageThat().contains("Trace end")
+        assertThatErrorContainsDebugInfo(error)
     }
 
     @Test
     fun testCanDetectEmptyRegionFromLayerTrace() {
         val layersTraceEntries =
             readLayerTraceFromFile("layers_trace_emptyregion.pb", legacyTrace = true)
-        val failure =
-            assertThrows<FlickerSubjectException> {
-                LayersTraceSubject(layersTraceEntries)
-                    .visibleRegion()
-                    .coversAtLeast(DISPLAY_REGION)
-                    .forAllEntries()
-                error("Assertion should not have passed")
-            }
-        assertFailureFact(failure, "Region to test").contains(DISPLAY_REGION.toString())
-        assertFailureFact(failure, "Uncovered region").contains("SkRegion((0,1440,1440,2880))")
+        assertFail("SkRegion((0,0,1440,1440)) should cover at least SkRegion((0,0,1440,2880))") {
+            LayersTraceSubject(layersTraceEntries)
+                .visibleRegion()
+                .coversAtLeast(DISPLAY_REGION)
+                .forAllEntries()
+            error("Assertion should not have passed")
+        }
     }
 
     @Test
@@ -131,7 +127,7 @@ class LayersTraceSubjectTest {
         val layersTraceEntries =
             readLayerTraceFromFile("layers_trace_invalid_layer_visibility.pb", legacyTrace = true)
         val error =
-            assertThrows<FlickerSubjectException> {
+            assertThrows<AssertionError> {
                 LayersTraceSubject(layersTraceEntries)
                     .isVisible(TestComponents.SIMPLE_APP)
                     .then()
@@ -157,7 +153,7 @@ class LayersTraceSubjectTest {
         val layersTraceEntries =
             readLayerTraceFromFile("layers_trace_invalid_visible_layers.pb", legacyTrace = true)
         val error =
-            assertThrows<FlickerSubjectException> {
+            assertThrows<AssertionError> {
                 LayersTraceSubject(layersTraceEntries)
                     .visibleLayersShownMoreThanOneConsecutiveEntry()
                     .forAllEntries()
@@ -203,8 +199,8 @@ class LayersTraceSubjectTest {
             .forAllEntries()
     }
 
-    private fun detectRootLayer(fileName: String, legacyTrace: Boolean = false) {
-        val layersTrace = readLayerTraceFromFile(fileName, legacyTrace = legacyTrace)
+    private fun detectRootLayer(fileName: String) {
+        val layersTrace = readLayerTraceFromFile(fileName, legacyTrace = true)
         for (entry in layersTrace.entries) {
             val rootLayers = entry.children
             Truth.assertWithMessage("Does not have any root layer")
@@ -219,12 +215,12 @@ class LayersTraceSubjectTest {
 
     @Test
     fun testCanDetectRootLayer() {
-        detectRootLayer("layers_trace_root.pb", legacyTrace = true)
+        detectRootLayer("layers_trace_root.pb")
     }
 
     @Test
     fun testCanDetectRootLayerAOSP() {
-        detectRootLayer("layers_trace_root_aosp.pb", legacyTrace = true)
+        detectRootLayer("layers_trace_root_aosp.pb")
     }
 
     @Test
@@ -247,7 +243,7 @@ class LayersTraceSubjectTest {
         // greater or equal to the previous one
         val areas =
             animation.map {
-                val region = it.layer?.visibleRegion ?: Region()
+                val region = it.layer.visibleRegion ?: Region()
                 val area = region.width * region.height
                 area
             }
@@ -291,11 +287,6 @@ class LayersTraceSubjectTest {
     @Test
     fun checkCanDetectSplashScreen() {
         val trace = readLayerTraceFromFile("layers_trace_splashscreen.pb", legacyTrace = true)
-        val newLayer =
-            ComponentNameMatcher(
-                "com.android.server.wm.flicker.testapp",
-                "com.android.server.wm.flicker.testapp.SimpleActivity"
-            )
         LayersTraceSubject(trace)
             .isVisible(TestComponents.LAUNCHER)
             .then()
@@ -304,46 +295,28 @@ class LayersTraceSubjectTest {
             .isVisible(TestComponents.SIMPLE_APP)
             .forAllEntries()
 
-        val failure =
-            assertThrows<FlickerSubjectException> {
-                LayersTraceSubject(trace)
-                    .isVisible(TestComponents.LAUNCHER)
-                    .then()
-                    .isVisible(TestComponents.SIMPLE_APP)
-                    .forAllEntries()
-            }
-        Truth.assertThat(failure).hasMessageThat().contains("Is Invisible")
+        assertFail("SimpleActivity# should be visible") {
+            LayersTraceSubject(trace)
+                .isVisible(TestComponents.LAUNCHER)
+                .then()
+                .isVisible(TestComponents.SIMPLE_APP)
+                .forAllEntries()
+        }
     }
 
     @Test
     fun checkCanDetectMissingSplashScreen() {
         val trace = readLayerTraceFromFile("layers_trace_splashscreen.pb", legacyTrace = true)
-        val newLayer =
-            ComponentNameMatcher(
-                "com.android.server.wm.flicker.testapp",
-                "com.android.server.wm.flicker.testapp.SimpleActivity"
-            )
 
         // No splashscreen because no matching activity record
-        val failure =
-            assertThrows<FlickerSubjectException> {
-                LayersTraceSubject(trace)
-                    .first()
-                    .isSplashScreenVisibleFor(TestComponents.SIMPLE_APP)
-            }
-        Truth.assertThat(failure)
-            .hasMessageThat()
-            .contains("Could not find Splash screen and activity record layer")
+        assertFail("SimpleActivity# should exist") {
+            LayersTraceSubject(trace).first().isSplashScreenVisibleFor(TestComponents.SIMPLE_APP)
+        }
     }
 
     companion object {
         private val DISPLAY_REGION = Region.from(0, 0, 1440, 2880)
         private val DISPLAY_REGION_ROTATED = Region.from(0, 0, 2160, 1080)
-        private const val SHELL_APP_PACKAGE = "com.android.wm.shell.flicker.testapp"
-        private val FIXED_APP =
-            ComponentNameMatcher(SHELL_APP_PACKAGE, "$SHELL_APP_PACKAGE.FixedActivity")
-        private val PIP_APP =
-            ComponentNameMatcher(SHELL_APP_PACKAGE, "$SHELL_APP_PACKAGE.PipActivity")
 
         @ClassRule @JvmField val cleanFlickerEnvironmentRule = CleanFlickerEnvironmentRule()
     }

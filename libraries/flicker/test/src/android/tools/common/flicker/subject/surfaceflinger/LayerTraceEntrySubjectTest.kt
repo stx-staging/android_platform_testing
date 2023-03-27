@@ -18,7 +18,7 @@ package android.tools.common.flicker.subject.surfaceflinger
 
 import android.tools.CleanFlickerEnvironmentRule
 import android.tools.TestComponents
-import android.tools.assertFailureFact
+import android.tools.assertFail
 import android.tools.assertThatErrorContainsDebugInfo
 import android.tools.assertThrows
 import android.tools.common.Cache
@@ -26,8 +26,6 @@ import android.tools.common.datatypes.Rect
 import android.tools.common.datatypes.Region
 import android.tools.common.datatypes.component.ComponentNameMatcher
 import android.tools.common.datatypes.component.OrComponentMatcher
-import android.tools.common.flicker.subject.FlickerSubject
-import android.tools.common.flicker.subject.FlickerSubjectException
 import android.tools.common.flicker.subject.layers.LayerTraceEntrySubject
 import android.tools.common.flicker.subject.layers.LayersTraceSubject
 import android.tools.readLayerTraceFromFile
@@ -56,14 +54,13 @@ class LayerTraceEntrySubjectTest {
         val layersTraceEntries =
             readLayerTraceFromFile("layers_trace_emptyregion.pb", legacyTrace = true)
         val error =
-            assertThrows<FlickerSubjectException> {
+            assertThrows<AssertionError> {
                 LayersTraceSubject(layersTraceEntries)
                     .first()
                     .visibleRegion(TestComponents.IMAGINARY)
             }
         assertThatErrorContainsDebugInfo(error)
         Truth.assertThat(error).hasMessageThat().contains(TestComponents.IMAGINARY.className)
-        Truth.assertThat(error).hasMessageThat().contains(FlickerSubject.ASSERTION_TAG)
     }
 
     @Test
@@ -90,16 +87,12 @@ class LayerTraceEntrySubjectTest {
     fun canDetectUncoveredRegion() {
         val trace = readLayerTraceFromFile("layers_trace_emptyregion.pb", legacyTrace = true)
         val expectedRegion = Region.from(0, 0, 1440, 2960)
-        val error =
-            assertThrows<FlickerSubjectException> {
-                LayersTraceSubject(trace)
-                    .getEntryBySystemUpTime(935346112030, byElapsedTimestamp = true)
-                    .visibleRegion()
-                    .coversAtLeast(expectedRegion)
-            }
-        assertFailureFact(error, "Region to test").contains("SkRegion((0,0,1440,2960))")
-
-        assertFailureFact(error, "Uncovered region").contains("SkRegion((0,1440,1440,2960))")
+        assertFail("SkRegion((0,0,1440,1440)) should cover at least SkRegion((0,0,1440,2960))") {
+            LayersTraceSubject(trace)
+                .getEntryBySystemUpTime(935346112030, byElapsedTimestamp = true)
+                .visibleRegion()
+                .coversAtLeast(expectedRegion)
+        }
     }
 
     // Visible region tests
@@ -107,57 +100,48 @@ class LayerTraceEntrySubjectTest {
     fun canTestLayerVisibleRegion_layerDoesNotExist() {
         val trace = readLayerTraceFromFile("layers_trace_emptyregion.pb", legacyTrace = true)
         val expectedVisibleRegion = Region.from(0, 0, 1, 1)
-        val error =
-            assertThrows<FlickerSubjectException> {
-                LayersTraceSubject(trace)
-                    .getEntryBySystemUpTime(937229257165, byElapsedTimestamp = true)
-                    .visibleRegion(TestComponents.IMAGINARY)
-                    .coversExactly(expectedVisibleRegion)
-            }
-        assertFailureFact(error, "Could not find layers")
-            .contains(TestComponents.IMAGINARY.toWindowIdentifier())
+        assertFail(TestComponents.IMAGINARY.toWindowIdentifier()) {
+            LayersTraceSubject(trace)
+                .getEntryBySystemUpTime(937229257165, byElapsedTimestamp = true)
+                .visibleRegion(TestComponents.IMAGINARY)
+                .coversExactly(expectedVisibleRegion)
+        }
     }
 
     @Test
     fun canTestLayerVisibleRegion_layerDoesNotHaveExpectedVisibleRegion() {
         val trace = readLayerTraceFromFile("layers_trace_emptyregion.pb", legacyTrace = true)
         val expectedVisibleRegion = Region.from(0, 0, 1, 1)
-        val error =
-            assertThrows<FlickerSubjectException> {
-                LayersTraceSubject(trace)
-                    .getEntryBySystemUpTime(937126074082, byElapsedTimestamp = true)
-                    .visibleRegion(TestComponents.DOCKER_STACK_DIVIDER)
-                    .coversExactly(expectedVisibleRegion)
-            }
-        assertFailureFact(error, "Covered region").contains("SkRegion()")
+        assertFail("SkRegion() should cover exactly SkRegion((0,0,1,1))") {
+            LayersTraceSubject(trace)
+                .getEntryBySystemUpTime(937126074082, byElapsedTimestamp = true)
+                .visibleRegion(TestComponents.DOCKER_STACK_DIVIDER)
+                .coversExactly(expectedVisibleRegion)
+        }
     }
 
     @Test
     fun canTestLayerVisibleRegion_layerIsHiddenByParent() {
         val trace = readLayerTraceFromFile("layers_trace_emptyregion.pb", legacyTrace = true)
         val expectedVisibleRegion = Region.from(0, 0, 1, 1)
-        val error =
-            assertThrows<FlickerSubjectException> {
-                LayersTraceSubject(trace)
-                    .getEntryBySystemUpTime(935346112030, byElapsedTimestamp = true)
-                    .visibleRegion(TestComponents.SIMPLE_APP)
-                    .coversExactly(expectedVisibleRegion)
-            }
-        assertFailureFact(error, "Covered region").contains("SkRegion()")
+        assertFail("SkRegion() should cover exactly SkRegion((0,0,1,1))") {
+            LayersTraceSubject(trace)
+                .getEntryBySystemUpTime(935346112030, byElapsedTimestamp = true)
+                .visibleRegion(TestComponents.SIMPLE_APP)
+                .coversExactly(expectedVisibleRegion)
+        }
     }
 
     @Test
     fun canTestLayerVisibleRegion_incorrectRegionSize() {
         val trace = readLayerTraceFromFile("layers_trace_emptyregion.pb", legacyTrace = true)
         val expectedVisibleRegion = Region.from(0, 0, 1440, 99)
-        val error =
-            assertThrows<FlickerSubjectException> {
-                LayersTraceSubject(trace)
-                    .getEntryBySystemUpTime(937126074082, byElapsedTimestamp = true)
-                    .visibleRegion(ComponentNameMatcher.STATUS_BAR)
-                    .coversExactly(expectedVisibleRegion)
-            }
-        assertFailureFact(error, "Region to test").contains("SkRegion((0,0,1440,99))")
+        assertFail("SkRegion((0,0,1440,171)) should cover exactly SkRegion((0,0,1440,99))") {
+            LayersTraceSubject(trace)
+                .getEntryBySystemUpTime(937126074082, byElapsedTimestamp = true)
+                .visibleRegion(ComponentNameMatcher.STATUS_BAR)
+                .coversExactly(expectedVisibleRegion)
+        }
     }
 
     @Test
@@ -175,13 +159,11 @@ class LayerTraceEntrySubjectTest {
     fun canTestLayerVisibleRegion_layerIsNotVisible() {
         val trace =
             readLayerTraceFromFile("layers_trace_invalid_layer_visibility.pb", legacyTrace = true)
-        val error =
-            assertThrows<FlickerSubjectException> {
-                LayersTraceSubject(trace)
-                    .getEntryBySystemUpTime(252794268378458, byElapsedTimestamp = true)
-                    .isVisible(TestComponents.SIMPLE_APP)
-            }
-        assertFailureFact(error, "Invisibility reason", 1).contains("Bounds is 0x0")
+        assertFail("Bounds is 0x0") {
+            LayersTraceSubject(trace)
+                .getEntryBySystemUpTime(252794268378458, byElapsedTimestamp = true)
+                .isVisible(TestComponents.SIMPLE_APP)
+        }
     }
 
     @Test
@@ -278,7 +260,7 @@ class LayerTraceEntrySubjectTest {
         subject.isVisible(ComponentNameMatcher(app1Name))
         subject.isVisible(ComponentNameMatcher(app2Name))
 
-        assertThrows<FlickerSubjectException> { subject.isInvisible(component) }
+        assertThrows<AssertionError> { subject.isInvisible(component) }
         subject.isVisible(component)
     }
 
@@ -308,8 +290,9 @@ class LayerTraceEntrySubjectTest {
         subject.contains(ComponentNameMatcher(app1Name))
         subject.notContains(ComponentNameMatcher(app2Name))
 
-        subject.notContains(component)
         subject.contains(component)
+
+        assertFail("Found: com.simple.test.app1") { subject.notContains(component) }
     }
 
     @Test
@@ -329,7 +312,7 @@ class LayerTraceEntrySubjectTest {
         subject.notContains(ComponentNameMatcher(app2Name))
 
         subject.notContains(component)
-        assertThrows<FlickerSubjectException> { subject.contains(component) }
+        assertThrows<AssertionError> { subject.contains(component) }
     }
 
     @Test
@@ -361,7 +344,7 @@ class LayerTraceEntrySubjectTest {
         subject.contains(ComponentNameMatcher(app1Name))
         subject.contains(ComponentNameMatcher(app2Name))
 
-        assertThrows<FlickerSubjectException> { subject.notContains(component) }
+        assertThrows<AssertionError> { subject.notContains(component) }
         subject.contains(component)
     }
 

@@ -122,7 +122,7 @@ class LayersTraceTest {
             readLayerTraceFromFile("layers_trace_emptyregion.pb", legacyTrace = true)
         val error =
             assertThrows<AssertionError> { LayersTraceSubject(layersTraceEntries).isEmpty() }
-        assertThatErrorContainsDebugInfo(error, withBlameEntry = false)
+        assertThatErrorContainsDebugInfo(error)
     }
 
     companion object {

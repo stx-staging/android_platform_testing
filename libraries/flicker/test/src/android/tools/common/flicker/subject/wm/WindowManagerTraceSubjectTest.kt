@@ -22,7 +22,6 @@ import android.tools.assertThatErrorContainsDebugInfo
 import android.tools.assertThrows
 import android.tools.common.Cache
 import android.tools.common.datatypes.component.ComponentNameMatcher
-import android.tools.common.flicker.subject.FlickerSubjectException
 import android.tools.readWmTraceFromFile
 import com.google.common.truth.Truth
 import org.junit.Before
@@ -122,11 +121,10 @@ class WindowManagerTraceSubjectTest {
         WindowManagerTraceSubject(chromeTrace).first().isAppWindowOnTop(TestComponents.LAUNCHER)
 
         val failure =
-            assertThrows<FlickerSubjectException> {
+            assertThrows<AssertionError> {
                 WindowManagerTraceSubject(chromeTrace)
                     .first()
                     .isAppWindowOnTop(TestComponents.IMAGINARY)
-                    .fail("Could not detect the top app window")
             }
         Truth.assertThat(failure).hasMessageThat().contains("ImaginaryWindow")
     }
@@ -199,7 +197,7 @@ class WindowManagerTraceSubjectTest {
 
         val visibilityChange =
             windowStates.zipWithNext { current, next ->
-                current.windowState?.isVisible != next.windowState?.isVisible
+                current.windowState.isVisible != next.windowState.isVisible
             }
 
         Truth.assertWithMessage("Visibility should have changed only 1x in the trace")
@@ -211,7 +209,7 @@ class WindowManagerTraceSubjectTest {
     fun exceptionContainsDebugInfo() {
         val error =
             assertThrows<AssertionError> { WindowManagerTraceSubject(chromeTrace).isEmpty() }
-        assertThatErrorContainsDebugInfo(error, withBlameEntry = false)
+        assertThatErrorContainsDebugInfo(error)
     }
 
     @Test
