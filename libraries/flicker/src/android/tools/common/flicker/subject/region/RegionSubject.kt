@@ -22,15 +22,17 @@ import android.tools.common.datatypes.RectF
 import android.tools.common.datatypes.Region
 import android.tools.common.flicker.assertions.Fact
 import android.tools.common.flicker.subject.FlickerSubject
+import android.tools.common.flicker.subject.exceptions.IncorrectRegionException
 import android.tools.common.traces.region.RegionEntry
-import kotlin.math.abs
 
-/** Subject for [Rect] objects, used to make assertions over behaviors that occur on a rectangle. */
+/**
+ * Subject for [Region] objects, used to make assertions over behaviors that occur on a rectangle.
+ */
 class RegionSubject(
     override val parent: FlickerSubject?,
     val regionEntry: RegionEntry,
     override val timestamp: Timestamp
-) : FlickerSubject() {
+) : FlickerSubject(), IRegionSubject {
 
     /** Custom constructor for existing android regions */
     constructor(
@@ -74,24 +76,19 @@ class RegionSubject(
         timestamp: Timestamp
     ) : this(mergeRegions(regions), parent, timestamp)
 
-    /**
-     * Custom constructor
-     *
-     * @param regionEntry to assert
-     * @param parent containing the entry
-     */
+    /** Custom constructor for existing entries */
     constructor(
         regionEntry: RegionEntry?,
         parent: FlickerSubject? = null,
         timestamp: Timestamp
     ) : this(regionEntry?.region, parent, timestamp)
 
+    override val selfFacts: List<Fact> = emptyList()
+
     val region = regionEntry.region
 
     private val Rect.area
         get() = this.width * this.height
-
-    override val selfFacts = listOf(Fact("Region - Covered", region.toString()))
 
     /** {@inheritDoc} */
     override fun fail(reason: List<Fact>): FlickerSubject {
@@ -99,10 +96,20 @@ class RegionSubject(
         return super.fail(newReason)
     }
 
-    /** Asserts that the current [Region] doesn't contain layers */
-    fun isEmpty(): RegionSubject = apply { check(regionEntry.region.isEmpty) { "Region is empty" } }
+    /**
+     * Asserts that the current [Region] doesn't contain layers
+     *
+     * @throws AssertionError
+     */
+    @Throws(AssertionError::class)
+    fun isEmpty(): RegionSubject = apply {check(regionEntry.region.isEmpty) { "Region is empty" } }
 
-    /** Asserts that the current [Region] doesn't contain layers */
+    /**
+     * Asserts that the current [Region] doesn't contain layers
+     *
+     * @throws AssertionError
+     */
+    @Throws(AssertionError::class)
     fun isNotEmpty(): RegionSubject = apply {
         check(regionEntry.region.isNotEmpty) { "Region is not empty" }
     }
@@ -133,31 +140,15 @@ class RegionSubject(
         return RegionSubject(remainingRegion, this, timestamp)
     }
 
-    /**
-     * Asserts that the top and bottom coordinates of [RegionSubject.region] are smaller or equal to
-     * those of [region].
-     *
-     * Also checks that the left and right positions, as well as area, don't change
-     */
-    fun isHigherOrEqual(subject: RegionSubject): RegionSubject = apply {
-        isHigherOrEqual(subject.region)
-    }
+    /** See [isHigherOrEqual] */
+    @Throws(AssertionError::class)
+    fun isHigherOrEqual(subject: RegionSubject): RegionSubject = isHigherOrEqual(subject.region)
 
-    /**
-     * Asserts that the top and bottom coordinates of [other] are smaller or equal to those of
-     * [region].
-     *
-     * Also checks that the left and right positions, as well as area, don't change
-     */
-    fun isHigherOrEqual(other: Rect): RegionSubject = apply { isHigherOrEqual(Region.from(other)) }
+    /** {@inheritDoc} */
+    override fun isHigherOrEqual(other: Rect): RegionSubject = isHigherOrEqual(Region.from(other))
 
-    /**
-     * Asserts that the top and bottom coordinates of [other] are smaller or equal to those of
-     * [region].
-     *
-     * Also checks that the left and right positions, as well as area, don't change
-     */
-    fun isHigherOrEqual(other: Region): RegionSubject = apply {
+    /** {@inheritDoc} */
+    override fun isHigherOrEqual(other: Region): RegionSubject = apply {
         assertLeftRightAndAreaEquals(other)
         check { MSG_ERROR_TOP_POSITION }.that(region.bounds.top).isLowerOrEqual(other.bounds.top)
         check { MSG_ERROR_BOTTOM_POSITION }
@@ -165,31 +156,15 @@ class RegionSubject(
             .isLowerOrEqual(other.bounds.bottom)
     }
 
-    /**
-     * Asserts that the top and bottom coordinates of [RegionSubject.region] are greater or equal to
-     * those of [region].
-     *
-     * Also checks that the left and right positions, as well as area, don't change
-     */
-    fun isLowerOrEqual(subject: RegionSubject): RegionSubject = apply {
-        isLowerOrEqual(subject.region)
-    }
+    /** See [isLowerOrEqual] */
+    @Throws(AssertionError::class)
+    fun isLowerOrEqual(subject: RegionSubject): RegionSubject = isLowerOrEqual(subject.region)
 
-    /**
-     * Asserts that the top and bottom coordinates of [other] are greater or equal to those of
-     * [region].
-     *
-     * Also checks that the left and right positions, as well as area, don't change
-     */
-    fun isLowerOrEqual(other: Rect): RegionSubject = apply { isLowerOrEqual(Region.from(other)) }
+    /** {@inheritDoc} */
+    override fun isLowerOrEqual(other: Rect): RegionSubject = isLowerOrEqual(Region.from(other))
 
-    /**
-     * Asserts that the top and bottom coordinates of [other] are greater or equal to those of
-     * [region].
-     *
-     * Also checks that the left and right positions, as well as area, don't change
-     */
-    fun isLowerOrEqual(other: Region): RegionSubject = apply {
+    /** {@inheritDoc} */
+    override fun isLowerOrEqual(other: Region): RegionSubject = apply {
         assertLeftRightAndAreaEquals(other)
         check { MSG_ERROR_TOP_POSITION }.that(region.bounds.top).isGreaterOrEqual(other.bounds.top)
         check { MSG_ERROR_BOTTOM_POSITION }
@@ -197,13 +172,8 @@ class RegionSubject(
             .isGreaterOrEqual(other.bounds.bottom)
     }
 
-    /**
-     * Asserts that the left and right coordinates of [other] are lower or equal to those of
-     * [region].
-     *
-     * Also checks that the top and bottom positions, as well as area, don't change
-     */
-    fun isToTheRight(other: Region): RegionSubject = apply {
+    /** {@inheritDoc} */
+    override fun isToTheRight(other: Region): RegionSubject = apply {
         assertTopBottomAndAreaEquals(other)
         check { MSG_ERROR_LEFT_POSITION }
             .that(region.bounds.left)
@@ -213,53 +183,35 @@ class RegionSubject(
             .isGreaterOrEqual(other.bounds.right)
     }
 
-    /**
-     * Asserts that the top and bottom coordinates of [RegionSubject.region] are smaller than those
-     * of [region].
-     *
-     * Also checks that the left and right positions, as well as area, don't change
-     */
-    fun isHigher(subject: RegionSubject): RegionSubject = apply { isHigher(subject.region) }
+    /** See [isHigher] */
+    @Throws(AssertionError::class)
+    fun isHigher(subject: RegionSubject): RegionSubject = isHigher(subject.region)
 
-    /**
-     * Asserts that the top and bottom coordinates of [other] are smaller than those of [region].
-     *
-     * Also checks that the left and right positions, as well as area, don't change
-     */
-    fun isHigher(other: Rect): RegionSubject = apply { isHigher(Region.from(other)) }
+    /** {@inheritDoc} */
+    override fun isHigher(other: Rect): RegionSubject = isHigher(Region.from(other))
 
-    /**
-     * Asserts that the top and bottom coordinates of [other] are smaller than those of [region].
-     *
-     * Also checks that the left and right positions, as well as area, don't change
-     */
-    fun isHigher(other: Region): RegionSubject = apply {
+    /** {@inheritDoc} */
+    override fun isHigher(other: Region): RegionSubject = apply {
         assertLeftRightAndAreaEquals(other)
         check { MSG_ERROR_TOP_POSITION }.that(region.bounds.top).isLower(other.bounds.top)
         check { MSG_ERROR_BOTTOM_POSITION }.that(region.bounds.bottom).isLower(other.bounds.bottom)
     }
 
-    /**
-     * Asserts that the top and bottom coordinates of [RegionSubject.region] are greater than those
-     * of [region].
-     *
-     * Also checks that the left and right positions, as well as area, don't change
-     */
-    fun isLower(subject: RegionSubject): RegionSubject = apply { isLower(subject.region) }
+    /** See [isLower] */
+    @Throws(AssertionError::class)
+    fun isLower(subject: RegionSubject): RegionSubject = isLower(subject.region)
+
+    /** {@inheritDoc} */
+    override fun isLower(other: Rect): RegionSubject = isLower(Region.from(other))
 
     /**
      * Asserts that the top and bottom coordinates of [other] are greater than those of [region].
      *
      * Also checks that the left and right positions, as well as area, don't change
-     */
-    fun isLower(other: Rect): RegionSubject = apply { isLower(Region.from(other)) }
-
-    /**
-     * Asserts that the top and bottom coordinates of [other] are greater than those of [region].
      *
-     * Also checks that the left and right positions, as well as area, don't change
+     * @throws IncorrectRegionException
      */
-    fun isLower(other: Region): RegionSubject = apply {
+    override fun isLower(other: Region): RegionSubject = apply {
         assertLeftRightAndAreaEquals(other)
         check { MSG_ERROR_TOP_POSITION }.that(region.bounds.top).isGreater(other.bounds.top)
         check { MSG_ERROR_BOTTOM_POSITION }
@@ -283,21 +235,12 @@ class RegionSubject(
         }
     }
 
-    /**
-     * Asserts that [region] covers at most [testRect], that is, its area doesn't cover any point
-     * outside of [testRect].
-     *
-     * @param testRect Expected covered area
-     */
-    fun coversAtMost(testRect: Rect): RegionSubject = apply { coversAtMost(Region.from(testRect)) }
+    /** {@inheritDoc} */
+    override fun coversAtMost(other: Rect): RegionSubject = coversAtMost(Region.from(other))
 
-    /**
-     * Asserts that [region] is not bigger than [testRegion], even if the regions don't overlap.
-     *
-     * @param testRegion Area to compare to
-     */
-    fun notBiggerThan(testRegion: Region): RegionSubject = apply {
-        val testArea = testRegion.bounds.area
+    /** {@inheritDoc} */
+    override fun notBiggerThan(other: Region): RegionSubject = apply {
+        val testArea = other.bounds.area
         val area = region.bounds.area
 
         if (area > testArea) {
@@ -310,30 +253,18 @@ class RegionSubject(
         }
     }
 
-    /**
-     * Asserts that [region] is positioned to the right and bottom from [testRegion], but the
-     * regions can overlap and [region] can be smaller than [testRegion]
-     *
-     * @param testRegion Area to compare to
-     * @param threshold Offset threshold by which the position might be off
-     */
-    fun isToTheRightBottom(testRegion: Region, threshold: Int): RegionSubject = apply {
-        val horizontallyPositionedToTheRight =
-            testRegion.bounds.left - threshold <= region.bounds.left
-        val verticallyPositionedToTheBottom = testRegion.bounds.top - threshold <= region.bounds.top
+    /** {@inheritDoc} */
+    override fun isToTheRightBottom(other: Region, threshold: Int): RegionSubject = apply {
+        val horizontallyPositionedToTheRight = other.bounds.left - threshold <= region.bounds.left
+        val verticallyPositionedToTheBottom = other.bounds.top - threshold <= region.bounds.top
 
         if (!horizontallyPositionedToTheRight || !verticallyPositionedToTheBottom) {
             fail(Fact("Region to test", testRegion), Fact("Actual region", region))
         }
     }
 
-    /**
-     * Asserts that [region] covers at least [testRegion], that is, its area covers each point in
-     * the region
-     *
-     * @param testRegion Expected covered area
-     */
-    fun coversAtLeast(testRegion: Region): RegionSubject = apply {
+    /** {@inheritDoc} */
+    override fun coversAtLeast(other: Region): RegionSubject = apply {
         if (!region.coversAtLeast(testRegion)) {
             fail(
                 Fact("Region to test", testRegion),
@@ -343,22 +274,11 @@ class RegionSubject(
         }
     }
 
-    /**
-     * Asserts that [region] covers at least [testRect], that is, its area covers each point in the
-     * region
-     *
-     * @param testRect Expected covered area
-     */
-    fun coversAtLeast(testRect: Rect): RegionSubject = apply {
-        coversAtLeast(Region.from(testRect))
-    }
+    /** {@inheritDoc} */
+    override fun coversAtLeast(other: Rect): RegionSubject = coversAtLeast(Region.from(other))
 
-    /**
-     * Asserts that [region] covers at exactly [testRegion]
-     *
-     * @param testRegion Expected covered area
-     */
-    fun coversExactly(testRegion: Region): RegionSubject = apply {
+    /** {@inheritDoc} */
+    override fun coversExactly(other: Region): RegionSubject = apply {
         val intersection = Region.from(region)
         val isNotEmpty = intersection.op(testRegion, Region.Op.XOR)
 
@@ -371,21 +291,11 @@ class RegionSubject(
         }
     }
 
-    /**
-     * Asserts that [region] covers at exactly [testRect]
-     *
-     * @param testRect Expected covered area
-     */
-    fun coversExactly(testRect: Rect): RegionSubject = apply {
-        coversExactly(Region.from(testRect))
-    }
+    /** {@inheritDoc} */
+    override fun coversExactly(other: Rect): RegionSubject = coversExactly(Region.from(other))
 
-    /**
-     * Asserts that [region] and [testRegion] overlap
-     *
-     * @param testRegion Other area
-     */
-    fun overlaps(testRegion: Region): RegionSubject = apply {
+    /** {@inheritDoc} */
+    override fun overlaps(other: Region): RegionSubject = apply {
         val intersection = Region.from(region)
         val isEmpty = !intersection.op(testRegion, Region.Op.INTERSECT)
 
@@ -398,19 +308,11 @@ class RegionSubject(
         }
     }
 
-    /**
-     * Asserts that [region] and [testRect] overlap
-     *
-     * @param testRect Other area
-     */
-    fun overlaps(testRect: Rect): RegionSubject = apply { overlaps(Region.from(testRect)) }
+    /** {@inheritDoc} */
+    override fun overlaps(other: Rect): RegionSubject = overlaps(Region.from(other))
 
-    /**
-     * Asserts that [region] and [testRegion] don't overlap
-     *
-     * @param testRegion Other area
-     */
-    fun notOverlaps(testRegion: Region): RegionSubject = apply {
+    /** {@inheritDoc} */
+    override fun notOverlaps(other: Region): RegionSubject = apply {
         val intersection = Region.from(region)
         val isEmpty = !intersection.op(testRegion, Region.Op.INTERSECT)
 
@@ -423,25 +325,20 @@ class RegionSubject(
         }
     }
 
-    /**
-     * Asserts that [region] and [testRect] don't overlap
-     *
-     * @param testRect Other area
-     */
-    fun notOverlaps(testRect: Rect): RegionSubject = apply { notOverlaps(Region.from(testRect)) }
+    /** {@inheritDoc} */
+    override fun notOverlaps(other: Rect): RegionSubject = apply { notOverlaps(Region.from(other)) }
 
-    /**
-     * Asserts that [region] and [other] have same aspect ratio, margin of error up to 0.1.
-     *
-     * @param other Other region
-     */
-    fun isSameAspectRatio(other: RegionSubject): RegionSubject = apply {
+    /** {@inheritDoc} */
+    override fun isSameAspectRatio(other: Region): IRegionSubject {
         val aspectRatio = this.region.width.toFloat() / this.region.height
         val otherAspectRatio = other.region.width.toFloat() / other.region.height
         check { "Aspect Ratio Difference" }
             .that(abs(aspectRatio - otherAspectRatio))
             .isLowerOrEqual(0.1f)
     }
+
+    @Throws(IncorrectRegionException::class)
+    fun isSameAspectRatio(other: RegionSubject): IRegionSubject = isSameAspectRatio(other.region)
 
     companion object {
         const val MSG_ERROR_TOP_POSITION = "Top position"
