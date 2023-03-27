@@ -20,21 +20,23 @@ import android.tools.common.PlatformConsts
 import android.tools.common.Rotation
 import android.tools.common.datatypes.component.IComponentMatcher
 import android.tools.common.traces.wm.Activity
+import android.tools.common.traces.wm.DisplayContent
 import android.tools.common.traces.wm.WindowState
 
 /** Base interface for WM trace and state assertions */
 interface IWindowManagerSubject<WMSubjectType, RegionSubjectType> {
     /** Asserts the current WindowManager state doesn't contain [WindowState]s */
-    fun isEmpty(): WMSubjectType
+    @Throws(AssertionError::class) fun isEmpty(): WMSubjectType
 
     /** Asserts the current WindowManager state contains [WindowState]s */
-    fun isNotEmpty(): WMSubjectType
+    @Throws(AssertionError::class) fun isNotEmpty(): WMSubjectType
 
     /**
      * Obtains the region occupied by all windows matching [componentMatcher]
      *
      * @param componentMatcher Components to search
      */
+    @Throws(AssertionError::class)
     fun visibleRegion(componentMatcher: IComponentMatcher? = null): RegionSubjectType
 
     /**
@@ -42,6 +44,7 @@ interface IWindowManagerSubject<WMSubjectType, RegionSubjectType> {
      *
      * @param componentMatcher Component to search
      */
+    @Throws(AssertionError::class)
     fun containsAboveAppWindow(componentMatcher: IComponentMatcher): WMSubjectType
 
     /**
@@ -49,6 +52,7 @@ interface IWindowManagerSubject<WMSubjectType, RegionSubjectType> {
      *
      * @param componentMatcher Component to search
      */
+    @Throws(AssertionError::class)
     fun containsBelowAppWindow(componentMatcher: IComponentMatcher): WMSubjectType
 
     /**
@@ -62,6 +66,7 @@ interface IWindowManagerSubject<WMSubjectType, RegionSubjectType> {
      * @param aboveWindowComponentMatcher name of the window that should be above
      * @param belowWindowComponentMatcher name of the window that should be below
      */
+    @Throws(AssertionError::class)
     fun isAboveWindow(
         aboveWindowComponentMatcher: IComponentMatcher,
         belowWindowComponentMatcher: IComponentMatcher
@@ -72,6 +77,7 @@ interface IWindowManagerSubject<WMSubjectType, RegionSubjectType> {
      *
      * @param componentMatcher Component to search
      */
+    @Throws(AssertionError::class)
     fun containsNonAppWindow(componentMatcher: IComponentMatcher): WMSubjectType
 
     /**
@@ -79,6 +85,7 @@ interface IWindowManagerSubject<WMSubjectType, RegionSubjectType> {
      *
      * @param componentMatcher Component to search
      */
+    @Throws(AssertionError::class)
     fun isAppWindowOnTop(componentMatcher: IComponentMatcher): WMSubjectType
 
     /**
@@ -86,6 +93,7 @@ interface IWindowManagerSubject<WMSubjectType, RegionSubjectType> {
      *
      * @param componentMatcher Component to search
      */
+    @Throws(AssertionError::class)
     fun isAppWindowNotOnTop(componentMatcher: IComponentMatcher): WMSubjectType
 
     /**
@@ -93,6 +101,7 @@ interface IWindowManagerSubject<WMSubjectType, RegionSubjectType> {
      *
      * @param componentMatcher Component to search
      */
+    @Throws(AssertionError::class)
     fun doNotOverlap(vararg componentMatcher: IComponentMatcher): WMSubjectType
 
     /**
@@ -100,6 +109,7 @@ interface IWindowManagerSubject<WMSubjectType, RegionSubjectType> {
      *
      * @param componentMatcher Component to search
      */
+    @Throws(AssertionError::class)
     fun containsAppWindow(componentMatcher: IComponentMatcher): WMSubjectType
 
     /**
@@ -108,6 +118,7 @@ interface IWindowManagerSubject<WMSubjectType, RegionSubjectType> {
      * @param rotation to assert
      * @param displayId of the target display
      */
+    @Throws(AssertionError::class)
     fun hasRotation(
         rotation: Rotation,
         displayId: Int = PlatformConsts.DEFAULT_DISPLAY
@@ -118,7 +129,7 @@ interface IWindowManagerSubject<WMSubjectType, RegionSubjectType> {
      *
      * @param componentMatcher Components to search
      */
-    fun contains(componentMatcher: IComponentMatcher): WMSubjectType
+    @Throws(AssertionError::class) fun contains(componentMatcher: IComponentMatcher): WMSubjectType
 
     /**
      * Asserts the state doesn't contain a [WindowState] nor an [Activity] matching
@@ -126,6 +137,7 @@ interface IWindowManagerSubject<WMSubjectType, RegionSubjectType> {
      *
      * @param componentMatcher Components to search
      */
+    @Throws(AssertionError::class)
     fun notContainsAppWindow(componentMatcher: IComponentMatcher): WMSubjectType
 
     /**
@@ -133,11 +145,12 @@ interface IWindowManagerSubject<WMSubjectType, RegionSubjectType> {
      *
      * @param componentMatcher Components to search
      */
+    @Throws(AssertionError::class)
     fun notContains(componentMatcher: IComponentMatcher): WMSubjectType
 
-    fun isRecentsActivityVisible(): WMSubjectType
+    @Throws(AssertionError::class) fun isRecentsActivityVisible(): WMSubjectType
 
-    fun isRecentsActivityInvisible(): WMSubjectType
+    @Throws(AssertionError::class) fun isRecentsActivityInvisible(): WMSubjectType
 
     /**
      * Asserts the state is valid, that is, if it has:
@@ -147,7 +160,7 @@ interface IWindowManagerSubject<WMSubjectType, RegionSubjectType> {
      * - a front window
      * - a focused app
      */
-    fun isValid(): WMSubjectType
+    @Throws(AssertionError::class) fun isValid(): WMSubjectType
 
     /**
      * Asserts the state contains a visible [WindowState] matching [componentMatcher].
@@ -157,6 +170,7 @@ interface IWindowManagerSubject<WMSubjectType, RegionSubjectType> {
      *
      * @param componentMatcher Components to search
      */
+    @Throws(AssertionError::class)
     fun isNonAppWindowVisible(componentMatcher: IComponentMatcher): WMSubjectType
 
     /**
@@ -167,13 +181,14 @@ interface IWindowManagerSubject<WMSubjectType, RegionSubjectType> {
      *
      * @param componentMatcher Components to search
      */
+    @Throws(AssertionError::class)
     fun isAppWindowVisible(componentMatcher: IComponentMatcher): WMSubjectType
 
     /** Asserts the state contains no visible app windows. */
-    fun hasNoVisibleAppWindow(): WMSubjectType
+    @Throws(AssertionError::class) fun hasNoVisibleAppWindow(): WMSubjectType
 
     /** Asserts the state contains no visible app windows. */
-    fun isKeyguardShowing(): WMSubjectType
+    @Throws(AssertionError::class) fun isKeyguardShowing(): WMSubjectType
 
     /**
      * Asserts the state contains an invisible window [WindowState] matching [componentMatcher].
@@ -183,6 +198,7 @@ interface IWindowManagerSubject<WMSubjectType, RegionSubjectType> {
      *
      * @param componentMatcher Components to search
      */
+    @Throws(AssertionError::class)
     fun isAppWindowInvisible(componentMatcher: IComponentMatcher): WMSubjectType
 
     /**
@@ -193,40 +209,42 @@ interface IWindowManagerSubject<WMSubjectType, RegionSubjectType> {
      *
      * @param componentMatcher Components to search
      */
+    @Throws(AssertionError::class)
     fun isNonAppWindowInvisible(componentMatcher: IComponentMatcher): WMSubjectType
 
     /** Asserts the state home activity is visible */
-    fun isHomeActivityVisible(): WMSubjectType
+    @Throws(AssertionError::class) fun isHomeActivityVisible(): WMSubjectType
 
     /** Asserts the state home activity is invisible */
-    fun isHomeActivityInvisible(): WMSubjectType
+    @Throws(AssertionError::class) fun isHomeActivityInvisible(): WMSubjectType
 
     /**
      * Asserts that [app] is the focused app
      *
      * @param app App to check
      */
-    fun isFocusedApp(app: String): WMSubjectType
+    @Throws(AssertionError::class) fun isFocusedApp(app: String): WMSubjectType
 
     /**
      * Asserts that [app] is not the focused app
      *
      * @param app App to check
      */
-    fun isNotFocusedApp(app: String): WMSubjectType
+    @Throws(AssertionError::class) fun isNotFocusedApp(app: String): WMSubjectType
 
     /**
      * Asserts that [componentMatcher] exists and is pinned (in PIP mode)
      *
      * @param componentMatcher Components to search
      */
-    fun isPinned(componentMatcher: IComponentMatcher): WMSubjectType
+    @Throws(AssertionError::class) fun isPinned(componentMatcher: IComponentMatcher): WMSubjectType
 
     /**
      * Asserts that [componentMatcher] exists and is not pinned (not in PIP mode)
      *
      * @param componentMatcher Components to search
      */
+    @Throws(AssertionError::class)
     fun isNotPinned(componentMatcher: IComponentMatcher): WMSubjectType
 
     /**
@@ -239,6 +257,7 @@ interface IWindowManagerSubject<WMSubjectType, RegionSubjectType> {
      *
      * @param componentMatcher Component to search
      */
+    @Throws(AssertionError::class)
     fun isAppSnapshotStartingWindowVisibleFor(componentMatcher: IComponentMatcher): WMSubjectType
 
     /**
@@ -247,6 +266,7 @@ interface IWindowManagerSubject<WMSubjectType, RegionSubjectType> {
      *
      * @param componentMatcher Components to search
      */
+    @Throws(AssertionError::class)
     fun isAboveAppWindowVisible(componentMatcher: IComponentMatcher): WMSubjectType
 
     /**
@@ -255,6 +275,7 @@ interface IWindowManagerSubject<WMSubjectType, RegionSubjectType> {
      *
      * @param componentMatcher Components to search
      */
+    @Throws(AssertionError::class)
     fun isAboveAppWindowInvisible(componentMatcher: IComponentMatcher): WMSubjectType
 
     /**
@@ -263,6 +284,7 @@ interface IWindowManagerSubject<WMSubjectType, RegionSubjectType> {
      *
      * @param componentMatcher Components to search
      */
+    @Throws(AssertionError::class)
     fun isBelowAppWindowVisible(componentMatcher: IComponentMatcher): WMSubjectType
 
     /**
@@ -271,5 +293,9 @@ interface IWindowManagerSubject<WMSubjectType, RegionSubjectType> {
      *
      * @param componentMatcher Components to search
      */
+    @Throws(AssertionError::class)
     fun isBelowAppWindowInvisible(componentMatcher: IComponentMatcher): WMSubjectType
+
+    /** Checks if the state contains at least one [DisplayContent] */
+    @Throws(AssertionError::class) fun containsAtLeastOneDisplay(): WMSubjectType
 }

@@ -59,11 +59,7 @@ class WindowManagerTraceSubject(
     FlickerTraceSubject<WindowManagerStateSubject>(),
     IWindowManagerSubject<WindowManagerTraceSubject, RegionTraceSubject> {
 
-    override val selfFacts by lazy {
-        val allFacts = super.selfFacts.toMutableList()
-        allFacts.addAll(facts)
-        allFacts
-    }
+    override val selfFacts: List<Fact> = emptyList()
 
     override val subjects by lazy {
         trace.entries.map { WindowManagerStateSubject(it, this, this) }
@@ -558,6 +554,13 @@ class WindowManagerTraceSubject(
     ): WindowManagerTraceSubject = apply {
         addAssertion("notContainsAppWindow(${componentMatcher.toWindowIdentifier()})", isOptional) {
             it.notContainsAppWindow(componentMatcher)
+        }
+    }
+
+    /** {@inheritDoc} */
+    override fun containsAtLeastOneDisplay(): WindowManagerTraceSubject = apply {
+        addAssertion("containAtLeastOneDisplay", isOptional = false) {
+            it.containsAtLeastOneDisplay()
         }
     }
 

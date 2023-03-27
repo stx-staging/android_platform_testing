@@ -128,6 +128,7 @@ class LayersTraceSubject(
         notContains(componentMatcher, isOptional = false)
 
     /** See [notContains] */
+    @Throws(AssertionError::class)
     fun notContains(componentMatcher: IComponentMatcher, isOptional: Boolean): LayersTraceSubject =
         apply {
             addAssertion("notContains(${componentMatcher.toLayerIdentifier()})", isOptional) {
@@ -140,6 +141,7 @@ class LayersTraceSubject(
         contains(componentMatcher, isOptional = false)
 
     /** See [contains] */
+    @Throws(AssertionError::class)
     fun contains(componentMatcher: IComponentMatcher, isOptional: Boolean): LayersTraceSubject =
         apply {
             addAssertion("contains(${componentMatcher.toLayerIdentifier()})", isOptional) {
@@ -152,6 +154,7 @@ class LayersTraceSubject(
         isVisible(componentMatcher, isOptional = false)
 
     /** See [isVisible] */
+    @Throws(AssertionError::class)
     fun isVisible(componentMatcher: IComponentMatcher, isOptional: Boolean): LayersTraceSubject =
         apply {
             addAssertion("isVisible(${componentMatcher.toLayerIdentifier()})", isOptional) {
@@ -164,6 +167,7 @@ class LayersTraceSubject(
         isInvisible(componentMatcher, isOptional = false)
 
     /** See [isInvisible] */
+    @Throws(AssertionError::class)
     fun isInvisible(componentMatcher: IComponentMatcher, isOptional: Boolean): LayersTraceSubject =
         apply {
             addAssertion("isInvisible(${componentMatcher.toLayerIdentifier()})", isOptional) {
@@ -199,6 +203,7 @@ class LayersTraceSubject(
         }
 
     /** See [isSplashScreenVisibleFor] */
+    @Throws(AssertionError::class)
     fun isSplashScreenVisibleFor(
         componentMatcher: IComponentNameMatcher,
         isOptional: Boolean
@@ -212,10 +217,12 @@ class LayersTraceSubject(
     }
 
     /** See [visibleRegion] */
+    @Throws(AssertionError::class)
     fun visibleRegion(): RegionTraceSubject =
         visibleRegion(componentMatcher = null, useCompositionEngineRegionOnly = false)
 
     /** See [visibleRegion] */
+    @Throws(AssertionError::class)
     fun visibleRegion(componentMatcher: IComponentMatcher?): RegionTraceSubject =
         visibleRegion(componentMatcher, useCompositionEngineRegionOnly = false)
 
@@ -237,6 +244,12 @@ class LayersTraceSubject(
         return RegionTraceSubject(regionTrace, this)
     }
 
+    override fun containsAtLeastOneDisplay(): LayersTraceSubject = apply {
+        addAssertion("containAtLeastOneDisplay", isOptional = false) {
+            it.containsAtLeastOneDisplay()
+        }
+    }
+
     /** Executes a custom [assertion] on the current subject */
     operator fun invoke(
         name: String,
@@ -247,6 +260,7 @@ class LayersTraceSubject(
     fun hasFrameSequence(name: String, frameNumbers: Iterable<Long>): LayersTraceSubject =
         hasFrameSequence(ComponentNameMatcher("", name), frameNumbers)
 
+    @Throws(AssertionError::class)
     fun hasFrameSequence(
         componentMatcher: IComponentMatcher,
         frameNumbers: Iterable<Long>
@@ -286,6 +300,7 @@ class LayersTraceSubject(
     }
 
     /** Run the assertions for all trace entries within the specified time range */
+    @Throws(AssertionError::class)
     fun forSystemUpTimeRange(startTime: Long, endTime: Long) {
         val subjectsInRange =
             subjects.filter { it.entry.timestamp.systemUptimeNanos in startTime..endTime }

@@ -56,7 +56,7 @@ class WindowManagerStateSubject(
     override val parent: FlickerSubject? = null
 ) : FlickerSubject(), IWindowManagerSubject<WindowManagerStateSubject, RegionSubject> {
     override val timestamp = wmState.timestamp
-    override val selfFacts = listOf(Fact("WM State", wmState))
+    override val selfFacts: List<Fact> = emptyList()
 
     val subjects by lazy { wmState.windowStates.map { WindowStateSubject(this, timestamp, it) } }
 
@@ -533,6 +533,11 @@ class WindowManagerStateSubject(
         componentMatcher: IComponentMatcher
     ): WindowManagerStateSubject =
         containsBelowAppWindow(componentMatcher).isNonAppWindowInvisible(componentMatcher)
+
+    /** {@inheritDoc} */
+    override fun containsAtLeastOneDisplay(): WindowManagerStateSubject = apply {
+        check { "Displays" }.that(wmState.displays.size).isGreater(0)
+    }
 
     /** Obtains the first subject with [WindowState.title] containing [name]. */
     fun windowState(name: String): WindowStateSubject? = windowState { it.name.contains(name) }

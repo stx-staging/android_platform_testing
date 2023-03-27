@@ -19,6 +19,7 @@ import android.tools.common.Timestamp
 import android.tools.common.datatypes.Size
 import android.tools.common.flicker.assertions.Fact
 import android.tools.common.flicker.subject.FlickerSubject
+import android.tools.common.flicker.subject.exceptions.InvalidPropertyException
 import android.tools.common.flicker.subject.region.RegionSubject
 import android.tools.common.traces.surfaceflinger.Layer
 
@@ -85,35 +86,34 @@ class LayerSubject(
     /**
      * Asserts that current subject has an [Layer.screenBounds]
      *
-     * @param size expected layer bounds size
+     * @param expected expected layer bounds size
      */
-    fun hasLayerSize(size: Size): LayerSubject = apply {
+    @Throws(AssertionError::class)
+    fun hasLayerSize(expected: Size): LayerSubject = apply {
         val layerSize =
             Size.from(layer.screenBounds.width.toInt(), layer.screenBounds.height.toInt())
-        check { "Number of layers" }.that(layerSize).isEqual(size)
+        check { "Number of layers" }.that(layerSize).isEqual(expected)
     }
 
-    /**
-     * Asserts that current subject has an [Layer.effectiveScalingMode] equals to
-     * [expectedScalingMode]
-     */
-    fun hasScalingMode(expectedScalingMode: Int): LayerSubject = apply {
+    /** Asserts that current subject has an [Layer.effectiveScalingMode] equals to [expected] */
+    @Throws(AssertionError::class)
+    fun hasScalingMode(expected: Int): LayerSubject = apply {
         val actualScalingMode = layer.effectiveScalingMode
-        check(actualScalingMode == expectedScalingMode) {
-            "Scaling mode. Actual: $actualScalingMode, expected: $expectedScalingMode"
+        check(actualScalingMode == expected) {
+            "Scaling mode. Actual: $actualScalingMode, expected: $expected"
         }
     }
 
     /**
-     * Asserts that current subject has an [Layer.bufferTransform] orientation equals to
-     * [expectedOrientation]
+     * Asserts that current subject has an [Layer.bufferTransform] orientation equals to [expected]
      */
-    fun hasBufferOrientation(expectedOrientation: Int): LayerSubject = apply {
+    @Throws(AssertionError::class)
+    fun hasBufferOrientation(expected: Int): LayerSubject = apply {
         // see Transform::getOrientation
         val bufferTransformType = layer.bufferTransform.type ?: 0
         val actualOrientation = (bufferTransformType shr 8) and 0xFF
-        check(actualOrientation == expectedOrientation) {
-            "Buffer orientation. Actual: $actualOrientation, expected: $expectedOrientation"
+        check(actualOrientation == expected) {
+            "Buffer orientation. Actual: $actualOrientation, expected: $expected"
         }
     }
 
