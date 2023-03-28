@@ -18,15 +18,16 @@ package android.tools.common.flicker.subject
 
 import android.tools.common.Timestamp
 import android.tools.common.flicker.assertions.Fact
+import android.tools.common.io.IReader
 
 /** Base subject for flicker assertions */
 abstract class FlickerSubject {
     abstract val timestamp: Timestamp
-    protected abstract val parent: FlickerSubject?
+    internal open val reader: IReader? = null
     internal open val selfFacts: List<Fact> = emptyList()
 
     fun check(lazyMessage: () -> String): CheckSubjectBuilder {
-        return CheckSubjectBuilder(this.timestamp, this.selfFacts, lazyMessage)
+        return CheckSubjectBuilder(this.timestamp, this.selfFacts, this.reader, lazyMessage)
     }
 
     companion object {

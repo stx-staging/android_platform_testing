@@ -53,7 +53,6 @@ abstract class FlickerTraceSubject<EntrySubject : FlickerSubject> : FlickerSubje
     }
 
     /** Run the assertions for all trace entries */
-    @Throws(AssertionError::class)
     fun forAllEntries() {
         require(subjects.isNotEmpty()) { "Trace is empty" }
         assertionsChecker.test(subjects)

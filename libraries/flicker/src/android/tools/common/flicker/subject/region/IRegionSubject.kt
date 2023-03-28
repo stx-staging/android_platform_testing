@@ -29,7 +29,7 @@ interface IRegionSubject {
      *
      * @throws IncorrectRegionException
      */
-    @Throws(AssertionError::class) fun isHigherOrEqual(other: Rect): IRegionSubject
+    fun isHigherOrEqual(other: Rect): IRegionSubject
 
     /**
      * Asserts that the top and bottom coordinates of [other] are smaller or equal to those of
@@ -39,7 +39,7 @@ interface IRegionSubject {
      *
      * @throws IncorrectRegionException
      */
-    @Throws(AssertionError::class) fun isHigherOrEqual(other: Region): IRegionSubject
+    fun isHigherOrEqual(other: Region): IRegionSubject
 
     /**
      * Asserts that the top and bottom coordinates of [other] are greater or equal to those of
@@ -49,7 +49,7 @@ interface IRegionSubject {
      *
      * @throws IncorrectRegionException
      */
-    @Throws(AssertionError::class) fun isLowerOrEqual(other: Rect): IRegionSubject
+    fun isLowerOrEqual(other: Rect): IRegionSubject
 
     /**
      * Asserts that the top and bottom coordinates of [other] are greater or equal to those of
@@ -59,7 +59,7 @@ interface IRegionSubject {
      *
      * @throws AssertionError
      */
-    @Throws(AssertionError::class) fun isLowerOrEqual(other: Region): IRegionSubject
+    fun isLowerOrEqual(other: Region): IRegionSubject
 
     /**
      * Asserts that the left and right coordinates of [other] are lower or equal to those of region.
@@ -68,7 +68,7 @@ interface IRegionSubject {
      *
      * @throws AssertionError
      */
-    @Throws(AssertionError::class) fun isToTheRight(other: Region): IRegionSubject
+    fun isToTheRight(other: Region): IRegionSubject
 
     /**
      * Asserts that the top and bottom coordinates of [other] are smaller than those of region.
@@ -77,7 +77,7 @@ interface IRegionSubject {
      *
      * @throws AssertionError
      */
-    @Throws(AssertionError::class) fun isHigher(other: Rect): IRegionSubject
+    fun isHigher(other: Rect): IRegionSubject
 
     /**
      * Asserts that the top and bottom coordinates of [other] are smaller than those of region.
@@ -86,7 +86,7 @@ interface IRegionSubject {
      *
      * @throws AssertionError
      */
-    @Throws(AssertionError::class) fun isHigher(other: Region): IRegionSubject
+    fun isHigher(other: Region): IRegionSubject
 
     /**
      * Asserts that the top and bottom coordinates of [other] are greater than those of region.
@@ -95,7 +95,7 @@ interface IRegionSubject {
      *
      * @throws AssertionError
      */
-    @Throws(AssertionError::class) fun isLower(other: Rect): IRegionSubject
+    fun isLower(other: Rect): IRegionSubject
 
     /**
      * Asserts that the top and bottom coordinates of [other] are greater than those of region.
@@ -104,7 +104,7 @@ interface IRegionSubject {
      *
      * @throws AssertionError
      */
-    @Throws(AssertionError::class) fun isLower(other: Region): IRegionSubject
+    fun isLower(other: Region): IRegionSubject
 
     /**
      * Asserts that region covers at most [other], that is, its area doesn't cover any point outside
@@ -113,7 +113,7 @@ interface IRegionSubject {
      * @param other Expected covered area
      * @throws AssertionError
      */
-    @Throws(AssertionError::class) fun coversAtMost(other: Region): IRegionSubject
+    fun coversAtMost(other: Region): IRegionSubject
 
     /**
      * Asserts that region covers at most [other], that is, its area doesn't cover any point outside
@@ -122,7 +122,7 @@ interface IRegionSubject {
      * @param other Expected covered area
      * @throws AssertionError
      */
-    @Throws(AssertionError::class) fun coversAtMost(other: Rect): IRegionSubject
+    fun coversAtMost(other: Rect): IRegionSubject
 
     /**
      * Asserts that region is not bigger than [other], even if the regions don't overlap.
@@ -130,7 +130,7 @@ interface IRegionSubject {
      * @param other Area to compare to
      * @throws AssertionError
      */
-    @Throws(AssertionError::class) fun notBiggerThan(other: Region): IRegionSubject
+    fun notBiggerThan(other: Region): IRegionSubject
 
     /**
      * Asserts that region is positioned to the right and bottom from [other], but the regions can
@@ -140,7 +140,6 @@ interface IRegionSubject {
      * @param threshold Offset threshold by which the position might be off
      * @throws AssertionError
      */
-    @Throws(AssertionError::class)
     fun isToTheRightBottom(other: Region, threshold: Int): IRegionSubject
 
     /**
@@ -150,7 +149,7 @@ interface IRegionSubject {
      * @param other Expected covered area
      * @throws AssertionError
      */
-    @Throws(AssertionError::class) fun coversAtLeast(other: Region): IRegionSubject
+    fun coversAtLeast(other: Region): IRegionSubject
 
     /**
      * Asserts that region covers at least [other], that is, its area covers each point in the
@@ -159,7 +158,7 @@ interface IRegionSubject {
      * @param other Expected covered area
      * @throws AssertionError
      */
-    @Throws(AssertionError::class) fun coversAtLeast(other: Rect): IRegionSubject
+    fun coversAtLeast(other: Rect): IRegionSubject
 
     /**
      * Asserts that region covers at exactly [other]
@@ -167,7 +166,7 @@ interface IRegionSubject {
      * @param other Expected covered area
      * @throws AssertionError
      */
-    @Throws(AssertionError::class) fun coversExactly(other: Region): IRegionSubject
+    fun coversExactly(other: Region): IRegionSubject
 
     /**
      * Asserts that region covers at exactly [other]
@@ -175,7 +174,7 @@ interface IRegionSubject {
      * @param other Expected covered area
      * @throws AssertionError
      */
-    @Throws(AssertionError::class) fun coversExactly(other: Rect): IRegionSubject
+    fun coversExactly(other: Rect): IRegionSubject
 
     /**
      * Asserts that region and [other] overlap
@@ -183,7 +182,7 @@ interface IRegionSubject {
      * @param other Other area
      * @throws AssertionError
      */
-    @Throws(AssertionError::class) fun overlaps(other: Region): IRegionSubject
+    fun overlaps(other: Region): IRegionSubject
 
     /**
      * Asserts that region and [other] overlap
@@ -191,7 +190,7 @@ interface IRegionSubject {
      * @param other Other area
      * @throws AssertionError
      */
-    @Throws(AssertionError::class) fun overlaps(other: Rect): IRegionSubject
+    fun overlaps(other: Rect): IRegionSubject
 
     /**
      * Asserts that region and [other] don't overlap
@@ -199,7 +198,7 @@ interface IRegionSubject {
      * @param other Other area
      * @throws AssertionError
      */
-    @Throws(AssertionError::class) fun notOverlaps(other: Region): IRegionSubject
+    fun notOverlaps(other: Region): IRegionSubject
 
     /**
      * Asserts that region and [other] don't overlap
@@ -207,7 +206,7 @@ interface IRegionSubject {
      * @param other Other area
      * @throws AssertionError
      */
-    @Throws(AssertionError::class) fun notOverlaps(other: Rect): IRegionSubject
+    fun notOverlaps(other: Rect): IRegionSubject
 
     /**
      * Asserts that region and [other] have same aspect ratio, margin of error up to 0.1.
@@ -215,5 +214,5 @@ interface IRegionSubject {
      * @param other Other region
      * @throws AssertionError
      */
-    @Throws(AssertionError::class) fun isSameAspectRatio(other: Region): IRegionSubject
+    fun isSameAspectRatio(other: Region, threshold: Double): IRegionSubject
 }

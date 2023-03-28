@@ -36,15 +36,20 @@ import android.tools.common.CrossPlatform
 import android.tools.common.IScenario
 import android.tools.common.io.BUFFER_SIZE
 import android.tools.common.io.FLICKER_IO_TAG
+import android.tools.common.io.IArtifact
 import android.tools.common.io.ResultArtifactDescriptor
 import android.tools.common.io.RunStatus
 import android.tools.device.traces.deleteIfExists
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileInputStream
+import java.io.FileNotFoundException
 import java.io.FileOutputStream
+import java.io.IOException
 import java.util.zip.ZipEntry
+import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 
 class Artifact(
@@ -52,7 +57,7 @@ class Artifact(
     private val scenario: IScenario,
     outputDir: File,
     files: Map<ResultArtifactDescriptor, File>
-) {
+) : IArtifact {
     lateinit var file: File
         private set
 
@@ -66,12 +71,15 @@ class Artifact(
         }
     }
 
-    val runStatus: RunStatus
+    override val runStatus: RunStatus
         get() =
             RunStatus.fromFileName(file.name)
                 ?: error("Failed to get RunStatus from file name ${file.name}")
 
-    fun updateStatus(newStatus: RunStatus) {
+    override val path: String
+        get() = file.absolutePath
+
+    override fun updateStatus(newStatus: RunStatus) {
         val currFile = file
         val newFile = getNewFilePath(newStatus)
         if (currFile != newFile) {
@@ -79,6 +87,24 @@ class Artifact(
             file = newFile
         }
     }
+
+    override fun deleteIfExists() {
+        file.deleteIfExists()
+    }
+
+    override fun hasTrace(descriptor: ResultArtifactDescriptor): Boolean {
+        var found = false
+        forEachFileInZip { found = found || (it.name == descriptor.fileNameInArtifact) }
+        return found
+    }
+
+    override fun traceCount(): Int {
+        var count = 0
+        forEachFileInZip { count++ }
+        return count
+    }
+
+    override fun toString(): String = file.absolutePath
 
     private fun createZipFile(
         outputDir: File,
@@ -138,7 +164,73 @@ class Artifact(
         artifact.deleteIfExists()
     }
 
-    fun deleteIfExists() {
-        file.deleteIfExists()
+    @Throws(IOException::class)
+    override fun readBytes(descriptor: ResultArtifactDescriptor): ByteArray? {
+        CrossPlatform.log.d(FLICKER_IO_TAG, "Reading descriptor=$descriptor from $this")
+
+        var foundFile = false
+        val outByteArray = ByteArrayOutputStream()
+        val tmpBuffer = ByteArray(BUFFER_SIZE)
+        withZipFile {
+            var zipEntry: ZipEntry? = it.nextEntry
+            while (zipEntry != null) {
+                if (zipEntry.name == descriptor.fileNameInArtifact) {
+                    val outputStream = BufferedOutputStream(outByteArray, BUFFER_SIZE)
+                    try {
+                        var size = it.read(tmpBuffer, 0, BUFFER_SIZE)
+                        while (size > 0) {
+                            outputStream.write(tmpBuffer, 0, size)
+                            size = it.read(tmpBuffer, 0, BUFFER_SIZE)
+                        }
+                        it.closeEntry()
+                    } finally {
+                        outputStream.flush()
+                        outputStream.close()
+                    }
+                    foundFile = true
+                    break
+                }
+                zipEntry = it.nextEntry
+            }
+        }
+
+        return if (foundFile) outByteArray.toByteArray() else null
+    }
+
+    private fun withZipFile(predicate: (ZipInputStream) -> Unit) {
+        if (!file.exists()) {
+            val directory = file.parentFile.absolutePath
+            val files =
+                try {
+                    file.parentFile
+                        .listFiles()
+                        ?.filterNot { it.isDirectory }
+                        ?.map { it.absolutePath }
+                } catch (e: Throwable) {
+                    null
+                }
+            throw FileNotFoundException(
+                "$file could not be found! " +
+                    "Found ${files?.joinToString()?.ifEmpty { "no files" }} in '$directory'."
+            )
+        }
+
+        val zipInputStream = ZipInputStream(BufferedInputStream(FileInputStream(file), BUFFER_SIZE))
+        try {
+            predicate(zipInputStream)
+        } finally {
+            zipInputStream.closeEntry()
+            zipInputStream.close()
+        }
+    }
+
+    private fun forEachFileInZip(predicate: (ZipEntry) -> Unit) {
+        withZipFile {
+            var zipEntry: ZipEntry? = it.nextEntry
+            while (zipEntry != null) {
+                predicate(zipEntry)
+                zipEntry = it.nextEntry
+            }
+        }
     }
 }

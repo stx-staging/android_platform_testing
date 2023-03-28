@@ -65,9 +65,11 @@ class ExceptionBuilder {
 
     fun setActual(value: Collection<String>) = apply { actual.addAll(value) }
 
+    fun setActual(value: List<Fact>) = apply { actual.addAll(value.map { it.toString() }) }
+
     fun setActual(value: Any?) = setActual(listOf(value?.toString() ?: "null"))
 
-    fun setReader(value: IReader) = addExtraDescription("Artifact", value.artifactPath)
+    fun setReader(value: IReader) = addExtraDescription("Artifact", value.artifact)
 
     fun addExtraDescription(key: String, value: Any?) = addExtraDescription(Fact(key, value))
 

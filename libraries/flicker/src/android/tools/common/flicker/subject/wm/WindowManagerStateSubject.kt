@@ -24,6 +24,7 @@ import android.tools.common.flicker.assertions.Fact
 import android.tools.common.flicker.subject.FlickerSubject
 import android.tools.common.flicker.subject.exceptions.ExceptionBuilder
 import android.tools.common.flicker.subject.region.RegionSubject
+import android.tools.common.io.IReader
 import android.tools.common.traces.wm.WindowManagerState
 import android.tools.common.traces.wm.WindowState
 
@@ -53,12 +54,12 @@ import android.tools.common.traces.wm.WindowState
  */
 class WindowManagerStateSubject(
     val wmState: WindowManagerState,
+    override val reader: IReader? = null,
     val trace: WindowManagerTraceSubject? = null,
-    override val parent: FlickerSubject? = null
 ) : FlickerSubject(), IWindowManagerSubject<WindowManagerStateSubject, RegionSubject> {
     override val timestamp = wmState.timestamp
 
-    val subjects by lazy { wmState.windowStates.map { WindowStateSubject(this, timestamp, it) } }
+    val subjects by lazy { wmState.windowStates.map { WindowStateSubject(reader, timestamp, it) } }
 
     val appWindows: List<WindowStateSubject>
         get() = subjects.filter { wmState.appWindows.contains(it.windowState) }
@@ -116,7 +117,7 @@ class WindowManagerStateSubject(
 
         val visibleWindows = selectedWindows.filter { it.isVisible }
         val visibleRegions = visibleWindows.map { it.windowState.frameRegion }.toTypedArray()
-        return RegionSubject(visibleRegions, this, timestamp)
+        return RegionSubject(visibleRegions, timestamp, reader)
     }
 
     /** {@inheritDoc} */

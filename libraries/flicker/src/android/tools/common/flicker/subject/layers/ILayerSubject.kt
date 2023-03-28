@@ -24,10 +24,10 @@ import android.tools.common.traces.surfaceflinger.Layer
 /** Base interface for Layer trace and state assertions */
 interface ILayerSubject<LayerSubjectType, RegionSubjectType> {
     /** Asserts that the current SurfaceFlinger state doesn't contain layers */
-    @Throws(AssertionError::class) fun isEmpty(): LayerSubjectType
+    fun isEmpty(): LayerSubjectType
 
     /** Asserts that the current SurfaceFlinger state contains layers */
-    @Throws(AssertionError::class) fun isNotEmpty(): LayerSubjectType
+    fun isNotEmpty(): LayerSubjectType
 
     /**
      * Obtains the region occupied by all layers matching [componentMatcher]
@@ -37,7 +37,6 @@ interface ILayerSubject<LayerSubjectType, RegionSubjectType> {
      *   Composition Engine (CE) -- visibleRegion in the proto definition. Otherwise, calculates the
      *   visible region when the information is not available from the CE
      */
-    @Throws(AssertionError::class)
     fun visibleRegion(
         componentMatcher: IComponentMatcher? = null,
         useCompositionEngineRegionOnly: Boolean = true
@@ -48,7 +47,6 @@ interface ILayerSubject<LayerSubjectType, RegionSubjectType> {
      *
      * @param componentMatcher Components to search
      */
-    @Throws(AssertionError::class)
     fun contains(componentMatcher: IComponentMatcher): LayerSubjectType
 
     /**
@@ -56,7 +54,6 @@ interface ILayerSubject<LayerSubjectType, RegionSubjectType> {
      *
      * @param componentMatcher Components to search
      */
-    @Throws(AssertionError::class)
     fun notContains(componentMatcher: IComponentMatcher): LayerSubjectType
 
     /**
@@ -64,7 +61,6 @@ interface ILayerSubject<LayerSubjectType, RegionSubjectType> {
      *
      * @param componentMatcher Components to search
      */
-    @Throws(AssertionError::class)
     fun isVisible(componentMatcher: IComponentMatcher): LayerSubjectType
 
     /**
@@ -72,7 +68,6 @@ interface ILayerSubject<LayerSubjectType, RegionSubjectType> {
      *
      * @param componentMatcher Components to search
      */
-    @Throws(AssertionError::class)
     fun isInvisible(componentMatcher: IComponentMatcher): LayerSubjectType
 
     /**
@@ -81,7 +76,6 @@ interface ILayerSubject<LayerSubjectType, RegionSubjectType> {
      *
      * @param componentMatcher Components to search
      */
-    @Throws(AssertionError::class)
     fun isSplashScreenVisibleFor(componentMatcher: IComponentNameMatcher): LayerSubjectType
 
     /**
@@ -89,7 +83,6 @@ interface ILayerSubject<LayerSubjectType, RegionSubjectType> {
      *
      * @param componentMatcher Components to search
      */
-    @Throws(AssertionError::class)
     fun hasColor(componentMatcher: IComponentMatcher): LayerSubjectType
 
     /**
@@ -97,7 +90,6 @@ interface ILayerSubject<LayerSubjectType, RegionSubjectType> {
      *
      * @param componentMatcher Components to search
      */
-    @Throws(AssertionError::class)
     fun hasNoColor(componentMatcher: IComponentMatcher): LayerSubjectType
 
     /**
@@ -114,8 +106,8 @@ interface ILayerSubject<LayerSubjectType, RegionSubjectType> {
      * @return LayerSubject that can be used to make assertions on a single layer matching [name]
      *   and [frameNumber].
      */
-    @Throws(AssertionError::class) fun layer(name: String, frameNumber: Long): LayerSubject?
+    fun layer(name: String, frameNumber: Long): LayerSubject?
 
     /** Checks if the state contains at least one [Display] */
-    @Throws(AssertionError::class) fun containsAtLeastOneDisplay(): LayerSubjectType
+    fun containsAtLeastOneDisplay(): LayerSubjectType
 }

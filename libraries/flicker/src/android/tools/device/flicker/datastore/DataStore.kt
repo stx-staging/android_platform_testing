@@ -58,7 +58,6 @@ object DataStore {
      *
      * @throws IllegalStateException is [scenario] already exists in the data store
      */
-    @Throws(IllegalStateException::class)
     fun addResult(scenario: IScenario, result: IResultData) {
         if (containsResult(scenario)) {
             error("Result for $scenario already in data store")
@@ -71,7 +70,6 @@ object DataStore {
      *
      * @throws IllegalStateException is [scenario] doesn't exist in the data store
      */
-    @Throws(IllegalStateException::class)
     fun replaceResult(scenario: IScenario, newResult: IResultData) {
         if (!containsResult(scenario)) {
             error("Result for $scenario not in data store")
@@ -83,7 +81,6 @@ object DataStore {
      * @return the result for [scenario]
      * @throws IllegalStateException is [scenario] doesn't exist in the data store
      */
-    @Throws(IllegalStateException::class)
     fun getResult(scenario: IScenario): IResultData =
         cachedResults[scenario] ?: error("No value for $scenario")
 

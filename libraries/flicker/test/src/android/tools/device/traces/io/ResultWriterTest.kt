@@ -61,7 +61,7 @@ class ResultWriterTest {
         outputFileName(RunStatus.RUN_EXECUTED).deleteIfExists()
         val writer = newTestResultWriter()
         val result = writer.write()
-        val path = result.artifact.file
+        val path = File(result.artifact.path)
         Truth.assertWithMessage("File exists").that(path.exists()).isTrue()
         Truth.assertWithMessage("Transition start time")
             .that(result.transitionTimeRange.start)
@@ -79,7 +79,7 @@ class ResultWriterTest {
         val writer =
             ResultWriter().forScenario(TEST_SCENARIO).withOutputDir(getDefaultFlickerOutputDir())
         val result = writer.write()
-        val path = result.artifact.file
+        val path = File(result.artifact.path)
         validateFileName(path, RunStatus.UNDEFINED)
     }
 
@@ -88,7 +88,7 @@ class ResultWriterTest {
         outputFileName(RunStatus.RUN_EXECUTED).deleteIfExists()
         val writer = newTestResultWriter().setRunComplete()
         val result = writer.write()
-        val path = result.artifact.file
+        val path = File(result.artifact.path)
         validateFileName(path, RunStatus.RUN_EXECUTED)
     }
 
@@ -97,7 +97,7 @@ class ResultWriterTest {
         outputFileName(RunStatus.RUN_FAILED).deleteIfExists()
         val writer = newTestResultWriter().setRunFailed(EXPECTED_FAILURE)
         val result = writer.write()
-        val path = result.artifact.file
+        val path = File(result.artifact.path)
         validateFileName(path, RunStatus.RUN_FAILED)
         Truth.assertWithMessage("Expected assertion")
             .that(result.executionError)

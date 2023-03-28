@@ -18,18 +18,18 @@ package android.tools.common.flicker.subject.region
 
 import android.tools.common.datatypes.Rect
 import android.tools.common.datatypes.Region
-import android.tools.common.flicker.subject.FlickerSubject
 import android.tools.common.flicker.subject.FlickerTraceSubject
+import android.tools.common.io.IReader
 import android.tools.common.traces.region.RegionTrace
 
 /**
  * Subject for [RegionTrace] objects, used to make assertions over behaviors that occur on a
  * sequence of regions.
  */
-class RegionTraceSubject(val trace: RegionTrace, override val parent: FlickerSubject?) :
+class RegionTraceSubject(val trace: RegionTrace, override val reader: IReader? = null) :
     FlickerTraceSubject<RegionSubject>(), IRegionSubject {
 
-    override val subjects by lazy { trace.entries.map { RegionSubject(it, this, it.timestamp) } }
+    override val subjects by lazy { trace.entries.map { RegionSubject(it, it.timestamp, reader) } }
 
     private val componentsAsString =
         if (trace.components == null) {
@@ -133,10 +133,13 @@ class RegionTraceSubject(val trace: RegionTrace, override val parent: FlickerSub
     /** {@inheritDoc} */
     override fun notOverlaps(other: Rect): RegionTraceSubject = notOverlaps(Region.from(other))
 
+    fun isSameAspectRatio(other: Region): RegionTraceSubject =
+        isSameAspectRatio(other, threshold = 0.1)
+
     /** {@inheritDoc} */
-    override fun isSameAspectRatio(other: Region): RegionTraceSubject = apply {
+    override fun isSameAspectRatio(other: Region, threshold: Double): RegionTraceSubject = apply {
         addAssertion("isSameAspectRatio($other, $componentsAsString") {
-            it.isSameAspectRatio(other)
+            it.isSameAspectRatio(other, threshold)
         }
     }
 }

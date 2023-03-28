@@ -21,6 +21,7 @@ import android.tools.common.datatypes.component.ComponentNameMatcher
 import android.tools.common.datatypes.component.IComponentMatcher
 import android.tools.common.flicker.subject.FlickerTraceSubject
 import android.tools.common.flicker.subject.region.RegionTraceSubject
+import android.tools.common.io.IReader
 import android.tools.common.traces.region.RegionTrace
 import android.tools.common.traces.wm.WindowManagerTrace
 import android.tools.common.traces.wm.WindowState
@@ -52,13 +53,13 @@ import android.tools.common.traces.wm.WindowState
  */
 class WindowManagerTraceSubject(
     val trace: WindowManagerTrace,
-    override val parent: WindowManagerTraceSubject? = null
+    override val reader: IReader? = null
 ) :
     FlickerTraceSubject<WindowManagerStateSubject>(),
     IWindowManagerSubject<WindowManagerTraceSubject, RegionTraceSubject> {
 
     override val subjects by lazy {
-        trace.entries.map { WindowManagerStateSubject(it, this, this) }
+        trace.entries.map { WindowManagerStateSubject(it, reader, this) }
     }
 
     /** {@inheritDoc} */
@@ -355,7 +356,7 @@ class WindowManagerTraceSubject(
                 subjects.map { it.visibleRegion(componentMatcher).regionEntry }.toTypedArray()
             )
 
-        return RegionTraceSubject(regionTrace, this)
+        return RegionTraceSubject(regionTrace, reader)
     }
 
     /** {@inheritDoc} */

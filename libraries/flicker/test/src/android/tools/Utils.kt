@@ -21,20 +21,17 @@ import android.content.Context
 import android.tools.common.CrossPlatform
 import android.tools.common.IScenario
 import android.tools.common.ScenarioBuilder
+import android.tools.common.io.IReader
 import android.tools.common.io.RunStatus
 import android.tools.common.io.WINSCOPE_EXT
-import android.tools.common.parsers.events.EventLogParser
-import android.tools.common.traces.events.EventLog
-import android.tools.common.traces.surfaceflinger.LayersTrace
-import android.tools.common.traces.surfaceflinger.TransactionsTrace
-import android.tools.common.traces.wm.TransitionsTrace
-import android.tools.common.traces.wm.WindowManagerTrace
 import android.tools.device.flicker.datastore.CachedResultWriter
 import android.tools.device.flicker.legacy.AbstractFlickerTestData
 import android.tools.device.flicker.legacy.FlickerBuilder
 import android.tools.device.flicker.legacy.IFlickerTestData
 import android.tools.device.traces.DEFAULT_TRACE_CONFIG
 import android.tools.device.traces.getDefaultFlickerOutputDir
+import android.tools.device.traces.io.InMemoryArtifact
+import android.tools.device.traces.io.ParsedTracesReader
 import android.tools.device.traces.io.ResultReader
 import android.tools.device.traces.io.ResultWriter
 import android.tools.device.traces.monitors.ITransitionMonitor
@@ -46,8 +43,6 @@ import android.tools.device.traces.monitors.wm.TransitionsTraceMonitor
 import android.tools.device.traces.monitors.wm.WindowManagerTraceMonitor
 import android.tools.device.traces.parsers.WindowManagerStateHelper
 import android.tools.device.traces.parsers.surfaceflinger.LayersTraceParser
-import android.tools.device.traces.parsers.surfaceflinger.TransactionsTraceParser
-import android.tools.device.traces.parsers.wm.TransitionsTraceParser
 import android.tools.device.traces.parsers.wm.WindowManagerDumpParser
 import android.tools.device.traces.parsers.wm.WindowManagerTraceParser
 import androidx.test.platform.app.InstrumentationRegistry
@@ -77,79 +72,51 @@ internal fun newTestCachedResultWriter() =
         .withOutputDir(getDefaultFlickerOutputDir())
         .setRunComplete()
 
-internal fun readWmTraceFromFile(
+internal fun getWmTraceReaderFromAsset(
     relativePath: String,
     from: Long = Long.MIN_VALUE,
     to: Long = Long.MAX_VALUE,
     addInitialEntry: Boolean = true,
     legacyTrace: Boolean = false,
-): WindowManagerTrace {
-    return try {
-        WindowManagerTraceParser(legacyTrace)
-            .parse(
-                readAsset(relativePath),
-                CrossPlatform.timestamp.from(elapsedNanos = from),
-                CrossPlatform.timestamp.from(elapsedNanos = to),
-                addInitialEntry,
-                clearCache = false
-            )
-    } catch (e: Exception) {
-        throw RuntimeException(e)
-    }
+): IReader {
+    return ParsedTracesReader(
+        artifact = InMemoryArtifact(relativePath),
+        wmTrace =
+            WindowManagerTraceParser(legacyTrace)
+                .parse(
+                    readAsset(relativePath),
+                    CrossPlatform.timestamp.from(elapsedNanos = from),
+                    CrossPlatform.timestamp.from(elapsedNanos = to),
+                    addInitialEntry,
+                    clearCache = false
+                )
+    )
 }
 
-internal fun readWmTraceFromDumpFile(relativePath: String): WindowManagerTrace {
-    return try {
-        WindowManagerDumpParser().parse(readAsset(relativePath), clearCache = false)
-    } catch (e: Exception) {
-        throw RuntimeException(e)
-    }
+internal fun getWmDumpReaderFromAsset(relativePath: String): IReader {
+    return ParsedTracesReader(
+        artifact = InMemoryArtifact(relativePath),
+        wmTrace = WindowManagerDumpParser().parse(readAsset(relativePath), clearCache = false)
+    )
 }
 
-internal fun readLayerTraceFromFile(
+internal fun getLayerTraceReaderFromAsset(
     relativePath: String,
     ignoreOrphanLayers: Boolean = true,
     legacyTrace: Boolean = false,
-): LayersTrace {
-    return try {
-        LayersTraceParser(
-                ignoreLayersStackMatchNoDisplay = false,
-                ignoreLayersInVirtualDisplay = false,
-                legacyTrace = legacyTrace,
-            ) {
-                ignoreOrphanLayers
-            }
-            .parse(readAsset(relativePath))
-    } catch (e: Exception) {
-        throw RuntimeException(e)
-    }
-}
-
-internal fun readTransactionsTraceFromFile(relativePath: String): TransactionsTrace {
-    return try {
-        TransactionsTraceParser().parse(readAsset(relativePath))
-    } catch (e: Exception) {
-        throw RuntimeException(e)
-    }
-}
-
-internal fun readTransitionsTraceFromFile(
-    relativePath: String,
-    transactionsTrace: TransactionsTrace
-): TransitionsTrace {
-    return try {
-        TransitionsTraceParser().parse(readAsset(relativePath))
-    } catch (e: Exception) {
-        throw RuntimeException(e)
-    }
-}
-
-internal fun readEventLogFromFile(relativePath: String): EventLog {
-    return try {
-        EventLogParser().parse(readAsset(relativePath))
-    } catch (e: Exception) {
-        throw RuntimeException(e)
-    }
+): IReader {
+    return ParsedTracesReader(
+        artifact = InMemoryArtifact(relativePath),
+        layersTrace =
+            LayersTraceParser(
+                    ignoreLayersStackMatchNoDisplay = false,
+                    ignoreLayersInVirtualDisplay = false,
+                    legacyTrace = legacyTrace,
+                ) {
+                    ignoreOrphanLayers
+                }
+                .parse(readAsset(relativePath))
+    )
 }
 
 @Throws(Exception::class)
@@ -260,14 +227,6 @@ fun getScenarioTraces(scenario: String): FlickerBuilder.TraceFiles {
 fun assertExceptionMessage(error: Throwable?, expectedValue: String) {
     Truth.assertWithMessage("Expected exception")
         .that(error)
-        .hasMessageThat()
-        .contains(expectedValue)
-}
-
-fun assertExceptionMessageCause(error: Throwable?, expectedValue: String) {
-    Truth.assertWithMessage("Expected cause")
-        .that(error)
-        .hasCauseThat()
         .hasMessageThat()
         .contains(expectedValue)
 }

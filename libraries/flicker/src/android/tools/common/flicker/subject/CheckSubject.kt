@@ -20,12 +20,14 @@ import android.tools.common.Timestamp
 import android.tools.common.flicker.assertions.Fact
 import android.tools.common.flicker.subject.exceptions.ExceptionBuilder
 import android.tools.common.flicker.subject.exceptions.InvalidPropertyException
+import android.tools.common.io.IReader
 
 /** Subject for flicker checks */
 data class CheckSubject<T>(
     private val actualValue: T?,
     private val timestamp: Timestamp,
     private val extraFacts: List<Fact>,
+    private val reader: IReader?,
     private val lazyMessage: () -> String,
 ) {
     private val exceptionBuilder: ExceptionBuilder
@@ -41,7 +43,6 @@ data class CheckSubject<T>(
             return builder
         }
 
-    @Throws(AssertionError::class)
     fun isEqual(expectedValue: T?) {
         if (actualValue != expectedValue) {
             throw exceptionBuilder
@@ -52,7 +53,6 @@ data class CheckSubject<T>(
         }
     }
 
-    @Throws(AssertionError::class)
     fun isNotEqual(expectedValue: T?) {
         if (actualValue == expectedValue) {
             throw exceptionBuilder
@@ -63,7 +63,6 @@ data class CheckSubject<T>(
         }
     }
 
-    @Throws(AssertionError::class)
     fun isNull() {
         if (actualValue != null) {
             throw exceptionBuilder
@@ -74,7 +73,6 @@ data class CheckSubject<T>(
         }
     }
 
-    @Throws(AssertionError::class)
     fun isNotNull() {
         if (actualValue == null) {
             throw exceptionBuilder
@@ -85,7 +83,6 @@ data class CheckSubject<T>(
         }
     }
 
-    @Throws(AssertionError::class)
     fun isLower(expectedValue: T?) {
         if (
             actualValue == null ||
@@ -100,7 +97,6 @@ data class CheckSubject<T>(
         }
     }
 
-    @Throws(AssertionError::class)
     fun isLowerOrEqual(expectedValue: T?) {
         if (
             actualValue == null ||
@@ -115,7 +111,6 @@ data class CheckSubject<T>(
         }
     }
 
-    @Throws(AssertionError::class)
     fun isGreater(expectedValue: T) {
         if (
             actualValue == null ||
@@ -130,7 +125,6 @@ data class CheckSubject<T>(
         }
     }
 
-    @Throws(AssertionError::class)
     fun isGreaterOrEqual(expectedValue: T) {
         if (
             actualValue == null ||
@@ -145,7 +139,6 @@ data class CheckSubject<T>(
         }
     }
 
-    @Throws(AssertionError::class)
     fun <U> contains(expectedValue: U) {
         if (actualValue !is List<*> || !(actualValue as List<U>).contains(expectedValue)) {
             throw exceptionBuilder

@@ -22,7 +22,7 @@ import android.tools.assertThatErrorContainsDebugInfo
 import android.tools.assertThrows
 import android.tools.common.Cache
 import android.tools.common.datatypes.component.ComponentNameMatcher
-import android.tools.readWmTraceFromFile
+import android.tools.getWmTraceReaderFromAsset
 import com.google.common.truth.Truth
 import org.junit.Before
 import org.junit.ClassRule
@@ -36,10 +36,12 @@ import org.junit.runners.MethodSorters
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class WindowManagerTraceSubjectTest {
+    private val chromeTraceReader =
+        getWmTraceReaderFromAsset("wm_trace_openchrome.pb", legacyTrace = true)
     private val chromeTrace
-        get() = readWmTraceFromFile("wm_trace_openchrome.pb", legacyTrace = true)
-    private val imeTrace
-        get() = readWmTraceFromFile("wm_trace_ime.pb", legacyTrace = true)
+        get() = chromeTraceReader.readWmTrace() ?: error("Unable to read WM trace")
+    private val imeTraceReader = getWmTraceReaderFromAsset("wm_trace_ime.pb", legacyTrace = true)
+    private val imeTrace = imeTraceReader.readWmTrace() ?: error("Unable to read WM trace")
 
     @Before
     fun before() {
@@ -48,12 +50,12 @@ class WindowManagerTraceSubjectTest {
 
     @Test
     fun testVisibleAppWindowForRange() {
-        WindowManagerTraceSubject(chromeTrace)
+        WindowManagerTraceSubject(chromeTrace, chromeTraceReader)
             .isAppWindowOnTop(TestComponents.LAUNCHER)
             .isAboveAppWindowVisible(TestComponents.SCREEN_DECOR_OVERLAY)
             .forElapsedTimeRange(9213763541297L, 9215536878453L)
 
-        WindowManagerTraceSubject(chromeTrace)
+        WindowManagerTraceSubject(chromeTrace, chromeTraceReader)
             .isAppWindowOnTop(TestComponents.LAUNCHER)
             .isAppWindowInvisible(TestComponents.CHROME_SPLASH_SCREEN)
             .isAboveAppWindowVisible(TestComponents.SCREEN_DECOR_OVERLAY)
@@ -70,7 +72,7 @@ class WindowManagerTraceSubjectTest {
 
     @Test
     fun testCanTransitionInAppWindow() {
-        WindowManagerTraceSubject(chromeTrace)
+        WindowManagerTraceSubject(chromeTrace, chromeTraceReader)
             .isAppWindowOnTop(TestComponents.LAUNCHER)
             .isAboveAppWindowVisible(TestComponents.SCREEN_DECOR_OVERLAY)
             .then()
@@ -84,8 +86,9 @@ class WindowManagerTraceSubjectTest {
 
     @Test
     fun testCanDetectTransitionWithOptionalValue() {
-        val trace = readWmTraceFromFile("wm_trace_open_from_overview.pb", legacyTrace = true)
-        val subject = WindowManagerTraceSubject(trace)
+        val reader = getWmTraceReaderFromAsset("wm_trace_open_from_overview.pb", legacyTrace = true)
+        val trace = reader.readWmTrace() ?: error("Unable to read WM trace")
+        val subject = WindowManagerTraceSubject(trace, reader)
         subject
             .isAppWindowOnTop(TestComponents.LAUNCHER)
             .then()
@@ -96,7 +99,7 @@ class WindowManagerTraceSubjectTest {
 
     @Test
     fun testCanTransitionInAppWindow_withOptional() {
-        WindowManagerTraceSubject(chromeTrace)
+        WindowManagerTraceSubject(chromeTrace, chromeTraceReader)
             .isAppWindowOnTop(TestComponents.LAUNCHER)
             .isAboveAppWindowVisible(TestComponents.SCREEN_DECOR_OVERLAY)
             .then()
@@ -110,7 +113,7 @@ class WindowManagerTraceSubjectTest {
 
     @Test
     fun testCanInspectBeginning() {
-        WindowManagerTraceSubject(chromeTrace)
+        WindowManagerTraceSubject(chromeTrace, chromeTraceReader)
             .first()
             .isAppWindowOnTop(TestComponents.LAUNCHER)
             .containsAboveAppWindow(TestComponents.SCREEN_DECOR_OVERLAY)
@@ -118,11 +121,13 @@ class WindowManagerTraceSubjectTest {
 
     @Test
     fun testCanInspectAppWindowOnTop() {
-        WindowManagerTraceSubject(chromeTrace).first().isAppWindowOnTop(TestComponents.LAUNCHER)
+        WindowManagerTraceSubject(chromeTrace, chromeTraceReader)
+            .first()
+            .isAppWindowOnTop(TestComponents.LAUNCHER)
 
         val failure =
             assertThrows<AssertionError> {
-                WindowManagerTraceSubject(chromeTrace)
+                WindowManagerTraceSubject(chromeTrace, chromeTraceReader)
                     .first()
                     .isAppWindowOnTop(TestComponents.IMAGINARY)
             }
@@ -131,7 +136,7 @@ class WindowManagerTraceSubjectTest {
 
     @Test
     fun testCanInspectEnd() {
-        WindowManagerTraceSubject(chromeTrace)
+        WindowManagerTraceSubject(chromeTrace, chromeTraceReader)
             .last()
             .isAppWindowOnTop(TestComponents.CHROME_FIRST_RUN)
             .containsAboveAppWindow(TestComponents.SCREEN_DECOR_OVERLAY)
@@ -139,7 +144,7 @@ class WindowManagerTraceSubjectTest {
 
     @Test
     fun testCanTransitionNonAppWindow() {
-        WindowManagerTraceSubject(imeTrace)
+        WindowManagerTraceSubject(imeTrace, imeTraceReader)
             .skipUntilFirstAssertion()
             .isNonAppWindowInvisible(ComponentNameMatcher.IME)
             .then()
@@ -149,7 +154,7 @@ class WindowManagerTraceSubjectTest {
 
     @Test(expected = AssertionError::class)
     fun testCanDetectOverlappingWindows() {
-        WindowManagerTraceSubject(imeTrace)
+        WindowManagerTraceSubject(imeTrace, imeTraceReader)
             .doNotOverlap(
                 ComponentNameMatcher.IME,
                 ComponentNameMatcher.NAV_BAR,
@@ -160,7 +165,7 @@ class WindowManagerTraceSubjectTest {
 
     @Test
     fun testCanTransitionAboveAppWindow() {
-        WindowManagerTraceSubject(imeTrace)
+        WindowManagerTraceSubject(imeTrace, imeTraceReader)
             .skipUntilFirstAssertion()
             .isAboveAppWindowInvisible(ComponentNameMatcher.IME)
             .then()
@@ -170,8 +175,9 @@ class WindowManagerTraceSubjectTest {
 
     @Test
     fun testCanTransitionBelowAppWindow() {
-        val trace = readWmTraceFromFile("wm_trace_open_app_cold.pb", legacyTrace = true)
-        WindowManagerTraceSubject(trace)
+        val reader = getWmTraceReaderFromAsset("wm_trace_open_app_cold.pb", legacyTrace = true)
+        val trace = reader.readWmTrace() ?: error("Unable to read WM trace")
+        WindowManagerTraceSubject(trace, reader)
             .skipUntilFirstAssertion()
             .isBelowAppWindowVisible(TestComponents.WALLPAPER)
             .then()
@@ -181,8 +187,10 @@ class WindowManagerTraceSubjectTest {
 
     @Test
     fun testCanDetectVisibleWindowsMoreThanOneConsecutiveEntry() {
-        val trace = readWmTraceFromFile("wm_trace_valid_visible_windows.pb", legacyTrace = true)
-        WindowManagerTraceSubject(trace)
+        val reader =
+            getWmTraceReaderFromAsset("wm_trace_valid_visible_windows.pb", legacyTrace = true)
+        val trace = reader.readWmTrace() ?: error("Unable to read WM trace")
+        WindowManagerTraceSubject(trace, reader)
             .visibleWindowsShownMoreThanOneConsecutiveEntry()
             .forAllEntries()
     }
@@ -193,7 +201,8 @@ class WindowManagerTraceSubjectTest {
             ComponentNameMatcher.unflattenFromString(
                 "com.android.chrome/org.chromium.chrome.browser.firstrun.FirstRunActivity"
             )
-        val windowStates = WindowManagerTraceSubject(chromeTrace).windowStates(componentMatcher)
+        val windowStates =
+            WindowManagerTraceSubject(chromeTrace, chromeTraceReader).windowStates(componentMatcher)
 
         val visibilityChange =
             windowStates.zipWithNext { current, next ->
@@ -208,17 +217,20 @@ class WindowManagerTraceSubjectTest {
     @Test
     fun exceptionContainsDebugInfo() {
         val error =
-            assertThrows<AssertionError> { WindowManagerTraceSubject(chromeTrace).isEmpty() }
+            assertThrows<AssertionError> {
+                WindowManagerTraceSubject(chromeTrace, chromeTraceReader).isEmpty()
+            }
         assertThatErrorContainsDebugInfo(error)
     }
 
     @Test
     fun testCanDetectSnapshotStartingWindow() {
-        val trace =
-            readWmTraceFromFile(
+        val reader =
+            getWmTraceReaderFromAsset(
                 "quick_switch_to_app_killed_in_background_trace.pb",
                 legacyTrace = true
             )
+        val trace = reader.readWmTrace() ?: error("Unable to read WM trace")
         val app1 =
             ComponentNameMatcher(
                 "com.android.server.wm.flicker.testapp",
@@ -229,7 +241,7 @@ class WindowManagerTraceSubjectTest {
                 "com.android.server.wm.flicker.testapp",
                 "com.android.server.wm.flicker.testapp.SimpleActivity"
             )
-        WindowManagerTraceSubject(trace)
+        WindowManagerTraceSubject(trace, reader)
             .isAppWindowVisible(app1)
             .then()
             .isAppSnapshotStartingWindowVisibleFor(app2, isOptional = true)
@@ -244,12 +256,14 @@ class WindowManagerTraceSubjectTest {
 
     @Test
     fun canDetectAppInvisibleSnapshotStartingWindowVisible() {
-        val trace =
-            readWmTraceFromFile(
+        val reader =
+            getWmTraceReaderFromAsset(
                 "quick_switch_to_app_killed_in_background_trace.pb",
                 legacyTrace = true
             )
-        val subject = WindowManagerTraceSubject(trace).getEntryByElapsedTimestamp(694827105830L)
+        val trace = reader.readWmTrace() ?: error("Unable to read WM trace")
+        val subject =
+            WindowManagerTraceSubject(trace, reader).getEntryByElapsedTimestamp(694827105830L)
         val app =
             ComponentNameMatcher(
                 "com.android.server.wm.flicker.testapp",
@@ -261,14 +275,20 @@ class WindowManagerTraceSubjectTest {
 
     @Test
     fun canDetectAppVisibleTablet() {
-        val trace = readWmTraceFromFile("tablet/wm_trace_open_chrome.winscope", legacyTrace = true)
-        WindowManagerTraceSubject(trace).isAppWindowVisible(TestComponents.CHROME).forAllEntries()
+        val reader =
+            getWmTraceReaderFromAsset("tablet/wm_trace_open_chrome.winscope", legacyTrace = true)
+        val trace = reader.readWmTrace() ?: error("Unable to read WM trace")
+        WindowManagerTraceSubject(trace, reader)
+            .isAppWindowVisible(TestComponents.CHROME)
+            .forAllEntries()
     }
 
     @Test
     fun canDetectAppOpenRecentsTablet() {
-        val trace = readWmTraceFromFile("tablet/wm_trace_open_recents.winscope", legacyTrace = true)
-        WindowManagerTraceSubject(trace).isRecentsActivityVisible().forAllEntries()
+        val reader =
+            getWmTraceReaderFromAsset("tablet/wm_trace_open_recents.winscope", legacyTrace = true)
+        val trace = reader.readWmTrace() ?: error("Unable to read WM trace")
+        WindowManagerTraceSubject(trace, reader).isRecentsActivityVisible().forAllEntries()
     }
 
     companion object {

@@ -23,65 +23,53 @@ import android.tools.common.datatypes.Region
 import android.tools.common.flicker.subject.FlickerSubject
 import android.tools.common.flicker.subject.exceptions.ExceptionBuilder
 import android.tools.common.flicker.subject.exceptions.IncorrectRegionException
+import android.tools.common.io.IReader
 import android.tools.common.traces.region.RegionEntry
+import kotlin.math.abs
 
 /**
  * Subject for [Region] objects, used to make assertions over behaviors that occur on a rectangle.
  */
 class RegionSubject(
-    override val parent: FlickerSubject?,
     val regionEntry: RegionEntry,
-    override val timestamp: Timestamp
+    override val timestamp: Timestamp,
+    override val reader: IReader? = null,
 ) : FlickerSubject(), IRegionSubject {
 
     /** Custom constructor for existing android regions */
     constructor(
         region: Region?,
-        parent: FlickerSubject? = null,
-        timestamp: Timestamp
-    ) : this(parent, RegionEntry(region ?: Region.EMPTY, timestamp), timestamp)
-
-    /** Custom constructor for existing rects */
-    constructor(
-        rect: Array<Rect>,
-        parent: FlickerSubject? = null,
-        timestamp: Timestamp
-    ) : this(Region(rect), parent, timestamp)
+        timestamp: Timestamp,
+        reader: IReader? = null
+    ) : this(RegionEntry(region ?: Region.EMPTY, timestamp), timestamp, reader)
 
     /** Custom constructor for existing rects */
     constructor(
         rect: Rect?,
-        parent: FlickerSubject? = null,
-        timestamp: Timestamp
-    ) : this(Region.from(rect), parent, timestamp)
+        timestamp: Timestamp,
+        reader: IReader? = null
+    ) : this(Region.from(rect), timestamp, reader)
 
     /** Custom constructor for existing rects */
     constructor(
         rect: RectF?,
-        parent: FlickerSubject? = null,
-        timestamp: Timestamp
-    ) : this(rect?.toRect(), parent, timestamp)
+        timestamp: Timestamp,
+        reader: IReader? = null
+    ) : this(rect?.toRect(), timestamp, reader)
 
     /** Custom constructor for existing rects */
     constructor(
         rect: Array<RectF>,
-        parent: FlickerSubject? = null,
-        timestamp: Timestamp
-    ) : this(mergeRegions(rect.map { Region.from(it.toRect()) }.toTypedArray()), parent, timestamp)
+        timestamp: Timestamp,
+        reader: IReader? = null
+    ) : this(mergeRegions(rect.map { Region.from(it.toRect()) }.toTypedArray()), timestamp, reader)
 
     /** Custom constructor for existing regions */
     constructor(
         regions: Array<Region>,
-        parent: FlickerSubject? = null,
-        timestamp: Timestamp
-    ) : this(mergeRegions(regions), parent, timestamp)
-
-    /** Custom constructor for existing entries */
-    constructor(
-        regionEntry: RegionEntry?,
-        parent: FlickerSubject? = null,
-        timestamp: Timestamp
-    ) : this(regionEntry?.region, parent, timestamp)
+        timestamp: Timestamp,
+        reader: IReader? = null
+    ) : this(mergeRegions(regions), timestamp, reader)
 
     val region = regionEntry.region
 
@@ -93,7 +81,6 @@ class RegionSubject(
      *
      * @throws AssertionError
      */
-    @Throws(AssertionError::class)
     fun isEmpty(): RegionSubject = apply {
         if (regionEntry.region.isNotEmpty) {
             throw ExceptionBuilder()
@@ -110,7 +97,6 @@ class RegionSubject(
      *
      * @throws AssertionError
      */
-    @Throws(AssertionError::class)
     fun isNotEmpty(): RegionSubject = apply {
         if (regionEntry.region.isEmpty) {
             throw ExceptionBuilder()
@@ -126,18 +112,17 @@ class RegionSubject(
     fun minus(other: Region): RegionSubject {
         val remainingRegion = Region.from(this.region)
         remainingRegion.op(other, Region.Op.XOR)
-        return RegionSubject(remainingRegion, this, timestamp)
+        return RegionSubject(remainingRegion, timestamp, reader)
     }
 
     /** Adds [other] to this subject [region] */
     fun plus(other: Region): RegionSubject {
         val remainingRegion = Region.from(this.region)
         remainingRegion.op(other, Region.Op.UNION)
-        return RegionSubject(remainingRegion, this, timestamp)
+        return RegionSubject(remainingRegion, timestamp, reader)
     }
 
     /** See [isHigherOrEqual] */
-    @Throws(AssertionError::class)
     fun isHigherOrEqual(subject: RegionSubject): RegionSubject = isHigherOrEqual(subject.region)
 
     /** {@inheritDoc} */
@@ -161,7 +146,6 @@ class RegionSubject(
     }
 
     /** See [isLowerOrEqual] */
-    @Throws(AssertionError::class)
     fun isLowerOrEqual(subject: RegionSubject): RegionSubject = isLowerOrEqual(subject.region)
 
     /** {@inheritDoc} */
@@ -202,7 +186,6 @@ class RegionSubject(
     }
 
     /** See [isHigher] */
-    @Throws(AssertionError::class)
     fun isHigher(subject: RegionSubject): RegionSubject = isHigher(subject.region)
 
     /** {@inheritDoc} */
@@ -226,7 +209,6 @@ class RegionSubject(
     }
 
     /** See [isLower] */
-    @Throws(AssertionError::class)
     fun isLower(subject: RegionSubject): RegionSubject = isLower(subject.region)
 
     /** {@inheritDoc} */
@@ -385,26 +367,27 @@ class RegionSubject(
     override fun notOverlaps(other: Rect): RegionSubject = apply { notOverlaps(Region.from(other)) }
 
     /** {@inheritDoc} */
-    override fun isSameAspectRatio(other: Region): IRegionSubject {
+    override fun isSameAspectRatio(other: Region, threshold: Double): IRegionSubject = apply {
         val aspectRatio = this.region.width.toFloat() / this.region.height
         val otherAspectRatio = other.width.toFloat() / other.height
-        throw ExceptionBuilder()
-            .forSubject(this)
-            .forIncorrectRegion(
-                "region. $region should have the same aspect ratio as $other (difference < 0.1)"
-            )
-            .setExpected(other)
-            .setActual(regionEntry.region)
-            .addExtraDescription("Threshold", 0.1)
-            .addExtraDescription("Region aspect ratio", aspectRatio)
-            .addExtraDescription("Other aspect ratio", otherAspectRatio)
-            .build()
+        if (abs(aspectRatio - otherAspectRatio) > threshold) {
+            throw ExceptionBuilder()
+                .forSubject(this)
+                .forIncorrectRegion(
+                    "region. $region should have the same aspect ratio as $other"
+                )
+                .setExpected(other)
+                .setActual(regionEntry.region)
+                .addExtraDescription("Threshold", threshold)
+                .addExtraDescription("Region aspect ratio", aspectRatio)
+                .addExtraDescription("Other aspect ratio", otherAspectRatio)
+                .build()
+        }
     }
 
-    @Throws(IncorrectRegionException::class)
-    fun isSameAspectRatio(other: RegionSubject): IRegionSubject = isSameAspectRatio(other.region)
+    fun isSameAspectRatio(other: RegionSubject, threshold: Double = 0.1): IRegionSubject =
+        isSameAspectRatio(other.region, threshold)
 
-    @Throws(IncorrectRegionException::class)
     private fun <T : Comparable<T>> assertCompare(
         name: String,
         other: Region,
@@ -425,21 +408,18 @@ class RegionSubject(
         }
     }
 
-    @Throws(IncorrectRegionException::class)
     private fun <T : Comparable<T>> assertEquals(
         name: String,
         other: Region,
         valueProvider: (Rect) -> T
     ) = assertCompare(name, other, valueProvider) { thisV, otherV -> thisV == otherV }
 
-    @Throws(IncorrectRegionException::class)
     private fun assertLeftRightAndAreaEquals(other: Region) {
         assertEquals("left", other) { it.left }
         assertEquals("right", other) { it.right }
         assertEquals("area", other) { it.area }
     }
 
-    @Throws(IncorrectRegionException::class)
     private fun assertTopBottomAndAreaEquals(other: Region) {
         assertEquals("top", other) { it.top }
         assertEquals("bottom", other) { it.bottom }

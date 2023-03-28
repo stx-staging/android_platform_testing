@@ -24,6 +24,7 @@ import android.tools.common.flicker.assertions.Fact
 import android.tools.common.flicker.subject.FlickerSubject
 import android.tools.common.flicker.subject.exceptions.ExceptionBuilder
 import android.tools.common.flicker.subject.region.RegionSubject
+import android.tools.common.io.IReader
 import android.tools.common.traces.surfaceflinger.Layer
 import android.tools.common.traces.surfaceflinger.LayerTraceEntry
 import android.tools.common.traces.surfaceflinger.LayersTrace
@@ -54,12 +55,12 @@ import android.tools.common.traces.surfaceflinger.LayersTrace
  */
 class LayerTraceEntrySubject(
     val entry: LayerTraceEntry,
+    override val reader: IReader? = null,
     val trace: LayersTrace? = null,
-    override val parent: FlickerSubject? = null
 ) : FlickerSubject(), ILayerSubject<LayerTraceEntrySubject, RegionSubject> {
     override val timestamp = entry.timestamp
 
-    val subjects by lazy { entry.flattenedLayers.map { LayerSubject(this, timestamp, it) } }
+    val subjects by lazy { entry.flattenedLayers.map { LayerSubject(reader, timestamp, it) } }
 
     /** Executes a custom [assertion] on the current subject */
     operator fun invoke(assertion: (LayerTraceEntry) -> Unit): LayerTraceEntrySubject = apply {
@@ -113,10 +114,10 @@ class LayerTraceEntrySubject(
         val visibleLayers = selectedLayers.filter { it.isVisible }
         return if (useCompositionEngineRegionOnly) {
             val visibleAreas = visibleLayers.mapNotNull { it.layer.visibleRegion }.toTypedArray()
-            RegionSubject(visibleAreas, this, timestamp)
+            RegionSubject(visibleAreas, timestamp, reader)
         } else {
             val visibleAreas = visibleLayers.map { it.layer.screenBounds }.toTypedArray()
-            RegionSubject(visibleAreas, this, timestamp)
+            RegionSubject(visibleAreas, timestamp, reader)
         }
     }
 

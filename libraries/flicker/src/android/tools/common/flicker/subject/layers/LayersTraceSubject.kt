@@ -23,6 +23,7 @@ import android.tools.common.datatypes.component.IComponentNameMatcher
 import android.tools.common.flicker.subject.FlickerTraceSubject
 import android.tools.common.flicker.subject.exceptions.ExceptionBuilder
 import android.tools.common.flicker.subject.region.RegionTraceSubject
+import android.tools.common.io.IReader
 import android.tools.common.traces.region.RegionTrace
 import android.tools.common.traces.surfaceflinger.Layer
 import android.tools.common.traces.surfaceflinger.LayersTrace
@@ -52,11 +53,13 @@ import android.tools.common.traces.surfaceflinger.LayersTrace
  *    }
  * ```
  */
-class LayersTraceSubject(val trace: LayersTrace, override val parent: LayersTraceSubject? = null) :
+class LayersTraceSubject(val trace: LayersTrace, override val reader: IReader? = null) :
     FlickerTraceSubject<LayerTraceEntrySubject>(),
     ILayerSubject<LayersTraceSubject, RegionTraceSubject> {
 
-    override val subjects by lazy { trace.entries.map { LayerTraceEntrySubject(it, trace, this) } }
+    override val subjects by lazy {
+        trace.entries.map { LayerTraceEntrySubject(it, reader, trace) }
+    }
 
     /** {@inheritDoc} */
     override fun then(): LayersTraceSubject = apply { super.then() }
@@ -118,7 +121,6 @@ class LayersTraceSubject(val trace: LayersTrace, override val parent: LayersTrac
         notContains(componentMatcher, isOptional = false)
 
     /** See [notContains] */
-    @Throws(AssertionError::class)
     fun notContains(componentMatcher: IComponentMatcher, isOptional: Boolean): LayersTraceSubject =
         apply {
             addAssertion("notContains(${componentMatcher.toLayerIdentifier()})", isOptional) {
@@ -131,7 +133,6 @@ class LayersTraceSubject(val trace: LayersTrace, override val parent: LayersTrac
         contains(componentMatcher, isOptional = false)
 
     /** See [contains] */
-    @Throws(AssertionError::class)
     fun contains(componentMatcher: IComponentMatcher, isOptional: Boolean): LayersTraceSubject =
         apply {
             addAssertion("contains(${componentMatcher.toLayerIdentifier()})", isOptional) {
@@ -144,7 +145,6 @@ class LayersTraceSubject(val trace: LayersTrace, override val parent: LayersTrac
         isVisible(componentMatcher, isOptional = false)
 
     /** See [isVisible] */
-    @Throws(AssertionError::class)
     fun isVisible(componentMatcher: IComponentMatcher, isOptional: Boolean): LayersTraceSubject =
         apply {
             addAssertion("isVisible(${componentMatcher.toLayerIdentifier()})", isOptional) {
@@ -157,7 +157,6 @@ class LayersTraceSubject(val trace: LayersTrace, override val parent: LayersTrac
         isInvisible(componentMatcher, isOptional = false)
 
     /** See [isInvisible] */
-    @Throws(AssertionError::class)
     fun isInvisible(componentMatcher: IComponentMatcher, isOptional: Boolean): LayersTraceSubject =
         apply {
             addAssertion("isInvisible(${componentMatcher.toLayerIdentifier()})", isOptional) {
@@ -193,7 +192,6 @@ class LayersTraceSubject(val trace: LayersTrace, override val parent: LayersTrac
         }
 
     /** See [isSplashScreenVisibleFor] */
-    @Throws(AssertionError::class)
     fun isSplashScreenVisibleFor(
         componentMatcher: IComponentNameMatcher,
         isOptional: Boolean
@@ -207,12 +205,10 @@ class LayersTraceSubject(val trace: LayersTrace, override val parent: LayersTrac
     }
 
     /** See [visibleRegion] */
-    @Throws(AssertionError::class)
     fun visibleRegion(): RegionTraceSubject =
         visibleRegion(componentMatcher = null, useCompositionEngineRegionOnly = false)
 
     /** See [visibleRegion] */
-    @Throws(AssertionError::class)
     fun visibleRegion(componentMatcher: IComponentMatcher?): RegionTraceSubject =
         visibleRegion(componentMatcher, useCompositionEngineRegionOnly = false)
 
@@ -231,7 +227,20 @@ class LayersTraceSubject(val trace: LayersTrace, override val parent: LayersTrac
                     }
                     .toTypedArray()
             )
-        return RegionTraceSubject(regionTrace, this)
+        return RegionTraceSubject(regionTrace, reader)
+    }
+
+    fun atLeastOneEntryContainsOneDisplayOn(): LayersTraceSubject = apply {
+        isNotEmpty()
+        val anyEntryWithDisplayOn =
+            subjects.any { it.entry.displays.any { display -> display.isOn } }
+        if (!anyEntryWithDisplayOn) {
+            throw ExceptionBuilder()
+                .forInvalidProperty("Display")
+                .setExpected("At least one display On in any entry")
+                .setActual("No displays on in any entry")
+                .build()
+        }
     }
 
     override fun containsAtLeastOneDisplay(): LayersTraceSubject = apply {
@@ -250,7 +259,6 @@ class LayersTraceSubject(val trace: LayersTrace, override val parent: LayersTrac
     fun hasFrameSequence(name: String, frameNumbers: Iterable<Long>): LayersTraceSubject =
         hasFrameSequence(ComponentNameMatcher("", name), frameNumbers)
 
-    @Throws(AssertionError::class)
     fun hasFrameSequence(
         componentMatcher: IComponentMatcher,
         frameNumbers: Iterable<Long>
@@ -287,7 +295,6 @@ class LayersTraceSubject(val trace: LayersTrace, override val parent: LayersTrac
     }
 
     /** Run the assertions for all trace entries within the specified time range */
-    @Throws(AssertionError::class)
     fun forSystemUpTimeRange(startTime: Long, endTime: Long) {
         val subjectsInRange =
             subjects.filter { it.entry.timestamp.systemUptimeNanos in startTime..endTime }
