@@ -31,7 +31,7 @@ import android.tools.device.traces.monitors.wm.TransitionsTraceMonitor
 import android.tools.device.traces.monitors.wm.WindowManagerTraceMonitor
 import java.io.File
 
-class FlickerServiceTracesCollector(val outputDir: File) : ITracesCollector {
+class FlickerServiceTracesCollector(private val outputDir: File) : ITracesCollector {
     private var scenario: IScenario? = null
 
     private val traceMonitors =
@@ -46,7 +46,6 @@ class FlickerServiceTracesCollector(val outputDir: File) : ITracesCollector {
     override fun start(scenario: IScenario) {
         reportErrorsBlock("Failed to start traces") {
             require(this.scenario == null) { "Trace still running" }
-            reset()
             traceMonitors.forEach { it.start() }
             this.scenario = scenario
         }
@@ -70,15 +69,7 @@ class FlickerServiceTracesCollector(val outputDir: File) : ITracesCollector {
         }
     }
 
-    private fun reset() {
-        cleanupTraceFiles()
-    }
-
-    /**
-     * Remove the WM trace and layers trace files collected from previous test runs if the directory
-     * exists.
-     */
-    private fun cleanupTraceFiles() {
+    override fun cleanup() {
         if (outputDir.exists()) {
             outputDir.deleteRecursively()
         }

@@ -22,4 +22,5 @@ import android.tools.common.io.IReader
 interface ITracesCollector {
     fun start(scenario: IScenario)
     fun stop(): IReader
+    fun cleanup()
 }
