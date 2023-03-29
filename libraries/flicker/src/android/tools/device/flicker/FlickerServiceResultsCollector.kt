@@ -64,6 +64,8 @@ class FlickerServiceResultsCollector(
 
     override fun onTestRunStart(runData: DataRecord, description: Description) {
         errorReportingBlock {
+            tracesCollector.cleanup() // Cleanup any trace archives from previous runs
+
             CrossPlatform.log.i(
                 LOG_TAG,
                 "onTestRunStart :: collectMetricsPerTest = $collectMetricsPerTest"
@@ -90,8 +92,10 @@ class FlickerServiceResultsCollector(
                 hasFailedTest = false
                 val scenario =
                     ScenarioBuilder()
-                        .forClass(description.testClass.canonicalName)
-                        .withDescriptionOverride("#${description.methodName}")
+                        .forClass(
+                            "${description.testClass.canonicalName}#${description.methodName}"
+                        )
+                        .withDescriptionOverride("")
                         .build()
                 tracesCollector.start(scenario)
             }
