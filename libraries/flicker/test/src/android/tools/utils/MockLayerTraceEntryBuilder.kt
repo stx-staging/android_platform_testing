@@ -47,7 +47,7 @@ class MockLayerTraceEntryBuilder() {
         val stackId = 1
         this.displays.add(
             Display.from(
-                id = displayId,
+                id = "$displayId",
                 name = "Display",
                 layerStackId = stackId,
                 size = Size.from(bounds.width, bounds.height),

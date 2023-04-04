@@ -26,7 +26,7 @@ import kotlin.js.JsName
 @JsExport
 class Display
 private constructor(
-    val id: ULong,
+    @JsName("id") val id: String,
     @JsName("name") val name: String,
     @JsName("layerStackId") val layerStackId: Int,
     @JsName("size") val size: Size,
@@ -34,9 +34,6 @@ private constructor(
     @JsName("transform") val transform: Transform,
     @JsName("isVirtual") val isVirtual: Boolean
 ) {
-    @JsName("idStr")
-    val idStr: String
-        get() = id.toString()
     @JsName("isOff") val isOff = layerStackId == BLANK_LAYER_STACK
     @JsName("isOn") val isOn = !isOff
 
@@ -56,7 +53,7 @@ private constructor(
     }
 
     override fun hashCode(): Int {
-        var result = id.toInt()
+        var result = id.hashCode()
         result = 31 * result + name.hashCode()
         result = 31 * result + layerStackId
         result = 31 * result + size.hashCode()
@@ -73,7 +70,7 @@ private constructor(
         val EMPTY: Display
             get() = withCache {
                 Display(
-                    id = 0.toULong(),
+                    id = "0",
                     name = "EMPTY",
                     layerStackId = BLANK_LAYER_STACK,
                     size = Size.EMPTY,
@@ -85,7 +82,7 @@ private constructor(
 
         @JsName("from")
         fun from(
-            id: ULong,
+            id: String,
             name: String,
             layerStackId: Int,
             size: Size,
