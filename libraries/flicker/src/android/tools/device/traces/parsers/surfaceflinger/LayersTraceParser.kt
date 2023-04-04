@@ -144,7 +144,7 @@ class LayersTraceParser(
             proto: Display.DisplayProto
         ): android.tools.common.traces.surfaceflinger.Display {
             return android.tools.common.traces.surfaceflinger.Display.from(
-                proto.id.toULong(),
+                "${proto.id}",
                 proto.name,
                 proto.layerStack,
                 proto.size.toSize(),
