@@ -29,7 +29,6 @@ import android.tools.device.flicker.legacy.AbstractFlickerTestData
 import android.tools.device.flicker.legacy.FlickerBuilder
 import android.tools.device.flicker.legacy.IFlickerTestData
 import android.tools.device.traces.DEFAULT_TRACE_CONFIG
-import android.tools.device.traces.getDefaultFlickerOutputDir
 import android.tools.device.traces.io.InMemoryArtifact
 import android.tools.device.traces.io.ParsedTracesReader
 import android.tools.device.traces.io.ResultReader
@@ -53,6 +52,7 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
 import java.util.zip.ZipInputStream
+import kotlin.io.path.createTempDirectory
 import org.mockito.Mockito
 
 internal val TEST_SCENARIO = ScenarioBuilder().forClass("test").build()
@@ -63,13 +63,13 @@ internal fun outputFileName(status: RunStatus) =
 internal fun newTestResultWriter() =
     ResultWriter()
         .forScenario(TEST_SCENARIO)
-        .withOutputDir(getDefaultFlickerOutputDir())
+        .withOutputDir(createTempDirectory().toFile())
         .setRunComplete()
 
 internal fun newTestCachedResultWriter() =
     CachedResultWriter()
         .forScenario(TEST_SCENARIO)
-        .withOutputDir(getDefaultFlickerOutputDir())
+        .withOutputDir(createTempDirectory().toFile())
         .setRunComplete()
 
 internal fun getWmTraceReaderFromAsset(
@@ -207,10 +207,7 @@ fun getScenarioTraces(scenario: String): FlickerBuilder.TraceFiles {
         )
     for ((traceName, resultSetter) in traces.entries) {
         val traceBytes = readAsset("scenarios/$scenario/$traceName$WINSCOPE_EXT")
-        val traceFile =
-            getDefaultFlickerOutputDir().resolve("${traceName}_$randomString$WINSCOPE_EXT")
-        traceFile.parentFile.mkdirs()
-        traceFile.createNewFile()
+        val traceFile = File.createTempFile(traceName, WINSCOPE_EXT)
         traceFile.writeBytes(traceBytes)
         resultSetter.invoke(traceFile)
     }
@@ -245,7 +242,7 @@ fun createMockedFlicker(
     extraMonitor?.let { monitors.add(it) }
     Mockito.`when`(mockedFlicker.wmHelper).thenReturn(WindowManagerStateHelper())
     Mockito.`when`(mockedFlicker.device).thenReturn(uiDevice)
-    Mockito.`when`(mockedFlicker.outputDir).thenReturn(getDefaultFlickerOutputDir())
+    Mockito.`when`(mockedFlicker.outputDir).thenReturn(createTempDirectory().toFile())
     Mockito.`when`(mockedFlicker.traceMonitors).thenReturn(monitors)
     Mockito.`when`(mockedFlicker.transitionSetup).thenReturn(setup)
     Mockito.`when`(mockedFlicker.transitionTeardown).thenReturn(teardown)
@@ -261,7 +258,7 @@ fun captureTrace(scenario: IScenario, actions: () -> Unit): ResultReader {
     val writer =
         ResultWriter()
             .forScenario(scenario)
-            .withOutputDir(getDefaultFlickerOutputDir())
+            .withOutputDir(createTempDirectory().toFile())
             .setRunComplete()
     val monitors =
         listOf(

@@ -28,11 +28,11 @@ import android.tools.common.io.RunStatus
 import android.tools.common.io.TraceType
 import android.tools.device.traces.DEFAULT_TRACE_CONFIG
 import android.tools.device.traces.deleteIfExists
-import android.tools.device.traces.getDefaultFlickerOutputDir
 import android.tools.newTestResultWriter
 import android.tools.outputFileName
 import com.google.common.truth.Truth
 import java.io.File
+import kotlin.io.path.createTempDirectory
 import org.junit.ClassRule
 import org.junit.FixMethodOrder
 import org.junit.Rule
@@ -77,7 +77,7 @@ class ResultWriterTest {
     fun writesUndefinedFile() {
         outputFileName(RunStatus.RUN_EXECUTED).deleteIfExists()
         val writer =
-            ResultWriter().forScenario(TEST_SCENARIO).withOutputDir(getDefaultFlickerOutputDir())
+            ResultWriter().forScenario(TEST_SCENARIO).withOutputDir(createTempDirectory().toFile())
         val result = writer.write()
         val path = File(result.artifact.path)
         validateFileName(path, RunStatus.UNDEFINED)

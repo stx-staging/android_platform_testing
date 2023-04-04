@@ -18,11 +18,9 @@ package android.tools.common.io
 
 import android.tools.CleanFlickerEnvironmentRule
 import android.tools.TEST_SCENARIO
-import android.tools.device.traces.deleteIfExists
-import android.tools.device.traces.getDefaultFlickerOutputDir
 import android.tools.device.traces.io.Artifact
 import com.google.common.truth.Truth
-import java.io.File
+import kotlin.io.path.createTempDirectory
 import org.junit.ClassRule
 import org.junit.Rule
 import org.junit.Test
@@ -32,12 +30,7 @@ class RunStatusTest {
     fun fromFileNameGetsCorrectStatus() {
         for (status in RunStatus.values()) {
             val artifact =
-                Artifact(
-                    status,
-                    TEST_SCENARIO,
-                    getDefaultFlickerOutputDir(),
-                    emptyMap<ResultArtifactDescriptor, File>()
-                )
+                Artifact(status, TEST_SCENARIO, createTempDirectory().toFile(), emptyMap())
             val statusFromFile = RunStatus.fromFileName(artifact.file.name)
             Truth.assertThat(statusFromFile).isEqualTo(status)
             artifact.deleteIfExists()

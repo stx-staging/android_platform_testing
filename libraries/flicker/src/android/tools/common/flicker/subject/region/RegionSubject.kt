@@ -373,9 +373,7 @@ class RegionSubject(
         if (abs(aspectRatio - otherAspectRatio) > threshold) {
             throw ExceptionBuilder()
                 .forSubject(this)
-                .forIncorrectRegion(
-                    "region. $region should have the same aspect ratio as $other"
-                )
+                .forIncorrectRegion("region. $region should have the same aspect ratio as $other")
                 .setExpected(other)
                 .setActual(regionEntry.region)
                 .addExtraDescription("Threshold", threshold)
