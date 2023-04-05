@@ -59,9 +59,7 @@ object DataStore {
      * @throws IllegalStateException is [scenario] already exists in the data store
      */
     fun addResult(scenario: IScenario, result: IResultData) {
-        if (containsResult(scenario)) {
-            error("Result for $scenario already in data store")
-        }
+        require(!containsResult(scenario)) { "Result for $scenario already in data store" }
         cachedResults[scenario] = result
     }
 
