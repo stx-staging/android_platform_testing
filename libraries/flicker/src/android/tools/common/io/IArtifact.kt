@@ -14,30 +14,17 @@
  * limitations under the License.
  */
 
-package android.tools.common
+package android.tools.common.io
 
-import kotlin.js.JsName
+interface IArtifact {
+    val runStatus: RunStatus
+    val path: String
 
-object Cache {
-    private var cache = mutableMapOf<Any, Any>()
-
-    data class Backup(val cache: MutableMap<Any, Any>)
-
-    @JsName("get")
-    fun <T : Any> get(element: T): T {
-        return Cache.cache.getOrPut(element) { element } as T
-    }
-
-    @JsName("clear")
-    fun clear() {
-        Cache.cache = mutableMapOf<Any, Any>()
-    }
-
-    fun backup(): Backup {
-        return Backup(cache.toMutableMap())
-    }
-
-    fun restore(backup: Cache.Backup) {
-        cache = backup.cache
-    }
+    fun updateStatus(newStatus: RunStatus)
+    fun readBytes(descriptor: ResultArtifactDescriptor): ByteArray?
+    /** @return if a file matching [descriptor exists in the artifact */
+    fun hasTrace(descriptor: ResultArtifactDescriptor): Boolean
+    /** @return the number of files in the artifact */
+    fun traceCount(): Int
+    fun deleteIfExists()
 }
