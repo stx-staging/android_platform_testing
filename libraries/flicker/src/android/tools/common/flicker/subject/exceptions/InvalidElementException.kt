@@ -14,30 +14,9 @@
  * limitations under the License.
  */
 
-package android.tools.common
+package android.tools.common.flicker.subject.exceptions
 
-import kotlin.js.JsName
-
-object Cache {
-    private var cache = mutableMapOf<Any, Any>()
-
-    data class Backup(val cache: MutableMap<Any, Any>)
-
-    @JsName("get")
-    fun <T : Any> get(element: T): T {
-        return Cache.cache.getOrPut(element) { element } as T
-    }
-
-    @JsName("clear")
-    fun clear() {
-        Cache.cache = mutableMapOf<Any, Any>()
-    }
-
-    fun backup(): Backup {
-        return Backup(cache.toMutableMap())
-    }
-
-    fun restore(backup: Cache.Backup) {
-        cache = backup.cache
-    }
-}
+/**
+ * Exception thrown when an element is found and shouldn't exist, or isn't found and should exist
+ */
+class InvalidElementException(msg: String) : AssertionError(msg)

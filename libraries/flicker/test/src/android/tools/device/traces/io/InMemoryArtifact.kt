@@ -16,21 +16,29 @@
 
 package android.tools.device.traces.io
 
-import android.tools.common.Timestamp
 import android.tools.common.io.IArtifact
+import android.tools.common.io.ResultArtifactDescriptor
 import android.tools.common.io.RunStatus
-import android.tools.common.io.TransitionTimeRange
 
-/** Contents of a flicker run (e.g. files, status, event log) */
-interface IResultData {
-    val transitionTimeRange: TransitionTimeRange
-    val executionError: Throwable?
-    val artifact: IArtifact
-    val runStatus: RunStatus
+class InMemoryArtifact(override val path: String) : IArtifact {
 
-    /** updates the artifact status to [newStatus] */
-    fun updateStatus(newStatus: RunStatus): IResultData
+    override val runStatus = RunStatus.UNDEFINED
 
-    /** @return a subsection of the trace */
-    fun slice(startTimestamp: Timestamp, endTimestamp: Timestamp): IResultData
+    override fun deleteIfExists() {
+        // No op
+    }
+
+    override fun traceCount(): Int = 0
+
+    override fun hasTrace(descriptor: ResultArtifactDescriptor): Boolean = false
+
+    override fun readBytes(descriptor: ResultArtifactDescriptor): ByteArray? = null
+
+    override fun updateStatus(newStatus: RunStatus) {
+        // No op
+    }
+
+    companion object {
+        internal val EMPTY = InMemoryArtifact("Empty")
+    }
 }
