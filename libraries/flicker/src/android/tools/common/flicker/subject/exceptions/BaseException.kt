@@ -14,18 +14,12 @@
  * limitations under the License.
  */
 
-package android.tools.common.flicker.assertions
+package android.tools.common.flicker.subject.exceptions
 
-/** A string key-value pair in a failure message, such as "expected: abc" or "but was: xyz." */
-data class Fact(val key: String, val value: Any? = null) {
-    internal val isEmpty = key.isEmpty()
+/** Base class for flicker subject exceptions */
+abstract class BaseException : AssertionError() {
+    abstract val messageBuilder: ExceptionMessageBuilder
 
-    override fun toString(): String {
-        val valueStr = value?.toString() ?: ""
-        return if (valueStr.isEmpty()) key else "$key: $valueStr"
-    }
-
-    companion object {
-        internal val EMPTY = Fact(key = "")
-    }
+    override val message
+        get() = messageBuilder.build()
 }
