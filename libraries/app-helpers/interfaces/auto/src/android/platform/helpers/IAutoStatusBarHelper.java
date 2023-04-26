@@ -127,4 +127,50 @@ public interface IAutoStatusBarHelper extends IAppHelper {
      * <p>This method verifies the disabled Media profile</>
      */
     boolean verifyDisabledMediaProfile();
+
+    /**
+     * Setup expectations: Status bar Network palette is open.
+     *
+     * <p>Open status bar network palette.
+     */
+    void openNetworkPalette();
+
+    /**
+     * Setup expectations: Toggle ON/OFF
+     *
+     * <p>Click on toggle button from status bar palette
+     *
+     * @param name options in the palette
+     */
+    void networkPaletteToggleOnOff(String name);
+
+    /**
+     * Setup expectations: Hotspot Name
+     *
+     * <p>Check if the Hotspot name is displayed
+     */
+    boolean isHotspotNameDisplayed();
+
+    /**
+     * Setup expectations: Status of Toggle ON/OFF
+     *
+     * <p>Checks if toggle is enabled on status bar palette
+     *
+     * @param target options in the palette
+     */
+    boolean isNetworkSwitchEnabled(String target);
+
+    /**
+     * Setup expectations: Wi-Fi Name
+     *
+     * <p>Check if the Wifi name is displayed
+     */
+    boolean isWifiNameDisplayed();
+
+    /**
+     * Setup expectations: Network & Internet
+     *
+     * <p>click on forget button
+     */
+    void forgetWifi();
 }
