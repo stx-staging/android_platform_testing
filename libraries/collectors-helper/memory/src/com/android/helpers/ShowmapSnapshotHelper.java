@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.InputMismatchException;
@@ -53,6 +54,7 @@ public class ShowmapSnapshotHelper implements ICollectorHelper<String> {
     public static final String ALL_PROCESSES_CMD = "ps -A";
     private static final String SHOWMAP_CMD = "showmap -v %d";
     private static final String CHILD_PROCESSES_CMD = "ps -A --ppid %d";
+    @VisibleForTesting public static final String OOM_SCORE_ADJ_CMD = "cat /proc/%d/oom_score_adj";
     private static final String THREADS_FILE_PATH = "/sdcard/countThreads.sh";
     @VisibleForTesting public static final String THREADS_CMD = "sh /sdcard/countThreads.sh";
     private static final String THREADS_EXEC_SCRIPT =
@@ -66,10 +68,11 @@ public class ShowmapSnapshotHelper implements ICollectorHelper<String> {
     public static final String OUTPUT_CHILD_PROCESS_COUNT_KEY = CHILD_PROCESS_COUNT_PREFIX + "_%s";
     public static final String PROCESS_WITH_CHILD_PROCESS_COUNT =
             "process_with_child_process_count";
-    private static final String CHILD_PROCESS_NAME_REGEX = "(\\S+)$";
     private static final String METRIC_VALUE_SEPARATOR = "_";
     public static final String PARENT_PROCESS_STRING = "parent_process";
     public static final String CHILD_PROCESS_STRING = "child_process";
+    // The reason to skip the process: b/272181398#comment24
+    private static final Set<String> SKIP_PROCESS = new HashSet<>(Arrays.asList("logcat", "sh"));
 
     private String[] mProcessNames = null;
     private String mTestOutputDir = null;
@@ -181,6 +184,12 @@ public class ShowmapSnapshotHelper implements ICollectorHelper<String> {
                         mUiDevice.executeShellCommand("dumpsys meminfo -a " + pid);
                         android.os.Trace.endSection();
                       }
+
+                        // Skip the cached process for showmap and child process count
+                        if (isCachedProcess(processName, pid)) {
+                            Log.i(TAG, String.format("Skip the cached process %s.", processName));
+                            continue;
+                        }
 
                       android.os.Trace.beginSection("ExecuteShowmap");
                       String showmapOutput = execShowMap(processName, pid);
@@ -472,6 +481,22 @@ public class ShowmapSnapshotHelper implements ICollectorHelper<String> {
         Log.i(TAG, String.format("Metric Name index map size %s", mMetricNameIndexMap.size()));
     }
 
+    /** Return true if the giving process is a cached process */
+    public boolean isCachedProcess(String processName, long pid) {
+        try {
+            String score = executeShellCommand(String.format(OOM_SCORE_ADJ_CMD, pid));
+            boolean result = Integer.parseInt(score.trim()) >= 900;
+            if (result) {
+                Log.i(TAG, String.format("The process %s with pid %d is cached", processName, pid));
+            }
+            return result;
+        } catch (IOException e) {
+            Log.e(TAG, String.format("Unable to get process oom_score_adj for %s", processName), e);
+            // We don't know the process is cached or not, still collect it
+            return false;
+        }
+    }
+
     /**
      * Retrieves the number of child processes for the given process id and updates the total
      * process count and adds a child process metric for the process name that pid is associated
@@ -482,8 +507,8 @@ public class ShowmapSnapshotHelper implements ICollectorHelper<String> {
      */
     private void updateChildProcessesDetails(String processName, long pid) {
         String childProcessName;
+        String childPID;
         String completeChildProcessMetric;
-        Pattern childProcessPattern = Pattern.compile(CHILD_PROCESS_NAME_REGEX);
         try {
             Log.i(TAG,
                     String.format("Retrieving child processes count for process name: %s with"
@@ -491,37 +516,46 @@ public class ShowmapSnapshotHelper implements ICollectorHelper<String> {
             String childProcessesStr = mUiDevice
                     .executeShellCommand(String.format(CHILD_PROCESSES_CMD, pid));
             Log.i(TAG, String.format("Child processes cmd output: %s", childProcessesStr));
-            String[] childProcessStrSplit = childProcessesStr.split("\\n");
-            // To discard the header line in the command output.
-            int childProcessCount = childProcessStrSplit.length - 1;
-            String childCountMetricKey = String.format(OUTPUT_CHILD_PROCESS_COUNT_KEY, processName);
 
+            int childProcessCount = 0;
+            String[] childProcessStrSplit = childProcessesStr.split("\\n");
+            for (String line : childProcessStrSplit) {
+                // To discard the header line in the command output.
+                if (Objects.equals(line, childProcessStrSplit[0])) continue;
+                String[] childProcessSplit = line.trim().split("\\s+");
+                /**
+                 * final metric will be of following format
+                 * parent_process_<process>_child_process_<process>
+                 * parent_process_zygote64_child_process_system_server
+                 */
+                childPID = childProcessSplit[1];
+                childProcessName = childProcessSplit[8];
+                // Skip the logcat and sh processes in child process count
+                if (SKIP_PROCESS.contains(childProcessName)
+                        || isCachedProcess(childProcessName, Long.parseLong(childPID))) {
+                    Log.i(
+                            TAG,
+                            String.format(
+                                    "Skip the child process %s in the parent process %s.",
+                                    childProcessName, processName));
+                    continue;
+                }
+                childProcessCount++;
+                completeChildProcessMetric =
+                        String.join(
+                                METRIC_VALUE_SEPARATOR,
+                                PARENT_PROCESS_STRING,
+                                processName,
+                                CHILD_PROCESS_STRING,
+                                childProcessName);
+                mMemoryMap.put(completeChildProcessMetric, "1");
+            }
+            String childCountMetricKey = String.format(OUTPUT_CHILD_PROCESS_COUNT_KEY, processName);
             if (childProcessCount > 0) {
                 mMemoryMap.put(childCountMetricKey,
                         Long.toString(
                                 Long.parseLong(mMemoryMap.getOrDefault(childCountMetricKey, "0"))
                                         + childProcessCount));
-            }
-            for (String line : childProcessStrSplit) {
-                // To discard the header line in the command output.
-                if (Objects.equals(line, childProcessStrSplit[0])) continue;
-                Matcher childProcessMatcher = childProcessPattern.matcher(line);
-                if (childProcessMatcher.find()) {
-                    /**
-                     * final metric will be of following format
-                     * parent_process_<process>_child_process_<process>
-                     * parent_process_zygote64_child_process_system_server
-                     */
-                    childProcessName = childProcessMatcher.group(1);
-                    completeChildProcessMetric =
-                            String.join(
-                                    METRIC_VALUE_SEPARATOR,
-                                    PARENT_PROCESS_STRING,
-                                    processName,
-                                    CHILD_PROCESS_STRING,
-                                    childProcessName);
-                    mMemoryMap.put(completeChildProcessMetric, "1");
-                }
             }
         } catch (IOException e) {
             throw new RuntimeException("Unable to run child process command.", e);
