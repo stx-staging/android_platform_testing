@@ -44,16 +44,23 @@ public class BugReportDurationHelper implements ICollectorHelper<Double> {
 
     private static final String TAG = BugReportDurationHelper.class.getSimpleName();
 
+    // Commands that will run on the test device.
     private static final String LS_CMD = "ls %s";
     private static final String UNZIP_EXTRACT_CMD = "unzip -p %s %s";
     private static final String UNZIP_CONTENTS_CMD = "unzip -l %s";
-    private static final String DURATION_FILTER = "was the duration of \'";
+
+    // Filters for selecting or omitting lines from the raw bug report.
+    private static final String DUMPSTATE_DURATION_FILTER = "was the duration of \'";
+    private static final String DUMPSYS_DURATION_FILTER = "was the duration of dumpsys";
     private static final String SHOWMAP_FILTER = "SHOW MAP";
 
     // This pattern will match a group of characters representing a number with a decimal point.
-    private Pattern durationPattern = Pattern.compile("[0-9]+\\.[0-9]+");
+    private Pattern decimalDurationPattern = Pattern.compile("[0-9]+\\.[0-9]+");
+
     // This pattern will match a group of characters enclosed by \'.
-    private Pattern keyPattern = Pattern.compile("'.+'");
+    private Pattern dumpstateKeyPattern = Pattern.compile("'(.+)'");
+    // This pattern will match a group of characters surrounded by "dumpsys " and ','.
+    private Pattern dumpsysKeyPattern = Pattern.compile("dumpsys (.+),");
 
     private String bugReportDir;
 
@@ -75,6 +82,27 @@ public class BugReportDurationHelper implements ICollectorHelper<Double> {
         return true;
     }
 
+    /** Convenience class for returning separate lists of lines from the raw bug report. */
+    @VisibleForTesting
+    public class BugReportDurationLines {
+        public ArrayList<String> dumpstateLines;
+        public ArrayList<String> dumpsysLines;
+
+        public BugReportDurationLines() {
+            dumpstateLines = new ArrayList<>();
+            dumpsysLines = new ArrayList<>();
+        }
+
+        public boolean isEmpty() {
+            return dumpstateLines.isEmpty() && dumpsysLines.isEmpty();
+        }
+
+        // Only used in testing.
+        public boolean contains(String s) {
+            return dumpstateLines.contains(s) || dumpsysLines.contains(s);
+        }
+    }
+
     @Override
     public Map<String, Double> getMetrics() {
         Log.d(TAG, "Grabbing metrics for BugReportDuration.");
@@ -85,28 +113,46 @@ public class BugReportDurationHelper implements ICollectorHelper<Double> {
             Log.w(TAG, "No bug report was found in directory: " + bugReportDir);
             return metrics;
         }
-        ArrayList<String> durationLines = extractAndFilterBugReport(archive);
+
+        BugReportDurationLines bugReportDurationLines = extractAndFilterBugReport(archive);
         // No lines relevant to bug report durations were found, so there are no metrics to return.
-        if (durationLines == null || durationLines.isEmpty()) {
+        if (bugReportDurationLines == null || bugReportDurationLines.isEmpty()) {
             Log.w(TAG, "No lines relevant to bug report durations were found.");
             return metrics;
         }
+
         /*
-         * Some examples of duration-relevant lines are:
+         * Some examples of section duration-relevant lines are:
          *     ------ 44.619s was the duration of 'dumpstate_board()' ------
          *     ------ 21.397s was the duration of 'DUMPSYS' ------
          */
-        for (String line : durationLines) {
-            String section = parseSection(line);
-            double duration = parseDuration(line);
-            // The line doesn't contain the expected \' characters or duration value.
-            if (section == null || duration == -1) {
-                Log.e(TAG, "Section name or duration could not be parsed from: " + line);
+        for (String line : bugReportDurationLines.dumpstateLines) {
+            String dumpstateSection = parseDumpstateSection(line);
+            double duration = parseDecimalDuration(line);
+            // The line doesn't contain the expected dumpstate section name or duration value.
+            if (dumpstateSection == null || duration == -1) {
+                Log.e(TAG, "Dumpstate section name or duration could not be parsed from: " + line);
                 continue;
             }
-            String key = convertSectionToKey(section);
+            String key = convertDumpstateSectionToKey(dumpstateSection);
             // Some sections are collected multiple times (e.g. trusty version, system log).
             metrics.put(key, duration + metrics.getOrDefault(key, 0.0));
+        }
+
+        /*
+         * Some examples of dumpsys duration-relevant lines are:
+         * --------- 20.865s was the duration of dumpsys meminfo, ending at: 2023-04-24 19:53:46
+         * --------- 0.316s was the duration of dumpsys gfxinfo, ending at: 2023-04-24 19:54:06
+         */
+        for (String line : bugReportDurationLines.dumpsysLines) {
+            String dumpsysSection = parseDumpsysSection(line);
+            double duration = parseDecimalDuration(line);
+            // The line doesn't contain the expected dumpsys section name or duration value.
+            if (dumpsysSection == null || duration == -1) {
+                Log.e(TAG, "Dumpstate section name or duration could not be parsed from: " + line);
+                continue;
+            }
+            metrics.put(convertDumpsysSectionToKey(dumpsysSection), duration);
         }
         return metrics;
     }
@@ -155,10 +201,10 @@ public class BugReportDurationHelper implements ICollectorHelper<Double> {
         }
     }
 
-    // Extracts a bug report .txt to stdout and returns an ArrayList of lines containing section
-    // names and durations.
+    // Extracts a bug report .txt to stdout and returns a BugReportDurationLines object containing
+    // lines with dumpstate/dumpsys sections and durations.
     @VisibleForTesting
-    public ArrayList<String> extractAndFilterBugReport(String archive) {
+    public BugReportDurationLines extractAndFilterBugReport(String archive) {
         String archivePath = bugReportDir + archive;
         String entry = archive.replace("zip", "txt");
         UiAutomation automation = InstrumentationRegistry.getInstrumentation().getUiAutomation();
@@ -168,7 +214,7 @@ public class BugReportDurationHelper implements ICollectorHelper<Double> {
         // We keep track of whether the buffered reader was empty because this probably indicates an
         // issue in unzipping (e.g. a mismatch in the bugreport's .zip name and .txt entry name).
         boolean bufferedReaderNotEmpty = false;
-        ArrayList<String> durationLines = new ArrayList<>();
+        BugReportDurationLines bugReportDurationLines = new BugReportDurationLines();
         try (InputStream is =
                         new ParcelFileDescriptor.AutoCloseInputStream(
                                 automation.executeShellCommand(cmd));
@@ -176,8 +222,10 @@ public class BugReportDurationHelper implements ICollectorHelper<Double> {
             String line;
             while ((line = br.readLine()) != null) {
                 bufferedReaderNotEmpty = true;
-                if (line.contains(DURATION_FILTER) && !line.contains(SHOWMAP_FILTER)) {
-                    durationLines.add(line);
+                if (line.contains(DUMPSTATE_DURATION_FILTER) && !line.contains(SHOWMAP_FILTER)) {
+                    bugReportDurationLines.dumpstateLines.add(line);
+                } else if (line.contains(DUMPSYS_DURATION_FILTER)) {
+                    bugReportDurationLines.dumpsysLines.add(line);
                 }
             }
         } catch (IOException e) {
@@ -192,7 +240,7 @@ public class BugReportDurationHelper implements ICollectorHelper<Double> {
                             entry, archivePath));
             dumpBugReportEntries(archivePath);
         }
-        return durationLines;
+        return bugReportDurationLines;
     }
 
     // Prints out every entry contained in the zip archive at archivePath.
@@ -214,10 +262,10 @@ public class BugReportDurationHelper implements ICollectorHelper<Double> {
         }
     }
 
-    // Parses a section duration from the input duration-relevant log line.
+    // Parses a decimal duration from the input duration-relevant log line.
     @VisibleForTesting
-    public double parseDuration(String line) {
-        Matcher m = durationPattern.matcher(line);
+    public double parseDecimalDuration(String line) {
+        Matcher m = decimalDurationPattern.matcher(line);
         if (m.find()) {
             return Double.parseDouble(m.group());
         } else {
@@ -225,21 +273,41 @@ public class BugReportDurationHelper implements ICollectorHelper<Double> {
         }
     }
 
-    // Parses a section name from the input duration-relevant log line.
-    @VisibleForTesting
-    public String parseSection(String line) {
-        Matcher m = keyPattern.matcher(line);
+    private String parseSection(String line, Pattern p) {
+        Matcher m = p.matcher(line);
         if (m.find()) {
-            return m.group().replace("\'", "");
+            // m.group(0) corresponds to the entire match; m.group(1) is the substring within the
+            // first set of parentheses.
+            return m.group(1);
         } else {
             return null;
         }
     }
 
-    // Converts a bug report section name to a key by replacing spaces with '-', lowercasing, and
+    @VisibleForTesting
+    public String parseDumpstateSection(String line) {
+        return parseSection(line, dumpstateKeyPattern);
+    }
+
+    @VisibleForTesting
+    public String parseDumpsysSection(String line) {
+        return parseSection(line, dumpsysKeyPattern);
+    }
+
+    // Converts a dumpstate section to a key by replacing spaces with '-', lowercasing, and
     // prepending "bugreport-duration-".
     @VisibleForTesting
-    public String convertSectionToKey(String section) {
-        return "bugreport-duration-" + section.replace(" ", "-").toLowerCase();
+    public String convertDumpstateSectionToKey(String dumpstateSection) {
+        return "bugreport-duration-" + dumpstateSection.replace(" ", "-").toLowerCase();
+    }
+
+    // Converts a dumpsys section to a key by prepending "bugreport-dumpsys-duration-".
+    //
+    // Spaces aren't replaced because dumpsys sections shouldn't contain spaces. Lowercasing is not
+    // done either because dumpsys section names are case-sensitive, and can be run on-device as-is
+    // (e.g. "dumpsys SurfaceFlinger").
+    @VisibleForTesting
+    public String convertDumpsysSectionToKey(String dumpsysSection) {
+        return "bugreport-dumpsys-duration-" + dumpsysSection;
     }
 }
