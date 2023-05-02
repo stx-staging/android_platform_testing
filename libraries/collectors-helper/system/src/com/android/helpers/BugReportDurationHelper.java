@@ -28,6 +28,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -54,13 +56,22 @@ public class BugReportDurationHelper implements ICollectorHelper<Double> {
     private static final String DUMPSYS_DURATION_FILTER = "was the duration of dumpsys";
     private static final String SHOWMAP_FILTER = "SHOW MAP";
 
+    // Filters for selecting lines from dumpstate_board.txt. Unlike raw bug reports, dumpstate_board
+    // sections and durations are contained on separate lines.
+    private static final String DUMPSTATE_BOARD_SECTION_FILTER = "------ Section end:";
+    private static final String DUMPSTATE_BOARD_DURATION_FILTER = "Elapsed msec:";
+
     // This pattern will match a group of characters representing a number with a decimal point.
     private Pattern decimalDurationPattern = Pattern.compile("[0-9]+\\.[0-9]+");
+    // This pattern will match a group of characters representing a number without a decimal point.
+    private Pattern integerDurationPattern = Pattern.compile("[0-9]+");
 
     // This pattern will match a group of characters enclosed by \'.
     private Pattern dumpstateKeyPattern = Pattern.compile("'(.+)'");
     // This pattern will match a group of characters surrounded by "dumpsys " and ','.
     private Pattern dumpsysKeyPattern = Pattern.compile("dumpsys (.+),");
+    // This pattern will match a group of characters surrounded by ": " and " -".
+    private Pattern dumpstateBoardKeyPattern = Pattern.compile(": (.+) -");
 
     private String bugReportDir;
 
@@ -100,6 +111,35 @@ public class BugReportDurationHelper implements ICollectorHelper<Double> {
         // Only used in testing.
         public boolean contains(String s) {
             return dumpstateLines.contains(s) || dumpsysLines.contains(s);
+        }
+    }
+
+    /** Convenience class for returning section name/duration lines from dumpstate_board.txt. */
+    @VisibleForTesting
+    public class DumpstateBoardLines {
+        public ArrayList<String> sectionNameLines;
+        public ArrayList<String> durationLines;
+
+        public DumpstateBoardLines() {
+            sectionNameLines = new ArrayList<>();
+            durationLines = new ArrayList<>();
+        }
+
+        public boolean isValid() {
+            return sectionNameLines.size() == durationLines.size();
+        }
+
+        public boolean isEmpty() {
+            return isValid() && sectionNameLines.isEmpty();
+        }
+
+        public int size() {
+            return sectionNameLines.size();
+        }
+
+        // Only used in testing.
+        public boolean contains(String s) {
+            return sectionNameLines.contains(s) || durationLines.contains(s);
         }
     }
 
@@ -154,6 +194,44 @@ public class BugReportDurationHelper implements ICollectorHelper<Double> {
             }
             metrics.put(convertDumpsysSectionToKey(dumpsysSection), duration);
         }
+
+        DumpstateBoardLines dumpstateBoardLines = extractAndFilterDumpstateBoard(archive);
+        // No lines relevant to dumpstate board durations were found, but we should return the
+        // previously-inserted metrics anyways.
+        if (dumpstateBoardLines == null || dumpstateBoardLines.isEmpty()) {
+            Log.w(TAG, "No lines relevant to dumpstate board durations were found.");
+            return metrics;
+        } else if (!dumpstateBoardLines.isValid()) {
+            Log.w(TAG, "Mismatch in the number of dumpstate_board section names and durations.");
+            return metrics;
+        }
+
+        /*
+         * Some examples of dumpstate_board section lines are:
+         *     ------ Section end: dump_display ------
+         *     ------ Section end: dump_modem.sh ------
+         *     ------ Section end: dump_modemlog ------
+         *
+         * Some examples of dumpstate_board duration lines are:
+         *     Elapsed msec: 103
+         *     Elapsed msec: 89
+         *     Elapsed msec: 12532
+         */
+        for (int i = 0; i < dumpstateBoardLines.size(); i++) {
+            String dumpstateBoardSection =
+                    parseDumpstateBoardSection(dumpstateBoardLines.sectionNameLines.get(i));
+            double duration = parseIntegerDuration(dumpstateBoardLines.durationLines.get(i));
+            if (dumpstateBoardSection == null || duration == -1) {
+                Log.e(
+                        TAG,
+                        String.format(
+                                "Section name or duration could not be parsed from (%s, %s)",
+                                dumpstateBoardLines.sectionNameLines.get(i),
+                                dumpstateBoardLines.durationLines.get(i)));
+                continue;
+            }
+            metrics.put(convertDumpstateBoardSectionToKey(dumpstateBoardSection), duration);
+        }
         return metrics;
     }
 
@@ -205,10 +283,10 @@ public class BugReportDurationHelper implements ICollectorHelper<Double> {
     // lines with dumpstate/dumpsys sections and durations.
     @VisibleForTesting
     public BugReportDurationLines extractAndFilterBugReport(String archive) {
-        String archivePath = bugReportDir + archive;
+        Path archivePath = Paths.get(bugReportDir, archive);
         String entry = archive.replace("zip", "txt");
         UiAutomation automation = InstrumentationRegistry.getInstrumentation().getUiAutomation();
-        String cmd = String.format(UNZIP_EXTRACT_CMD, archivePath, entry);
+        String cmd = String.format(UNZIP_EXTRACT_CMD, archivePath.toString(), entry);
         Log.d(TAG, "The unzip command that will be run is: " + cmd);
 
         // We keep track of whether the buffered reader was empty because this probably indicates an
@@ -237,16 +315,58 @@ public class BugReportDurationHelper implements ICollectorHelper<Double> {
                     TAG,
                     String.format(
                             "The buffered reader for file %s in archive %s was empty.",
-                            entry, archivePath));
+                            entry, archivePath.toString()));
             dumpBugReportEntries(archivePath);
         }
         return bugReportDurationLines;
     }
 
-    // Prints out every entry contained in the zip archive at archivePath.
-    private void dumpBugReportEntries(String archivePath) {
+    // Extracts a dumpstate_board.txt file to stdout and returns a DumpstateBoardLines object
+    // containing lines with dumpstate_board sections and lines with durations.
+    @VisibleForTesting
+    public DumpstateBoardLines extractAndFilterDumpstateBoard(String archive) {
+        Path archivePath = Paths.get(bugReportDir, archive);
+        String entry = "dumpstate_board.txt";
         UiAutomation automation = InstrumentationRegistry.getInstrumentation().getUiAutomation();
-        String cmd = String.format(UNZIP_CONTENTS_CMD, archivePath);
+        String cmd = String.format(UNZIP_EXTRACT_CMD, archivePath.toString(), entry);
+        Log.d(TAG, "The unzip command that will be run is: " + cmd);
+
+        // We keep track of whether the buffered reader was empty because this may indicate an issue
+        // in unzipping (e.g. dumpstate_board.txt doesn't exist for some reason).
+        boolean bufferedReaderNotEmpty = false;
+        DumpstateBoardLines dumpstateBoardLines = new DumpstateBoardLines();
+        try (InputStream is =
+                        new ParcelFileDescriptor.AutoCloseInputStream(
+                                automation.executeShellCommand(cmd));
+                BufferedReader br = new BufferedReader(new InputStreamReader(is)); ) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                bufferedReaderNotEmpty = true;
+                if (line.contains(DUMPSTATE_BOARD_SECTION_FILTER)) {
+                    dumpstateBoardLines.sectionNameLines.add(line);
+                } else if (line.contains(DUMPSTATE_BOARD_DURATION_FILTER)) {
+                    dumpstateBoardLines.durationLines.add(line);
+                }
+            }
+        } catch (IOException e) {
+            Log.e(TAG, "Failed to extract and parse dumpstate_board.txt: " + e.getMessage());
+            return null;
+        }
+        if (!bufferedReaderNotEmpty) {
+            Log.e(
+                    TAG,
+                    String.format(
+                            "The buffered reader for file %s in archive %s was empty.",
+                            entry, archivePath.toString()));
+            dumpBugReportEntries(archivePath);
+        }
+        return dumpstateBoardLines;
+    }
+
+    // Prints out every entry contained in the zip archive at archivePath.
+    private void dumpBugReportEntries(Path archivePath) {
+        UiAutomation automation = InstrumentationRegistry.getInstrumentation().getUiAutomation();
+        String cmd = String.format(UNZIP_CONTENTS_CMD, archivePath.toString());
         Log.d(TAG, "The list-contents command that will be run is: " + cmd);
         try (InputStream is =
                         new ParcelFileDescriptor.AutoCloseInputStream(
@@ -262,10 +382,23 @@ public class BugReportDurationHelper implements ICollectorHelper<Double> {
         }
     }
 
-    // Parses a decimal duration from the input duration-relevant log line.
+    // Parses a decimal duration from the input duration-relevant log line. This should only be
+    // called for dumpstate/dumpsys lines.
     @VisibleForTesting
     public double parseDecimalDuration(String line) {
         Matcher m = decimalDurationPattern.matcher(line);
+        if (m.find()) {
+            return Double.parseDouble(m.group());
+        } else {
+            return -1;
+        }
+    }
+
+    // Parses an integer duration from the input duration-relevant line. This should only be called
+    // for dumpstate_board duration-specific lines.
+    @VisibleForTesting
+    public double parseIntegerDuration(String line) {
+        Matcher m = integerDurationPattern.matcher(line);
         if (m.find()) {
             return Double.parseDouble(m.group());
         } else {
@@ -294,6 +427,11 @@ public class BugReportDurationHelper implements ICollectorHelper<Double> {
         return parseSection(line, dumpsysKeyPattern);
     }
 
+    @VisibleForTesting
+    public String parseDumpstateBoardSection(String line) {
+        return parseSection(line, dumpstateBoardKeyPattern);
+    }
+
     // Converts a dumpstate section to a key by replacing spaces with '-', lowercasing, and
     // prepending "bugreport-duration-".
     @VisibleForTesting
@@ -309,5 +447,15 @@ public class BugReportDurationHelper implements ICollectorHelper<Double> {
     @VisibleForTesting
     public String convertDumpsysSectionToKey(String dumpsysSection) {
         return "bugreport-dumpsys-duration-" + dumpsysSection;
+    }
+
+    // Converts a dumpstate_board section name to a key by prepending
+    // "bugreport-dumpstateboard-duration-".
+    //
+    // Spaces aren't replaced and lowercasing is not done because dumpstate_board section names are
+    // binary/script names.
+    @VisibleForTesting
+    public String convertDumpstateBoardSectionToKey(String dumpstateBoardSection) {
+        return "bugreport-dumpstate_board-duration-" + dumpstateBoardSection;
     }
 }
