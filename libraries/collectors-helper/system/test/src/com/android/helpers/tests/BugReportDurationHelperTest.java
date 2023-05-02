@@ -24,6 +24,7 @@ import androidx.test.runner.AndroidJUnit4;
 
 import com.android.helpers.BugReportDurationHelper;
 import com.android.helpers.BugReportDurationHelper.BugReportDurationLines;
+import com.android.helpers.BugReportDurationHelper.DumpstateBoardLines;
 
 import org.junit.After;
 import org.junit.Before;
@@ -80,18 +81,30 @@ public class BugReportDurationHelperTest {
         testDir.delete();
     }
 
-    // Creates a .zip archive with an identically-named .txt file containing the input lines.
-    private File createArchive(String name, List<String> bugReportLines) throws IOException {
+    // Creates a .zip archive with an identically-named .txt file and a dumpstate_board file
+    // containing the input lines.
+    private File createArchive(
+            String name, List<String> bugReportLines, List<String> dumpstateBoardLines)
+            throws IOException {
         File f = new File(testDir, name + ".zip");
         FileOutputStream fos = new FileOutputStream(f);
         BufferedOutputStream bos = new BufferedOutputStream(fos);
         ZipOutputStream zos = new ZipOutputStream(bos);
         try {
-            zos.putNextEntry(new ZipEntry(name + ".txt"));
-            for (String line : bugReportLines) {
-                zos.write((line + "\n").getBytes());
+            if (bugReportLines != null) {
+                zos.putNextEntry(new ZipEntry(name + ".txt"));
+                for (String line : bugReportLines) {
+                    zos.write((line + "\n").getBytes());
+                }
+                zos.closeEntry();
             }
-            zos.closeEntry();
+            if (dumpstateBoardLines != null) {
+                zos.putNextEntry(new ZipEntry("dumpstate_board.txt"));
+                for (String line : dumpstateBoardLines) {
+                    zos.write((line + "\n").getBytes());
+                }
+                zos.closeEntry();
+            }
         } finally {
             zos.close();
         }
@@ -110,24 +123,37 @@ public class BugReportDurationHelperTest {
                         "--------- 24.741s was the duration of dumpsys meminfo, ending at:"
                                 + " 2023-04-27 23:51:38",
                         "unrelated log line");
+        List<String> dumpstateBoardLines =
+                Arrays.asList(
+                        "------ Section end: dump_display ------",
+                        "Elapsed msec: 103",
+                        "------ Section end: dump_modemlog ------",
+                        "Elapsed msec: 12532",
+                        "------ Section end: dump_thermal.sh ------",
+                        "Elapsed msec: 7705",
+                        "unrelated line");
 
-        createArchive("bugreport", bugReportLines);
+        createArchive("bugreport", bugReportLines, dumpstateBoardLines);
 
         Map<String, Double> metrics = helper.getMetrics();
-        assertEquals(5, metrics.size());
+        assertEquals(8, metrics.size());
         assertEquals(44.619, metrics.get("bugreport-duration-dumpstate_board()"), DELTA);
         assertEquals(21.397, metrics.get("bugreport-duration-dumpsys"), DELTA);
         assertEquals(0.022, metrics.get("bugreport-duration-dumpsys-critical-proto"), DELTA);
         assertEquals(0.051, metrics.get("bugreport-dumpsys-duration-SurfaceFlinger"), DELTA);
         assertEquals(24.741, metrics.get("bugreport-dumpsys-duration-meminfo"), DELTA);
+        assertEquals(103, metrics.get("bugreport-dumpstate_board-duration-dump_display"), DELTA);
+        assertEquals(12532, metrics.get("bugreport-dumpstate_board-duration-dump_modemlog"), DELTA);
+        assertEquals(
+                7705, metrics.get("bugreport-dumpstate_board-duration-dump_thermal.sh"), DELTA);
     }
 
     @Test
     public void testGetLatestBugReport() throws IOException {
         List<String> empty = new ArrayList<>();
-        createArchive("bugreport-2022-04-23-03-12-33", empty);
-        createArchive("bugreport-2022-04-20-21-44-11", empty);
-        createArchive("bugreport-2021-12-28-10-32-10", empty);
+        createArchive("bugreport-2022-04-23-03-12-33", empty, empty);
+        createArchive("bugreport-2022-04-20-21-44-11", empty, empty);
+        createArchive("bugreport-2021-12-28-10-32-10", empty, empty);
         assertEquals("bugreport-2022-04-23-03-12-33.zip", helper.getLatestBugReport());
     }
 
@@ -158,7 +184,7 @@ public class BugReportDurationHelperTest {
                         invalidLine,
                         showmapLine);
 
-        File archive = createArchive("bugreport", lines);
+        File archive = createArchive("bugreport", lines, null);
 
         String zip = archive.getName();
 
@@ -169,6 +195,41 @@ public class BugReportDurationHelperTest {
         assertTrue(filtered.contains(dumpsysLine2));
         assertFalse(filtered.contains(invalidLine));
         assertFalse(filtered.contains(showmapLine));
+    }
+
+    @Test
+    public void testExtractAndFilterDumpstateBoard() throws IOException {
+        String sectionLine1 = "------ Section end: dump_display ------";
+        String sectionLine2 = "------ Section end: dump_modemlog ------";
+        String sectionLine3 = "------ Section end: dump_thermal.sh ------";
+        String durationLine1 = "Elapsed msec: 103";
+        String durationLine2 = "Elapsed msec: 12532";
+        String durationLine3 = "Elapsed msec: 7705";
+
+        // Lines that should be filtered out
+        String invalidLine = "unrelated log line";
+        List<String> lines =
+                Arrays.asList(
+                        sectionLine1,
+                        durationLine1,
+                        sectionLine2,
+                        durationLine2,
+                        sectionLine3,
+                        durationLine3,
+                        invalidLine);
+
+        File archive = createArchive("bugreport", null, lines);
+
+        String zip = archive.getName();
+
+        DumpstateBoardLines filtered = helper.extractAndFilterDumpstateBoard(zip);
+        assertTrue(filtered.contains(sectionLine1));
+        assertTrue(filtered.contains(sectionLine2));
+        assertTrue(filtered.contains(sectionLine3));
+        assertTrue(filtered.contains(durationLine1));
+        assertTrue(filtered.contains(durationLine2));
+        assertTrue(filtered.contains(durationLine3));
+        assertFalse(filtered.contains(invalidLine));
     }
 
     @Test
@@ -199,6 +260,16 @@ public class BugReportDurationHelperTest {
     }
 
     @Test
+    public void testParseIntegerDurationForDumpstateBoard() {
+        String line1 = "Elapsed msec: 103";
+        String line2 = "Elapsed msec: 12532";
+        String line3 = "Elapsed msec: 7705";
+        assertEquals(103, helper.parseIntegerDuration(line1), DELTA);
+        assertEquals(12532, helper.parseIntegerDuration(line2), DELTA);
+        assertEquals(7705, helper.parseIntegerDuration(line3), DELTA);
+    }
+
+    @Test
     public void testParseDumpstateSection() {
         String line1 = "------ 44.619s was the duration of \'dumpstate_board()\' ------";
         String line2 = "------ 21.397s was the duration of \'DUMPSYS\' ------";
@@ -223,6 +294,16 @@ public class BugReportDurationHelperTest {
         assertEquals("SurfaceFlinger", helper.parseDumpsysSection(line1));
         assertEquals("meminfo", helper.parseDumpsysSection(line2));
         assertEquals("android.frameworks.stats.IStats/default", helper.parseDumpsysSection(line3));
+    }
+
+    @Test
+    public void testParseDumpstateBoardSection() {
+        String line1 = "------ Section end: dump_display ------";
+        String line2 = "------ Section end: dump_modemlog ------";
+        String line3 = "------ Section end: dump_thermal.sh ------";
+        assertEquals("dump_display", helper.parseDumpstateBoardSection(line1));
+        assertEquals("dump_modemlog", helper.parseDumpstateBoardSection(line2));
+        assertEquals("dump_thermal.sh", helper.parseDumpstateBoardSection(line3));
     }
 
     @Test
@@ -253,5 +334,21 @@ public class BugReportDurationHelperTest {
         assertEquals(
                 "bugreport-dumpsys-duration-android.frameworks.stats.IStats/default",
                 helper.convertDumpsysSectionToKey(dumpsys3));
+    }
+
+    @Test
+    public void testConvertDumpstateBoardSectionToKey() {
+        String dumpstateBoard1 = "dump_display";
+        String dumpstateBoard2 = "dump_modemlog";
+        String dumpstateBoard3 = "dump_thermal.sh";
+        assertEquals(
+                "bugreport-dumpstate_board-duration-dump_display",
+                helper.convertDumpstateBoardSectionToKey(dumpstateBoard1));
+        assertEquals(
+                "bugreport-dumpstate_board-duration-dump_modemlog",
+                helper.convertDumpstateBoardSectionToKey(dumpstateBoard2));
+        assertEquals(
+                "bugreport-dumpstate_board-duration-dump_thermal.sh",
+                helper.convertDumpstateBoardSectionToKey(dumpstateBoard3));
     }
 }
