@@ -59,7 +59,6 @@ private constructor(
     }
 
     /** Executes a custom [assertion] on the current subject */
-    @JvmOverloads
     operator fun invoke(
         name: String,
         isOptional: Boolean = false,
