@@ -41,30 +41,26 @@ class WindowState(
     @JsName("surfacePosition") val surfacePosition: Rect?,
     @JsName("frame") val frame: Rect,
     @JsName("containingFrame") val containingFrame: Rect,
-    @JsName("parentFrame") val parentFrame: Rect,
-    @JsName("contentFrame") val contentFrame: Rect,
-    @JsName("contentInsets") val contentInsets: Rect,
-    @JsName("surfaceInsets") val surfaceInsets: Rect,
-    @JsName("givenContentInsets") val givenContentInsets: Rect,
+    val parentFrame: Rect,
+    val contentFrame: Rect,
+    val contentInsets: Rect,
+    val surfaceInsets: Rect,
+    val givenContentInsets: Rect,
     @JsName("crop") val crop: Rect,
     windowContainer: WindowContainer,
-    @JsName("isAppWindow") val isAppWindow: Boolean
+    val isAppWindow: Boolean
 ) : WindowContainer(windowContainer, getWindowTitle(windowContainer.title)) {
     override val isVisible: Boolean = windowContainer.isVisible && attributes.alpha > 0
 
     override val isFullscreen: Boolean
         get() = this.attributes.flags.and(PlatformConsts.FLAG_FULLSCREEN) > 0
-    @JsName("isStartingWindow")
     val isStartingWindow: Boolean = windowType == PlatformConsts.WINDOW_TYPE_STARTING
-    @JsName("isExitingWindow")
     val isExitingWindow: Boolean = windowType == PlatformConsts.WINDOW_TYPE_EXITING
-    @JsName("isDebuggerWindow")
     val isDebuggerWindow: Boolean = windowType == PlatformConsts.WINDOW_TYPE_DEBUGGER
-    @JsName("isValidNavBarType") val isValidNavBarType: Boolean = attributes.isValidNavBarType
+    val isValidNavBarType: Boolean = attributes.isValidNavBarType
 
     @JsName("frameRegion") val frameRegion: Region = Region.from(frame)
 
-    @JsName("getWindowTypeSuffix")
     private fun getWindowTypeSuffix(windowType: Int): String =
         when (windowType) {
             PlatformConsts.WINDOW_TYPE_STARTING -> " STARTING"
