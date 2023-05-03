@@ -16,6 +16,7 @@
 
 package android.tools.common.traces.wm
 
+import android.tools.common.PlatformConsts
 import android.tools.common.Rotation
 import android.tools.common.datatypes.Rect
 import android.tools.common.traces.component.IComponentMatcher
@@ -59,7 +60,7 @@ class DisplayContent(
         get() {
             val smallestWidth =
                 dpiFromPx(min(displayRect.width.toFloat(), displayRect.height.toFloat()), dpi)
-            return smallestWidth >= TABLET_MIN_DPS
+            return smallestWidth >= PlatformConsts.TABLET_MIN_DPS
         }
 
     @JsName("rootTasks")
@@ -171,14 +172,8 @@ class DisplayContent(
     }
 
     companion object {
-        /** From [android.util.DisplayMetrics] */
-        @JsName("DENSITY_DEFAULT") private const val DENSITY_DEFAULT = 160f
-        /** From [com.android.systemui.shared.recents.utilities.Utilities] */
-        @JsName("TABLET_MIN_DPS") private const val TABLET_MIN_DPS = 600f
-
-        @JsName("dpiFromPx")
         private fun dpiFromPx(size: Float, densityDpi: Int): Float {
-            val densityRatio: Float = densityDpi.toFloat() / DENSITY_DEFAULT
+            val densityRatio: Float = densityDpi.toFloat() / PlatformConsts.DENSITY_DEFAULT
             return size / densityRatio
         }
     }
