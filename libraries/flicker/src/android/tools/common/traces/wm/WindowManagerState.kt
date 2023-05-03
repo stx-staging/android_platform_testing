@@ -18,6 +18,7 @@ package android.tools.common.traces.wm
 
 import android.tools.common.CrossPlatform
 import android.tools.common.ITraceEntry
+import android.tools.common.PlatformConsts
 import android.tools.common.Rotation
 import android.tools.common.traces.component.IComponentMatcher
 import kotlin.js.JsExport
@@ -127,7 +128,10 @@ class WindowManagerState(
         get() = visibleAppWindows.firstOrNull()
     @JsName("pinnedWindows")
     val pinnedWindows: Array<WindowState>
-        get() = visibleWindows.filter { it.windowingMode == WINDOWING_MODE_PINNED }.toTypedArray()
+        get() =
+            visibleWindows
+                .filter { it.windowingMode == PlatformConsts.WINDOWING_MODE_PINNED }
+                .toTypedArray()
     @JsName("pendingActivities")
     val pendingActivities: Array<Activity>
         get() = _pendingActivities.mapNotNull { getActivityByName(it) }.toTypedArray()
@@ -180,10 +184,10 @@ class WindowManagerState(
         get() = rootTasks.size
     @JsName("homeTask")
     val homeTask: Task?
-        get() = getStackByActivityType(ACTIVITY_TYPE_HOME)?.topTask
+        get() = getStackByActivityType(PlatformConsts.ACTIVITY_TYPE_HOME)?.topTask
     @JsName("recentsTask")
     val recentsTask: Task?
-        get() = getStackByActivityType(ACTIVITY_TYPE_RECENTS)?.topTask
+        get() = getStackByActivityType(PlatformConsts.ACTIVITY_TYPE_RECENTS)?.topTask
     @JsName("homeActivity")
     val homeActivity: Activity?
         get() = homeTask?.activities?.lastOrNull()
@@ -210,7 +214,8 @@ class WindowManagerState(
         get() = getWindowStateForAppToken(inputMethodWindowAppToken)
 
     @JsName("getDefaultDisplay")
-    fun getDefaultDisplay(): DisplayContent? = displays.firstOrNull { it.id == DEFAULT_DISPLAY }
+    fun getDefaultDisplay(): DisplayContent? =
+        displays.firstOrNull { it.id == PlatformConsts.DEFAULT_DISPLAY }
 
     @JsName("getDisplay")
     fun getDisplay(displayId: Int): DisplayContent? = displays.firstOrNull { it.id == displayId }
@@ -219,10 +224,16 @@ class WindowManagerState(
     fun countStacks(windowingMode: Int, activityType: Int): Int {
         var count = 0
         for (stack in rootTasks) {
-            if (activityType != ACTIVITY_TYPE_UNDEFINED && activityType != stack.activityType) {
+            if (
+                activityType != PlatformConsts.ACTIVITY_TYPE_UNDEFINED &&
+                    activityType != stack.activityType
+            ) {
                 continue
             }
-            if (windowingMode != WINDOWING_MODE_UNDEFINED && windowingMode != stack.windowingMode) {
+            if (
+                windowingMode != PlatformConsts.WINDOWING_MODE_UNDEFINED &&
+                    windowingMode != stack.windowingMode
+            ) {
                 continue
             }
             ++count
@@ -248,13 +259,14 @@ class WindowManagerState(
     @JsName("getStandardStackByWindowingMode")
     fun getStandardStackByWindowingMode(windowingMode: Int): Task? =
         rootTasks.firstOrNull {
-            it.activityType == ACTIVITY_TYPE_STANDARD && it.windowingMode == windowingMode
+            it.activityType == PlatformConsts.ACTIVITY_TYPE_STANDARD &&
+                it.windowingMode == windowingMode
         }
 
     @JsName("getActivitiesForWindowState")
     fun getActivitiesForWindowState(
         windowState: WindowState,
-        displayId: Int = DEFAULT_DISPLAY
+        displayId: Int = PlatformConsts.DEFAULT_DISPLAY
     ): Array<Activity> {
         return displays
             .firstOrNull { it.id == displayId }
@@ -276,7 +288,7 @@ class WindowManagerState(
     @JsName("getActivitiesForWindow")
     fun getActivitiesForWindow(
         componentMatcher: IComponentMatcher,
-        displayId: Int = DEFAULT_DISPLAY
+        displayId: Int = PlatformConsts.DEFAULT_DISPLAY
     ): Array<Activity> {
         return displays
             .firstOrNull { it.id == displayId }
@@ -398,12 +410,12 @@ class WindowManagerState(
 
     @JsName("defaultMinimalTaskSize")
     fun defaultMinimalTaskSize(displayId: Int): Int =
-        dpToPx(DEFAULT_RESIZABLE_TASK_SIZE_DP.toFloat(), getDisplay(displayId)!!.dpi)
+        dpToPx(PlatformConsts.DEFAULT_RESIZABLE_TASK_SIZE_DP.toFloat(), getDisplay(displayId)!!.dpi)
 
     @JsName("defaultMinimalDisplaySizeForSplitScreen")
     fun defaultMinimalDisplaySizeForSplitScreen(displayId: Int): Int {
         return dpToPx(
-            DEFAULT_MINIMAL_SPLIT_SCREEN_DISPLAY_SIZE_DP.toFloat(),
+            PlatformConsts.DEFAULT_MINIMAL_SPLIT_SCREEN_DISPLAY_SIZE_DP.toFloat(),
             getDisplay(displayId)!!.dpi
         )
     }
@@ -457,36 +469,8 @@ class WindowManagerState(
     }
 
     companion object {
-        @JsName("STATE_INITIALIZING") const val STATE_INITIALIZING = "INITIALIZING"
-        @JsName("STATE_RESUMED") const val STATE_RESUMED = "RESUMED"
-        @JsName("STATE_PAUSED") const val STATE_PAUSED = "PAUSED"
-        @JsName("STATE_STOPPED") const val STATE_STOPPED = "STOPPED"
-        @JsName("STATE_DESTROYED") const val STATE_DESTROYED = "DESTROYED"
-        @JsName("APP_STATE_IDLE") const val APP_STATE_IDLE = "APP_STATE_IDLE"
-        @JsName("ACTIVITY_TYPE_UNDEFINED") internal const val ACTIVITY_TYPE_UNDEFINED = 0
-        @JsName("ACTIVITY_TYPE_STANDARD") internal const val ACTIVITY_TYPE_STANDARD = 1
-        @JsName("DEFAULT_DISPLAY") internal const val DEFAULT_DISPLAY = 0
-        @JsName("DEFAULT_MINIMAL_SPLIT_SCREEN_DISPLAY_SIZE_DP")
-        internal const val DEFAULT_MINIMAL_SPLIT_SCREEN_DISPLAY_SIZE_DP = 440
-        @JsName("ACTIVITY_TYPE_HOME") internal const val ACTIVITY_TYPE_HOME = 2
-        @JsName("ACTIVITY_TYPE_RECENTS") internal const val ACTIVITY_TYPE_RECENTS = 3
-        @JsName("WINDOWING_MODE_UNDEFINED") internal const val WINDOWING_MODE_UNDEFINED = 0
-        @JsName("DENSITY_DEFAULT") private const val DENSITY_DEFAULT = 160
-        /** @see android.app.WindowConfiguration.WINDOWING_MODE_PINNED */
-        @JsName("WINDOWING_MODE_PINNED") private const val WINDOWING_MODE_PINNED = 2
-
-        /** @see android.view.WindowManager.LayoutParams */
-        @JsName("TYPE_NAVIGATION_BAR_PANEL") internal const val TYPE_NAVIGATION_BAR_PANEL = 2024
-
-        // Default minimal size of resizable task, used if none is set explicitly.
-        // Must be kept in sync with 'default_minimal_size_resizable_task'
-        // dimen from frameworks/base.
-        @JsName("DEFAULT_RESIZABLE_TASK_SIZE_DP")
-        internal const val DEFAULT_RESIZABLE_TASK_SIZE_DP = 220
-
-        @JsName("dpToPx")
         fun dpToPx(dp: Float, densityDpi: Int): Int {
-            return (dp * densityDpi / DENSITY_DEFAULT + 0.5f).toInt()
+            return (dp * densityDpi / PlatformConsts.DENSITY_DEFAULT + 0.5f).toInt()
         }
     }
     override fun equals(other: Any?): Boolean {
