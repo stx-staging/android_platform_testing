@@ -90,4 +90,44 @@ object PlatformConsts {
      */
     @JsName("MODE_3BUTTON")
     const val MODE_3BUTTON = "com.android.internal.systemui.navbar.threebutton"
+
+    internal const val STATE_INITIALIZING = "INITIALIZING"
+    const val STATE_RESUMED = "RESUMED"
+    internal const val STATE_PAUSED = "PAUSED"
+    internal const val STATE_STOPPED = "STOPPED"
+    const val STATE_DESTROYED = "DESTROYED"
+    internal const val APP_STATE_IDLE = "APP_STATE_IDLE"
+    internal const val ACTIVITY_TYPE_UNDEFINED = 0
+    internal const val ACTIVITY_TYPE_STANDARD = 1
+    internal const val DEFAULT_MINIMAL_SPLIT_SCREEN_DISPLAY_SIZE_DP = 440
+    internal const val ACTIVITY_TYPE_HOME = 2
+    internal const val ACTIVITY_TYPE_RECENTS = 3
+    internal const val WINDOWING_MODE_UNDEFINED = 0
+    /** @see android.app.WindowConfiguration.WINDOWING_MODE_PINNED */
+    internal const val WINDOWING_MODE_PINNED = 2
+
+    /** @see android.view.WindowManager.LayoutParams */
+    internal const val TYPE_NAVIGATION_BAR_PANEL = 2024
+
+    // Default minimal size of resizable task, used if none is set explicitly.
+    // Must be kept in sync with 'default_minimal_size_resizable_task'
+    // dimen from frameworks/base.
+    internal const val DEFAULT_RESIZABLE_TASK_SIZE_DP = 220
+
+    /** From [android.util.DisplayMetrics] */
+    internal const val DENSITY_DEFAULT = 160f
+    /** From [com.android.systemui.shared.recents.utilities.Utilities] */
+    internal const val TABLET_MIN_DPS = 600f
+    /**
+     * From {@see android.view.WindowManager.FLAG_FULLSCREEN}.
+     *
+     * This class is shared between JVM and JS (Winscope) and cannot access Android internals
+     */
+    internal const val FLAG_FULLSCREEN = 0x00000400
+    internal const val WINDOW_TYPE_STARTING = 1
+    internal const val WINDOW_TYPE_EXITING = 2
+    internal const val WINDOW_TYPE_DEBUGGER = 3
+
+    internal const val STARTING_WINDOW_PREFIX = "Starting "
+    internal const val DEBUGGER_WINDOW_PREFIX = "Waiting For Debugger: "
 }
