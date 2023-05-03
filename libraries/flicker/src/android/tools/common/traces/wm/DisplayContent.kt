@@ -33,29 +33,28 @@ import kotlin.math.min
 @JsExport
 class DisplayContent(
     @JsName("id") val id: Int,
-    @JsName("focusedRootTaskId") val focusedRootTaskId: Int,
-    @JsName("resumedActivity") val resumedActivity: String,
-    @JsName("singleTaskInstance") val singleTaskInstance: Boolean,
-    @JsName("defaultPinnedStackBounds") val defaultPinnedStackBounds: Rect,
-    @JsName("pinnedStackMovementBounds") val pinnedStackMovementBounds: Rect,
+    val focusedRootTaskId: Int,
+    val resumedActivity: String,
+    val singleTaskInstance: Boolean,
+    val defaultPinnedStackBounds: Rect,
+    val pinnedStackMovementBounds: Rect,
     @JsName("displayRect") val displayRect: Rect,
-    @JsName("appRect") val appRect: Rect,
-    @JsName("dpi") val dpi: Int,
+    val appRect: Rect,
+    val dpi: Int,
     @JsName("flags") val flags: Int,
-    @JsName("stableBounds") val stableBounds: Rect,
-    @JsName("surfaceSize") val surfaceSize: Int,
-    @JsName("focusedApp") val focusedApp: String,
-    @JsName("lastTransition") val lastTransition: String,
-    @JsName("appTransitionState") val appTransitionState: String,
-    @JsName("rotation") val rotation: Rotation,
-    @JsName("lastOrientation") val lastOrientation: Int,
-    @JsName("cutout") val cutout: DisplayCutout?,
+    val stableBounds: Rect,
+    val surfaceSize: Int,
+    val focusedApp: String,
+    val lastTransition: String,
+    val appTransitionState: String,
+    val rotation: Rotation,
+    val lastOrientation: Int,
+    val cutout: DisplayCutout?,
     windowContainer: WindowContainer
 ) : WindowContainer(windowContainer) {
     override val name: String = id.toString()
     override val isVisible: Boolean = false
 
-    @JsName("isTablet")
     val isTablet: Boolean
         get() {
             val smallestWidth =
@@ -63,7 +62,6 @@ class DisplayContent(
             return smallestWidth >= PlatformConsts.TABLET_MIN_DPS
         }
 
-    @JsName("rootTasks")
     val rootTasks: Array<Task>
         get() {
             val tasks = this.collectDescendants<Task> { it.isRootTask }.toMutableList()
@@ -90,7 +88,6 @@ class DisplayContent(
      * @param componentMatcher Components to search
      * @return if [componentMatcher] matches any activity
      */
-    @JsName("containsActivity")
     fun containsActivity(componentMatcher: IComponentMatcher): Boolean =
         rootTasks.any { it.containsActivity(componentMatcher) }
 
@@ -98,7 +95,6 @@ class DisplayContent(
      * @param componentMatcher Components to search
      * @return THe [DisplayArea] matching [componentMatcher], or null if none matches
      */
-    @JsName("getTaskDisplayArea")
     fun getTaskDisplayArea(componentMatcher: IComponentMatcher): DisplayArea? {
         val taskDisplayAreas =
             this.collectDescendants<DisplayArea> { it.isTaskDisplayArea }
