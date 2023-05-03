@@ -54,7 +54,6 @@ private constructor(val trace: InputMethodServiceTrace, override val reader: IRe
     }
 
     /** Executes a custom [assertion] on the current subject */
-    @JvmOverloads
     operator fun invoke(
         name: String,
         isOptional: Boolean = false,
