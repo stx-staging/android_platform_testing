@@ -17,7 +17,6 @@
 package android.tools.common
 
 import kotlin.js.JsExport
-import kotlin.js.JsName
 
 @JsExport
 object PlatformConsts {
@@ -26,7 +25,7 @@ object PlatformConsts {
      *
      * Duplicated from [Display.DEFAULT_DISPLAY] because this class is used by JVM and KotlinJS
      */
-    @JsName("DEFAULT_DISPLAY") const val DEFAULT_DISPLAY = 0
+    const val DEFAULT_DISPLAY = 0
 
     /**
      * Window type: an application window that serves as the "base" window of the overall
@@ -35,7 +34,7 @@ object PlatformConsts {
      * Duplicated from [WindowManager.LayoutParams.TYPE_BASE_APPLICATION] because this class is used
      * by JVM and KotlinJS
      */
-    @JsName("TYPE_BASE_APPLICATION") const val TYPE_BASE_APPLICATION = 1
+    const val TYPE_BASE_APPLICATION = 1
 
     /**
      * Window type: special application window that is displayed while the application is starting
@@ -43,35 +42,35 @@ object PlatformConsts {
      * Duplicated from [WindowManager.LayoutParams.TYPE_APPLICATION_STARTING] because this class is
      * used by JVM and KotlinJS
      */
-    @JsName("TYPE_APPLICATION_STARTING") const val TYPE_APPLICATION_STARTING = 3
+    const val TYPE_APPLICATION_STARTING = 3
 
     /**
      * Rotation constant: 0 degrees rotation (natural orientation)
      *
      * Duplicated from [Surface.ROTATION_0] because this class is used by JVM and KotlinJS
      */
-    @JsName("ROTATION_0") const val ROTATION_0 = 0
+    const val ROTATION_0 = 0
 
     /**
      * Rotation constant: 90 degrees rotation.
      *
      * Duplicated from [Surface.ROTATION_90] because this class is used by JVM and KotlinJS
      */
-    @JsName("ROTATION_90") const val ROTATION_90 = 1
+    const val ROTATION_90 = 1
 
     /**
      * Rotation constant: 180 degrees rotation.
      *
      * Duplicated from [Surface.ROTATION_180] because this class is used by JVM and KotlinJS
      */
-    @JsName("ROTATION_180") const val ROTATION_180 = 2
+    const val ROTATION_180 = 2
 
     /**
      * Rotation constant: 270 degrees rotation.
      *
      * Duplicated from [Surface.ROTATION_270] because this class is used by JVM and KotlinJS
      */
-    @JsName("ROTATION_270") const val ROTATION_270 = 3
+    const val ROTATION_270 = 3
 
     /**
      * Navigation bar mode constant: 3 button navigation.
@@ -79,7 +78,6 @@ object PlatformConsts {
      * Duplicated from [WindowManagerPolicyConstants.NAV_BAR_MODE_GESTURAL_OVERLAY] because this
      * class is used by JVM and KotlinJS
      */
-    @JsName("MODE_GESTURAL")
     const val MODE_GESTURAL = "com.android.internal.systemui.navbar.gestural"
 
     /**
@@ -88,7 +86,6 @@ object PlatformConsts {
      * Duplicated from [WindowManagerPolicyConstants.NAV_BAR_MODE_3BUTTON_OVERLAY] because this
      * class is used by JVM and KotlinJS
      */
-    @JsName("MODE_3BUTTON")
     const val MODE_3BUTTON = "com.android.internal.systemui.navbar.threebutton"
 
     internal const val STATE_INITIALIZING = "INITIALIZING"
