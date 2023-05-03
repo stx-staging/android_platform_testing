@@ -184,7 +184,7 @@ object ConditionsFactory {
             (it.wmState.isHomeRecentsComponent && it.wmState.isHomeActivityVisible) ||
                 it.wmState.isRecentsActivityVisible ||
                 it.wmState.getDisplay(displayId)?.appTransitionState ==
-                    WindowManagerState.APP_STATE_IDLE
+                    PlatformConsts.APP_STATE_IDLE
         }
 
     @JsName("containsActivity")
