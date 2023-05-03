@@ -54,7 +54,6 @@ private constructor(val trace: ImeClientTrace, override val reader: IReader? = n
     }
 
     /** Executes a custom [assertion] on the current subject */
-    @JvmOverloads
     operator fun invoke(
         name: String,
         isOptional: Boolean = false,
