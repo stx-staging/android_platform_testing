@@ -51,120 +51,127 @@ public class BackupUtilsTest {
 
     @Test
     public void testEnableBackup_whenEnableTrueAndEnabled_returnsTrue() throws Exception {
-        BackupUtils backupUtils = new BackupUtils() {
-            @Override
-            protected InputStream executeShellCommand(String command) throws IOException {
-                String output = "";
-                if (command.equals("bmgr enabled")) {
-                    output = "Backup Manager currently enabled";
-                } else if (command.equals("bmgr enable true")) {
-                    output = "Backup Manager now enabled";
-                    mIsEnableCommandCalled = true;
-                }
-                return new ByteArrayInputStream(output.getBytes("UTF-8"));
-            }
-        };
-        assertTrue(backupUtils.enableBackup(true));
+        BackupUtils backupUtils =
+                new BackupUtils() {
+                    @Override
+                    protected InputStream executeShellCommand(String command) throws IOException {
+                        String output = "";
+                        if (command.equals(getBmgrCommand("enabled", TEST_USER_ID))) {
+                            output = "Backup Manager currently enabled";
+                        } else if (command.equals(getBmgrCommand("enable true", TEST_USER_ID))) {
+                            output = "Backup Manager now enabled";
+                            mIsEnableCommandCalled = true;
+                        }
+                        return new ByteArrayInputStream(output.getBytes("UTF-8"));
+                    }
+                };
+        assertTrue(backupUtils.enableBackupForUser(/*enable=*/ true, TEST_USER_ID));
         assertTrue(mIsEnableCommandCalled);
     }
 
     @Test
     public void testEnableBackup_whenEnableTrueAndDisabled_returnsFalse() throws Exception {
-        BackupUtils backupUtils = new BackupUtils() {
-            @Override
-            protected InputStream executeShellCommand(String command) throws IOException {
-                String output = "";
-                if (command.equals("bmgr enabled")) {
-                    output = "Backup Manager currently disabled";
-                } else if (command.equals("bmgr enable true")) {
-                    output = "Backup Manager now enabled";
-                    mIsEnableCommandCalled = true;
-                }
-                return new ByteArrayInputStream(output.getBytes("UTF-8"));
-            }
-        };
-        assertFalse(backupUtils.enableBackup(true));
+        BackupUtils backupUtils =
+                new BackupUtils() {
+                    @Override
+                    protected InputStream executeShellCommand(String command) throws IOException {
+                        String output = "";
+                        if (command.equals(getBmgrCommand("enabled", TEST_USER_ID))) {
+                            output = "Backup Manager currently disabled";
+                        } else if (command.equals(getBmgrCommand("enable true", TEST_USER_ID))) {
+                            output = "Backup Manager now enabled";
+                            mIsEnableCommandCalled = true;
+                        }
+                        return new ByteArrayInputStream(output.getBytes("UTF-8"));
+                    }
+                };
+        assertFalse(backupUtils.enableBackupForUser(/*enable=*/ true, TEST_USER_ID));
         assertTrue(mIsEnableCommandCalled);
     }
 
     @Test
     public void testEnableBackup_whenEnableFalseAndEnabled_returnsTrue() throws Exception {
-        BackupUtils backupUtils = new BackupUtils() {
-            @Override
-            protected InputStream executeShellCommand(String command) throws IOException {
-                String output = "";
-                if (command.equals("bmgr enabled")) {
-                    output = "Backup Manager currently enabled";
-                } else if (command.equals("bmgr enable false")) {
-                    output = "Backup Manager now disabled";
-                    mIsEnableCommandCalled = true;
-                }
-                return new ByteArrayInputStream(output.getBytes("UTF-8"));
-            }
-        };
-        assertTrue(backupUtils.enableBackup(false));
+        BackupUtils backupUtils =
+                new BackupUtils() {
+                    @Override
+                    protected InputStream executeShellCommand(String command) throws IOException {
+                        String output = "";
+                        if (command.equals(getBmgrCommand("enabled", TEST_USER_ID))) {
+                            output = "Backup Manager currently enabled";
+                        } else if (command.equals(getBmgrCommand("enable false", TEST_USER_ID))) {
+                            output = "Backup Manager now disabled";
+                            mIsEnableCommandCalled = true;
+                        }
+                        return new ByteArrayInputStream(output.getBytes("UTF-8"));
+                    }
+                };
+        assertTrue(backupUtils.enableBackupForUser(/*enable=*/ false, TEST_USER_ID));
         assertTrue(mIsEnableCommandCalled);
     }
 
     @Test
     public void testEnableBackup_whenEnableFalseAndDisabled_returnsFalse() throws Exception {
-        BackupUtils backupUtils = new BackupUtils() {
-            @Override
-            protected InputStream executeShellCommand(String command) throws IOException {
-                String output = "";
-                if (command.equals("bmgr enabled")) {
-                    output = "Backup Manager currently disabled";
-                } else if (command.equals("bmgr enable false")) {
-                    output = "Backup Manager now disabled";
-                    mIsEnableCommandCalled = true;
-                }
-                return new ByteArrayInputStream(output.getBytes("UTF-8"));
-            }
-        };
-        assertFalse(backupUtils.enableBackup(false));
+        BackupUtils backupUtils =
+                new BackupUtils() {
+                    @Override
+                    protected InputStream executeShellCommand(String command) throws IOException {
+                        String output = "";
+                        if (command.equals(getBmgrCommand("enabled", TEST_USER_ID))) {
+                            output = "Backup Manager currently disabled";
+                        } else if (command.equals(getBmgrCommand("enable false", TEST_USER_ID))) {
+                            output = "Backup Manager now disabled";
+                            mIsEnableCommandCalled = true;
+                        }
+                        return new ByteArrayInputStream(output.getBytes("UTF-8"));
+                    }
+                };
+        assertFalse(backupUtils.enableBackupForUser(/*enable=*/ false, TEST_USER_ID));
         assertTrue(mIsEnableCommandCalled);
     }
 
     @Test
     public void testEnableBackup_whenEnableTrueAndEnabledAndCommandsReturnMultipleLines()
             throws Exception {
-        BackupUtils backupUtils = new BackupUtils() {
-            @Override
-            protected InputStream executeShellCommand(String command) throws IOException {
-                String output = "";
-                if (command.equals("bmgr enabled")) {
-                    output = "Backup Manager currently enabled" + "\n...";
-                } else if (command.equals("bmgr enable true")) {
-                    output = "Backup Manager now enabled" + "\n...";
-                    mIsEnableCommandCalled = true;
-                }
-                return new ByteArrayInputStream(output.getBytes("UTF-8"));
-            }
-        };
-        assertTrue(backupUtils.enableBackup(true));
+        BackupUtils backupUtils =
+                new BackupUtils() {
+                    @Override
+                    protected InputStream executeShellCommand(String command) throws IOException {
+                        String output = "";
+                        if (command.equals(getBmgrCommand("enabled", TEST_USER_ID))) {
+                            output = "Backup Manager currently enabled" + "\n...";
+                        } else if (command.equals(getBmgrCommand("enable true", TEST_USER_ID))) {
+                            output = "Backup Manager now enabled" + "\n...";
+                            mIsEnableCommandCalled = true;
+                        }
+                        return new ByteArrayInputStream(output.getBytes("UTF-8"));
+                    }
+                };
+        assertTrue(backupUtils.enableBackupForUser(/*enable=*/ true, TEST_USER_ID));
         assertTrue(mIsEnableCommandCalled);
     }
 
     @Test
     public void testEnableBackup_whenQueryCommandThrows_propagatesException() throws Exception {
-        BackupUtils backupUtils = new BackupUtils() {
-            @Override
-            protected InputStream executeShellCommand(String command) throws IOException {
-                String output = "";
-                if (command.equals("bmgr enabled")) {
-                    throw new IOException(String.format(
-                            "enableBackup: Failed to run command: %s", command));
-                } else if (command.equals("bmgr enable true")) {
-                    output = "Backup Manager now enabled";
-                    mIsEnableCommandCalled = true;
-                }
-                return new ByteArrayInputStream(output.getBytes("UTF-8"));
-            }
-        };
+        BackupUtils backupUtils =
+                new BackupUtils() {
+                    @Override
+                    protected InputStream executeShellCommand(String command) throws IOException {
+                        String output = "";
+                        if (command.equals(getBmgrCommand("enabled", TEST_USER_ID))) {
+                            throw new IOException(
+                                    String.format(
+                                            "enableBackup: Failed to run command: %s", command));
+                        } else if (command.equals(getBmgrCommand("enable true", TEST_USER_ID))) {
+                            output = "Backup Manager now enabled";
+                            mIsEnableCommandCalled = true;
+                        }
+                        return new ByteArrayInputStream(output.getBytes("UTF-8"));
+                    }
+                };
 
         boolean isExceptionHappened = false;
         try {
-            backupUtils.enableBackup(true);
+            backupUtils.enableBackupForUser(/*enable=*/ true, TEST_USER_ID);
         } catch (IOException e) {
             // enableBackup: Failed to run command: bmgr enabled
             isExceptionHappened = true;
@@ -175,24 +182,26 @@ public class BackupUtilsTest {
 
     @Test
     public void testEnableBackup_whenSetCommandThrows_propagatesException() throws Exception {
-        BackupUtils backupUtils = new BackupUtils() {
-            @Override
-            protected InputStream executeShellCommand(String command) throws IOException {
-                String output = "";
-                if (command.equals("bmgr enabled")) {
-                    output = "Backup Manager currently enabled";
-                } else if (command.equals("bmgr enable true")) {
-                    mIsEnableCommandCalled = true;
-                    throw new IOException(String.format(
-                            "enableBackup: Failed to run command: %s", command));
-                }
-                return new ByteArrayInputStream(output.getBytes("UTF-8"));
-            }
-        };
+        BackupUtils backupUtils =
+                new BackupUtils() {
+                    @Override
+                    protected InputStream executeShellCommand(String command) throws IOException {
+                        String output = "";
+                        if (command.equals(getBmgrCommand("enabled", TEST_USER_ID))) {
+                            output = "Backup Manager currently enabled";
+                        } else if (command.equals(getBmgrCommand("enable true", TEST_USER_ID))) {
+                            mIsEnableCommandCalled = true;
+                            throw new IOException(
+                                    String.format(
+                                            "enableBackup: Failed to run command: %s", command));
+                        }
+                        return new ByteArrayInputStream(output.getBytes("UTF-8"));
+                    }
+                };
 
         boolean isExceptionHappened = false;
         try {
-            backupUtils.enableBackup(true);
+            backupUtils.enableBackupForUser(/*enable=*/ true, TEST_USER_ID);
         } catch (IOException e) {
             // enableBackup: Failed to run command: bmgr enable true
             isExceptionHappened = true;
@@ -202,92 +211,38 @@ public class BackupUtilsTest {
     }
 
     @Test
-    public void testEnableBackup_whenQueryCommandReturnsInvalidString_throwsException()
-            throws Exception {
-        BackupUtils backupUtils = new BackupUtils() {
-            @Override
-            protected InputStream executeShellCommand(String command) throws IOException {
-                String output = "";
-                if (command.equals("bmgr enabled")) {
-                    output = "Backup Manager ???";
-                } else if (command.equals("bmgr enable true")) {
-                    output = "Backup Manager now enabled";
-                    mIsEnableCommandCalled = true;
-                }
-                return new ByteArrayInputStream(output.getBytes("UTF-8"));
-            }
-        };
-
-        boolean isExceptionHappened = false;
-        try {
-            backupUtils.enableBackup(true);
-        } catch (RuntimeException e) {
-            // non-parsable output setting bmgr enabled: Backup Manager ???
-            isExceptionHappened = true;
-        }
-        assertTrue(isExceptionHappened);
-        assertFalse(mIsEnableCommandCalled);
-    }
-
-    @Test
-    public void testEnableBackup_whenQueryCommandReturnsEmptyString_throwsException()
-            throws Exception {
-        BackupUtils backupUtils = new BackupUtils() {
-            @Override
-            protected InputStream executeShellCommand(String command) throws IOException {
-                String output = "";
-                if (command.equals("bmgr enabled")) {
-                    // output is empty already
-                } else if (command.equals("bmgr enable true")) {
-                    output = "Backup Manager now enabled";
-                    mIsEnableCommandCalled = true;
-                }
-                return new ByteArrayInputStream(output.getBytes("UTF-8"));
-            }
-        };
-
-        boolean isExceptionHappened = false;
-        try {
-            backupUtils.enableBackup(true);
-        } catch (NullPointerException e) {
-            // null output by running command, bmgr enabled
-            isExceptionHappened = true;
-        }
-        assertTrue(isExceptionHappened);
-        assertFalse(mIsEnableCommandCalled);
-    }
-
-    @Test
     public void testWaitForBackupInitialization_whenEnabled() throws Exception {
-        BackupUtils backupUtils = new BackupUtils() {
-            @Override
-            protected InputStream executeShellCommand(String command) throws IOException {
-                String output = "";
-                if (command.equals("dumpsys backup")) {
-                    output = "Backup Manager is enabled / provisioned / not pending init";
-                    mIsDumpsysCommandCalled = true;
-                }
-                return new ByteArrayInputStream(output.getBytes("UTF-8"));
-            }
-        };
-        backupUtils.waitForBackupInitialization();
+        BackupUtils backupUtils =
+                new BackupUtils() {
+                    @Override
+                    protected InputStream executeShellCommand(String command) throws IOException {
+                        String output = "";
+                        if (command.equals("dumpsys backup --user " + TEST_USER_ID)) {
+                            output = "Backup Manager is enabled / provisioned / not pending init";
+                            mIsDumpsysCommandCalled = true;
+                        }
+                        return new ByteArrayInputStream(output.getBytes("UTF-8"));
+                    }
+                };
+        backupUtils.waitForBackupInitialization(TEST_USER_ID);
         assertTrue(mIsDumpsysCommandCalled);
     }
 
     @Test
     public void testWaitForBackupInitialization_whenDisabled() throws Exception {
-        BackupUtils backupUtils = new BackupUtils() {
-            @Override
-            protected InputStream executeShellCommand(String command) throws IOException {
-                String output = "";
-                if (command.equals("dumpsys backup")) {
-                    output = "Backup Manager is disabled / provisioned / not pending init";
-                    mIsDumpsysCommandCalled = true;
-                }
-                return new ByteArrayInputStream(output.getBytes("UTF-8"));
-            }
-        };
-        backupUtils.waitForBackupInitialization();
+        BackupUtils backupUtils =
+                new BackupUtils() {
+                    @Override
+                    protected InputStream executeShellCommand(String command) throws IOException {
+                        String output = "";
+                        if (command.equals("dumpsys backup --user " + TEST_USER_ID)) {
+                            output = "Backup Manager is disabled / provisioned / not pending init";
+                            mIsDumpsysCommandCalled = true;
+                        }
+                        return new ByteArrayInputStream(output.getBytes("UTF-8"));
+                    }
+                };
+        backupUtils.waitForBackupInitialization(TEST_USER_ID);
         assertTrue(mIsDumpsysCommandCalled);
     }
 
@@ -338,40 +293,47 @@ public class BackupUtilsTest {
     @Test
     public void testWaitForBackupInitialization_whenEnabledAndCommandReturnsMultipleLines()
             throws Exception {
-        BackupUtils backupUtils = new BackupUtils() {
-            @Override
-            protected InputStream executeShellCommand(String command) throws IOException {
-                String output = "";
-                if (command.equals("dumpsys backup")) {
-                    output = "Backup Manager is enabled / provisioned / not pending init" + "\n...";
-                    mIsDumpsysCommandCalled = true;
-                }
-                return new ByteArrayInputStream(output.getBytes("UTF-8"));
-            }
-        };
-        backupUtils.waitForBackupInitialization();
+        BackupUtils backupUtils =
+                new BackupUtils() {
+                    @Override
+                    protected InputStream executeShellCommand(String command) throws IOException {
+                        String output = "";
+                        if (command.equals("dumpsys backup --user " + TEST_USER_ID)) {
+                            output =
+                                    "Backup Manager is enabled / provisioned / not pending init"
+                                            + "\n...";
+                            mIsDumpsysCommandCalled = true;
+                        }
+                        return new ByteArrayInputStream(output.getBytes("UTF-8"));
+                    }
+                };
+        backupUtils.waitForBackupInitialization(TEST_USER_ID);
         assertTrue(mIsDumpsysCommandCalled);
     }
 
     @Test
     public void testWaitForBackupInitialization_whenCommandThrows_propagatesException()
             throws Exception {
-        BackupUtils backupUtils = new BackupUtils() {
-            @Override
-            protected InputStream executeShellCommand(String command) throws IOException {
-                String output = "";
-                if (command.equals("dumpsys backup")) {
-                    mIsDumpsysCommandCalled = true;
-                    throw new IOException(String.format(
-                            "waitForBackupInitialization: Failed to run command: %s", command));
-                }
-                return new ByteArrayInputStream(output.getBytes("UTF-8"));
-            }
-        };
+        BackupUtils backupUtils =
+                new BackupUtils() {
+                    @Override
+                    protected InputStream executeShellCommand(String command) throws IOException {
+                        String output = "";
+                        if (command.equals("dumpsys backup --user " + TEST_USER_ID)) {
+                            mIsDumpsysCommandCalled = true;
+                            throw new IOException(
+                                    String.format(
+                                            "waitForBackupInitialization: Failed to run command:"
+                                                    + " %s",
+                                            command));
+                        }
+                        return new ByteArrayInputStream(output.getBytes("UTF-8"));
+                    }
+                };
 
         boolean isExceptionHappened = false;
         try {
-            backupUtils.waitForBackupInitialization();
+            backupUtils.waitForBackupInitialization(TEST_USER_ID);
         } catch (IOException e) {
             // waitForBackupInitialization: Failed to run command: dumpsys backup
             isExceptionHappened = true;
@@ -381,25 +343,25 @@ public class BackupUtilsTest {
     }
 
     @Test
-    public void testWaitForBackupInitialization_whenCommandReturnsInvalidString()
-            throws Exception {
+    public void testWaitForBackupInitialization_whenCommandReturnsInvalidString() throws Exception {
         class TestRunnable implements Runnable {
             @Override
             public void run() {
                 try {
-                    BackupUtils backupUtils = new BackupUtils() {
-                        @Override
-                        protected InputStream executeShellCommand(String command)
-                                throws IOException {
-                            String output = "";
-                            if (command.equals("dumpsys backup")) {
-                                output = "Backup Manager ???";
-                                mIsDumpsysCommandCalled = true;
-                            }
-                            return new ByteArrayInputStream(output.getBytes("UTF-8"));
-                        }
-                    };
-                    backupUtils.waitForBackupInitialization();
+                    BackupUtils backupUtils =
+                            new BackupUtils() {
+                                @Override
+                                protected InputStream executeShellCommand(String command)
+                                        throws IOException {
+                                    String output = "";
+                                    if (command.equals("dumpsys backup --user " + TEST_USER_ID)) {
+                                        output = "Backup Manager ???";
+                                        mIsDumpsysCommandCalled = true;
+                                    }
+                                    return new ByteArrayInputStream(output.getBytes("UTF-8"));
+                                }
+                            };
+                    backupUtils.waitForBackupInitialization(TEST_USER_ID);
                 } catch (IOException e) {
                     // ignore
                 }
@@ -424,21 +386,22 @@ public class BackupUtilsTest {
     @Test
     public void testWaitForBackupInitialization_whenCommandReturnsEmptyString_throwsException()
             throws Exception {
-        BackupUtils backupUtils = new BackupUtils() {
-            @Override
-            protected InputStream executeShellCommand(String command) throws IOException {
-                String output = "";
-                if (command.equals("dumpsys backup")) {
-                    // output is empty already
-                    mIsDumpsysCommandCalled = true;
-                }
-                return new ByteArrayInputStream(output.getBytes("UTF-8"));
-            }
-        };
+        BackupUtils backupUtils =
+                new BackupUtils() {
+                    @Override
+                    protected InputStream executeShellCommand(String command) throws IOException {
+                        String output = "";
+                        if (command.equals("dumpsys backup --user " + TEST_USER_ID)) {
+                            // output is empty already
+                            mIsDumpsysCommandCalled = true;
+                        }
+                        return new ByteArrayInputStream(output.getBytes("UTF-8"));
+                    }
+                };
 
         boolean isExceptionHappened = false;
         try {
-            backupUtils.waitForBackupInitialization();
+            backupUtils.waitForBackupInitialization(TEST_USER_ID);
         } catch (NullPointerException e) {
             // null output by running command, dumpsys backup
             isExceptionHappened = true;

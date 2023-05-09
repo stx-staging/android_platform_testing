@@ -43,7 +43,6 @@ public abstract class BackupUtils {
             "android/com.android.internal.backup.LocalTransport";
     private static final String LOCAL_TRANSPORT_PACKAGE = "com.android.localtransport";
     public static final String LOCAL_TRANSPORT_TOKEN = "1";
-
     private static final int BACKUP_PROVISIONING_TIMEOUT_SECONDS = 30;
     private static final int BACKUP_PROVISIONING_POLL_INTERVAL_SECONDS = 1;
     private static final long BACKUP_SERVICE_INIT_TIMEOUT_SECS = TimeUnit.MINUTES.toSeconds(2);
@@ -51,7 +50,7 @@ public abstract class BackupUtils {
     private static final Pattern BACKUP_MANAGER_CURRENTLY_ENABLE_STATUS_PATTERN =
             Pattern.compile("^Backup Manager currently (enabled|disabled)$");
     private static final String MATCH_LINE_BACKUP_MANAGER_IS_NOT_PENDING_INIT =
-            "(?s)" + "^Backup Manager is .* not pending init.*";  // DOTALL
+            "(?s)" + "^(User [0-9]+:)?Backup Manager is .* not pending init.*"; // DOTALL
 
     private static final String BACKUP_DUMPSYS_CURRENT_TOKEN_FIELD = "Current:";
 
@@ -73,52 +72,46 @@ public abstract class BackupUtils {
         return result;
     }
 
-    /** Executes shell command "bmgr backupnow <package>" and assert success. */
-    public void backupNowAndAssertSuccess(String packageName) throws IOException {
-        assertBackupIsSuccessful(packageName, backupNow(packageName));
-    }
-
     /** Executes "bmgr --user <id> backupnow <package>" and assert success. */
-    public void backupNowAndAssertSuccessForUser(String packageName, int userId)
+    public void backupNowForUserAndAssertSuccess(String packageName, int userId)
             throws IOException {
         assertBackupIsSuccessful(packageName, backupNowForUser(packageName, userId));
     }
 
-    public void backupNowAndAssertBackupNotAllowed(String packageName) throws IOException {
-        assertBackupNotAllowed(packageName, getBackupNowOutput(packageName));
+    /**
+     * Executes "bmgr --user <id> backupnow <package>" and assert that package wasn't allowed to
+     * backup.
+     */
+    public void backupNowForUserAndAssertBackupNotAllowed(String packageName, int userId)
+            throws IOException {
+        assertBackupNotAllowed(packageName, getBackupNowForUserOutput(packageName, userId));
     }
 
-    /** Executes shell command "bmgr backupnow <package>" and waits for completion. */
-    public void backupNowSync(String packageName) throws IOException {
-        StreamUtil.drainAndClose(new InputStreamReader(backupNow(packageName)));
+    /** Executes shell command "bmgr --user <id> backupnow <package>" and waits for completion. */
+    public void backupNowForUserSync(String packageName, int userId) throws IOException {
+        StreamUtil.drainAndClose(new InputStreamReader(backupNowForUser(packageName, userId)));
     }
 
-    public String getBackupNowOutput(String packageName) throws IOException {
-        return StreamUtil.readInputStream(backupNow(packageName));
-    }
-
-    /** Executes shell command "bmgr restore <token> <package>" and assert success. */
-    public void restoreAndAssertSuccess(String token, String packageName) throws IOException {
-        assertRestoreIsSuccessful(restore(token, packageName));
+    /**
+     * Executes "bmgr --user <id> backupnow <package>" and returns an {@link String} for its output.
+     */
+    public String getBackupNowForUserOutput(String packageName, int userId) throws IOException {
+        return StreamUtil.readInputStream(backupNowForUser(packageName, userId));
     }
 
     /** Executes shell command "bmgr --user <id> restore <token> <package>" and assert success. */
-    public void restoreAndAssertSuccessForUser(String token, String packageName, int userId)
+    public void restoreForUserAndAssertSuccess(String token, String packageName, int userId)
             throws IOException {
         assertRestoreIsSuccessful(restoreForUser(token, packageName, userId));
     }
 
-    public void restoreSync(String token, String packageName) throws IOException {
-        StreamUtil.drainAndClose(new InputStreamReader(restore(token, packageName)));
-    }
-
-    public String getRestoreOutput(String token, String packageName) throws IOException {
-        return StreamUtil.readInputStream(restore(token, packageName));
-    }
-
-    public boolean isLocalTransportSelected() throws IOException {
-        return getShellCommandOutput("bmgr list transports")
-                .contains("* " + getLocalTransportName());
+    /**
+     * Executes shell command "bmgr --user <id> restore <token> <packageName>" and waits for
+     * completion.
+     */
+    public void restoreForUserSync(String token, String packageName, int userId)
+            throws IOException {
+        StreamUtil.drainAndClose(new InputStreamReader(restoreForUser(token, packageName, userId)));
     }
 
     /**
@@ -128,10 +121,6 @@ public abstract class BackupUtils {
     public boolean isLocalTransportSelectedForUser(int userId) throws IOException {
         return getShellCommandOutput(String.format("bmgr --user %d list transports", userId))
                 .contains("* " + getLocalTransportName());
-    }
-
-    public boolean isBackupEnabled() throws IOException {
-        return getShellCommandOutput("bmgr enabled").contains("currently enabled");
     }
 
     /**
@@ -157,11 +146,6 @@ public abstract class BackupUtils {
                 ? LOCAL_TRANSPORT_NAME : LOCAL_TRANSPORT_NAME_PRE_Q;
     }
 
-    /** Executes "bmgr backupnow <package>" and returns an {@link InputStream} for its output. */
-    private InputStream backupNow(String packageName) throws IOException {
-        return executeShellCommand("bmgr backupnow " + packageName);
-    }
-
     /**
      * Executes "bmgr --user <id> backupnow <package>" and returns an {@link InputStream} for its
      * output.
@@ -175,9 +159,9 @@ public abstract class BackupUtils {
      * Parses the output of "bmgr backupnow" command and checks that {@code packageName} wasn't
      * allowed to backup.
      *
-     * Expected format: "Package <packageName> with result:  Backup is not allowed"
+     * <p>Expected format: "Package <packageName> with result: Backup is not allowed"
      *
-     * TODO: Read input stream instead of string.
+     * <p>TODO: Read input stream instead of string.
      */
     private void assertBackupNotAllowed(String packageName, String backupNowOutput) {
         Scanner in = new Scanner(backupNowOutput);
@@ -200,7 +184,7 @@ public abstract class BackupUtils {
      * Parses the output of "bmgr backupnow" command checking that the package {@code packageName}
      * was backed up successfully. Closes the input stream.
      *
-     * Expected format: "Package <package> with result: Success"
+     * <p>Expected format: "Package <package> with result: Success"
      */
     private void assertBackupIsSuccessful(String packageName, InputStream backupNowOutput)
             throws IOException {
@@ -220,14 +204,6 @@ public abstract class BackupUtils {
         } finally {
             StreamUtil.drainAndClose(reader);
         }
-    }
-
-    /**
-     * Executes "bmgr restore <token> <packageName>" and returns an {@link InputStream} for its
-     * output.
-     */
-    private InputStream restore(String token, String packageName) throws IOException {
-        return executeShellCommand(String.format("bmgr restore %s %s", token, packageName));
     }
 
     /**
@@ -278,21 +254,6 @@ public abstract class BackupUtils {
         return out.toString();
     }
 
-    // Copied over from BackupQuotaTest
-    public boolean enableBackup(boolean enable) throws Exception {
-        boolean previouslyEnabled;
-        String output = getLineString(executeShellCommand("bmgr enabled"));
-        Matcher matcher = BACKUP_MANAGER_CURRENTLY_ENABLE_STATUS_PATTERN.matcher(output.trim());
-        if (matcher.find()) {
-            previouslyEnabled = "enabled".equals(matcher.group(1));
-        } else {
-            throw new RuntimeException("non-parsable output setting bmgr enabled: " + output);
-        }
-
-        Closeables.closeQuietly(executeShellCommand("bmgr enable " + enable));
-        return previouslyEnabled;
-    }
-
     /**
      * Execute shell command "bmgr --user <id> enable <enable> and return previous enabled state.
      */
@@ -330,11 +291,15 @@ public abstract class BackupUtils {
         return str;
     }
 
-    public void waitForBackupInitialization() throws IOException {
+    /**
+     * Executes shell command "dumpsys backup --user <id>" in loop and checks the output to see that
+     * backup manager is not pending init.
+     */
+    public void waitForBackupInitialization(int userId) throws IOException {
         long tryUntilNanos = System.nanoTime()
                 + TimeUnit.SECONDS.toNanos(BACKUP_PROVISIONING_TIMEOUT_SECONDS);
         while (System.nanoTime() < tryUntilNanos) {
-            String output = getLineString(executeShellCommand("dumpsys backup"));
+            String output = getLineString(executeShellCommand("dumpsys backup --user " + userId));
             if (output.matches(MATCH_LINE_BACKUP_MANAGER_IS_NOT_PENDING_INIT)) {
                 return;
             }
