@@ -83,9 +83,7 @@ public class AutomotiveConfigConstants {
     public static final String DIAL_PAD_MENU = "DIAL_PAD_MENU";
     public static final String FAVORITES_MENU = "FAVORITES_MENU";
     public static final String DIALER_VIEW = "DIALER_VIEW";
-
     public static final String CONTACT_NAME_TITLE = "CONTACT_NAME_TITLE";
-
     // Home App Constants
     public static final String HOME_PACKAGE = "HOME_PACKAGE";
     public static final String HOME_BOTTOM_CARD = "HOME_BOTTOM_CARD";
@@ -470,4 +468,14 @@ public class AutomotiveConfigConstants {
     public static final String HOME_BLUETOOTH_BUTTON = "HOME_BLUETOOTH_BUTTON";
     public static final String HOME_NETWORK_BUTTON = "HOME_NETWORK_BUTTON";
     public static final String HOME_DISPLAY_BRIGHTNESS_BUTTON = "HOME_DISPLAY_BRIGHTNESS_BUTTON";
+    // status bar constants
+    public static final String STATUS_BAR_BLUETOOTH_TOGGLE_ON = "STATUS_BAR_BLUETOOTH_TOGGLE_ON";
+    public static final String STATUS_BAR_BLUETOOTH_TOGGLE_ON_MESSAGE =
+            "STATUS_BAR_BLUETOOTH_TOGGLE_ON_MESSAGE";
+    public static final String STATUS_BAR_BLUETOOTH_TOGGLE_OFF_MESSAGE =
+            "STATUS_BAR_BLUETOOTH_TOGGLE_OFF_MESSAGE";
+    public static final String STATUS_BAR_BLUETOOTH_SETTINGS = "STATUS_BAR_BLUETOOTH_SETTINGS";
+    public static final String STATUS_BAR_BLUETOOTH_SETTINGS_PAGE_TITLE =
+            "STATUS_BAR_BLUETOOTH_SETTINGS_PAGE_TITLE";
+    public static final String STATUS_BAR_BLUETOOTH_BUTTON = "STATUS_BAR_BLUETOOTH_BUTTON";
 }
