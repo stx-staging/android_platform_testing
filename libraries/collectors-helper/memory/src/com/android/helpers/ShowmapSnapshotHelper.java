@@ -55,6 +55,7 @@ public class ShowmapSnapshotHelper implements ICollectorHelper<String> {
     private static final String SHOWMAP_CMD = "showmap -v %d";
     private static final String CHILD_PROCESSES_CMD = "ps -A --ppid %d";
     @VisibleForTesting public static final String OOM_SCORE_ADJ_CMD = "cat /proc/%d/oom_score_adj";
+    private static final String ACTIVITY_LRU_CMD = "dumpsys activity lru";
     private static final String THREADS_FILE_PATH = "/sdcard/countThreads.sh";
     @VisibleForTesting public static final String THREADS_CMD = "sh /sdcard/countThreads.sh";
     private static final String THREADS_EXEC_SCRIPT =
@@ -165,6 +166,15 @@ public class ShowmapSnapshotHelper implements ICollectorHelper<String> {
             }
             HashSet<Integer> zygoteChildrenPids = getZygoteChildrenPids();
             FileWriter writer = new FileWriter(new File(mTestOutputFile), true);
+
+            try {
+                // dump the activity lru to better understand the process state
+                String activityLRU = executeShellCommand(ACTIVITY_LRU_CMD);
+                Log.d(TAG, String.format("Dumpsys activity lru output: %s", activityLRU));
+            } catch (IOException e) {
+                Log.e(TAG, String.format("Failed to execute %s", ACTIVITY_LRU_CMD));
+            }
+
             for (String processName : mProcessNames) {
                 List<Integer> pids = new ArrayList<>();
                 // Collect required data
@@ -486,6 +496,10 @@ public class ShowmapSnapshotHelper implements ICollectorHelper<String> {
         try {
             String score = executeShellCommand(String.format(OOM_SCORE_ADJ_CMD, pid));
             boolean result = Integer.parseInt(score.trim()) >= 900;
+            Log.i(
+                    TAG,
+                    String.format(
+                            "The OOM adjustment score for process %s is %s", processName, score));
             if (result) {
                 Log.i(TAG, String.format("The process %s with pid %d is cached", processName, pid));
             }
