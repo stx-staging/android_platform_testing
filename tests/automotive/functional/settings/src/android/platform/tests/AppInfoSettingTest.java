@@ -28,7 +28,6 @@ public class AppInfoSettingTest {
         mAppInfoSettingsHelper = new HelperAccessor<>(IAutoAppInfoSettingsHelper.class);
         mSettingHelper = new HelperAccessor<>(IAutoSettingHelper.class);
     }
-
     @Before
     public void openAppInfoFacet() {
         mSettingHelper.get().openSetting(SettingsConstants.APPS_SETTINGS);
