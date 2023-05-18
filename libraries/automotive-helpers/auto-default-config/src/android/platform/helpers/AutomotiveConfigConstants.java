@@ -183,6 +183,8 @@ public class AutomotiveConfigConstants {
             "SYSTEM_SETTINGS_SCROLL_BACKWARD_BUTTON";
     public static final String SYSTEM_SETTINGS_SCROLL_ELEMENT = "SYSTEM_SETTINGS_SCROLL_ELEMENT";
     public static final String ABOUT_MENU = "ABOUT_MENU";
+    public static final String DEVELOPER_OPTIONS = "DEVELOPER_OPTIONS";
+    public static final String DEVELOPER_OPTIONS_SWITCH = "DEVELOPER_OPTIONS_SWITCH";
     public static final String RESET_OPTIONS_MENU = "RESET_OPTIONS_MENU";
     public static final String LANGUAGES_AND_INPUT_MENU = "LANGUAGES_AND_INPUT_MENU";
     public static final String DEVICE_MODEL = "DEVICE_MODEL";
@@ -477,8 +479,10 @@ public class AutomotiveConfigConstants {
     public static final String HOME_BLUETOOTH_BUTTON = "HOME_BLUETOOTH_BUTTON";
     public static final String HOME_NETWORK_BUTTON = "HOME_NETWORK_BUTTON";
     public static final String HOME_DISPLAY_BRIGHTNESS_BUTTON = "HOME_DISPLAY_BRIGHTNESS_BUTTON";
+
     // status bar constants
     public static final String STATUS_BAR_BLUETOOTH_TOGGLE_ON = "STATUS_BAR_BLUETOOTH_TOGGLE_ON";
+    public static final String STATUS_BAR_BLUETOOTH_TOGGLE_OFF = "STATUS_BAR_BLUETOOTH_TOGGLE_OFF";
     public static final String STATUS_BAR_BLUETOOTH_TOGGLE_ON_MESSAGE =
             "STATUS_BAR_BLUETOOTH_TOGGLE_ON_MESSAGE";
     public static final String STATUS_BAR_BLUETOOTH_TOGGLE_OFF_MESSAGE =
