@@ -48,13 +48,14 @@ import java.util.stream.Collectors;
  */
 public class ShowmapSnapshotHelper implements ICollectorHelper<String> {
     private static final String TAG = ShowmapSnapshotHelper.class.getSimpleName();
-
     private static final String DROP_CACHES_CMD = "echo %d > /proc/sys/vm/drop_caches";
     private static final String PIDOF_CMD = "pidof %s";
     public static final String ALL_PROCESSES_CMD = "ps -A";
     private static final String SHOWMAP_CMD = "showmap -v %d";
     private static final String CHILD_PROCESSES_CMD = "ps -A --ppid %d";
     @VisibleForTesting public static final String OOM_SCORE_ADJ_CMD = "cat /proc/%d/oom_score_adj";
+    private static final int PROCESS_OOM_SCORE_IMPERCEPTIBLE = 200;
+    private static final int PROCESS_OOM_SCORE_CACHED = 899;
     private static final String ACTIVITY_LRU_CMD = "dumpsys activity lru";
     private static final String THREADS_FILE_PATH = "/sdcard/countThreads.sh";
     @VisibleForTesting public static final String THREADS_CMD = "sh /sdcard/countThreads.sh";
@@ -63,6 +64,8 @@ public class ShowmapSnapshotHelper implements ICollectorHelper<String> {
                     + " /proc/$i/cmdline) : $(ls /proc/$i/task | wc -l)\"; done;";
     public static final String THREADS_PATTERN = "(?<key>^threads_count_.+) : (?<value>[0-9]+)";
     public static final String OUTPUT_METRIC_PATTERN = "showmap_%s_bytes";
+    public static final String OUTPUT_IMPERCEPTIBLE_METRIC_PATTERN =
+            "showmap_%s_bytes_imperceptible";
     public static final String OUTPUT_FILE_PATH_KEY = "showmap_output_file";
     public static final String PROCESS_COUNT = "process_count";
     public static final String CHILD_PROCESS_COUNT_PREFIX = "child_processes_count";
@@ -181,37 +184,46 @@ public class ShowmapSnapshotHelper implements ICollectorHelper<String> {
                 try {
                     pids = getPids(processName);
                     for (Integer pid : pids) {
-                      // Force Garbage collect to trim transient objects before taking memory
-                      // measurements as memory tests aim to track persistent memory regression
-                      // instead of transient memory which also allows for de-noising and reducing
-                      // likelihood of false alerts.
-                      if (mRunGcPrecollection && zygoteChildrenPids.contains(pid)) {
-                        // Skip native processes from sending GC signal.
-                        android.os.Trace.beginSection("IssueGCForPid: " + pid);
-                        // Perform a synchronous GC which happens when we request meminfo
-                        // This save us the need of setting up timeouts that may or may not
-                        // match with the end time of GC.
-                        mUiDevice.executeShellCommand("dumpsys meminfo -a " + pid);
-                        android.os.Trace.endSection();
-                      }
-
-                        // Skip the cached process for showmap and child process count
-                        if (isCachedProcess(processName, pid)) {
-                            Log.i(TAG, String.format("Skip the cached process %s.", processName));
-                            continue;
+                        // Force Garbage collect to trim transient objects before taking memory
+                        // measurements as memory tests aim to track persistent memory regression
+                        // instead of transient memory which also allows for de-noising and reducing
+                        // likelihood of false alerts.
+                        if (mRunGcPrecollection && zygoteChildrenPids.contains(pid)) {
+                            // Skip native processes from sending GC signal.
+                            android.os.Trace.beginSection("IssueGCForPid: " + pid);
+                            // Perform a synchronous GC which happens when we request meminfo
+                            // This save us the need of setting up timeouts that may or may not
+                            // match with the end time of GC.
+                            mUiDevice.executeShellCommand("dumpsys meminfo -a " + pid);
+                            android.os.Trace.endSection();
                         }
 
-                      android.os.Trace.beginSection("ExecuteShowmap");
-                      String showmapOutput = execShowMap(processName, pid);
-                      android.os.Trace.endSection();
-                      parseAndUpdateMemoryInfo(processName, showmapOutput);
-                      // Store showmap output into file. If there are more than one process
-                      // with same name write the individual showmap associated with pid.
-                      storeToFile(mTestOutputFile, processName, pid, showmapOutput, writer);
-                      // Parse number of child processes for the given pid and update the
-                      // total number of child process count for the process name that pid
-                      // is associated with.
-                      updateChildProcessesDetails(processName, pid);
+                        android.os.Trace.beginSection("ExecuteShowmap");
+                        String showmapOutput = execShowMap(processName, pid);
+                        android.os.Trace.endSection();
+                        // Mark the imperceptible process for showmap and child process count
+                        if (isProcessOomScoreAbove(
+                                processName, pid, PROCESS_OOM_SCORE_IMPERCEPTIBLE)) {
+                            Log.i(
+                                    TAG,
+                                    String.format(
+                                            "This process is imperceptible: %s", processName));
+                            parseAndUpdateMemoryInfo(
+                                    processName,
+                                    showmapOutput,
+                                    OUTPUT_IMPERCEPTIBLE_METRIC_PATTERN);
+                        } else {
+                            parseAndUpdateMemoryInfo(
+                                    processName, showmapOutput, OUTPUT_METRIC_PATTERN);
+                        }
+
+                        // Store showmap output into file. If there are more than one process
+                        // with same name write the individual showmap associated with pid.
+                        storeToFile(mTestOutputFile, processName, pid, showmapOutput, writer);
+                        // Parse number of child processes for the given pid and update the
+                        // total number of child process count for the process name that pid
+                        // is associated with.
+                        updateChildProcessesDetails(processName, pid);
                     }
                 } catch (RuntimeException e) {
                     Log.e(TAG, e.getMessage(), e.getCause());
@@ -407,7 +419,8 @@ public class ShowmapSnapshotHelper implements ICollectorHelper<String> {
      * @param processName name of the process to extract memory info for
      * @param showmapOutput showmap command output
      */
-    private void parseAndUpdateMemoryInfo(String processName, String showmapOutput)
+    private void parseAndUpdateMemoryInfo(
+            String processName, String showmapOutput, String metricPattern)
             throws RuntimeException {
         try {
 
@@ -424,9 +437,8 @@ public class ShowmapSnapshotHelper implements ICollectorHelper<String> {
 
             for (Map.Entry<String, List<Integer>> entry : mMetricNameIndexMap.entrySet()) {
                 Long metricValue = 0L;
-                String metricKey = constructKey(
-                        String.format(OUTPUT_METRIC_PATTERN, entry.getKey()),
-                        processName);
+                String metricKey =
+                        constructKey(String.format(metricPattern, entry.getKey()), processName);
                 for (int index = 0; index < entry.getValue().size(); index++) {
                     metricValue += Long.parseLong(summarySplit[entry.getValue().get(index) + 1]);
                 }
@@ -491,17 +503,24 @@ public class ShowmapSnapshotHelper implements ICollectorHelper<String> {
         Log.i(TAG, String.format("Metric Name index map size %s", mMetricNameIndexMap.size()));
     }
 
-    /** Return true if the giving process is a cached process */
-    public boolean isCachedProcess(String processName, long pid) {
+    /**
+     * Return true if the giving process is imperceptible. If the OOM adjustment score is in [900,
+     * 1000), the process is cached. If the OOM adjustment score is in (-1000, 200], the process is
+     * perceptible. If the OOM adjustment score is in (200, 1000), the process is imperceptible
+     */
+    public boolean isProcessOomScoreAbove(String processName, long pid, int threshold) {
         try {
             String score = executeShellCommand(String.format(OOM_SCORE_ADJ_CMD, pid));
-            boolean result = Integer.parseInt(score.trim()) >= 900;
+            boolean result = Integer.parseInt(score.trim()) > threshold;
             Log.i(
                     TAG,
                     String.format(
                             "The OOM adjustment score for process %s is %s", processName, score));
             if (result) {
-                Log.i(TAG, String.format("The process %s with pid %d is cached", processName, pid));
+                Log.i(
+                        TAG,
+                        String.format(
+                                "The process %s with pid %d is imperceptible", processName, pid));
             }
             return result;
         } catch (IOException e) {
@@ -546,7 +565,10 @@ public class ShowmapSnapshotHelper implements ICollectorHelper<String> {
                 childProcessName = childProcessSplit[8];
                 // Skip the logcat and sh processes in child process count
                 if (SKIP_PROCESS.contains(childProcessName)
-                        || isCachedProcess(childProcessName, Long.parseLong(childPID))) {
+                        || isProcessOomScoreAbove(
+                                childProcessName,
+                                Long.parseLong(childPID),
+                                PROCESS_OOM_SCORE_CACHED)) {
                     Log.i(
                             TAG,
                             String.format(
