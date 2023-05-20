@@ -31,8 +31,6 @@ import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-import android.util.Log;
-
 import androidx.test.runner.AndroidJUnit4;
 
 import com.android.helpers.ShowmapSnapshotHelper;
@@ -82,10 +80,10 @@ public class ShowmapSnapshotHelperTest {
         "com.android.systemui",
         "system_server",
         "com.google.android.googlequicksearchbox:search",
-        "android.process.acore"
+        "com.google.android.connectivitymonitor"
     };
     private static final String[] CACHED_PROCESS_LIST = {
-        "com.google.android.googlequicksearchbox:search", "com.google.android.connectivitymonitor "
+        "com.google.android.googlequicksearchbox:search", "com.google.android.connectivitymonitor"
     };
     private static final String[] NO_PROCESS_LIST = {
             null
@@ -180,7 +178,8 @@ public class ShowmapSnapshotHelperTest {
                         eq("com.google.android.googlequicksearchbox:search"), anyLong(), anyInt());
         doReturn(true)
                 .when(mShowmapSnapshotHelper)
-                .isProcessOomScoreAbove(eq("android.process.acore"), anyLong(), anyInt());
+                .isProcessOomScoreAbove(
+                        eq("com.google.android.connectivitymonitor"), anyLong(), anyInt());
         doReturn(false)
                 .when(mShowmapSnapshotHelper)
                 .isProcessOomScoreAbove(eq("com.android.systemui"), anyLong(), anyInt());
@@ -193,17 +192,21 @@ public class ShowmapSnapshotHelperTest {
         Map<String, String> metrics = mShowmapSnapshotHelper.getMetrics();
         assertFalse(metrics.isEmpty());
         for (String processName : CACHED_PROCESS_LIST) {
-            assertFalse(
+            assertTrue(
                     metrics.containsKey(
                             constructKey(
                                     String.format(
-                                            ShowmapSnapshotHelper.OUTPUT_METRIC_PATTERN, "rss"),
+                                            ShowmapSnapshotHelper
+                                                    .OUTPUT_IMPERCEPTIBLE_METRIC_PATTERN,
+                                            "rss"),
                                     processName)));
-            assertFalse(
+            assertTrue(
                     metrics.containsKey(
                             constructKey(
                                     String.format(
-                                            ShowmapSnapshotHelper.OUTPUT_METRIC_PATTERN, "pss"),
+                                            ShowmapSnapshotHelper
+                                                    .OUTPUT_IMPERCEPTIBLE_METRIC_PATTERN,
+                                            "pss"),
                                     processName)));
         }
         assertTrue(metrics.containsKey(ShowmapSnapshotHelper.OUTPUT_FILE_PATH_KEY));
@@ -219,7 +222,6 @@ public class ShowmapSnapshotHelperTest {
         mShowmapSnapshotHelper.setMetricNameIndex(METRIC_INDEX_STR);
         assertTrue(mShowmapSnapshotHelper.startCollecting());
         Map<String, String> metrics = mShowmapSnapshotHelper.getMetrics();
-        metrics.forEach((key, val) -> Log.i("BECKY_DEBUG", String.format("%s = %s", key, val)));
         assertFalse(metrics.isEmpty());
         for (String processName : CACHED_PROCESS_LIST) {
             assertTrue(
