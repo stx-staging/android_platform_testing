@@ -516,12 +516,6 @@ public class ShowmapSnapshotHelper implements ICollectorHelper<String> {
                     TAG,
                     String.format(
                             "The OOM adjustment score for process %s is %s", processName, score));
-            if (result) {
-                Log.i(
-                        TAG,
-                        String.format(
-                                "The process %s with pid %d is imperceptible", processName, pid));
-            }
             return result;
         } catch (IOException e) {
             Log.e(TAG, String.format("Unable to get process oom_score_adj for %s", processName), e);
