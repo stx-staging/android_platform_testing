@@ -1359,6 +1359,32 @@
       "TYPE": "RESOURCE_ID",
       "VALUE": "summary",
       "PACKAGE": "android"
+    },
+    "CONTACT_NAME_TITLE": {
+      "TYPE": "RESOURCE_ID",
+      "VALUE": "title",
+      "PACKAGE": "com.android.car.dialer"
+    },
+    "LOCATION_ACCESS": {
+      "TYPE": "TEXT",
+      "VALUE": "Location access"
+    },
+    "TOGGLE_LOCATION": {
+      "TYPE": "TEXT",
+      "VALUE": "Use location"
+    },
+    "LOCATION_SWITCH": {
+      "TYPE": "CLASS",
+      "VALUE": "android.widget.Switch"
+    },
+    "LOCATION_WIDGET": {
+      "TYPE": "RESOURCE_ID",
+      "VALUE": "qc_location_status_icon",
+      "PACKAGE": "com.android.systemui"
+    },
+    "RECENTLY_CLOSED_TEXT": {
+      "TYPE": "TEXT",
+      "VALUE": "Recently accessed"
     }
   },
   "WORKFLOWS": {
@@ -1371,6 +1397,41 @@
           "UI_ELEMENT": {
             "TYPE": "TEXT",
             "VALUE": "Allow"
+          }
+        }
+      }
+    ],
+    "OPEN_LOCATION_SETTINGS_WORKFLOW": [
+      {
+        "NAME": "Go to Home",
+        "TYPE": "PRESS",
+        "CONFIG": {
+          "TEXT": "HOME"
+        }
+      },
+      {
+        "NAME": "Open Settings",
+        "TYPE": "COMMAND",
+        "CONFIG": {
+          "TEXT": "am start -a android.settings.SETTINGS"
+        }
+      },
+      {
+        "NAME": "Open Location Settings",
+        "TYPE": "SCROLL_TO_FIND_AND_CLICK",
+        "CONFIG": {
+          "UI_ELEMENT": {
+            "TYPE": "TEXT",
+            "VALUE": "Location"
+          }
+        },
+        "SCROLL_CONFIG": {
+          "SCROLL_ACTION": "USE_GESTURE",
+          "SCROLL_DIRECTION": "VERTICAL",
+          "SCROLL_ELEMENT": {
+            "TYPE": "RESOURCE_ID",
+            "VALUE": "top_level_menu_container",
+            "PACKAGE": "com.android.car.settings"
           }
         }
       }
