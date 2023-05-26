@@ -37,5 +37,6 @@ class AppLayerBecomesVisible(private val component: ComponentTemplate) :
             .isVisible(ComponentNameMatcher.SPLASH_SCREEN, isOptional = true)
             .then()
             .isVisible(component.build(scenarioInstance))
+            .forAllEntries()
     }
 }
