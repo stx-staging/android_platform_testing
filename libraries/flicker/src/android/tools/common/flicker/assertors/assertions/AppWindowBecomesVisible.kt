@@ -41,6 +41,5 @@ class AppWindowBecomesVisible(private val component: ComponentTemplate) :
             .then()
             .isAppWindowVisible(component.build(scenarioInstance))
             .forAllEntries()
-        // TODO: Check everywhere we are missing this!
     }
 }
