@@ -118,6 +118,10 @@ class ComponentNameMatcher(var component: ComponentName) : IComponentNameMatcher
 
         val WALLPAPER_WINDOW_TOKEN = ComponentNameMatcher("", "WallpaperWindowToken")
 
+        val NOTIFICATION_SHADE = ComponentNameMatcher("", "NotificationShade")
+
+        val VOLUME_DIALOG = ComponentNameMatcher("", "VolumeDialog")
+
         val LAUNCHER =
             ComponentNameMatcher(
                 "com.google.android.apps.nexuslauncher",
