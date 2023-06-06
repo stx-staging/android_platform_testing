@@ -103,6 +103,7 @@ class ComponentNameMatcher(var component: ComponentName) : IComponentNameMatcher
         val IME_SNAPSHOT = ComponentNameMatcher("", "IME-snapshot-surface")
         val SPLASH_SCREEN = ComponentNameMatcher("", "Splash Screen")
         val SNAPSHOT = ComponentNameMatcher("", "SnapshotStartingWindow")
+        val SECONDARY_HOME_HANDLE = ComponentNameMatcher("", "SecondaryHomeHandle")
 
         val TRANSITION_SNAPSHOT = ComponentNameMatcher("", "transition snapshot")
         val LETTERBOX = ComponentNameMatcher("", "Letterbox")
