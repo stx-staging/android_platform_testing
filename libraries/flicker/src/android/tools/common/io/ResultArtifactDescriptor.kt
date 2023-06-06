@@ -54,21 +54,4 @@ class ResultArtifactDescriptor(
     }
 
     override fun toString(): String = fileNameInArtifact
-
-    companion object {
-        /**
-         * Creates a [ResultArtifactDescriptor] based on the [fileNameInArtifact]
-         *
-         * @param fileNameInArtifact Name of the trace file in the result artifact (e.g. zip)
-         */
-        fun fromFileName(fileNameInArtifact: String): ResultArtifactDescriptor {
-            val tagSplit = fileNameInArtifact.split("__")
-            require(tagSplit.size <= 2) {
-                "File name format should match '{tag}__{filename}' but was $fileNameInArtifact"
-            }
-            val tag = if (tagSplit.size > 1) tagSplit.first() else Tag.ALL
-            val fileName = tagSplit.last()
-            return ResultArtifactDescriptor(TraceType.fromFileName(fileName), tag)
-        }
-    }
 }

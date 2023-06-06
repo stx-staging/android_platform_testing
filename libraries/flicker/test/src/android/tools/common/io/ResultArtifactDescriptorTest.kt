@@ -16,7 +16,6 @@
 
 package android.tools.common.io
 
-import android.tools.common.Tag
 import android.tools.rules.CleanFlickerEnvironmentRule
 import com.google.common.truth.Truth
 import org.junit.ClassRule
@@ -47,67 +46,6 @@ class ResultArtifactDescriptorTest {
         createDescriptorAndValidateFileNameWithTag(TraceType.SCREEN_RECORDING)
         createDescriptorAndValidateFileNameWithTag(TraceType.WM_DUMP)
         createDescriptorAndValidateFileNameWithTag(TraceType.SF_DUMP)
-    }
-
-    @Test
-    fun parseDescriptorFromFileName() {
-        parseDescriptorAndValidateType(TraceType.SF.fileName, TraceType.SF)
-        parseDescriptorAndValidateType(TraceType.WM.fileName, TraceType.WM)
-        parseDescriptorAndValidateType(TraceType.TRANSACTION.fileName, TraceType.TRANSACTION)
-        parseDescriptorAndValidateType(TraceType.TRANSACTION.fileName, TraceType.TRANSACTION)
-        parseDescriptorAndValidateType(
-            TraceType.SCREEN_RECORDING.fileName,
-            TraceType.SCREEN_RECORDING
-        )
-        parseDescriptorAndValidateType(TraceType.WM_DUMP.fileName, TraceType.WM_DUMP)
-        parseDescriptorAndValidateType(TraceType.SF_DUMP.fileName, TraceType.SF_DUMP)
-    }
-
-    @Test
-    fun parseDescriptorFromFileNameWithTags() {
-        parseDescriptorAndValidateType(buildTaggedName(TraceType.SF), TraceType.SF, TEST_TAG)
-        parseDescriptorAndValidateType(buildTaggedName(TraceType.WM), TraceType.WM, TEST_TAG)
-        parseDescriptorAndValidateType(
-            buildTaggedName(TraceType.TRANSACTION),
-            TraceType.TRANSACTION,
-            TEST_TAG
-        )
-        parseDescriptorAndValidateType(
-            buildTaggedName(TraceType.TRANSACTION),
-            TraceType.TRANSACTION,
-            TEST_TAG
-        )
-        parseDescriptorAndValidateType(
-            buildTaggedName(TraceType.SCREEN_RECORDING),
-            TraceType.SCREEN_RECORDING,
-            TEST_TAG
-        )
-        parseDescriptorAndValidateType(
-            buildTaggedName(TraceType.WM_DUMP),
-            TraceType.WM_DUMP,
-            TEST_TAG
-        )
-        parseDescriptorAndValidateType(
-            buildTaggedName(TraceType.SF_DUMP),
-            TraceType.SF_DUMP,
-            TEST_TAG
-        )
-    }
-
-    private fun buildTaggedName(traceType: TraceType): String =
-        ResultArtifactDescriptor(traceType, TEST_TAG).fileNameInArtifact
-
-    private fun parseDescriptorAndValidateType(
-        fileNameInArtifact: String,
-        expectedTraceType: TraceType,
-        expectedTag: String = Tag.ALL
-    ): ResultArtifactDescriptor {
-        val descriptor = ResultArtifactDescriptor.fromFileName(fileNameInArtifact)
-        Truth.assertWithMessage("Descriptor type")
-            .that(descriptor.traceType)
-            .isEqualTo(expectedTraceType)
-        Truth.assertWithMessage("Descriptor tag").that(descriptor.tag).isEqualTo(expectedTag)
-        return descriptor
     }
 
     private fun createDescriptorAndValidateFileName(traceType: TraceType) {

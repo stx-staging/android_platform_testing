@@ -26,21 +26,5 @@ enum class TraceType(val fileName: String, val isTrace: Boolean) {
     EVENT_LOG("eventlog$WINSCOPE_EXT", isTrace = true),
     SCREEN_RECORDING("transition.mp4", isTrace = true),
     SF_DUMP("sf_dump$WINSCOPE_EXT", isTrace = false),
-    WM_DUMP("wm_dump$WINSCOPE_EXT", isTrace = false);
-
-    companion object {
-        fun fromFileName(fileName: String): TraceType {
-            return when {
-                fileName == SF.fileName -> SF
-                fileName == WM.fileName -> WM
-                fileName == TRANSACTION.fileName -> TRANSACTION
-                fileName == WM_TRANSITION.fileName -> WM_TRANSITION
-                fileName == SHELL_TRANSITION.fileName -> SHELL_TRANSITION
-                fileName == SCREEN_RECORDING.fileName -> SCREEN_RECORDING
-                fileName.endsWith(SF_DUMP.fileName) -> SF_DUMP
-                fileName.endsWith(WM_DUMP.fileName) -> WM_DUMP
-                else -> error("Unknown trace type for fileName=$fileName")
-            }
-        }
-    }
+    WM_DUMP("wm_dump$WINSCOPE_EXT", isTrace = false)
 }
