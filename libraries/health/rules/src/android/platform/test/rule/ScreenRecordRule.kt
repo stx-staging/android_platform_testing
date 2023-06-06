@@ -59,7 +59,10 @@ import org.junit.runners.model.Statement
  * - `@ClassRule`, it will check only if the class has the [ScreenRecord] annotation.
  * - `@Rule`, it will check each single test method.
  */
-class ScreenRecordRule : TestRule {
+class ScreenRecordRule @JvmOverloads constructor(
+    private val keepRecordingOnSuccess: Boolean = true,
+    private val waitExtraAfterEnd: Boolean = true
+) : TestRule {
 
     private val automation: UiAutomation = getInstrumentation().uiAutomation
 
@@ -118,14 +121,18 @@ class ScreenRecordRule : TestRule {
             automation.executeShellCommand("screenrecord --verbose --bugreport $outputFile")
         // Getting latest PID as there might be multiple screenrecording in progress.
         val screenRecordPid = screenrecordPids.max()
+        var success = false
         try {
             runnable()
+            success = true
         } finally {
             // Doesn't crash if the file doesn't exist, as we want the command output to be logged.
             outputFile.tryWaitingForFileToExists()
 
-            // temporary measure to see if b/266186795 is fixed
-            Thread.sleep(3000)
+            if (waitExtraAfterEnd) {
+                // temporary measure to see if b/266186795 is fixed
+                Thread.sleep(3000)
+            }
             val killOutput = uiDevice.shell("kill -INT $screenRecordPid")
 
             outputFile.tryWaitingForFileSizeToSettle()
@@ -140,10 +147,15 @@ class ScreenRecordRule : TestRule {
                     .trimIndent() + screenRecordOutput.prependIndent("   ")
             )
 
+            val shouldDeleteRecording = !keepRecordingOnSuccess && success
+            if (shouldDeleteRecording) {
+                automation.executeShellCommand("rm $outputFile")
+            }
+
             if (outputFile.exists()) {
                 val fileSizeKb = Files.size(outputFile.toPath()) / 1024
                 log("Screen recording captured at: $outputFile. File size: $fileSizeKb KB")
-            } else {
+            } else if (!shouldDeleteRecording) {
                 Log.e(TAG, "File not created successfully. Can't determine size of $outputFile")
             }
         }
