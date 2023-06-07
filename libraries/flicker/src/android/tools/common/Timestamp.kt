@@ -148,6 +148,13 @@ internal constructor(
                 else -> error("No valid timestamp available")
             }
 
+    override fun equals(other: Any?): Boolean {
+        if (other !is Timestamp) {
+            return false
+        }
+        return compareTo(other) == 0
+    }
+
     override fun compareTo(other: Timestamp): Int {
         var useType = PreferredType.ANY
         if (other.preferredType == this.preferredType) {
