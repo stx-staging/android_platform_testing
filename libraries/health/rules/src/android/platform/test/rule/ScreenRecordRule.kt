@@ -22,7 +22,6 @@ import android.platform.test.rule.ScreenRecordRule.Companion.SCREEN_RECORDING_CL
 import android.platform.test.rule.ScreenRecordRule.Companion.SCREEN_RECORDING_TEST_LEVEL_OVERRIDE_KEY
 import android.platform.test.rule.ScreenRecordRule.ScreenRecord
 import android.platform.uiautomator_helpers.DeviceHelpers.shell
-import android.platform.uiautomator_helpers.DeviceHelpers.uiDevice
 import android.platform.uiautomator_helpers.FailedEnsureException
 import android.platform.uiautomator_helpers.WaitUtils.ensureThat
 import android.platform.uiautomator_helpers.WaitUtils.waitForValueToSettle
@@ -56,12 +55,22 @@ import org.junit.runners.model.Statement
  * AndroidTest.xml.
  *
  * Note that when this rule is set as:
- * - `@ClassRule`, it will check only if the class has the [ScreenRecord] annotation.
- * - `@Rule`, it will check each single test method.
+ * - `@ClassRule`, it will check only if the class has the [ScreenRecord] annotation, and will
+ *   record one video for the entire test class
+ * - `@Rule`, it will check each single test method, and record one video for each test annotated.
+ *   If the class is annotated, then it will record a separate video for every test, regardless of
+ *   if the test is annotated.
+ *
+ * @param keepTestLevelRecordingOnSuccess: Keep a recording of a single test, if the test passes. If
+ *   false, the recording will be deleted. Does not apply to whole-class recordings
+ * @param waitExtraAfterEnd: Sometimes, recordings are cut off by ~3 seconds (b/266186795). If true,
+ *   then all recordings will wait 3 seconds after the test ends before stopping recording
  */
-class ScreenRecordRule @JvmOverloads constructor(
-    private val keepRecordingOnSuccess: Boolean = true,
-    private val waitExtraAfterEnd: Boolean = true
+class ScreenRecordRule
+@JvmOverloads
+constructor(
+    private val keepTestLevelRecordingOnSuccess: Boolean = true,
+    private val waitExtraAfterEnd: Boolean = true,
 ) : TestRule {
 
     private val automation: UiAutomation = getInstrumentation().uiAutomation
@@ -81,8 +90,9 @@ class ScreenRecordRule @JvmOverloads constructor(
     private fun shouldRecordScreen(description: Description): Boolean {
         return if (description.isTest) {
             description.getAnnotation(ScreenRecord::class.java) != null ||
+                description.testClass.hasAnnotation(ScreenRecord::class.java) ||
                 testLevelOverrideEnabled()
-        } else { // class level
+        } else { // class level annotation is set
             description.testClass.hasAnnotation(ScreenRecord::class.java) ||
                 classLevelOverrideEnabled()
         }
@@ -133,7 +143,7 @@ class ScreenRecordRule @JvmOverloads constructor(
                 // temporary measure to see if b/266186795 is fixed
                 Thread.sleep(3000)
             }
-            val killOutput = uiDevice.shell("kill -INT $screenRecordPid")
+            val killOutput = shell("kill -INT $screenRecordPid")
 
             outputFile.tryWaitingForFileSizeToSettle()
 
@@ -147,9 +157,10 @@ class ScreenRecordRule @JvmOverloads constructor(
                     .trimIndent() + screenRecordOutput.prependIndent("   ")
             )
 
-            val shouldDeleteRecording = !keepRecordingOnSuccess && success
+            val shouldDeleteRecording = !keepTestLevelRecordingOnSuccess && success
             if (shouldDeleteRecording) {
-                automation.executeShellCommand("rm $outputFile")
+                shell("rm $outputFile")
+                log("$outputFile deleted, because test passed")
             }
 
             if (outputFile.exists()) {
@@ -193,7 +204,7 @@ class ScreenRecordRule @JvmOverloads constructor(
     private fun screenRecordingInProgress() = screenrecordPids.isNotEmpty()
 
     private val screenrecordPids: List<String>
-        get() = uiDevice.shell("pidof screenrecord").split(" ")
+        get() = shell("pidof screenrecord").split(" ").filter { it != "" }
 
     /** Interface to indicate that the test should capture screenrecord */
     @Retention(RetentionPolicy.RUNTIME)
