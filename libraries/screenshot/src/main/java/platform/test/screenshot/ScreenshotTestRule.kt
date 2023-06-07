@@ -325,7 +325,7 @@ open class ScreenshotTestRule(
         writeAction: (FileOutputStream) -> Unit
     ): File {
         val fileGolden = File(goldenImagePathManager.deviceLocalPath)
-        if (!fileGolden.exists() && !fileGolden.mkdir()) {
+        if (!fileGolden.exists() && !fileGolden.mkdirs()) {
             throw IOException("Could not create folder $fileGolden.")
         }
 
