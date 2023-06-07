@@ -107,6 +107,10 @@
       "VALUE": "mute_button",
       "PACKAGE": "com.android.car.dialer"
     },
+    "ONGOING_CALL": {
+      "TYPE": "TEXT",
+      "VALUE": "Ongoing call"
+    },
     "CONTACT_LIST_SCROLL_FORWARD": {
       "TYPE": "RESOURCE_ID",
       "VALUE": "car_ui_scrollbar_page_down",
@@ -329,6 +333,10 @@
     "HOME_ASSISTANT_CARD": {
       "TYPE": "TEXT",
       "VALUE": "Assistant"
+    },
+    "HOME_PHONE_CARD": {
+      "TYPE": "TEXT",
+      "VALUE": "Phone"
     },
     "HOME_FACET_BUTTON": {
       "TYPE": "RESOURCE_ID",
