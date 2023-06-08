@@ -21,7 +21,7 @@ import android.platform.test.rule.NavigationModeRule
 import android.platform.test.rule.PressHomeRule
 import android.platform.test.rule.UnlockScreenRule
 import android.tools.common.CrossPlatform
-import android.tools.common.IScenario
+import android.tools.common.Scenario
 import android.tools.device.apphelpers.MessagingAppHelper
 import android.tools.device.flicker.datastore.CachedResultWriter
 import android.tools.device.flicker.legacy.IFlickerTestData
@@ -38,7 +38,7 @@ import org.junit.runner.Description
  * flicker setup/transition/teardown
  */
 class TransitionRunner(
-    private val scenario: IScenario,
+    private val scenario: Scenario,
     private val instrumentation: Instrumentation,
     private val resultWriter: ResultWriter = CachedResultWriter()
 ) {

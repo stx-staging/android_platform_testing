@@ -20,7 +20,7 @@ import android.app.Instrumentation
 import android.device.collectors.util.SendToInstrumentation
 import android.os.Bundle
 import android.platform.test.rule.ArtifactSaver
-import android.tools.common.IScenario
+import android.tools.common.Scenario
 import android.tools.common.ScenarioBuilder
 import android.tools.common.flicker.IFlickerService
 import android.tools.common.flicker.IScenarioInstance
@@ -176,7 +176,7 @@ class FlickerServiceDecorator(
 
     private fun computeFlickerServiceTests(
         reader: IReader,
-        testScenario: IScenario,
+        testScenario: Scenario,
         method: FrameworkMethod
     ): List<InjectedTestCase> {
         val expectedScenarios =
@@ -200,7 +200,7 @@ class FlickerServiceDecorator(
 
     companion object {
         private fun getDetectedScenarios(
-            testScenario: IScenario,
+            testScenario: Scenario,
             reader: IReader,
             flickerService: IFlickerService
         ): Collection<FaasScenarioType> {
@@ -213,7 +213,7 @@ class FlickerServiceDecorator(
         }
 
         private fun getGroupedAssertions(
-            testScenario: IScenario,
+            testScenario: Scenario,
             reader: IReader,
             flickerService: IFlickerService,
         ): Map<IScenarioInstance, Collection<IFaasAssertion>> {
@@ -231,7 +231,7 @@ class FlickerServiceDecorator(
         }
 
         internal fun getFaasTestCases(
-            testScenario: IScenario,
+            testScenario: Scenario,
             expectedScenarios: Set<FaasScenarioType>,
             paramString: String,
             reader: IReader,

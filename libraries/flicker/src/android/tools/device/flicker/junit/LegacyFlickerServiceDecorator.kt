@@ -19,7 +19,6 @@ package android.tools.device.flicker.junit
 import android.os.Bundle
 import android.tools.common.CrossPlatform
 import android.tools.common.FLICKER_TAG
-import android.tools.common.IScenario
 import android.tools.common.Scenario
 import android.tools.device.flicker.FlickerService
 import android.tools.device.flicker.FlickerServiceResultsCollector.Companion.FAAS_METRICS_PREFIX
@@ -154,7 +153,7 @@ class LegacyFlickerServiceDecorator(
      */
     private fun computeFlickerServiceTests(
         test: Any,
-        testScenario: IScenario
+        testScenario: Scenario
     ): List<InjectedTestCase> {
         if (!DataStore.containsResult(testScenario)) {
             val description =

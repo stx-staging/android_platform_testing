@@ -16,7 +16,7 @@
 
 package android.tools.device.flicker.datastore
 
-import android.tools.common.IScenario
+import android.tools.common.Scenario
 import android.tools.common.flicker.assertions.SubjectsParser
 import android.tools.common.io.RunStatus
 import android.tools.device.flicker.assertions.BaseAssertionRunner
@@ -30,7 +30,7 @@ import android.tools.device.traces.TRACE_CONFIG_REQUIRE_CHANGES
  * @param subjectsParser helper class to convert a result into flicker subjects
  */
 class CachedAssertionRunner(
-    private val scenario: IScenario,
+    private val scenario: Scenario,
     resultReader: CachedResultReader = CachedResultReader(scenario, TRACE_CONFIG_REQUIRE_CHANGES),
     subjectsParser: SubjectsParser = SubjectsParser(resultReader)
 ) : BaseAssertionRunner(resultReader, subjectsParser) {

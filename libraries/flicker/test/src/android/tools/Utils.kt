@@ -19,7 +19,7 @@ package android.tools
 import android.app.Instrumentation
 import android.content.Context
 import android.tools.common.CrossPlatform
-import android.tools.common.IScenario
+import android.tools.common.Scenario
 import android.tools.common.ScenarioBuilder
 import android.tools.common.io.IReader
 import android.tools.common.io.ResultArtifactDescriptor
@@ -280,7 +280,7 @@ fun createMockedFlicker(
     return mockedFlicker
 }
 
-fun captureTrace(scenario: IScenario, actions: () -> Unit): ResultReader {
+fun captureTrace(scenario: Scenario, actions: () -> Unit): ResultReader {
     if (scenario.isEmpty) {
         ScenarioBuilder().forClass("UNNAMED_CAPTURE").build()
     }

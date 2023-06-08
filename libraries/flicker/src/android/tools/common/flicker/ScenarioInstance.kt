@@ -43,5 +43,7 @@ data class ScenarioInstance(
 
     override val isEmpty = false
 
+    override fun <T> getConfigValue(key: String): T? = null
+
     override fun toString() = key
 }

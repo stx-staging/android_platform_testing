@@ -17,7 +17,7 @@
 package android.tools.device.traces.io
 
 import android.tools.common.CrossPlatform
-import android.tools.common.IScenario
+import android.tools.common.Scenario
 import android.tools.common.io.BUFFER_SIZE
 import android.tools.common.io.FLICKER_IO_TAG
 import android.tools.common.io.ResultArtifactDescriptor
@@ -38,12 +38,12 @@ import java.util.zip.ZipOutputStream
  */
 class ArtifactBuilder {
     private var runStatus: RunStatus? = null
-    private var scenario: IScenario? = null
+    private var scenario: Scenario? = null
     private var outputDir: File? = null
     private var files: Map<ResultArtifactDescriptor, File> = emptyMap()
     private var counter = 0
 
-    fun withScenario(value: IScenario): ArtifactBuilder = apply { scenario = value }
+    fun withScenario(value: Scenario): ArtifactBuilder = apply { scenario = value }
 
     fun withOutputDir(value: File): ArtifactBuilder = apply { outputDir = value }
 
@@ -99,7 +99,7 @@ class ArtifactBuilder {
         return runStatus.generateArchiveNameFor(scenario, counter)
     }
 
-    private fun existsArchiveFor(outputDir: File, scenario: IScenario, counter: Int): Boolean {
+    private fun existsArchiveFor(outputDir: File, scenario: Scenario, counter: Int): Boolean {
         return RunStatus.values().any {
             outputDir.resolve(it.generateArchiveNameFor(scenario, counter)).exists()
         }

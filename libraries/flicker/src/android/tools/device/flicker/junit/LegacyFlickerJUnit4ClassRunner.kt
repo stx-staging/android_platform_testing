@@ -21,7 +21,6 @@ import android.os.Bundle
 import android.platform.test.util.TestFilter
 import android.tools.common.CrossPlatform
 import android.tools.common.FLICKER_TAG
-import android.tools.common.IScenario
 import android.tools.common.Scenario
 import android.tools.device.flicker.legacy.FlickerBuilder
 import android.tools.device.flicker.legacy.runner.TransitionRunner
@@ -82,7 +81,7 @@ class LegacyFlickerJUnit4ClassRunner(test: TestWithParameters?, private val scen
             private val instrumentation: Instrumentation =
                 InstrumentationRegistry.getInstrumentation()
 
-            override fun runTransition(scenario: IScenario, test: Any, description: Description?) {
+            override fun runTransition(scenario: Scenario, test: Any, description: Description?) {
                 CrossPlatform.log.withTracing("LegacyFlickerJUnit4ClassRunner#runTransition") {
                     CrossPlatform.log.v(FLICKER_TAG, "Creating flicker object for $scenario")
                     val builder = getFlickerBuilder(test)

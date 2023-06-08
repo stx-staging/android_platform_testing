@@ -20,7 +20,7 @@ import android.app.Instrumentation
 import android.platform.test.rule.ArtifactSaver
 import android.tools.common.CrossPlatform
 import android.tools.common.FLICKER_TAG
-import android.tools.common.IScenario
+import android.tools.common.Scenario
 import android.tools.device.traces.io.ResultWriter
 import android.tools.device.traces.monitors.ITransitionMonitor
 import android.tools.device.traces.parsers.WindowManagerStateHelper
@@ -39,7 +39,7 @@ import org.junit.runners.model.Statement
  */
 class TraceMonitorRule(
     private val traceMonitors: List<ITransitionMonitor>,
-    private val scenario: IScenario,
+    private val scenario: Scenario,
     private val wmHelper: WindowManagerStateHelper,
     private val resultWriter: ResultWriter,
     private val instrumentation: Instrumentation

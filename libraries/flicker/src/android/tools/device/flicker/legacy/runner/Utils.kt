@@ -19,7 +19,7 @@ package android.tools.device.flicker.legacy.runner
 import android.app.Instrumentation
 import android.os.Bundle
 import android.tools.common.CrossPlatform
-import android.tools.common.IScenario
+import android.tools.common.Scenario
 import android.tools.common.traces.ConditionList
 import android.tools.common.traces.ConditionsFactory
 import android.tools.device.traces.parsers.WindowManagerStateHelper
@@ -45,7 +45,7 @@ object Utils {
         wmHelper.StateSyncBuilder().add(UI_STABLE_CONDITIONS).waitFor()
     }
 
-    internal fun notifyRunnerProgress(scenario: IScenario, msg: String) {
+    internal fun notifyRunnerProgress(scenario: Scenario, msg: String) {
         CrossPlatform.log.d(FLICKER_RUNNER_TAG, "${scenario.key} - $msg")
         val results = Bundle()
         results.putString(Instrumentation.REPORT_KEY_STREAMRESULT, "$msg\n")

@@ -16,12 +16,12 @@
 
 package android.tools.common.flicker
 
-import android.tools.common.IScenario
+import android.tools.common.Scenario
 import android.tools.common.flicker.config.FaasScenarioType
 import android.tools.common.io.IReader
 import android.tools.common.traces.wm.Transition
 
-interface IScenarioInstance : IScenario {
+interface IScenarioInstance : Scenario {
     val type: FaasScenarioType
     // A reader to read the part of the trace associated with the scenario instance
     val reader: IReader

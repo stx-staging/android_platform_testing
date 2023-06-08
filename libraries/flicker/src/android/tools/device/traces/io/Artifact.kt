@@ -33,7 +33,7 @@
 package android.tools.device.traces.io
 
 import android.tools.common.CrossPlatform
-import android.tools.common.IScenario
+import android.tools.common.Scenario
 import android.tools.common.io.BUFFER_SIZE
 import android.tools.common.io.FLICKER_IO_TAG
 import android.tools.common.io.IArtifact
@@ -51,11 +51,8 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
 class Artifact
-internal constructor(
-    private val scenario: IScenario,
-    artifactFile: File,
-    private val counter: Int
-) : IArtifact {
+internal constructor(private val scenario: Scenario, artifactFile: File, private val counter: Int) :
+    IArtifact {
     var file: File = artifactFile
         private set
 

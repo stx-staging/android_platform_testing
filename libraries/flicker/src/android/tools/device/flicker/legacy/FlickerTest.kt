@@ -17,7 +17,6 @@
 package android.tools.device.flicker.legacy
 
 import android.tools.common.CrossPlatform
-import android.tools.common.IScenario
 import android.tools.common.Scenario
 import android.tools.common.ScenarioBuilder
 import android.tools.common.Tag
@@ -43,7 +42,7 @@ import android.tools.device.traces.TRACE_CONFIG_REQUIRE_CHANGES
 /** Specification of a flicker test for JUnit ParameterizedRunner class */
 data class FlickerTest(
     private val scenarioBuilder: ScenarioBuilder = ScenarioBuilder(),
-    private val resultReaderProvider: (IScenario) -> CachedResultReader = {
+    private val resultReaderProvider: (Scenario) -> CachedResultReader = {
         CachedResultReader(it, TRACE_CONFIG_REQUIRE_CHANGES)
     },
     private val subjectsParserProvider: (IReader) -> SubjectsParser = { SubjectsParser(it) },
@@ -68,8 +67,6 @@ data class FlickerTest(
         scenario = scenarioBuilder.forClass(testClass).build()
         return scenario
     }
-
-    fun <T> getConfigValue(key: String) = scenario.getConfigValue<T>(key)
 
     /** Obtains a reader for the flicker result artifact */
     val reader: IReader

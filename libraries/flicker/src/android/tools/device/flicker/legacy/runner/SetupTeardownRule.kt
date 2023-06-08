@@ -19,7 +19,7 @@ package android.tools.device.flicker.legacy.runner
 import android.app.Instrumentation
 import android.platform.test.rule.ArtifactSaver
 import android.tools.common.CrossPlatform
-import android.tools.common.IScenario
+import android.tools.common.Scenario
 import android.tools.device.flicker.legacy.IFlickerTestData
 import android.tools.device.traces.io.ResultWriter
 import android.tools.device.traces.parsers.WindowManagerStateHelper
@@ -41,7 +41,7 @@ import org.junit.runners.model.Statement
 class SetupTeardownRule(
     private val flicker: IFlickerTestData,
     private val resultWriter: ResultWriter,
-    private val scenario: IScenario,
+    private val scenario: Scenario,
     private val instrumentation: Instrumentation,
     private val setupCommands: List<IFlickerTestData.() -> Any> = flicker.transitionSetup,
     private val teardownCommands: List<IFlickerTestData.() -> Any> = flicker.transitionTeardown,

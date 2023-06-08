@@ -19,7 +19,7 @@ package android.tools.device.flicker.legacy.runner
 import android.app.Instrumentation
 import android.platform.test.rule.ArtifactSaver
 import android.tools.common.CrossPlatform
-import android.tools.common.IScenario
+import android.tools.common.Scenario
 import android.tools.common.io.TraceType
 import android.tools.device.flicker.FlickerTag
 import android.tools.device.flicker.legacy.IFlickerTestData
@@ -47,7 +47,7 @@ import org.junit.runners.model.Statement
 class TransitionExecutionRule(
     private val flicker: IFlickerTestData,
     private val resultWriter: ResultWriter,
-    private val scenario: IScenario,
+    private val scenario: Scenario,
     private val instrumentation: Instrumentation = flicker.instrumentation,
     private val commands: List<IFlickerTestData.() -> Any> = flicker.transitions,
     private val wmHelper: WindowManagerStateHelper = flicker.wmHelper

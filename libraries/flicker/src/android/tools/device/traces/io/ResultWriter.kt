@@ -17,7 +17,7 @@
 package android.tools.device.traces.io
 
 import android.tools.common.CrossPlatform
-import android.tools.common.IScenario
+import android.tools.common.Scenario
 import android.tools.common.ScenarioBuilder
 import android.tools.common.Tag
 import android.tools.common.Timestamp
@@ -30,7 +30,7 @@ import java.io.File
 
 /** Helper class to create run result artifact files */
 open class ResultWriter {
-    protected var scenario: IScenario = ScenarioBuilder().createEmptyScenario()
+    protected var scenario: Scenario = ScenarioBuilder().createEmptyScenario()
     private var runStatus: RunStatus = RunStatus.UNDEFINED
     private val files = mutableMapOf<ResultArtifactDescriptor, File>()
     private var transitionStartTime = CrossPlatform.timestamp.min()
@@ -39,7 +39,7 @@ open class ResultWriter {
     private var outputDir: File? = null
 
     /** Sets the artifact scenario to [_scenario] */
-    fun forScenario(_scenario: IScenario) = apply { scenario = _scenario }
+    fun forScenario(_scenario: Scenario) = apply { scenario = _scenario }
 
     /** Sets the artifact transition start time to [time] */
     fun setTransitionStartTime(time: Timestamp) = apply { transitionStartTime = time }
