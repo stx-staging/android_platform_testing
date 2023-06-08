@@ -29,7 +29,7 @@ import android.tools.common.parsers.events.EventLogParser
 import android.tools.device.flicker.datastore.CachedResultWriter
 import android.tools.device.flicker.legacy.AbstractFlickerTestData
 import android.tools.device.flicker.legacy.FlickerBuilder
-import android.tools.device.flicker.legacy.IFlickerTestData
+import android.tools.device.flicker.legacy.FlickerTestData
 import android.tools.device.traces.TRACE_CONFIG_REQUIRE_CHANGES
 import android.tools.device.traces.io.ArtifactBuilder
 import android.tools.device.traces.io.InMemoryArtifact
@@ -259,11 +259,11 @@ fun assertExceptionMessage(error: Throwable?, expectedValue: String) {
 }
 
 fun createMockedFlicker(
-    setup: List<IFlickerTestData.() -> Unit> = emptyList(),
-    teardown: List<IFlickerTestData.() -> Unit> = emptyList(),
-    transitions: List<IFlickerTestData.() -> Unit> = emptyList(),
+    setup: List<FlickerTestData.() -> Unit> = emptyList(),
+    teardown: List<FlickerTestData.() -> Unit> = emptyList(),
+    transitions: List<FlickerTestData.() -> Unit> = emptyList(),
     extraMonitor: ITransitionMonitor? = null
-): IFlickerTestData {
+): FlickerTestData {
     val instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation()
     val uiDevice: UiDevice = UiDevice.getInstance(instrumentation)
     val mockedFlicker = Mockito.mock(AbstractFlickerTestData::class.java)

@@ -22,7 +22,7 @@ import android.tools.common.CrossPlatform
 import android.tools.common.Scenario
 import android.tools.common.io.TraceType
 import android.tools.device.flicker.FlickerTag
-import android.tools.device.flicker.legacy.IFlickerTestData
+import android.tools.device.flicker.legacy.FlickerTestData
 import android.tools.device.traces.getCurrentState
 import android.tools.device.traces.io.ResultWriter
 import android.tools.device.traces.monitors.NoTraceMonitor
@@ -45,11 +45,11 @@ import org.junit.runners.model.Statement
  * @param wmHelper to stabilize the UI before/after transitions
  */
 class TransitionExecutionRule(
-    private val flicker: IFlickerTestData,
+    private val flicker: FlickerTestData,
     private val resultWriter: ResultWriter,
     private val scenario: Scenario,
     private val instrumentation: Instrumentation = flicker.instrumentation,
-    private val commands: List<IFlickerTestData.() -> Any> = flicker.transitions,
+    private val commands: List<FlickerTestData.() -> Any> = flicker.transitions,
     private val wmHelper: WindowManagerStateHelper = flicker.wmHelper
 ) : TestRule {
     private var tags = mutableSetOf<String>()

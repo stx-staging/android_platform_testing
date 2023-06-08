@@ -20,7 +20,7 @@ import android.app.Instrumentation
 import android.platform.test.rule.ArtifactSaver
 import android.tools.common.CrossPlatform
 import android.tools.common.Scenario
-import android.tools.device.flicker.legacy.IFlickerTestData
+import android.tools.device.flicker.legacy.FlickerTestData
 import android.tools.device.traces.io.ResultWriter
 import android.tools.device.traces.parsers.WindowManagerStateHelper
 import org.junit.rules.TestRule
@@ -39,12 +39,12 @@ import org.junit.runners.model.Statement
  * @param wmHelper to stabilize the UI before/after transitions
  */
 class SetupTeardownRule(
-    private val flicker: IFlickerTestData,
+    private val flicker: FlickerTestData,
     private val resultWriter: ResultWriter,
     private val scenario: Scenario,
     private val instrumentation: Instrumentation,
-    private val setupCommands: List<IFlickerTestData.() -> Any> = flicker.transitionSetup,
-    private val teardownCommands: List<IFlickerTestData.() -> Any> = flicker.transitionTeardown,
+    private val setupCommands: List<FlickerTestData.() -> Any> = flicker.transitionSetup,
+    private val teardownCommands: List<FlickerTestData.() -> Any> = flicker.transitionTeardown,
     private val wmHelper: WindowManagerStateHelper = flicker.wmHelper
 ) : TestRule {
     override fun apply(base: Statement?, description: Description?): Statement {

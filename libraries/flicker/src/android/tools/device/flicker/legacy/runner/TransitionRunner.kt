@@ -24,7 +24,7 @@ import android.tools.common.CrossPlatform
 import android.tools.common.Scenario
 import android.tools.device.apphelpers.MessagingAppHelper
 import android.tools.device.flicker.datastore.CachedResultWriter
-import android.tools.device.flicker.legacy.IFlickerTestData
+import android.tools.device.flicker.legacy.FlickerTestData
 import android.tools.device.flicker.rules.ChangeDisplayOrientationRule
 import android.tools.device.flicker.rules.LaunchAppRule
 import android.tools.device.flicker.rules.RemoveAllTasksButHomeRule
@@ -43,7 +43,7 @@ class TransitionRunner(
     private val resultWriter: ResultWriter = CachedResultWriter()
 ) {
     /** Executes [flicker] transition and returns the result */
-    fun execute(flicker: IFlickerTestData, description: Description?): IResultData {
+    fun execute(flicker: FlickerTestData, description: Description?): IResultData {
         return CrossPlatform.log.withTracing("TransitionRunner:execute") {
             resultWriter.forScenario(scenario).withOutputDir(flicker.outputDir)
 
@@ -71,7 +71,7 @@ class TransitionRunner(
      * first app launch is handled as a screen size change (similar to a rotation), this causes
      * different problems during testing (e.g. IME now shown on app launch)
      */
-    private fun buildTestRuleChain(flicker: IFlickerTestData): RuleChain {
+    private fun buildTestRuleChain(flicker: FlickerTestData): RuleChain {
         return RuleChain.outerRule(UnlockScreenRule())
             .around(
                 NavigationModeRule(

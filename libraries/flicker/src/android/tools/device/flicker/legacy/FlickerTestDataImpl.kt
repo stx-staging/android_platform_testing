@@ -17,43 +17,34 @@
 package android.tools.device.flicker.legacy
 
 import android.app.Instrumentation
+import android.tools.common.traces.surfaceflinger.LayersTrace
+import android.tools.common.traces.wm.WindowManagerTrace
 import android.tools.device.traces.monitors.ITransitionMonitor
 import android.tools.device.traces.parsers.WindowManagerStateHelper
 import androidx.test.uiautomator.UiDevice
 import java.io.File
 
-interface IFlickerTestData {
+/**
+ * Defines the runner for the flicker tests. This component is responsible for running the flicker
+ * tests and executing assertions on the traces to check for inconsistent behaviors on
+ * [WindowManagerTrace] and [LayersTrace]
+ */
+@FlickerDslMarker
+open class FlickerTestDataImpl(
     /** Instrumentation to run the tests */
-    val instrumentation: Instrumentation
+    override val instrumentation: Instrumentation,
     /** Test automation component used to interact with the device */
-    val device: UiDevice
+    override val device: UiDevice,
     /** Output directory for test results */
-    val outputDir: File
+    override val outputDir: File,
     /** Enabled tracing monitors */
-    val traceMonitors: List<ITransitionMonitor>
+    override val traceMonitors: List<ITransitionMonitor>,
     /** Commands to be executed before the transition */
-    val transitionSetup: List<IFlickerTestData.() -> Any>
+    override val transitionSetup: List<FlickerTestData.() -> Any>,
     /** Test commands */
-    val transitions: List<IFlickerTestData.() -> Any>
+    override val transitions: List<FlickerTestData.() -> Any>,
     /** Commands to be executed after the transition */
-    val transitionTeardown: List<IFlickerTestData.() -> Any>
+    override val transitionTeardown: List<FlickerTestData.() -> Any>,
     /** Helper object for WM Synchronization */
-    val wmHelper: WindowManagerStateHelper
-
-    fun setAssertionsCheckedCallback(callback: (Boolean) -> Unit)
-
-    fun setCreateTagListener(callback: (String) -> Unit)
-
-    fun clearTagListener()
-
-    /**
-     * Runs a set of commands and, at the end, creates a tag containing the device state
-     *
-     * @param tag Identifier for the tag to be created
-     * @param commands Commands to execute before creating the tag
-     * @throws IllegalArgumentException If [tag] cannot be converted to a valid filename
-     */
-    fun withTag(tag: String, commands: IFlickerTestData.() -> Any)
-
-    fun createTag(tag: String)
-}
+    override val wmHelper: WindowManagerStateHelper
+) : AbstractFlickerTestData()
