@@ -16,12 +16,13 @@
 
 package android.tools.common.flicker.assertions
 
-/** Interface containing basic data about an assertion */
-interface AssertionData {
-    /**
-     * Extracts the data from the result and executes the assertion
-     *
-     * @param run Run to be asserted
-     */
-    fun checkAssertion(run: SubjectsParser)
+/**
+ * Checks assertion on a single trace entry.
+ *
+ * @param <T> trace entry type to perform the assertion on. </T>
+ */
+interface Assertion<T> {
+    val isOptional: Boolean
+    val name: String
+    operator fun invoke(target: T)
 }

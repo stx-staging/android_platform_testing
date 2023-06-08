@@ -16,13 +16,20 @@
 
 package android.tools.common.flicker.assertions
 
-/**
- * Checks assertion on a single trace entry.
- *
- * @param <T> trace entry type to perform the assertion on. </T>
- */
-interface IAssertion<T> {
-    val isOptional: Boolean
-    val name: String
-    operator fun invoke(target: T)
+import android.tools.common.flicker.subject.FlickerSubject
+import kotlin.reflect.KClass
+
+/** Class containing basic data about an assertion */
+data class AssertionDataImpl(
+    /** Segment of the trace where the assertion will be applied (e.g., start, end). */
+    val tag: String,
+    /** Expected run result type */
+    val expectedSubjectClass: KClass<out FlickerSubject>,
+    /** Assertion command */
+    val assertion: FlickerSubject.() -> Unit
+) : AssertionData {
+    override fun checkAssertion(run: SubjectsParser) {
+        val subject = run.getSubjectOfType(tag, expectedSubjectClass)
+        subject?.let { assertion(it) }
+    }
 }

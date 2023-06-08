@@ -18,6 +18,7 @@ package android.tools.device.flicker.assertions
 
 import android.tools.common.Tag
 import android.tools.common.flicker.assertions.AssertionData
+import android.tools.common.flicker.assertions.AssertionDataImpl
 import android.tools.common.flicker.subject.FlickerSubject
 import android.tools.common.flicker.subject.FlickerTraceSubject
 import kotlin.reflect.KClass
@@ -46,7 +47,7 @@ class AssertionDataFactory(
             assertion(this)
             forAllEntries()
         }
-        return AssertionData(
+        return AssertionDataImpl(
             tag = Tag.ALL,
             expectedSubjectClass = traceSubject,
             assertion = closedAssertion as FlickerSubject.() -> Unit

@@ -17,7 +17,7 @@
 package android.tools.device.flicker.assertions
 
 import android.tools.common.Tag
-import android.tools.common.flicker.assertions.AssertionData
+import android.tools.common.flicker.assertions.AssertionDataImpl
 import android.tools.common.flicker.subject.FlickerSubject
 import kotlin.reflect.KClass
 
@@ -33,7 +33,11 @@ open class AssertionStateDataFactory(private val stateSubject: KClass<out Flicke
      * @param assertion Assertion predicate
      */
     fun createStartStateAssertion(assertion: FlickerSubject.() -> Unit) =
-        AssertionData(tag = Tag.START, expectedSubjectClass = stateSubject, assertion = assertion)
+        AssertionDataImpl(
+            tag = Tag.START,
+            expectedSubjectClass = stateSubject,
+            assertion = assertion
+        )
 
     /**
      * Creates an [assertion] to be executed on the final state of a trace
@@ -41,7 +45,7 @@ open class AssertionStateDataFactory(private val stateSubject: KClass<out Flicke
      * @param assertion Assertion predicate
      */
     fun createEndStateAssertion(assertion: FlickerSubject.() -> Unit) =
-        AssertionData(tag = Tag.END, expectedSubjectClass = stateSubject, assertion = assertion)
+        AssertionDataImpl(tag = Tag.END, expectedSubjectClass = stateSubject, assertion = assertion)
 
     /**
      * Creates an [assertion] to be executed on a user defined moment ([tag]) of a trace
@@ -49,5 +53,5 @@ open class AssertionStateDataFactory(private val stateSubject: KClass<out Flicke
      * @param assertion Assertion predicate
      */
     fun createTagAssertion(tag: String, assertion: FlickerSubject.() -> Unit) =
-        AssertionData(tag = tag, expectedSubjectClass = stateSubject, assertion = assertion)
+        AssertionDataImpl(tag = tag, expectedSubjectClass = stateSubject, assertion = assertion)
 }

@@ -18,7 +18,7 @@ package android.tools.device.flicker.assertions
 
 import android.tools.assertExceptionMessage
 import android.tools.common.Tag
-import android.tools.common.flicker.assertions.AssertionData
+import android.tools.common.flicker.assertions.AssertionDataImpl
 import android.tools.common.flicker.assertions.Consts
 import android.tools.common.flicker.subject.FlickerSubject
 import android.tools.common.flicker.subject.events.EventLogSubject
@@ -129,7 +129,7 @@ class ArtifactAssertionRunnerTest {
 
     companion object {
         private fun newAssertionData(assertion: (FlickerSubject) -> Unit) =
-            AssertionData(Tag.ALL, EventLogSubject::class, assertion)
+            AssertionDataImpl(Tag.ALL, EventLogSubject::class, assertion)
 
         private fun newResultReaderWithEmptySubject(): IResultData {
             val writer = newTestResultWriter()
