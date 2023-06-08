@@ -18,9 +18,10 @@ package android.tools.common.flicker.config.suw
 
 import android.tools.common.flicker.config.AssertionTemplates
 import android.tools.common.flicker.config.FaasScenarioType
+import android.tools.common.flicker.config.FlickerServiceConfig
 import android.tools.common.flicker.config.ScenarioConfig
 import android.tools.common.flicker.extractors.TaggedCujTransitionMatcher
-import android.tools.common.flicker.extractors.TaggedScenarioExtractor
+import android.tools.common.flicker.extractors.TaggedScenarioExtractorBuilder
 import android.tools.common.traces.events.CujType
 
 class SuwLoadingScreenForStatus : ScenarioConfig {
@@ -32,9 +33,9 @@ class SuwLoadingScreenForStatus : ScenarioConfig {
         AssertionTemplates.COMMON_ASSERTIONS // TODO: Add specific assertions
 
     override val extractor =
-        TaggedScenarioExtractor(
-            targetTag = CujType.CUJ_SUW_LOADING_SCREEN_FOR_STATUS,
-            type,
-            transitionMatcher = TaggedCujTransitionMatcher(associatedTransitionRequired = false),
-        )
+        TaggedScenarioExtractorBuilder()
+            .setConfig(FlickerServiceConfig.getScenarioConfigFor(type))
+            .setTargetTag(CujType.CUJ_SUW_LOADING_SCREEN_FOR_STATUS)
+            .setTransitionMatcher(TaggedCujTransitionMatcher(associatedTransitionRequired = false))
+            .build()
 }

@@ -19,16 +19,16 @@ package android.tools.common.flicker.extractors
 import android.tools.common.Rotation
 import android.tools.common.flicker.ScenarioInstance
 import android.tools.common.flicker.ScenarioInstanceImpl
-import android.tools.common.flicker.config.FaasScenarioType
+import android.tools.common.flicker.config.ScenarioConfig
 import android.tools.common.io.IReader
 
-class EntireTraceExtractor(val type: FaasScenarioType) : ScenarioExtractor {
+class EntireTraceExtractor(val config: ScenarioConfig) : ScenarioExtractor {
     override fun extract(reader: IReader): List<ScenarioInstance> {
         val layersTrace = reader.readLayersTrace() ?: error("Missing layers trace")
 
         return listOf(
             ScenarioInstanceImpl(
-                type,
+                config,
                 startRotation =
                     layersTrace.entries.first().physicalDisplay?.transform?.getRotation()
                         ?: Rotation.ROTATION_0,

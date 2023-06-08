@@ -20,7 +20,7 @@ import android.tools.common.CrossPlatform
 import android.tools.common.Timestamp
 import android.tools.common.flicker.ScenarioInstance
 import android.tools.common.flicker.ScenarioInstanceImpl
-import android.tools.common.flicker.config.FaasScenarioType
+import android.tools.common.flicker.config.ScenarioConfig
 import android.tools.common.io.IReader
 import android.tools.common.traces.events.Cuj
 import android.tools.common.traces.events.CujType
@@ -30,12 +30,11 @@ import kotlin.math.min
 
 class TaggedScenarioExtractor(
     val targetTag: CujType,
-    val type: FaasScenarioType,
-    val transitionMatcher: TaggedCujTransitionMatcher = TaggedCujTransitionMatcher(),
-    val adjustCuj: (cujEntry: Cuj, reader: IReader) -> Cuj = { cujEntry, reader -> cujEntry }
+    val config: ScenarioConfig,
+    private val transitionMatcher: TransitionMatcher,
+    private val adjustCuj: CujAdjust
 ) : ScenarioExtractor {
     override fun extract(reader: IReader): List<ScenarioInstance> {
-
         val layersTrace = reader.readLayersTrace() ?: error("Missing layers trace")
         val cujTrace = reader.readCujTrace() ?: error("Missing CUJ trace")
 
@@ -43,7 +42,7 @@ class TaggedScenarioExtractor(
             cujTrace.entries
                 .filter { it.cuj === targetTag }
                 .filter { !it.canceled }
-                .map { adjustCuj(it, reader) }
+                .map { adjustCuj.adjustCuj(it, reader) }
 
         if (targetCujEntries.isEmpty()) {
             // No scenarios to extract here
@@ -69,7 +68,7 @@ class TaggedScenarioExtractor(
                 Utils.getOnDisplayFor(layersTrace.getLastEntryWithOnDisplayBefore(endTimestamp))
 
             ScenarioInstanceImpl(
-                type,
+                config,
                 startRotation = displayAtStart.transform.getRotation(),
                 endRotation = displayAtEnd.transform.getRotation(),
                 startTimestamp = startTimestamp,

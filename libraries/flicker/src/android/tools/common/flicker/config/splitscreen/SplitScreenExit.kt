@@ -18,10 +18,11 @@ package android.tools.common.flicker.config.splitscreen
 
 import android.tools.common.flicker.config.AssertionTemplates
 import android.tools.common.flicker.config.FaasScenarioType
+import android.tools.common.flicker.config.FlickerServiceConfig
 import android.tools.common.flicker.config.ScenarioConfig
 import android.tools.common.flicker.config.TransitionFilters
 import android.tools.common.flicker.extractors.TaggedCujTransitionMatcher
-import android.tools.common.flicker.extractors.TaggedScenarioExtractor
+import android.tools.common.flicker.extractors.TaggedScenarioExtractorBuilder
 import android.tools.common.traces.events.CujType
 
 class SplitScreenExit : ScenarioConfig {
@@ -32,10 +33,11 @@ class SplitScreenExit : ScenarioConfig {
     override val assertionTemplates = AssertionTemplates.EXIT_SPLITSCREEN_ASSERTIONS
 
     override val extractor =
-        TaggedScenarioExtractor(
-            targetTag = CujType.CUJ_SPLIT_SCREEN_EXIT,
-            type,
-            transitionMatcher =
+        TaggedScenarioExtractorBuilder()
+            .setConfig(FlickerServiceConfig.getScenarioConfigFor(type))
+            .setTargetTag(CujType.CUJ_SPLIT_SCREEN_EXIT)
+            .setTransitionMatcher(
                 TaggedCujTransitionMatcher(TransitionFilters.EXIT_SPLIT_SCREEN_FILTER)
-        )
+            )
+            .build()
 }

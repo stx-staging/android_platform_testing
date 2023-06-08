@@ -19,7 +19,7 @@ package android.tools.common.flicker.assertors.assertions
 import android.tools.common.flicker.assertors.AssertionTemplate
 import android.tools.common.flicker.assertors.ComponentTemplate
 
-/** Base class for tests that require a [component] named window name */
+/** Base class for tests that require a [components] named window name */
 abstract class AssertionTemplateWithComponent(vararg val components: ComponentTemplate) :
     AssertionTemplate() {
 

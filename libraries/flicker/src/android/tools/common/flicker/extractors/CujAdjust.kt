@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-package android.tools.common.flicker.config
+package android.tools.common.flicker.extractors
 
-import android.tools.common.flicker.assertors.AssertionTemplate
-import android.tools.common.flicker.extractors.ScenarioExtractor
+import android.tools.common.io.IReader
+import android.tools.common.traces.events.Cuj
 
-interface ScenarioConfig {
-    val extractor: ScenarioExtractor
-    val assertionTemplates: Collection<AssertionTemplate>
-    val enabled: Boolean
-    val type: FaasScenarioType
+interface CujAdjust {
+    fun adjustCuj(cujEntry: Cuj, reader: IReader): Cuj
 }

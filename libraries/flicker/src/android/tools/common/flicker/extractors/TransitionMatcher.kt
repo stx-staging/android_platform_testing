@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package android.tools.common.flicker.assertors
+package android.tools.common.flicker.extractors
 
-import android.tools.common.flicker.ScenarioInstance
+import android.tools.common.io.IReader
+import android.tools.common.traces.events.Cuj
+import android.tools.common.traces.wm.Transition
 
-interface IAssertionTemplate {
-    val assertionName: String
-    fun createAssertion(scenarioInstance: ScenarioInstance): IFaasAssertion
+interface TransitionMatcher {
+    fun getMatches(reader: IReader, cujEntry: Cuj): Collection<Transition>
 }

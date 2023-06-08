@@ -18,13 +18,13 @@ package android.tools.common.flicker
 
 import android.tools.common.Rotation
 import android.tools.common.Timestamp
-import android.tools.common.flicker.config.FaasScenarioType
+import android.tools.common.flicker.config.ScenarioConfig
 import android.tools.common.io.IReader
 import android.tools.common.traces.events.CujType
 import android.tools.common.traces.wm.Transition
 
 data class ScenarioInstanceImpl(
-    override val type: FaasScenarioType,
+    override val config: ScenarioConfig,
     override val startRotation: Rotation,
     override val endRotation: Rotation,
     override val startTimestamp: Timestamp,
@@ -37,7 +37,7 @@ data class ScenarioInstanceImpl(
     override val navBarMode
         get() = error("Unsupported")
 
-    override val key = "${type.name}_${startRotation}_$endRotation"
+    override val key = "${config.type.name}_${startRotation}_$endRotation"
 
     override val description = key
 

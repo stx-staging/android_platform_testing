@@ -24,13 +24,14 @@ import android.tools.common.flicker.subject.layers.LayersTraceSubject
 import android.tools.common.flicker.subject.wm.WindowManagerTraceSubject
 
 /** Base class for a FaaS assertion */
-abstract class AssertionTemplate : IAssertionTemplate {
-    override val assertionName = "${this@AssertionTemplate::class.simpleName}"
+abstract class AssertionTemplate {
+    open val assertionName = "${this@AssertionTemplate::class.simpleName}"
     private var stabilityGroup: AssertionInvocationGroup = NON_BLOCKING
 
-    override fun createAssertion(scenarioInstance: ScenarioInstance): IFaasAssertion {
+    fun createAssertion(scenarioInstance: ScenarioInstance): IFaasAssertion {
         return object : IFaasAssertion {
-            override val name = "${scenarioInstance.type}::${this@AssertionTemplate.assertionName}"
+            override val name =
+                "${scenarioInstance.type}::${this@AssertionTemplate.assertionName}"
 
             override val stabilityGroup
                 get() = this@AssertionTemplate.stabilityGroup

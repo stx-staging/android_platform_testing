@@ -18,9 +18,10 @@ package android.tools.common.flicker.config.notification
 
 import android.tools.common.flicker.config.AssertionTemplates
 import android.tools.common.flicker.config.FaasScenarioType
+import android.tools.common.flicker.config.FlickerServiceConfig
 import android.tools.common.flicker.config.ScenarioConfig
 import android.tools.common.flicker.extractors.TaggedCujTransitionMatcher
-import android.tools.common.flicker.extractors.TaggedScenarioExtractor
+import android.tools.common.flicker.extractors.TaggedScenarioExtractorBuilder
 import android.tools.common.traces.events.CujType
 
 class NotificationDialogOpen : ScenarioConfig {
@@ -32,9 +33,9 @@ class NotificationDialogOpen : ScenarioConfig {
         AssertionTemplates.COMMON_ASSERTIONS // TODO: Add specific assertions
 
     override val extractor =
-        TaggedScenarioExtractor(
-            targetTag = CujType.CUJ_SHADE_DIALOG_OPEN,
-            type,
-            transitionMatcher = TaggedCujTransitionMatcher(associatedTransitionRequired = false),
-        )
+        TaggedScenarioExtractorBuilder()
+            .setConfig(FlickerServiceConfig.getScenarioConfigFor(type))
+            .setTargetTag(CujType.CUJ_SHADE_DIALOG_OPEN)
+            .setTransitionMatcher(TaggedCujTransitionMatcher(associatedTransitionRequired = false))
+            .build()
 }

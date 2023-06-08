@@ -18,10 +18,11 @@ package android.tools.common.flicker.config.gesturenav
 
 import android.tools.common.flicker.config.AssertionTemplates
 import android.tools.common.flicker.config.FaasScenarioType
+import android.tools.common.flicker.config.FlickerServiceConfig
 import android.tools.common.flicker.config.ScenarioConfig
 import android.tools.common.flicker.config.TransitionFilters
 import android.tools.common.flicker.extractors.TaggedCujTransitionMatcher
-import android.tools.common.flicker.extractors.TaggedScenarioExtractor
+import android.tools.common.flicker.extractors.TaggedScenarioExtractorBuilder
 import android.tools.common.traces.events.CujType
 
 class SwipeToRecents : ScenarioConfig {
@@ -32,10 +33,11 @@ class SwipeToRecents : ScenarioConfig {
     override val assertionTemplates = AssertionTemplates.APP_SWIPE_TO_RECENTS_ASSERTIONS
 
     override val extractor =
-        TaggedScenarioExtractor(
-            targetTag = CujType.CUJ_LAUNCHER_APP_SWIPE_TO_RECENTS,
-            type,
-            transitionMatcher =
+        TaggedScenarioExtractorBuilder()
+            .setConfig(FlickerServiceConfig.getScenarioConfigFor(type))
+            .setTargetTag(CujType.CUJ_LAUNCHER_APP_SWIPE_TO_RECENTS)
+            .setTransitionMatcher(
                 TaggedCujTransitionMatcher(TransitionFilters.CLOSE_APP_TO_LAUNCHER_FILTER)
-        )
+            )
+            .build()
 }

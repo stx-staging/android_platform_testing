@@ -42,8 +42,8 @@ class TaggedCujTransitionMatcher(
             mergeTrampolineTransitions,
             finalTransform
         )
-) {
-    fun getMatches(reader: IReader, cujEntry: Cuj): Collection<Transition> {
+) : TransitionMatcher {
+    override fun getMatches(reader: IReader, cujEntry: Cuj): Collection<Transition> {
         val transitionsTrace = reader.readTransitionsTrace() ?: error("Missing transitions trace")
 
         val completeTransitions = transitionsTrace.entries.filter { !it.isIncomplete }

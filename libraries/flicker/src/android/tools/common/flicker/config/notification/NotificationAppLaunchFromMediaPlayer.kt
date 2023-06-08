@@ -18,10 +18,11 @@ package android.tools.common.flicker.config.notification
 
 import android.tools.common.flicker.config.AssertionTemplates
 import android.tools.common.flicker.config.FaasScenarioType
+import android.tools.common.flicker.config.FlickerServiceConfig
 import android.tools.common.flicker.config.ScenarioConfig
 import android.tools.common.flicker.config.TransitionFilters
 import android.tools.common.flicker.extractors.TaggedCujTransitionMatcher
-import android.tools.common.flicker.extractors.TaggedScenarioExtractor
+import android.tools.common.flicker.extractors.TaggedScenarioExtractorBuilder
 import android.tools.common.traces.events.CujType
 
 class NotificationAppLaunchFromMediaPlayer : ScenarioConfig {
@@ -32,10 +33,11 @@ class NotificationAppLaunchFromMediaPlayer : ScenarioConfig {
     override val assertionTemplates = AssertionTemplates.APP_LAUNCH_ASSERTIONS
 
     override val extractor =
-        TaggedScenarioExtractor(
-            targetTag = CujType.CUJ_SHADE_APP_LAUNCH_FROM_MEDIA_PLAYER,
-            type,
-            transitionMatcher =
+        TaggedScenarioExtractorBuilder()
+            .setConfig(FlickerServiceConfig.getScenarioConfigFor(type))
+            .setTargetTag(CujType.CUJ_SHADE_APP_LAUNCH_FROM_MEDIA_PLAYER)
+            .setTransitionMatcher(
                 TaggedCujTransitionMatcher(TransitionFilters.OPEN_APP_TRANSITION_FILTER)
-        )
+            )
+            .build()
 }
