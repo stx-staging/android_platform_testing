@@ -261,7 +261,7 @@ class FlickerServiceResultsCollectorTest {
                     transactionsTrace = null
                 )
             )
-        val mockFlickerService = Mockito.mock(IFlickerService::class.java)
+        val mockFlickerService = Mockito.mock(FlickerService::class.java)
         if (serviceProcessingError) {
             Mockito.`when`(
                     mockFlickerService.detectScenarios(KotlinMockito.any(IReader::class.java))

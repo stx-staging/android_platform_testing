@@ -21,7 +21,7 @@ import android.device.collectors.util.SendToInstrumentation
 import android.os.Bundle
 import android.tools.common.Cache
 import android.tools.common.flicker.AssertionInvocationGroup
-import android.tools.common.flicker.IFlickerService
+import android.tools.common.flicker.FlickerService
 import android.tools.common.flicker.assertors.IFaasAssertion
 import android.tools.device.flicker.FlickerServiceResultsCollector.Companion.getKeyForAssertionResult
 import java.lang.reflect.Method
@@ -30,7 +30,7 @@ import org.junit.runner.Description
 
 class FlickerServiceCachedTestCase(
     private val assertion: IFaasAssertion,
-    private val flickerService: IFlickerService,
+    private val flickerService: FlickerService,
     method: Method,
     private val onlyBlocking: Boolean,
     private val isLast: Boolean,

@@ -23,7 +23,7 @@ import android.tools.common.CrossPlatform
 import android.tools.common.FLICKER_TAG
 import android.tools.common.ScenarioBuilder
 import android.tools.common.flicker.AssertionInvocationGroup
-import android.tools.common.flicker.IFlickerService
+import android.tools.common.flicker.FlickerService
 import android.tools.common.flicker.ITracesCollector
 import android.tools.common.flicker.assertors.IAssertionResult
 import android.tools.common.flicker.config.FaasScenarioType
@@ -40,7 +40,7 @@ import org.junit.runner.notification.Failure
  */
 class FlickerServiceResultsCollector(
     private val tracesCollector: ITracesCollector,
-    private val flickerService: IFlickerService = FlickerService(),
+    private val flickerService: FlickerService = FlickerServiceImpl(),
     instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation(),
     private val collectMetricsPerTest: Boolean = true,
     private val reportOnlyForPassingTests: Boolean = true

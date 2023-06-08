@@ -18,7 +18,7 @@ package android.tools.device.flicker
 
 import android.tools.common.CrossPlatform
 import android.tools.common.FLICKER_TAG
-import android.tools.common.flicker.IFlickerService
+import android.tools.common.flicker.FlickerService
 import android.tools.common.flicker.ScenarioInstance
 import android.tools.common.flicker.assertors.IAssertionResult
 import android.tools.common.flicker.assertors.IFaasAssertion
@@ -34,13 +34,13 @@ import android.tools.common.flicker.extractors.IScenarioExtractor
 import android.tools.common.io.IReader
 
 /** Contains the logic for Flicker as a Service. */
-class FlickerService(
+class FlickerServiceImpl(
     val scenarioExtractor: IScenarioExtractor =
         CombinedScenarioExtractor(FlickerServiceConfig.getExtractors()),
     val assertionFactory: IAssertionFactory =
         CombinedAssertionFactory(listOf(AssertionFactory(), GeneratedAssertionsFactory())),
     val assertionRunner: IAssertionRunner = AssertionRunner(),
-) : IFlickerService {
+) : FlickerService {
 
     /**
      * The entry point for WM Flicker Service.

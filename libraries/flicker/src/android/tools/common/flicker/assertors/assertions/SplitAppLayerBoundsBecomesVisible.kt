@@ -17,7 +17,7 @@
 package android.tools.common.flicker.assertors.assertions
 
 import android.tools.common.datatypes.Region
-import android.tools.common.flicker.IScenarioInstance
+import android.tools.common.flicker.ScenarioInstance
 import android.tools.common.flicker.assertors.ComponentTemplate
 import android.tools.common.flicker.assertors.Components
 import android.tools.common.flicker.subject.layers.LayerTraceEntrySubject
@@ -30,7 +30,7 @@ class SplitAppLayerBoundsBecomesVisible(
     val isPrimaryApp: Boolean
 ) : AssertionTemplateWithComponent(component) {
     override fun doEvaluate(
-        scenarioInstance: IScenarioInstance,
+        scenarioInstance: ScenarioInstance,
         wmSubject: WindowManagerTraceSubject,
         layerSubject: LayersTraceSubject
     ) {

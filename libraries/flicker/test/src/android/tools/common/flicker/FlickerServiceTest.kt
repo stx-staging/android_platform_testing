@@ -22,7 +22,7 @@ import android.tools.common.flicker.assertors.factories.IAssertionFactory
 import android.tools.common.flicker.assertors.runners.IAssertionRunner
 import android.tools.common.flicker.extractors.IScenarioExtractor
 import android.tools.common.io.IReader
-import android.tools.device.flicker.FlickerService
+import android.tools.device.flicker.FlickerServiceImpl
 import android.tools.device.traces.parsers.WindowManagerStateHelper
 import android.tools.rules.CleanFlickerEnvironmentRule
 import androidx.test.platform.app.InstrumentationRegistry
@@ -33,7 +33,7 @@ import org.junit.runners.MethodSorters
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito
 
-/** Contains [FlickerService] tests. To run this test: `atest FlickerLibTest:FlickerServiceTest` */
+/** Contains [FlickerServiceImpl] tests. To run this test: `atest FlickerLibTest:FlickerServiceTest` */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class FlickerServiceTest {
     private val instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation()
@@ -55,7 +55,7 @@ class FlickerServiceTest {
             .thenReturn(assertions)
 
         val service =
-            FlickerService(
+            FlickerServiceImpl(
                 scenarioExtractor = mockScenarioExtractor,
                 assertionFactory = mockAssertionFactory,
                 assertionRunner = mockAssertionRunner
@@ -82,7 +82,7 @@ class FlickerServiceTest {
             .thenReturn(assertions)
 
         val service =
-            FlickerService(
+            FlickerServiceImpl(
                 scenarioExtractor = mockScenarioExtractor,
                 assertionFactory = mockAssertionFactory,
                 assertionRunner = mockAssertionRunner

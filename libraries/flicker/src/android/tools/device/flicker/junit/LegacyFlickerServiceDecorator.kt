@@ -20,7 +20,7 @@ import android.os.Bundle
 import android.tools.common.CrossPlatform
 import android.tools.common.FLICKER_TAG
 import android.tools.common.Scenario
-import android.tools.device.flicker.FlickerService
+import android.tools.device.flicker.FlickerServiceImpl
 import android.tools.device.flicker.FlickerServiceResultsCollector.Companion.FAAS_METRICS_PREFIX
 import android.tools.device.flicker.IS_FAAS_ENABLED
 import android.tools.device.flicker.annotation.FlickerServiceCompatible
@@ -41,7 +41,7 @@ class LegacyFlickerServiceDecorator(
     inner: IFlickerJUnitDecorator?
 ) : AbstractFlickerRunnerDecorator(testClass, inner) {
     private val arguments: Bundle = InstrumentationRegistry.getArguments()
-    private val flickerService = FlickerService()
+    private val flickerService = FlickerServiceImpl()
 
     private val onlyBlocking
         get() =
