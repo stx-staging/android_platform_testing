@@ -18,13 +18,13 @@ package android.tools.common.flicker.config.notification
 
 import android.tools.common.flicker.config.AssertionTemplates
 import android.tools.common.flicker.config.FaasScenarioType
-import android.tools.common.flicker.config.IScenarioConfig
+import android.tools.common.flicker.config.ScenarioConfig
 import android.tools.common.flicker.config.TransitionFilters
 import android.tools.common.flicker.extractors.TaggedCujTransitionMatcher
 import android.tools.common.flicker.extractors.TaggedScenarioExtractor
 import android.tools.common.traces.events.CujType
 
-class NotificationAppLaunchFromSettingsButton : IScenarioConfig {
+class NotificationAppLaunchFromSettingsButton : ScenarioConfig {
     override val enabled = true
 
     override val type = FaasScenarioType.SHADE_APP_LAUNCH_FROM_SETTINGS_BUTTON

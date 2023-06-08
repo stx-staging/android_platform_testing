@@ -18,12 +18,12 @@ package android.tools.common.flicker.config.splashscreen
 
 import android.tools.common.flicker.config.AssertionTemplates
 import android.tools.common.flicker.config.FaasScenarioType
-import android.tools.common.flicker.config.IScenarioConfig
+import android.tools.common.flicker.config.ScenarioConfig
 import android.tools.common.flicker.extractors.TaggedCujTransitionMatcher
 import android.tools.common.flicker.extractors.TaggedScenarioExtractor
 import android.tools.common.traces.events.CujType
 
-class SplashscreenAvd : IScenarioConfig {
+class SplashscreenAvd : ScenarioConfig {
     override val enabled = false
 
     override val type = FaasScenarioType.SPLASHSCREEN_AVD

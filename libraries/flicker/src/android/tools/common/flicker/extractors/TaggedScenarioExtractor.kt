@@ -33,7 +33,7 @@ class TaggedScenarioExtractor(
     val type: FaasScenarioType,
     val transitionMatcher: TaggedCujTransitionMatcher = TaggedCujTransitionMatcher(),
     val adjustCuj: (cujEntry: Cuj, reader: IReader) -> Cuj = { cujEntry, reader -> cujEntry }
-) : IScenarioExtractor {
+) : ScenarioExtractor {
     override fun extract(reader: IReader): List<ScenarioInstance> {
 
         val layersTrace = reader.readLayersTrace() ?: error("Missing layers trace")

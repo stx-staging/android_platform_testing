@@ -20,7 +20,7 @@ import android.app.Instrumentation
 import android.tools.common.flicker.assertors.IFaasAssertion
 import android.tools.common.flicker.assertors.factories.IAssertionFactory
 import android.tools.common.flicker.assertors.runners.IAssertionRunner
-import android.tools.common.flicker.extractors.IScenarioExtractor
+import android.tools.common.flicker.extractors.ScenarioExtractor
 import android.tools.common.io.IReader
 import android.tools.device.flicker.FlickerServiceImpl
 import android.tools.device.traces.parsers.WindowManagerStateHelper
@@ -33,7 +33,9 @@ import org.junit.runners.MethodSorters
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito
 
-/** Contains [FlickerServiceImpl] tests. To run this test: `atest FlickerLibTest:FlickerServiceTest` */
+/**
+ * Contains [FlickerServiceImpl] tests. To run this test: `atest FlickerLibTest:FlickerServiceTest`
+ */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class FlickerServiceTest {
     private val instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation()
@@ -42,7 +44,7 @@ class FlickerServiceTest {
     @Test
     fun generatesAssertionsFromExtractedScenarios() {
         val mockReader = Mockito.mock(IReader::class.java)
-        val mockScenarioExtractor = Mockito.mock(IScenarioExtractor::class.java)
+        val mockScenarioExtractor = Mockito.mock(ScenarioExtractor::class.java)
         val mockAssertionFactory = Mockito.mock(IAssertionFactory::class.java)
         val mockAssertionRunner = Mockito.mock(IAssertionRunner::class.java)
 
@@ -69,7 +71,7 @@ class FlickerServiceTest {
     @Test
     fun executesAssertionsReturnedByAssertionFactories() {
         val mockReader = Mockito.mock(IReader::class.java)
-        val mockScenarioExtractor = Mockito.mock(IScenarioExtractor::class.java)
+        val mockScenarioExtractor = Mockito.mock(ScenarioExtractor::class.java)
         val mockAssertionFactory = Mockito.mock(IAssertionFactory::class.java)
         val mockAssertionRunner = Mockito.mock(IAssertionRunner::class.java)
 

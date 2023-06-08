@@ -19,16 +19,20 @@ package android.tools.common.flicker
 import android.tools.common.Scenario
 import android.tools.common.Timestamp
 import android.tools.common.flicker.config.FaasScenarioType
+import android.tools.common.flicker.config.ScenarioConfig
 import android.tools.common.io.IReader
 import android.tools.common.traces.events.CujType
 import android.tools.common.traces.wm.Transition
 
 interface ScenarioInstance : Scenario {
-    val type: FaasScenarioType
-    // A reader to read the part of the trace associated with the scenario instance
+    val config: ScenarioConfig
+
+    /** A reader to read the part of the trace associated with the scenario instance */
     val reader: IReader
     val associatedTransition: Transition?
     val startTimestamp: Timestamp
     val endTimestamp: Timestamp
     val associatedCuj: CujType?
+
+    val type: FaasScenarioType get() = config.type
 }

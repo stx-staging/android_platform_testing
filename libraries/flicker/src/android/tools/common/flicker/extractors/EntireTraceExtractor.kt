@@ -22,7 +22,7 @@ import android.tools.common.flicker.ScenarioInstanceImpl
 import android.tools.common.flicker.config.FaasScenarioType
 import android.tools.common.io.IReader
 
-class EntireTraceExtractor(val type: FaasScenarioType) : IScenarioExtractor {
+class EntireTraceExtractor(val type: FaasScenarioType) : ScenarioExtractor {
     override fun extract(reader: IReader): List<ScenarioInstance> {
         val layersTrace = reader.readLayersTrace() ?: error("Missing layers trace")
 

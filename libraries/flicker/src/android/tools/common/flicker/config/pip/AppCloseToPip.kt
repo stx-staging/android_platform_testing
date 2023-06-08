@@ -18,14 +18,14 @@ package android.tools.common.flicker.config.pip
 
 import android.tools.common.flicker.config.AssertionTemplates
 import android.tools.common.flicker.config.FaasScenarioType
-import android.tools.common.flicker.config.IScenarioConfig
+import android.tools.common.flicker.config.ScenarioConfig
 import android.tools.common.flicker.config.TransitionFilters
 import android.tools.common.flicker.extractors.TaggedCujTransitionMatcher
 import android.tools.common.flicker.extractors.TaggedScenarioExtractor
 import android.tools.common.traces.events.Cuj
 import android.tools.common.traces.events.CujType
 
-class AppCloseToPip : IScenarioConfig {
+class AppCloseToPip : ScenarioConfig {
     override val enabled = false
 
     override val type = FaasScenarioType.LAUNCHER_APP_CLOSE_TO_PIP

@@ -20,8 +20,8 @@ import android.tools.common.CrossPlatform
 import android.tools.common.flicker.ScenarioInstance
 import android.tools.common.io.IReader
 
-class CombinedScenarioExtractor(private val extractors: List<IScenarioExtractor>) :
-    IScenarioExtractor {
+class CombinedScenarioExtractor(private val extractors: List<ScenarioExtractor>) :
+    ScenarioExtractor {
     override fun extract(reader: IReader): List<ScenarioInstance> {
         return CrossPlatform.log.withTracing("CombinedScenarioExtractor#extract") {
             extractors.flatMap { it.extract(reader) }

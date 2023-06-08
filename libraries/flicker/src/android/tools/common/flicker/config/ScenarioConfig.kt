@@ -17,10 +17,10 @@
 package android.tools.common.flicker.config
 
 import android.tools.common.flicker.assertors.IAssertionTemplate
-import android.tools.common.flicker.extractors.IScenarioExtractor
+import android.tools.common.flicker.extractors.ScenarioExtractor
 
-interface IScenarioConfig {
-    val extractor: IScenarioExtractor
+interface ScenarioConfig {
+    val extractor: ScenarioExtractor
     val assertionTemplates: Collection<IAssertionTemplate>
     val enabled: Boolean
     val type: FaasScenarioType

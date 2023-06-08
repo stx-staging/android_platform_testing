@@ -18,12 +18,12 @@ package android.tools.common.flicker.config.suw
 
 import android.tools.common.flicker.config.AssertionTemplates
 import android.tools.common.flicker.config.FaasScenarioType
-import android.tools.common.flicker.config.IScenarioConfig
+import android.tools.common.flicker.config.ScenarioConfig
 import android.tools.common.flicker.extractors.TaggedCujTransitionMatcher
 import android.tools.common.flicker.extractors.TaggedScenarioExtractor
 import android.tools.common.traces.events.CujType
 
-class SuwLoadingToShowInfoWithActions : IScenarioConfig {
+class SuwLoadingToShowInfoWithActions : ScenarioConfig {
     override val enabled = false
 
     override val type = FaasScenarioType.SUW_LOADING_TO_SHOW_INFO_WITH_ACTIONS

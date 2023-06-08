@@ -169,7 +169,8 @@ class FlickerServiceResultsCollector(
                         "Test description already contains detected scenarios."
                     }
                     assertionResultsByTest[description] = results
-                    detectedScenariosByTest[description] = scenarios.map { it.type }.distinct()
+                    detectedScenariosByTest[description] =
+                        scenarios.map { it.type }.distinct()
                 }
                 if (results.any { it.failed }) {
                     reader.artifact.updateStatus(RunStatus.ASSERTION_FAILED)

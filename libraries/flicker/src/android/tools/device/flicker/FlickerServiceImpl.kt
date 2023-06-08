@@ -30,12 +30,12 @@ import android.tools.common.flicker.assertors.runners.AssertionRunner
 import android.tools.common.flicker.assertors.runners.IAssertionRunner
 import android.tools.common.flicker.config.FlickerServiceConfig
 import android.tools.common.flicker.extractors.CombinedScenarioExtractor
-import android.tools.common.flicker.extractors.IScenarioExtractor
+import android.tools.common.flicker.extractors.ScenarioExtractor
 import android.tools.common.io.IReader
 
 /** Contains the logic for Flicker as a Service. */
 class FlickerServiceImpl(
-    val scenarioExtractor: IScenarioExtractor =
+    val scenarioExtractor: ScenarioExtractor =
         CombinedScenarioExtractor(FlickerServiceConfig.getExtractors()),
     val assertionFactory: IAssertionFactory =
         CombinedAssertionFactory(listOf(AssertionFactory(), GeneratedAssertionsFactory())),
