@@ -38,14 +38,12 @@ data class FaasData(
                 Fact("Scenario end", "${scenarioInstance.endTimestamp}")
             )
             .apply {
-                if (scenarioInstance.associatedTransition != null) {
+                val transition = scenarioInstance.associatedTransition
+                if (transition != null) {
                     this.add(
                         Fact(
                             "Associated transition changes",
-                            scenarioInstance.associatedTransition.changes.joinToString(
-                                "\n  -",
-                                "\n  -"
-                            ) {
+                            transition.changes.joinToString("\n  -", "\n  -") {
                                 "${it.transitMode} ${it.layerId}"
                             }
                         )

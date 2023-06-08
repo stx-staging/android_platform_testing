@@ -16,7 +16,7 @@
 
 package android.tools.common.flicker.assertors.assertions
 
-import android.tools.common.flicker.IScenarioInstance
+import android.tools.common.flicker.ScenarioInstance
 import android.tools.common.flicker.assertors.AssertionTemplate
 import android.tools.common.flicker.subject.layers.LayersTraceSubject
 
@@ -26,7 +26,7 @@ import android.tools.common.flicker.subject.layers.LayersTraceSubject
  */
 class EntireScreenCoveredAtStart : AssertionTemplate() {
     /** {@inheritDoc} */
-    override fun doEvaluate(scenarioInstance: IScenarioInstance, layerSubject: LayersTraceSubject) {
+    override fun doEvaluate(scenarioInstance: ScenarioInstance, layerSubject: LayersTraceSubject) {
         val subject = layerSubject.first()
         subject.containsAtLeastOneDisplay()
         val onDisplays = subject.entry.displays.filter { it.isOn }

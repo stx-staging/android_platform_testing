@@ -19,6 +19,7 @@ package android.tools.common.flicker.extractors
 import android.tools.common.CrossPlatform
 import android.tools.common.Timestamp
 import android.tools.common.flicker.ScenarioInstance
+import android.tools.common.flicker.ScenarioInstanceImpl
 import android.tools.common.flicker.config.FaasScenarioType
 import android.tools.common.io.IReader
 import android.tools.common.traces.events.Cuj
@@ -67,7 +68,7 @@ class TaggedScenarioExtractor(
             val displayAtEnd =
                 Utils.getOnDisplayFor(layersTrace.getLastEntryWithOnDisplayBefore(endTimestamp))
 
-            ScenarioInstance(
+            ScenarioInstanceImpl(
                 type,
                 startRotation = displayAtStart.transform.getRotation(),
                 endRotation = displayAtEnd.transform.getRotation(),

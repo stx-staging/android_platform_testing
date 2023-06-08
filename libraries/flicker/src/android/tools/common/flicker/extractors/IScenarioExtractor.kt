@@ -16,9 +16,9 @@
 
 package android.tools.common.flicker.extractors
 
-import android.tools.common.flicker.IScenarioInstance
+import android.tools.common.flicker.ScenarioInstance
 import android.tools.common.io.IReader
 
 interface IScenarioExtractor {
-    fun extract(reader: IReader): List<IScenarioInstance>
+    fun extract(reader: IReader): List<ScenarioInstance>
 }

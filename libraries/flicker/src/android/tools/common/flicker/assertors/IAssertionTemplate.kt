@@ -16,9 +16,9 @@
 
 package android.tools.common.flicker.assertors
 
-import android.tools.common.flicker.IScenarioInstance
+import android.tools.common.flicker.ScenarioInstance
 
 interface IAssertionTemplate {
     val assertionName: String
-    fun createAssertion(scenarioInstance: IScenarioInstance): IFaasAssertion
+    fun createAssertion(scenarioInstance: ScenarioInstance): IFaasAssertion
 }

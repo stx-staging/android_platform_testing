@@ -19,7 +19,7 @@ package android.tools.device.flicker
 import android.tools.common.CrossPlatform
 import android.tools.common.FLICKER_TAG
 import android.tools.common.flicker.IFlickerService
-import android.tools.common.flicker.IScenarioInstance
+import android.tools.common.flicker.ScenarioInstance
 import android.tools.common.flicker.assertors.IAssertionResult
 import android.tools.common.flicker.assertors.IFaasAssertion
 import android.tools.common.flicker.assertors.factories.AssertionFactory
@@ -61,14 +61,14 @@ class FlickerService(
         }
     }
 
-    override fun detectScenarios(reader: IReader): Collection<IScenarioInstance> {
+    override fun detectScenarios(reader: IReader): Collection<ScenarioInstance> {
         return CrossPlatform.log.withTracing("FlickerService#detectScenarios") {
             scenarioExtractor.extract(reader)
         }
     }
 
     override fun generateAssertions(
-        scenarioInstances: Collection<IScenarioInstance>
+        scenarioInstances: Collection<ScenarioInstance>
     ): Collection<IFaasAssertion> {
         return CrossPlatform.log.withTracing("FlickerService#generateAssertions") {
             scenarioInstances.flatMap { assertionFactory.generateAssertionsFor(it) }

@@ -16,7 +16,7 @@
 
 package android.tools.common.flicker.assertors.assertions
 
-import android.tools.common.flicker.IScenarioInstance
+import android.tools.common.flicker.ScenarioInstance
 import android.tools.common.flicker.assertors.ComponentTemplate
 import android.tools.common.flicker.assertors.Components
 import android.tools.common.flicker.subject.wm.WindowManagerTraceSubject
@@ -29,7 +29,7 @@ import android.tools.common.traces.component.ComponentNameMatcher
 class LauncherWindowReplacesAppAsTopWindow(private val component: ComponentTemplate) :
     AssertionTemplateWithComponent(component) {
     override fun doEvaluate(
-        scenarioInstance: IScenarioInstance,
+        scenarioInstance: ScenarioInstance,
         wmSubject: WindowManagerTraceSubject
     ) {
         wmSubject

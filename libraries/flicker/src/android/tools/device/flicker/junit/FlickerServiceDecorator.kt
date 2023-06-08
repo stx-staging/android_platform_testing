@@ -23,7 +23,7 @@ import android.platform.test.rule.ArtifactSaver
 import android.tools.common.Scenario
 import android.tools.common.ScenarioBuilder
 import android.tools.common.flicker.IFlickerService
-import android.tools.common.flicker.IScenarioInstance
+import android.tools.common.flicker.ScenarioInstance
 import android.tools.common.flicker.assertors.IFaasAssertion
 import android.tools.common.flicker.config.FaasScenarioType
 import android.tools.common.io.IReader
@@ -216,11 +216,10 @@ class FlickerServiceDecorator(
             testScenario: Scenario,
             reader: IReader,
             flickerService: IFlickerService,
-        ): Map<IScenarioInstance, Collection<IFaasAssertion>> {
+        ): Map<ScenarioInstance, Collection<IFaasAssertion>> {
             if (!DataStore.containsFlickerServiceResult(testScenario)) {
                 val detectedScenarios = flickerService.detectScenarios(reader)
-                val groupedAssertions =
-                    mutableMapOf<IScenarioInstance, Collection<IFaasAssertion>>()
+                val groupedAssertions = mutableMapOf<ScenarioInstance, Collection<IFaasAssertion>>()
                 detectedScenarios.forEach {
                     groupedAssertions[it] = flickerService.generateAssertions(it)
                 }
@@ -241,7 +240,7 @@ class FlickerServiceDecorator(
         ): List<InjectedTestCase> {
             val groupedAssertions = getGroupedAssertions(testScenario, reader, flickerService)
 
-            val organizedScenarioInstances: Map<FaasScenarioType, List<IScenarioInstance>> =
+            val organizedScenarioInstances: Map<FaasScenarioType, List<ScenarioInstance>> =
                 groupedAssertions.keys.groupBy { it.type }
 
             val faasTestCases = mutableListOf<FlickerServiceCachedTestCase>()

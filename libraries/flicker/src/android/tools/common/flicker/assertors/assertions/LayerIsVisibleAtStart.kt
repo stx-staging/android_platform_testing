@@ -16,7 +16,7 @@
 
 package android.tools.common.flicker.assertors.assertions
 
-import android.tools.common.flicker.IScenarioInstance
+import android.tools.common.flicker.ScenarioInstance
 import android.tools.common.flicker.assertors.ComponentTemplate
 import android.tools.common.flicker.subject.layers.LayersTraceSubject
 
@@ -24,7 +24,7 @@ import android.tools.common.flicker.subject.layers.LayersTraceSubject
 class LayerIsVisibleAtStart(private val component: ComponentTemplate) :
     AssertionTemplateWithComponent(component) {
     /** {@inheritDoc} */
-    override fun doEvaluate(scenarioInstance: IScenarioInstance, layerSubject: LayersTraceSubject) {
+    override fun doEvaluate(scenarioInstance: ScenarioInstance, layerSubject: LayersTraceSubject) {
         layerSubject.first().isVisible(component.build(scenarioInstance))
     }
 }

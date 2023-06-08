@@ -16,13 +16,13 @@
 
 package android.tools.common.flicker.assertors.assertions
 
-import android.tools.common.flicker.IScenarioInstance
+import android.tools.common.flicker.ScenarioInstance
 import android.tools.common.flicker.assertors.AssertionTemplate
 import android.tools.common.flicker.subject.layers.LayersTraceSubject
 
 class ScreenLockedAtStart : AssertionTemplate() {
 
-    override fun doEvaluate(scenarioInstance: IScenarioInstance, layersTrace: LayersTraceSubject) {
+    override fun doEvaluate(scenarioInstance: ScenarioInstance, layersTrace: LayersTraceSubject) {
         layersTrace.first().isEmpty()
     }
 }

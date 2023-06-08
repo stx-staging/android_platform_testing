@@ -22,12 +22,11 @@ import android.tools.common.io.IReader
 
 interface IFlickerService {
     fun process(reader: IReader): Collection<IAssertionResult>
-    fun detectScenarios(reader: IReader): Collection<IScenarioInstance>
+    fun detectScenarios(reader: IReader): Collection<ScenarioInstance>
+    fun generateAssertions(vararg scenarioInstances: ScenarioInstance): Collection<IFaasAssertion> =
+        generateAssertions(scenarioInstances.asList())
     fun generateAssertions(
-        vararg scenarioInstances: IScenarioInstance
-    ): Collection<IFaasAssertion> = generateAssertions(scenarioInstances.asList())
-    fun generateAssertions(
-        scenarioInstances: Collection<IScenarioInstance>
+        scenarioInstances: Collection<ScenarioInstance>
     ): Collection<IFaasAssertion>
     fun executeAssertion(assertion: IFaasAssertion): IAssertionResult =
         executeAssertions(listOf(assertion)).first()

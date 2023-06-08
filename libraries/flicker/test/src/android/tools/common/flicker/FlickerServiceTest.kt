@@ -46,7 +46,7 @@ class FlickerServiceTest {
         val mockAssertionFactory = Mockito.mock(IAssertionFactory::class.java)
         val mockAssertionRunner = Mockito.mock(IAssertionRunner::class.java)
 
-        val scenarioInstance = Mockito.mock(IScenarioInstance::class.java)
+        val scenarioInstance = Mockito.mock(ScenarioInstance::class.java)
         val assertions = listOf(Mockito.mock(IFaasAssertion::class.java))
 
         Mockito.`when`(mockScenarioExtractor.extract(mockReader))
@@ -73,7 +73,7 @@ class FlickerServiceTest {
         val mockAssertionFactory = Mockito.mock(IAssertionFactory::class.java)
         val mockAssertionRunner = Mockito.mock(IAssertionRunner::class.java)
 
-        val scenarioInstance = Mockito.mock(IScenarioInstance::class.java)
+        val scenarioInstance = Mockito.mock(ScenarioInstance::class.java)
         val assertions = listOf(Mockito.mock(IFaasAssertion::class.java))
 
         Mockito.`when`(mockScenarioExtractor.extract(mockReader))

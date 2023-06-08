@@ -16,13 +16,13 @@
 
 package android.tools.common.flicker.assertors.factories
 
-import android.tools.common.flicker.IScenarioInstance
+import android.tools.common.flicker.ScenarioInstance
 import android.tools.common.flicker.assertors.IFaasAssertion
 import android.tools.common.flicker.config.FlickerServiceConfig
 
 open class AssertionFactory : IAssertionFactory {
     override fun generateAssertionsFor(
-        scenarioInstance: IScenarioInstance
+        scenarioInstance: ScenarioInstance
     ): Collection<IFaasAssertion> {
         val scenarioConfig = FlickerServiceConfig.getScenarioConfigFor(scenarioInstance.type)
         if (!scenarioConfig.enabled) {

@@ -17,7 +17,7 @@
 package android.tools.common.flicker.assertors.assertions
 
 import android.tools.common.datatypes.Rect
-import android.tools.common.flicker.IScenarioInstance
+import android.tools.common.flicker.ScenarioInstance
 import android.tools.common.flicker.assertors.ComponentTemplate
 import android.tools.common.flicker.subject.layers.LayersTraceSubject
 
@@ -29,7 +29,7 @@ class LayerRemainInsideVisibleBounds(private val component: ComponentTemplate) :
     AssertionTemplateWithComponent(component) {
     /** {@inheritDoc} */
     override fun doEvaluate(
-        scenarioInstance: IScenarioInstance,
+        scenarioInstance: ScenarioInstance,
         layersTraceSubject: LayersTraceSubject
     ) {
         val displayBounds = Rect.EMPTY // TODO: Get display bounds from subject

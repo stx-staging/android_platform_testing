@@ -16,12 +16,12 @@
 
 package android.tools.common.flicker.assertors.factories
 
-import android.tools.common.flicker.IScenarioInstance
+import android.tools.common.flicker.ScenarioInstance
 import android.tools.common.flicker.assertors.IFaasAssertion
 
 interface IAssertionFactory {
     // What format should the returned assertion be? Probably want to have data about the stability
     // of the assertion here for the AssertionRunner to then decide how to run them based on the
     // config? Or do we want it to be prefiltered by the AssertionFactories?
-    fun generateAssertionsFor(scenarioInstance: IScenarioInstance): Collection<IFaasAssertion>
+    fun generateAssertionsFor(scenarioInstance: ScenarioInstance): Collection<IFaasAssertion>
 }

@@ -18,7 +18,7 @@ package android.tools.common.flicker.assertors
 
 import android.tools.common.flicker.AssertionInvocationGroup
 import android.tools.common.flicker.AssertionInvocationGroup.NON_BLOCKING
-import android.tools.common.flicker.IScenarioInstance
+import android.tools.common.flicker.ScenarioInstance
 import android.tools.common.flicker.subject.events.EventLogSubject
 import android.tools.common.flicker.subject.layers.LayersTraceSubject
 import android.tools.common.flicker.subject.wm.WindowManagerTraceSubject
@@ -28,7 +28,7 @@ abstract class AssertionTemplate : IAssertionTemplate {
     override val assertionName = "${this@AssertionTemplate::class.simpleName}"
     private var stabilityGroup: AssertionInvocationGroup = NON_BLOCKING
 
-    override fun createAssertion(scenarioInstance: IScenarioInstance): IFaasAssertion {
+    override fun createAssertion(scenarioInstance: ScenarioInstance): IFaasAssertion {
         return object : IFaasAssertion {
             override val name = "${scenarioInstance.type}::${this@AssertionTemplate.assertionName}"
 
@@ -77,7 +77,7 @@ abstract class AssertionTemplate : IAssertionTemplate {
      * available.
      */
     protected open fun doEvaluate(
-        scenarioInstance: IScenarioInstance,
+        scenarioInstance: ScenarioInstance,
         wmSubject: WindowManagerTraceSubject
     ) {
         // Does nothing, unless overridden
@@ -88,7 +88,7 @@ abstract class AssertionTemplate : IAssertionTemplate {
      * available.
      */
     protected open fun doEvaluate(
-        scenarioInstance: IScenarioInstance,
+        scenarioInstance: ScenarioInstance,
         layerSubject: LayersTraceSubject
     ) {
         // Does nothing, unless overridden
@@ -99,7 +99,7 @@ abstract class AssertionTemplate : IAssertionTemplate {
      * traces are not available.
      */
     protected open fun doEvaluate(
-        scenarioInstance: IScenarioInstance,
+        scenarioInstance: ScenarioInstance,
         wmSubject: WindowManagerTraceSubject,
         layerSubject: LayersTraceSubject
     ) {
@@ -110,7 +110,7 @@ abstract class AssertionTemplate : IAssertionTemplate {
      * Evaluates assertions that require the vent log. NOTE: Will not run if the event log traces is
      * not available.
      */
-    protected open fun doEvaluate(scenarioInstance: IScenarioInstance, eventLog: EventLogSubject) {
+    protected open fun doEvaluate(scenarioInstance: ScenarioInstance, eventLog: EventLogSubject) {
         // Does nothing, unless overridden
     }
 

@@ -17,12 +17,12 @@
 package android.tools.common.flicker.assertors.factories
 
 import android.tools.common.CrossPlatform
-import android.tools.common.flicker.IScenarioInstance
+import android.tools.common.flicker.ScenarioInstance
 import android.tools.common.flicker.assertors.IFaasAssertion
 
 class CombinedAssertionFactory(private val factories: List<IAssertionFactory>) : IAssertionFactory {
     override fun generateAssertionsFor(
-        scenarioInstance: IScenarioInstance
+        scenarioInstance: ScenarioInstance
     ): Collection<IFaasAssertion> {
         return CrossPlatform.log.withTracing("CombinedAssertionFactory#generateAssertionsFor") {
             factories.flatMap { it.generateAssertionsFor(scenarioInstance) }

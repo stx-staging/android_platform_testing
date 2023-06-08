@@ -18,7 +18,7 @@ package android.tools.common.flicker.assertors.factories
 
 import android.tools.common.CrossPlatform
 import android.tools.common.Rotation
-import android.tools.common.flicker.ScenarioInstance
+import android.tools.common.flicker.ScenarioInstanceImpl
 import android.tools.common.flicker.config.FaasScenarioType
 import android.tools.common.flicker.config.FlickerServiceConfig
 import android.tools.common.io.IReader
@@ -41,7 +41,7 @@ class AssertionFactoryTest {
         val type = FaasScenarioType.LAUNCHER_APP_LAUNCH_FROM_ICON
 
         val scenarioInstance =
-            ScenarioInstance(
+            ScenarioInstanceImpl(
                 type = type,
                 startRotation = Rotation.ROTATION_0,
                 endRotation = Rotation.ROTATION_0,

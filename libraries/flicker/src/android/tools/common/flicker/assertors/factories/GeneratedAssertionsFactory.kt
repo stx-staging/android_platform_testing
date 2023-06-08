@@ -16,12 +16,12 @@
 
 package android.tools.common.flicker.assertors.factories
 
-import android.tools.common.flicker.IScenarioInstance
+import android.tools.common.flicker.ScenarioInstance
 import android.tools.common.flicker.assertors.IFaasAssertion
 
 class GeneratedAssertionsFactory : IAssertionFactory {
     override fun generateAssertionsFor(
-        scenarioInstance: IScenarioInstance
+        scenarioInstance: ScenarioInstance
     ): Collection<IFaasAssertion> {
         // TODO: Implement
         return emptyList()

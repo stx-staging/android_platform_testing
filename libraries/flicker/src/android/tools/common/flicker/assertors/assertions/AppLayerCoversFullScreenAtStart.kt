@@ -16,7 +16,7 @@
 
 package android.tools.common.flicker.assertors.assertions
 
-import android.tools.common.flicker.IScenarioInstance
+import android.tools.common.flicker.ScenarioInstance
 import android.tools.common.flicker.assertors.ComponentTemplate
 import android.tools.common.flicker.subject.layers.LayersTraceSubject
 import android.tools.common.traces.component.ComponentNameMatcher
@@ -25,7 +25,7 @@ import android.tools.common.traces.component.ComponentNameMatcher.Companion.LETT
 class AppLayerCoversFullScreenAtStart(private val component: ComponentTemplate) :
     AssertionTemplateWithComponent(component) {
     /** {@inheritDoc} */
-    override fun doEvaluate(scenarioInstance: IScenarioInstance, layerSubject: LayersTraceSubject) {
+    override fun doEvaluate(scenarioInstance: ScenarioInstance, layerSubject: LayersTraceSubject) {
         val layersTrace = scenarioInstance.reader.readLayersTrace() ?: error("Missing layers trace")
         val startDisplayBounds =
             layersTrace.entries.first().physicalDisplayBounds

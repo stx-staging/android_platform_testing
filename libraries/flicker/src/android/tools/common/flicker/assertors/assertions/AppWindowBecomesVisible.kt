@@ -16,7 +16,7 @@
 
 package android.tools.common.flicker.assertors.assertions
 
-import android.tools.common.flicker.IScenarioInstance
+import android.tools.common.flicker.ScenarioInstance
 import android.tools.common.flicker.assertors.ComponentTemplate
 import android.tools.common.flicker.subject.wm.WindowManagerTraceSubject
 import android.tools.common.traces.component.ComponentNameMatcher
@@ -29,7 +29,7 @@ class AppWindowBecomesVisible(private val component: ComponentTemplate) :
     AssertionTemplateWithComponent(component) {
     /** {@inheritDoc} */
     override fun doEvaluate(
-        scenarioInstance: IScenarioInstance,
+        scenarioInstance: ScenarioInstance,
         wmSubject: WindowManagerTraceSubject
     ) {
         // The app launch transition can finish when the splashscreen or SnapshotStartingWindows
