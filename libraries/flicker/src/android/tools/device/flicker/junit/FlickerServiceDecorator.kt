@@ -26,7 +26,7 @@ import android.tools.common.flicker.FlickerService
 import android.tools.common.flicker.ScenarioInstance
 import android.tools.common.flicker.assertions.ScenarioAssertion
 import android.tools.common.flicker.config.FaasScenarioType
-import android.tools.common.io.IReader
+import android.tools.common.io.Reader
 import android.tools.device.flicker.FlickerServiceImpl
 import android.tools.device.flicker.FlickerServiceResultsCollector.Companion.FLICKER_ASSERTIONS_COUNT_KEY
 import android.tools.device.flicker.Utils.captureTrace
@@ -175,7 +175,7 @@ class FlickerServiceDecorator(
     }
 
     private fun computeFlickerServiceTests(
-        reader: IReader,
+        reader: Reader,
         testScenario: Scenario,
         method: FrameworkMethod
     ): Collection<InjectedTestCase> {
@@ -201,7 +201,7 @@ class FlickerServiceDecorator(
     companion object {
         private fun getDetectedScenarios(
             testScenario: Scenario,
-            reader: IReader,
+            reader: Reader,
             flickerService: FlickerService
         ): Collection<FaasScenarioType> {
             val groupedAssertions = getGroupedAssertions(testScenario, reader, flickerService)
@@ -214,7 +214,7 @@ class FlickerServiceDecorator(
 
         private fun getGroupedAssertions(
             testScenario: Scenario,
-            reader: IReader,
+            reader: Reader,
             flickerService: FlickerService,
         ): Map<ScenarioInstance, Collection<ScenarioAssertion>> {
             if (!DataStore.containsFlickerServiceResult(testScenario)) {
@@ -232,7 +232,7 @@ class FlickerServiceDecorator(
             testScenario: Scenario,
             expectedScenarios: Set<FaasScenarioType>,
             paramString: String,
-            reader: IReader,
+            reader: Reader,
             flickerService: FlickerService,
             instrumentation: Instrumentation,
             caller: IFlickerJUnitDecorator,

@@ -20,7 +20,7 @@ import android.tools.common.CrossPlatform
 import android.tools.common.Timestamp
 import android.tools.common.flicker.assertions.Fact
 import android.tools.common.flicker.subject.FlickerSubject
-import android.tools.common.io.IReader
+import android.tools.common.io.Reader
 
 /** Class to build flicker exception messages */
 class ExceptionMessageBuilder {
@@ -63,7 +63,7 @@ class ExceptionMessageBuilder {
 
     fun setActual(value: Any?) = setActual(listOf(value?.toString() ?: "null"))
 
-    fun setReader(value: IReader) = addExtraDescription("Artifact", value.artifact)
+    fun setReader(value: Reader) = addExtraDescription("Artifact", value.artifact)
 
     fun addExtraDescription(key: String, value: Any?) = addExtraDescription(Fact(key, value))
 

@@ -19,7 +19,7 @@ package android.tools.device.flicker.junit
 import android.tools.common.CrossPlatform
 import android.tools.common.Scenario
 import android.tools.common.flicker.TracesCollector
-import android.tools.common.io.IReader
+import android.tools.common.io.Reader
 import android.tools.device.flicker.datastore.CachedResultReader
 import android.tools.device.traces.TRACE_CONFIG_REQUIRE_CHANGES
 
@@ -28,7 +28,7 @@ class LegacyFlickerTraceCollector(private val scenario: Scenario) : TracesCollec
         CrossPlatform.log.d("FAAS", "LegacyFlickerTraceCollector#start")
     }
 
-    override fun stop(): IReader {
+    override fun stop(): Reader {
         CrossPlatform.log.d("FAAS", "LegacyFlickerTraceCollector#stop")
         return CachedResultReader(scenario, TRACE_CONFIG_REQUIRE_CHANGES)
     }

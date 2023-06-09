@@ -16,7 +16,7 @@
 
 package android.tools.common.flicker
 
-import android.tools.common.io.IReader
+import android.tools.common.io.Reader
 
 interface FlickerService {
     /**
@@ -25,5 +25,5 @@ interface FlickerService {
      * @param reader A flicker trace reader
      * @return A list of scenarios
      */
-    fun detectScenarios(reader: IReader): Collection<ScenarioInstance>
+    fun detectScenarios(reader: Reader): Collection<ScenarioInstance>
 }

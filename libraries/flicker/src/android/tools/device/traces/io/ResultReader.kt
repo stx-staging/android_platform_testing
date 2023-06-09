@@ -19,9 +19,9 @@ package android.tools.device.traces.io
 import android.tools.common.CrossPlatform
 import android.tools.common.Tag
 import android.tools.common.Timestamp
+import android.tools.common.io.Artifact
 import android.tools.common.io.FLICKER_IO_TAG
-import android.tools.common.io.IArtifact
-import android.tools.common.io.IReader
+import android.tools.common.io.Reader
 import android.tools.common.io.ResultArtifactDescriptor
 import android.tools.common.io.TraceType
 import android.tools.common.parsers.events.EventLogParser
@@ -47,11 +47,11 @@ import java.io.IOException
  * @param _result to read from
  * @param traceConfig
  */
-open class ResultReader(_result: IResultData, internal val traceConfig: TraceConfigs) : IReader {
+open class ResultReader(_result: IResultData, internal val traceConfig: TraceConfigs) : Reader {
     @VisibleForTesting
     var result = _result
         internal set
-    override val artifact: IArtifact = result.artifact
+    override val artifact: Artifact = result.artifact
     override val artifactPath: String
         get() = result.artifact.absolutePath
     override val runStatus
@@ -240,7 +240,7 @@ open class ResultReader(_result: IResultData, internal val traceConfig: TraceCon
     @Throws(IOException::class)
     override fun readCujTrace(): CujTrace? = readEventLogTrace()?.cujTrace
 
-    /** @return an [IReader] for the subsection of the trace we are reading in this reader */
+    /** @return an [Reader] for the subsection of the trace we are reading in this reader */
     override fun slice(startTimestamp: Timestamp, endTimestamp: Timestamp): ResultReader {
         val slicedResult = result.slice(startTimestamp, endTimestamp)
         return ResultReader(slicedResult, traceConfig)

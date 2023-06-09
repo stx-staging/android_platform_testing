@@ -29,7 +29,7 @@ import android.tools.common.flicker.subject.layers.LayersTraceSubject
 import android.tools.common.flicker.subject.region.RegionTraceSubject
 import android.tools.common.flicker.subject.wm.WindowManagerStateSubject
 import android.tools.common.flicker.subject.wm.WindowManagerTraceSubject
-import android.tools.common.io.IReader
+import android.tools.common.io.Reader
 import android.tools.common.traces.component.IComponentMatcher
 import android.tools.device.flicker.assertions.BaseAssertionRunner
 import android.tools.device.flicker.datastore.CachedAssertionRunner
@@ -42,7 +42,7 @@ data class LegacyFlickerTest(
     private val resultReaderProvider: (Scenario) -> CachedResultReader = {
         CachedResultReader(it, TRACE_CONFIG_REQUIRE_CHANGES)
     },
-    private val subjectsParserProvider: (IReader) -> SubjectsParser = { SubjectsParser(it) },
+    private val subjectsParserProvider: (Reader) -> SubjectsParser = { SubjectsParser(it) },
     private val runnerProvider: (Scenario) -> BaseAssertionRunner = {
         val reader = resultReaderProvider(it)
         CachedAssertionRunner(it, reader)
@@ -61,7 +61,7 @@ data class LegacyFlickerTest(
     }
 
     /** Obtains a reader for the flicker result artifact */
-    val reader: IReader
+    val reader: Reader
         get() = resultReaderProvider(scenario)
 
     /**

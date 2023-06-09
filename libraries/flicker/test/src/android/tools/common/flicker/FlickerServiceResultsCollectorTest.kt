@@ -22,7 +22,7 @@ import android.tools.common.flicker.assertions.AssertionData
 import android.tools.common.flicker.assertions.SubjectsParser
 import android.tools.common.flicker.assertors.AssertionResult
 import android.tools.common.flicker.assertors.AssertionResultImpl
-import android.tools.common.io.IReader
+import android.tools.common.io.Reader
 import android.tools.common.traces.wm.TransitionsTrace
 import android.tools.device.flicker.FlickerServiceResultsCollector
 import android.tools.device.flicker.FlickerServiceResultsCollector.Companion.FLICKER_ASSERTIONS_COUNT_KEY
@@ -267,7 +267,7 @@ class FlickerServiceResultsCollectorTest {
         val mockFlickerService = Mockito.mock(FlickerService::class.java)
         if (serviceProcessingError) {
             Mockito.`when`(
-                    mockFlickerService.detectScenarios(KotlinMockito.any(IReader::class.java))
+                    mockFlickerService.detectScenarios(KotlinMockito.any(Reader::class.java))
                 )
                 .thenThrow(RuntimeException("Flicker Service Processing Error"))
         }

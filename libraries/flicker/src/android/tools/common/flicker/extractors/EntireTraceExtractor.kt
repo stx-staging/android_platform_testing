@@ -20,10 +20,10 @@ import android.tools.common.Rotation
 import android.tools.common.flicker.ScenarioInstance
 import android.tools.common.flicker.ScenarioInstanceImpl
 import android.tools.common.flicker.config.ScenarioConfig
-import android.tools.common.io.IReader
+import android.tools.common.io.Reader
 
 class EntireTraceExtractor(val config: ScenarioConfig) : ScenarioExtractor {
-    override fun extract(reader: IReader): List<ScenarioInstance> {
+    override fun extract(reader: Reader): List<ScenarioInstance> {
         val layersTrace = reader.readLayersTrace() ?: error("Missing layers trace")
 
         return listOf(

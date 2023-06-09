@@ -38,7 +38,9 @@ class ShellTransitionScenarioExtractorTest {
 
         val noFilterExtractor =
             ShellTransitionScenarioExtractor(
-                FlickerServiceConfig.getScenarioConfigFor(FaasScenarioType.LAUNCHER_APP_LAUNCH_FROM_ICON),
+                FlickerServiceConfig.getScenarioConfigFor(
+                    FaasScenarioType.LAUNCHER_APP_LAUNCH_FROM_ICON
+                ),
                 object : ITransitionMatcher {
                     override fun findAll(
                         transitions: Collection<Transition>

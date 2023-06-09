@@ -16,7 +16,7 @@
 
 package android.tools.common.io
 
-interface IArtifact {
+interface Artifact {
     val runStatus: RunStatus
     val absolutePath: String
     val fileName: String

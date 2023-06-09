@@ -20,12 +20,12 @@ import android.tools.common.CrossPlatform
 import android.tools.common.flicker.subject.FlickerSubject
 import android.tools.common.flicker.subject.exceptions.ExceptionMessageBuilder
 import android.tools.common.flicker.subject.exceptions.IncorrectFocusException
-import android.tools.common.io.IReader
+import android.tools.common.io.Reader
 import android.tools.common.traces.events.EventLog
 import android.tools.common.traces.events.FocusEvent
 
 /** Truth subject for [FocusEvent] objects. */
-class EventLogSubject(val eventLog: EventLog, override val reader: IReader) : FlickerSubject() {
+class EventLogSubject(val eventLog: EventLog, override val reader: Reader) : FlickerSubject() {
     override val timestamp = CrossPlatform.timestamp.empty()
 
     private val _focusChanges by lazy {

@@ -19,7 +19,7 @@ package android.tools.common.flicker
 import android.tools.common.Rotation
 import android.tools.common.Timestamp
 import android.tools.common.flicker.config.ScenarioConfig
-import android.tools.common.io.IReader
+import android.tools.common.io.Reader
 import android.tools.common.traces.events.CujType
 import android.tools.common.traces.wm.Transition
 
@@ -29,7 +29,7 @@ data class ScenarioInstanceImpl(
     override val endRotation: Rotation,
     val startTimestamp: Timestamp,
     val endTimestamp: Timestamp,
-    override val reader: IReader,
+    override val reader: Reader,
     val associatedCuj: CujType? = null,
     override val associatedTransition: Transition? = null,
 ) : ScenarioInstance {

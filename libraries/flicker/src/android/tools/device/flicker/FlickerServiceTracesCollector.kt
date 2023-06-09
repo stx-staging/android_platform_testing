@@ -20,7 +20,7 @@ import android.tools.common.CrossPlatform
 import android.tools.common.FLICKER_TAG
 import android.tools.common.Scenario
 import android.tools.common.flicker.TracesCollector
-import android.tools.common.io.IReader
+import android.tools.common.io.Reader
 import android.tools.device.traces.SERVICE_TRACE_CONFIG
 import android.tools.device.traces.io.ResultReaderWithLru
 import android.tools.device.traces.io.ResultWriter
@@ -56,7 +56,7 @@ class FlickerServiceTracesCollector(
         }
     }
 
-    override fun stop(): IReader {
+    override fun stop(): Reader {
         return reportErrorsBlock("Failed to stop traces") {
             val scenario = this.scenario
             require(scenario != null) { "Scenario not set - make sure trace was started properly" }

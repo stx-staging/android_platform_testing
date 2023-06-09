@@ -17,7 +17,7 @@
 package android.tools.device.flicker.datastore
 
 import android.tools.common.Scenario
-import android.tools.common.io.IReader
+import android.tools.common.io.Reader
 import android.tools.device.traces.TraceConfigs
 import android.tools.device.traces.io.ResultReaderWithLru
 
@@ -25,7 +25,7 @@ import android.tools.device.traces.io.ResultReaderWithLru
 class CachedResultReader(
     private val scenario: Scenario,
     traceConfig: TraceConfigs,
-    private val reader: IReader = ResultReaderWithLru(DataStore.getResult(scenario), traceConfig)
-) : IReader by reader {
+    private val reader: Reader = ResultReaderWithLru(DataStore.getResult(scenario), traceConfig)
+) : Reader by reader {
     override fun toString(): String = "$scenario ($reader)"
 }

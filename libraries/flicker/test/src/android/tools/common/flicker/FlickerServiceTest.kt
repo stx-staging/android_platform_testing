@@ -19,7 +19,7 @@ package android.tools.common.flicker
 import android.app.Instrumentation
 import android.tools.common.flicker.assertions.AssertionData
 import android.tools.common.flicker.extractors.ScenarioExtractor
-import android.tools.common.io.IReader
+import android.tools.common.io.Reader
 import android.tools.device.flicker.FlickerServiceImpl
 import android.tools.rules.CleanFlickerEnvironmentRule
 import androidx.test.platform.app.InstrumentationRegistry
@@ -38,7 +38,7 @@ class FlickerServiceTest {
 
     @Test
     fun generatesAssertionsFromExtractedScenarios() {
-        val mockReader = Mockito.mock(IReader::class.java)
+        val mockReader = Mockito.mock(Reader::class.java)
         val mockScenarioExtractor = Mockito.mock(ScenarioExtractor::class.java)
 
         val scenarioInstance = Mockito.mock(ScenarioInstance::class.java)
@@ -57,7 +57,7 @@ class FlickerServiceTest {
 
     @Test
     fun executesAssertionsReturnedByAssertionFactories() {
-        val mockReader = Mockito.mock(IReader::class.java)
+        val mockReader = Mockito.mock(Reader::class.java)
         val mockScenarioExtractor = Mockito.mock(ScenarioExtractor::class.java)
 
         val scenarioInstance = Mockito.mock(ScenarioInstance::class.java)

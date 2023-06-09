@@ -19,7 +19,7 @@ package android.tools.device.flicker.assertions
 import android.tools.common.flicker.assertions.AssertionData
 import android.tools.common.flicker.assertions.AssertionRunner
 import android.tools.common.flicker.assertions.ReaderAssertionRunner
-import android.tools.common.io.IReader
+import android.tools.common.io.Reader
 import android.tools.common.io.RunStatus
 
 /**
@@ -29,7 +29,7 @@ import android.tools.common.io.RunStatus
  * @param innerRunner helper class to run the assertion
  */
 abstract class BaseAssertionRunner(
-    private val resultReader: IReader,
+    private val resultReader: Reader,
     private val innerRunner: AssertionRunner = ReaderAssertionRunner(resultReader)
 ) : AssertionRunner by innerRunner {
     protected abstract fun doUpdateStatus(newStatus: RunStatus)

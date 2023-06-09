@@ -22,7 +22,7 @@ import android.tools.common.flicker.ScenarioInstance
 import android.tools.common.flicker.config.FlickerServiceConfig
 import android.tools.common.flicker.extractors.CombinedScenarioExtractor
 import android.tools.common.flicker.extractors.ScenarioExtractor
-import android.tools.common.io.IReader
+import android.tools.common.io.Reader
 
 /** Contains the logic for Flicker as a Service. */
 class FlickerServiceImpl(
@@ -42,7 +42,7 @@ class FlickerServiceImpl(
         }
     }*/
 
-    override fun detectScenarios(reader: IReader): Collection<ScenarioInstance> {
+    override fun detectScenarios(reader: Reader): Collection<ScenarioInstance> {
         return CrossPlatform.log.withTracing("FlickerService#detectScenarios") {
             scenarioExtractor.extract(reader)
         }

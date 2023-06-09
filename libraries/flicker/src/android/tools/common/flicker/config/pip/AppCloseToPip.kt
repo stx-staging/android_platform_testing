@@ -24,7 +24,7 @@ import android.tools.common.flicker.config.TransitionFilters
 import android.tools.common.flicker.extractors.CujAdjust
 import android.tools.common.flicker.extractors.TaggedCujTransitionMatcher
 import android.tools.common.flicker.extractors.TaggedScenarioExtractorBuilder
-import android.tools.common.io.IReader
+import android.tools.common.io.Reader
 import android.tools.common.traces.events.Cuj
 import android.tools.common.traces.events.CujType
 
@@ -44,7 +44,7 @@ class AppCloseToPip : ScenarioConfig {
             )
             .setAdjustCuj(
                 object : CujAdjust {
-                    override fun adjustCuj(cujEntry: Cuj, reader: IReader): Cuj {
+                    override fun adjustCuj(cujEntry: Cuj, reader: Reader): Cuj {
                         val cujTrace = reader.readCujTrace() ?: error("Missing CUJ trace")
                         val closeToHomeCuj =
                             cujTrace.entries.firstOrNull {

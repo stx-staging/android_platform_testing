@@ -16,10 +16,10 @@
 
 package android.tools.common.flicker.assertions
 
-import android.tools.common.io.IReader
+import android.tools.common.io.Reader
 
 class ReaderAssertionRunner(
-    private val resultReader: IReader,
+    private val resultReader: Reader,
     private val subjectsParser: SubjectsParser = SubjectsParser(resultReader)
 ) : AssertionRunner {
     override fun runAssertion(assertion: AssertionData): Throwable? =

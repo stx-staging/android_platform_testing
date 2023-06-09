@@ -26,8 +26,8 @@ import android.tools.common.traces.wm.TransitionsTrace
 import android.tools.common.traces.wm.WindowManagerTrace
 
 /** Helper class to read results from a flicker artifact */
-interface IReader {
-    val artifact: IArtifact
+interface Reader {
+    val artifact: Artifact
     val artifactPath: String
     val executionError: Throwable?
     val runStatus: RunStatus
@@ -58,8 +58,8 @@ interface IReader {
     /** @return a [CujTrace] for the part of the trace we want to run the assertions on */
     fun readCujTrace(): CujTrace?
 
-    /** @return an [IReader] for the subsection of the trace we are reading in this reader */
-    fun slice(startTimestamp: Timestamp, endTimestamp: Timestamp): IReader
+    /** @return an [Reader] for the subsection of the trace we are reading in this reader */
+    fun slice(startTimestamp: Timestamp, endTimestamp: Timestamp): Reader
 
     /**
      * @return [ByteArray] with the contents of a file from the artifact, or null if the file

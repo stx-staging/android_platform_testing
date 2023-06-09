@@ -16,9 +16,9 @@
 
 package android.tools.common.flicker.extractors
 
-import android.tools.common.io.IReader
+import android.tools.common.io.Reader
 import android.tools.common.traces.events.Cuj
 
 interface CujAdjust {
-    fun adjustCuj(cujEntry: Cuj, reader: IReader): Cuj
+    fun adjustCuj(cujEntry: Cuj, reader: Reader): Cuj
 }

@@ -22,7 +22,7 @@ import android.tools.common.CrossPlatform
 import android.tools.common.Scenario
 import android.tools.common.ScenarioBuilder
 import android.tools.common.ScenarioImpl
-import android.tools.common.io.IReader
+import android.tools.common.io.Reader
 import android.tools.common.io.ResultArtifactDescriptor
 import android.tools.common.io.RunStatus
 import android.tools.common.io.WINSCOPE_EXT
@@ -89,7 +89,7 @@ internal fun getWmTraceReaderFromAsset(
     to: Long = Long.MAX_VALUE,
     addInitialEntry: Boolean = true,
     legacyTrace: Boolean = false,
-): IReader {
+): Reader {
     return ParsedTracesReader(
         artifact = InMemoryArtifact(relativePath),
         wmTrace =
@@ -104,7 +104,7 @@ internal fun getWmTraceReaderFromAsset(
     )
 }
 
-internal fun getWmDumpReaderFromAsset(relativePath: String): IReader {
+internal fun getWmDumpReaderFromAsset(relativePath: String): Reader {
     return ParsedTracesReader(
         artifact = InMemoryArtifact(relativePath),
         wmTrace = WindowManagerDumpParser().parse(readAsset(relativePath), clearCache = false)
@@ -115,7 +115,7 @@ internal fun getLayerTraceReaderFromAsset(
     relativePath: String,
     ignoreOrphanLayers: Boolean = true,
     legacyTrace: Boolean = false,
-): IReader {
+): Reader {
     return ParsedTracesReader(
         artifact = InMemoryArtifact(relativePath),
         layersTrace =
@@ -130,7 +130,7 @@ internal fun getLayerTraceReaderFromAsset(
     )
 }
 
-internal fun getTraceReaderFromScenario(scenario: String): IReader {
+internal fun getTraceReaderFromScenario(scenario: String): Reader {
     val scenarioTraces = getScenarioTraces("AppLaunch")
 
     return ParsedTracesReader(

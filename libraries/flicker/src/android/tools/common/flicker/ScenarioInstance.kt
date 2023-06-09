@@ -22,14 +22,14 @@ import android.tools.common.flicker.assertions.ScenarioAssertion
 import android.tools.common.flicker.assertions.ScenarioAssertionImpl
 import android.tools.common.flicker.config.FaasScenarioType
 import android.tools.common.flicker.config.ScenarioConfig
-import android.tools.common.io.IReader
+import android.tools.common.io.Reader
 import android.tools.common.traces.wm.Transition
 
 interface ScenarioInstance : Scenario {
     val config: ScenarioConfig
 
     /** A reader to read the part of the trace associated with the scenario instance */
-    val reader: IReader
+    val reader: Reader
     val associatedTransition: Transition?
 
     val type: FaasScenarioType

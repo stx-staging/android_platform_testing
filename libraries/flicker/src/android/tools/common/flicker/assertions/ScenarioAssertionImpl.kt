@@ -21,10 +21,10 @@ import android.tools.common.FLICKER_TAG
 import android.tools.common.flicker.AssertionInvocationGroup
 import android.tools.common.flicker.assertors.AssertionResult
 import android.tools.common.flicker.assertors.AssertionResultImpl
-import android.tools.common.io.IReader
+import android.tools.common.io.Reader
 
 class ScenarioAssertionImpl(
-    private val reader: IReader,
+    private val reader: Reader,
     private val assertionData: AssertionData,
     override val stabilityGroup: AssertionInvocationGroup,
     private val assertionRunner: AssertionRunner = ReaderAssertionRunner(reader)

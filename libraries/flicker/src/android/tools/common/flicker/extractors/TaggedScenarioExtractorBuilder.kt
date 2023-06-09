@@ -17,7 +17,7 @@
 package android.tools.common.flicker.extractors
 
 import android.tools.common.flicker.config.ScenarioConfig
-import android.tools.common.io.IReader
+import android.tools.common.io.Reader
 import android.tools.common.traces.events.Cuj
 import android.tools.common.traces.events.CujType
 
@@ -27,7 +27,7 @@ class TaggedScenarioExtractorBuilder {
     private var transitionMatcher: TransitionMatcher = TaggedCujTransitionMatcher()
     private var adjustCuj: CujAdjust =
         object : CujAdjust {
-            override fun adjustCuj(cujEntry: Cuj, reader: IReader): Cuj = cujEntry
+            override fun adjustCuj(cujEntry: Cuj, reader: Reader): Cuj = cujEntry
         }
 
     fun setTargetTag(value: CujType): TaggedScenarioExtractorBuilder = apply { targetTag = value }
