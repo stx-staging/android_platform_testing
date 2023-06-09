@@ -37,7 +37,7 @@ private constructor(@JsName("type") val type: Int?, @JsName("matrix") val matrix
      * axis aligned rectangle.
      */
     @JsName("isSimpleRotation")
-    val isSimpleRotation: Boolean = !(type?.isFlagSet(ROT_INVALID_VAL) ?: true)
+    val isSimpleRotation: Boolean = !(type?.isFlagSet(ROT_INVALID_VAL) ?: false)
 
     /**
      * The transformation matrix is defined as the product of: | cos(a) -sin(a) | \/ | X 0 | |
