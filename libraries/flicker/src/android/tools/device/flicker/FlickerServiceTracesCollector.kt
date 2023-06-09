@@ -16,8 +16,8 @@
 
 package android.tools.device.flicker
 
-import android.tools.common.CrossPlatform
 import android.tools.common.FLICKER_TAG
+import android.tools.common.Logger
 import android.tools.common.Scenario
 import android.tools.common.flicker.TracesCollector
 import android.tools.common.io.Reader
@@ -61,10 +61,10 @@ class FlickerServiceTracesCollector(
             val scenario = this.scenario
             require(scenario != null) { "Scenario not set - make sure trace was started properly" }
 
-            CrossPlatform.log.v(LOG_TAG, "Creating output directory for trace files")
+            Logger.v(LOG_TAG, "Creating output directory for trace files")
             outputDir.mkdirs()
 
-            CrossPlatform.log.v(LOG_TAG, "Stopping trace monitors")
+            Logger.v(LOG_TAG, "Stopping trace monitors")
             val writer = ResultWriter().forScenario(scenario).withOutputDir(outputDir)
             traceMonitors.forEach { it.stop(writer) }
             this.scenario = null
@@ -84,7 +84,7 @@ class FlickerServiceTracesCollector(
         try {
             return block()
         } catch (e: Throwable) {
-            CrossPlatform.log.e(LOG_TAG, msg, e)
+            Logger.e(LOG_TAG, msg, e)
             throw e
         }
     }

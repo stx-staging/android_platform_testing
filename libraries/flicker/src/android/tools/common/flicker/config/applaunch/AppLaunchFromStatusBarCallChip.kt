@@ -32,7 +32,7 @@ class AppLaunchFromStatusBarCallChip : ScenarioConfig {
 
     override val assertionTemplates = AssertionTemplates.APP_LAUNCH_ASSERTIONS
 
-    override val extractor =
+    override val extractor by lazy {
         TaggedScenarioExtractorBuilder()
             .setConfig(FlickerServiceConfig.getScenarioConfigFor(type))
             .setTargetTag(CujType.CUJ_STATUS_BAR_APP_LAUNCH_FROM_CALL_CHIP)
@@ -40,4 +40,5 @@ class AppLaunchFromStatusBarCallChip : ScenarioConfig {
                 TaggedCujTransitionMatcher(TransitionFilters.OPEN_APP_TRANSITION_FILTER)
             )
             .build()
+    }
 }

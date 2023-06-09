@@ -18,7 +18,7 @@ package android.tools.device.flicker.legacy.runner
 
 import android.app.Instrumentation
 import android.platform.test.rule.ArtifactSaver
-import android.tools.common.CrossPlatform
+import android.tools.common.Logger
 import android.tools.common.Scenario
 import android.tools.device.flicker.legacy.FlickerTestData
 import android.tools.device.traces.io.ResultWriter
@@ -61,7 +61,7 @@ class SetupTeardownRule(
     }
 
     private fun doRunTransitionSetup(description: Description?) {
-        CrossPlatform.log.withTracing("doRunTransitionSetup") {
+        Logger.withTracing("doRunTransitionSetup") {
             Utils.notifyRunnerProgress(scenario, "Running transition setup for $description")
             try {
                 setupCommands.forEach { it.invoke(flicker) }
@@ -74,7 +74,7 @@ class SetupTeardownRule(
     }
 
     private fun doRunTransitionTeardown(description: Description?) {
-        CrossPlatform.log.withTracing("doRunTransitionTeardown") {
+        Logger.withTracing("doRunTransitionTeardown") {
             Utils.notifyRunnerProgress(scenario, "Running transition teardown for $description")
             try {
                 teardownCommands.forEach { it.invoke(flicker) }

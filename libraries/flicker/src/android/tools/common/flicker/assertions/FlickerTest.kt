@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.tools.device.flicker.legacy
+package android.tools.common.flicker.assertions
 
 import android.tools.common.flicker.subject.events.EventLogSubject
 import android.tools.common.flicker.subject.layers.LayerTraceEntrySubject
@@ -30,6 +30,7 @@ interface FlickerTest {
      *
      * @param assertion Assertion predicate
      */
+    fun assertWmStart(name: String, assertion: WindowManagerStateSubject.() -> Unit)
     fun assertWmStart(assertion: WindowManagerStateSubject.() -> Unit)
 
     /**
@@ -37,6 +38,7 @@ interface FlickerTest {
      *
      * @param assertion Assertion predicate
      */
+    fun assertWmEnd(name: String, assertion: WindowManagerStateSubject.() -> Unit)
     fun assertWmEnd(assertion: WindowManagerStateSubject.() -> Unit)
 
     /**
@@ -44,6 +46,7 @@ interface FlickerTest {
      *
      * @param assertion Assertion predicate
      */
+    fun assertWm(name: String, assertion: WindowManagerTraceSubject.() -> Unit)
     fun assertWm(assertion: WindowManagerTraceSubject.() -> Unit)
 
     /**
@@ -51,6 +54,7 @@ interface FlickerTest {
      *
      * @param assertion Assertion predicate
      */
+    fun assertWmTag(name: String, tag: String, assertion: WindowManagerStateSubject.() -> Unit)
     fun assertWmTag(tag: String, assertion: WindowManagerStateSubject.() -> Unit)
 
     /**
@@ -59,6 +63,11 @@ interface FlickerTest {
      * @param componentMatcher Components to search
      * @param assertion Assertion predicate
      */
+    fun assertWmVisibleRegion(
+        name: String,
+        componentMatcher: IComponentMatcher,
+        assertion: RegionTraceSubject.() -> Unit
+    )
     fun assertWmVisibleRegion(
         componentMatcher: IComponentMatcher,
         assertion: RegionTraceSubject.() -> Unit
@@ -69,6 +78,7 @@ interface FlickerTest {
      *
      * @param assertion Assertion predicate
      */
+    fun assertLayersStart(name: String, assertion: LayerTraceEntrySubject.() -> Unit)
     fun assertLayersStart(assertion: LayerTraceEntrySubject.() -> Unit)
 
     /**
@@ -76,6 +86,7 @@ interface FlickerTest {
      *
      * @param assertion Assertion predicate
      */
+    fun assertLayersEnd(name: String, assertion: LayerTraceEntrySubject.() -> Unit)
     fun assertLayersEnd(assertion: LayerTraceEntrySubject.() -> Unit)
 
     /**
@@ -83,6 +94,7 @@ interface FlickerTest {
      *
      * @param assertion Assertion predicate
      */
+    fun assertLayers(name: String, assertion: LayersTraceSubject.() -> Unit)
     fun assertLayers(assertion: LayersTraceSubject.() -> Unit)
 
     /**
@@ -90,6 +102,7 @@ interface FlickerTest {
      *
      * @param assertion Assertion predicate
      */
+    fun assertLayersTag(name: String, tag: String, assertion: LayerTraceEntrySubject.() -> Unit)
     fun assertLayersTag(tag: String, assertion: LayerTraceEntrySubject.() -> Unit)
 
     /**
@@ -103,6 +116,12 @@ interface FlickerTest {
      * @param assertion Assertion predicate
      */
     fun assertLayersVisibleRegion(
+        name: String,
+        componentMatcher: IComponentMatcher,
+        useCompositionEngineRegionOnly: Boolean = true,
+        assertion: RegionTraceSubject.() -> Unit
+    )
+    fun assertLayersVisibleRegion(
         componentMatcher: IComponentMatcher,
         useCompositionEngineRegionOnly: Boolean = true,
         assertion: RegionTraceSubject.() -> Unit
@@ -113,5 +132,6 @@ interface FlickerTest {
      *
      * @param assertion Assertion predicate
      */
+    fun assertEventLog(name: String, assertion: EventLogSubject.() -> Unit)
     fun assertEventLog(assertion: EventLogSubject.() -> Unit)
 }

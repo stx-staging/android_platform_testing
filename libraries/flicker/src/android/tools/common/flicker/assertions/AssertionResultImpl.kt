@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-package android.tools.common.flicker.assertors
+package android.tools.common.flicker.assertions
 
 import android.tools.common.flicker.AssertionInvocationGroup
-import android.tools.common.flicker.assertions.AssertionData
 
-interface AssertionResult {
-    val assertion: AssertionData
-    val assertionError: Throwable?
-    val stabilityGroup: AssertionInvocationGroup
-    val passed: Boolean
-    val failed: Boolean
-        get() = !passed
-}
+/** Base class for a FaaS assertion */
+internal data class AssertionResultImpl(
+    override val assertion: AssertionData,
+    override val assertionError: Throwable?,
+    override val stabilityGroup: AssertionInvocationGroup
+) : AssertionResult

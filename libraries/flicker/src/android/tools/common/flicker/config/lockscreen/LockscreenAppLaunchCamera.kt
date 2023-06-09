@@ -32,7 +32,7 @@ class LockscreenAppLaunchCamera : ScenarioConfig {
 
     override val assertionTemplates = AssertionTemplates.APP_LAUNCH_FROM_LOCK_ASSERTIONS
 
-    override val extractor =
+    override val extractor by lazy {
         TaggedScenarioExtractorBuilder()
             .setConfig(FlickerServiceConfig.getScenarioConfigFor(type))
             .setTargetTag(CujType.CUJ_LOCKSCREEN_LAUNCH_CAMERA)
@@ -40,4 +40,5 @@ class LockscreenAppLaunchCamera : ScenarioConfig {
                 TaggedCujTransitionMatcher(TransitionFilters.OPEN_APP_TRANSITION_FILTER)
             )
             .build()
+    }
 }

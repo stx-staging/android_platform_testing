@@ -31,9 +31,9 @@ open class AssertionStateDataFactory(private val stateSubject: KClass<out Flicke
      *
      * @param assertion Assertion predicate
      */
-    fun createStartStateAssertion(assertion: FlickerSubject.() -> Unit) =
+    fun createStartStateAssertion(name: String, assertion: FlickerSubject.() -> Unit) =
         AssertionDataImpl(
-            name = "",
+            name,
             tag = Tag.START,
             expectedSubjectClass = stateSubject,
             assertion = assertion
@@ -44,9 +44,9 @@ open class AssertionStateDataFactory(private val stateSubject: KClass<out Flicke
      *
      * @param assertion Assertion predicate
      */
-    fun createEndStateAssertion(assertion: FlickerSubject.() -> Unit) =
+    fun createEndStateAssertion(name: String, assertion: FlickerSubject.() -> Unit) =
         AssertionDataImpl(
-            name = "",
+            name,
             tag = Tag.END,
             expectedSubjectClass = stateSubject,
             assertion = assertion
@@ -57,9 +57,9 @@ open class AssertionStateDataFactory(private val stateSubject: KClass<out Flicke
      *
      * @param assertion Assertion predicate
      */
-    fun createTagAssertion(tag: String, assertion: FlickerSubject.() -> Unit) =
+    fun createTagAssertion(name: String, tag: String, assertion: FlickerSubject.() -> Unit) =
         AssertionDataImpl(
-            name = "",
+            name,
             tag = tag,
             expectedSubjectClass = stateSubject,
             assertion = assertion

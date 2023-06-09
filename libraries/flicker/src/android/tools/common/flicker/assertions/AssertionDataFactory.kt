@@ -38,6 +38,7 @@ class AssertionDataFactory(
      * @param assertion Assertion predicate
      */
     fun createTraceAssertion(
+        name: String = "",
         assertion: (FlickerTraceSubject<FlickerSubject>) -> Unit
     ): AssertionData {
         val closedAssertion: FlickerTraceSubject<FlickerSubject>.() -> Unit = {
@@ -46,7 +47,7 @@ class AssertionDataFactory(
             forAllEntries()
         }
         return AssertionDataImpl(
-            name = "",
+            name,
             tag = Tag.ALL,
             expectedSubjectClass = traceSubject,
             assertion = closedAssertion as FlickerSubject.() -> Unit

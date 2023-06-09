@@ -18,7 +18,7 @@ package android.tools.device.flicker.legacy.runner
 
 import android.app.Instrumentation
 import android.os.Bundle
-import android.tools.common.CrossPlatform
+import android.tools.common.Logger
 import android.tools.common.Scenario
 import android.tools.common.traces.ConditionList
 import android.tools.common.traces.ConditionsFactory
@@ -46,7 +46,7 @@ object Utils {
     }
 
     internal fun notifyRunnerProgress(scenario: Scenario, msg: String) {
-        CrossPlatform.log.d(FLICKER_RUNNER_TAG, "${scenario.key} - $msg")
+        Logger.d(FLICKER_RUNNER_TAG, "${scenario.key} - $msg")
         val results = Bundle()
         results.putString(Instrumentation.REPORT_KEY_STREAMRESULT, "$msg\n")
         instrumentation.sendStatus(1, results)

@@ -16,25 +16,18 @@
 
 package android.tools.common.flicker
 
-import android.app.Instrumentation
-import android.tools.common.flicker.assertions.AssertionData
 import android.tools.common.flicker.extractors.ScenarioExtractor
 import android.tools.common.io.Reader
-import android.tools.device.flicker.FlickerServiceImpl
 import android.tools.rules.CleanFlickerEnvironmentRule
-import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.ClassRule
 import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
 import org.mockito.Mockito
 
-/**
- * Contains [FlickerServiceImpl] tests. To run this test: `atest FlickerLibTest:FlickerServiceTest`
- */
+/** Contains [FlickerService] tests. To run this test: `atest FlickerLibTest:FlickerServiceTest` */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class FlickerServiceTest {
-    private val instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation()
 
     @Test
     fun generatesAssertionsFromExtractedScenarios() {
@@ -47,7 +40,7 @@ class FlickerServiceTest {
             .thenReturn(listOf(scenarioInstance))
 
         val service =
-            FlickerServiceImpl(
+            FlickerService(
                 scenarioExtractor = mockScenarioExtractor,
             )
         service.detectScenarios(mockReader)
@@ -61,12 +54,11 @@ class FlickerServiceTest {
         val mockScenarioExtractor = Mockito.mock(ScenarioExtractor::class.java)
 
         val scenarioInstance = Mockito.mock(ScenarioInstance::class.java)
-        val assertions = listOf(Mockito.mock(AssertionData::class.java))
 
         Mockito.`when`(mockScenarioExtractor.extract(mockReader))
             .thenReturn(listOf(scenarioInstance))
 
-        val service = FlickerServiceImpl(scenarioExtractor = mockScenarioExtractor)
+        val service = FlickerService(scenarioExtractor = mockScenarioExtractor)
         service.detectScenarios(mockReader)
 
         Mockito.verify(mockScenarioExtractor).extract(mockReader)

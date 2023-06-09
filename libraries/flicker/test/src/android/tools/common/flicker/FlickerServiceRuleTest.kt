@@ -17,9 +17,8 @@
 package android.tools.common.flicker
 
 import android.tools.common.flicker.assertions.AssertionData
+import android.tools.common.flicker.assertions.AssertionResult
 import android.tools.common.flicker.assertions.SubjectsParser
-import android.tools.common.flicker.assertors.AssertionResult
-import android.tools.common.flicker.assertors.AssertionResultImpl
 import android.tools.device.flicker.IFlickerServiceResultsCollector
 import android.tools.device.flicker.isShellTransitionsEnabled
 import android.tools.device.flicker.legacy.runner.Consts
@@ -197,18 +196,19 @@ class FlickerServiceRuleTest {
     }
 
     companion object {
-        fun mockFailureAssertionResult(error: Throwable): AssertionResult {
-            return AssertionResultImpl(
-                object : AssertionData {
-                    override val name = "MockAssertion"
-                    override fun checkAssertion(run: SubjectsParser) {
-                        error("Unimplemented - shouldn't be called")
+        fun mockFailureAssertionResult(error: Throwable) =
+            object : AssertionResult {
+                override val assertion =
+                    object : AssertionData {
+                        override val name = "MockAssertion"
+                        override fun checkAssertion(run: SubjectsParser) {
+                            error("Unimplemented - shouldn't be called")
+                        }
                     }
-                },
-                assertionError = error,
-                stabilityGroup = AssertionInvocationGroup.BLOCKING
-            )
-        }
+                override val assertionError = error
+                override val stabilityGroup = AssertionInvocationGroup.BLOCKING
+                override val passed = false
+            }
 
         @ClassRule @JvmField val ENV_CLEANUP = CleanFlickerEnvironmentRule()
     }

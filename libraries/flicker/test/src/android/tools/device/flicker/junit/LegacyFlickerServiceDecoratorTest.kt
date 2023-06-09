@@ -18,6 +18,7 @@ package android.tools.device.flicker.junit
 
 import android.annotation.SuppressLint
 import android.tools.TEST_SCENARIO
+import android.tools.common.flicker.assertions.FlickerTest
 import android.tools.device.flicker.datastore.DataStore
 import android.tools.device.flicker.isShellTransitionsEnabled
 import android.tools.device.flicker.legacy.FlickerBuilder
@@ -182,7 +183,7 @@ class LegacyFlickerServiceDecoratorTest {
             .that(failure)
             .hasMessageThat()
             .contains(
-                "Constructor should have a parameter of type ${LegacyFlickerTest::class.simpleName}"
+                "Constructor should have a parameter of type ${FlickerTest::class.simpleName}"
             )
     }
 

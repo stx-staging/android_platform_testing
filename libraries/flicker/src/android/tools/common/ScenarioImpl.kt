@@ -36,7 +36,10 @@ internal constructor(
     config: Map<String, Any?>,
     override val description: String
 ) : Scenario {
-    internal val extraConfig = config.toMutableMap()
+    private val _extraConfig = config.toMutableMap()
+
+    val extraConfig: Map<String, Any?>
+        get() = _extraConfig
 
     override val isEmpty = testClass.isEmpty()
 
@@ -54,7 +57,7 @@ internal constructor(
                 ?: error("$IS_TABLET property not initialized. Use [setIsTablet] to initialize ")
 
     fun setIsTablet(isTablet: Boolean) {
-        extraConfig[IS_TABLET] = isTablet
+        _extraConfig[IS_TABLET] = isTablet
     }
 
     override fun <T> getConfigValue(key: String): T? = extraConfig[key] as T?

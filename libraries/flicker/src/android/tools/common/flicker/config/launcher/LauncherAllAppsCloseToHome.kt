@@ -32,7 +32,7 @@ class LauncherAllAppsCloseToHome : ScenarioConfig {
 
     override val assertionTemplates = AssertionTemplates.APP_CLOSE_TO_HOME_ASSERTIONS
 
-    override val extractor =
+    override val extractor by lazy {
         TaggedScenarioExtractorBuilder()
             .setConfig(FlickerServiceConfig.getScenarioConfigFor(type))
             .setTargetTag(CujType.CUJ_LAUNCHER_CLOSE_ALL_APPS_TO_HOME)
@@ -40,4 +40,5 @@ class LauncherAllAppsCloseToHome : ScenarioConfig {
                 TaggedCujTransitionMatcher(TransitionFilters.CLOSE_APP_TO_LAUNCHER_FILTER)
             )
             .build()
+    }
 }

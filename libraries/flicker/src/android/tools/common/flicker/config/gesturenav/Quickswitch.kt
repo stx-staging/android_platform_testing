@@ -32,7 +32,7 @@ class Quickswitch : ScenarioConfig {
 
     override val assertionTemplates = AssertionTemplates.LAUNCHER_QUICK_SWITCH_ASSERTIONS
 
-    override val extractor =
+    override val extractor by lazy {
         TaggedScenarioExtractorBuilder()
             .setConfig(FlickerServiceConfig.getScenarioConfigFor(type))
             .setTargetTag(CujType.CUJ_LAUNCHER_QUICK_SWITCH)
@@ -43,4 +43,5 @@ class Quickswitch : ScenarioConfig {
                 )
             )
             .build()
+    }
 }

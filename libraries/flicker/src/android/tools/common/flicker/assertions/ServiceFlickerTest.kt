@@ -14,9 +14,15 @@
  * limitations under the License.
  */
 
-package android.tools.common.flicker
+package android.tools.common.flicker.assertions
 
-object TagIdGenerator {
-    fun getNext() = ++latestId
-    private var latestId = 0
+class ServiceFlickerTest(defaultAssertionName: String) : BaseFlickerTest(defaultAssertionName) {
+    private val assertionsMap = mutableMapOf<String, AssertionData>()
+    val assertions: Collection<AssertionData> = assertionsMap.values
+
+    override fun doProcess(assertion: AssertionData) {
+        val name = assertion.name
+        require(!assertionsMap.containsKey(assertion.name)) { "Assertion name $name already used" }
+        assertionsMap[name] = assertion
+    }
 }

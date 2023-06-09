@@ -16,7 +16,7 @@
 
 package android.tools.device.traces.io
 
-import android.tools.common.CrossPlatform
+import android.tools.common.Logger
 import android.tools.common.Tag
 import android.tools.common.Timestamp
 import android.tools.common.io.Artifact
@@ -73,12 +73,9 @@ open class ResultReader(_result: IResultData, internal val traceConfig: TraceCon
      */
     @Throws(IOException::class)
     override fun readWmState(tag: String): WindowManagerTrace? {
-        return CrossPlatform.log.withTracing("readWmState#$tag") {
+        return Logger.withTracing("readWmState#$tag") {
             val descriptor = ResultArtifactDescriptor(TraceType.WM_DUMP, tag)
-            CrossPlatform.log.d(
-                FLICKER_IO_TAG,
-                "Reading WM trace descriptor=$descriptor from $result"
-            )
+            Logger.d(FLICKER_IO_TAG, "Reading WM trace descriptor=$descriptor from $result")
             val traceData = artifact.readBytes(descriptor)
             traceData?.let { WindowManagerDumpParser().parse(it, clearCache = true) }
         }
@@ -91,7 +88,7 @@ open class ResultReader(_result: IResultData, internal val traceConfig: TraceCon
      */
     @Throws(IOException::class)
     override fun readWmTrace(): WindowManagerTrace? {
-        return CrossPlatform.log.withTracing("readWmTrace") {
+        return Logger.withTracing("readWmTrace") {
             val descriptor = ResultArtifactDescriptor(TraceType.WM)
             artifact.readBytes(descriptor)?.let {
                 val trace =
@@ -122,7 +119,7 @@ open class ResultReader(_result: IResultData, internal val traceConfig: TraceCon
      */
     @Throws(IOException::class)
     override fun readLayersTrace(): LayersTrace? {
-        return CrossPlatform.log.withTracing("readLayersTrace") {
+        return Logger.withTracing("readLayersTrace") {
             val descriptor = ResultArtifactDescriptor(TraceType.SF)
             artifact.readBytes(descriptor)?.let {
                 val trace =
@@ -153,7 +150,7 @@ open class ResultReader(_result: IResultData, internal val traceConfig: TraceCon
      */
     @Throws(IOException::class)
     override fun readLayersDump(tag: String): LayersTrace? {
-        return CrossPlatform.log.withTracing("readLayersDump#$tag") {
+        return Logger.withTracing("readLayersDump#$tag") {
             val descriptor = ResultArtifactDescriptor(TraceType.SF_DUMP, tag)
             val traceData = artifact.readBytes(descriptor)
             traceData?.let { LayersTraceParser().parse(it, clearCache = true) }
@@ -167,7 +164,7 @@ open class ResultReader(_result: IResultData, internal val traceConfig: TraceCon
      */
     @Throws(IOException::class)
     override fun readTransactionsTrace(): TransactionsTrace? =
-        CrossPlatform.log.withTracing("readTransactionsTrace") {
+        Logger.withTracing("readTransactionsTrace") {
             doReadTransactionsTrace(from = transitionTimeRange.start, to = transitionTimeRange.end)
         }
 
@@ -187,7 +184,7 @@ open class ResultReader(_result: IResultData, internal val traceConfig: TraceCon
      */
     @Throws(IOException::class)
     override fun readTransitionsTrace(): TransitionsTrace? {
-        return CrossPlatform.log.withTracing("readTransitionsTrace") {
+        return Logger.withTracing("readTransitionsTrace") {
             val wmSideTraceData =
                 artifact.readBytes(ResultArtifactDescriptor(TraceType.WM_TRANSITION))
             val shellSideTraceData =
@@ -223,7 +220,7 @@ open class ResultReader(_result: IResultData, internal val traceConfig: TraceCon
      */
     @Throws(IOException::class)
     override fun readEventLogTrace(): EventLog? {
-        return CrossPlatform.log.withTracing("readEventLogTrace") {
+        return Logger.withTracing("readEventLogTrace") {
             val descriptor = ResultArtifactDescriptor(TraceType.EVENT_LOG)
             artifact.readBytes(descriptor)?.let {
                 EventLogParser()

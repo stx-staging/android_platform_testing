@@ -20,7 +20,7 @@ import android.app.Instrumentation
 import android.platform.test.rule.NavigationModeRule
 import android.platform.test.rule.PressHomeRule
 import android.platform.test.rule.UnlockScreenRule
-import android.tools.common.CrossPlatform
+import android.tools.common.Logger
 import android.tools.common.Scenario
 import android.tools.device.apphelpers.MessagingAppHelper
 import android.tools.device.flicker.datastore.CachedResultWriter
@@ -44,7 +44,7 @@ class TransitionRunner(
 ) {
     /** Executes [flicker] transition and returns the result */
     fun execute(flicker: FlickerTestData, description: Description?): IResultData {
-        return CrossPlatform.log.withTracing("TransitionRunner:execute") {
+        return Logger.withTracing("TransitionRunner:execute") {
             resultWriter.forScenario(scenario).withOutputDir(flicker.outputDir)
 
             val ruleChain = buildTestRuleChain(flicker)

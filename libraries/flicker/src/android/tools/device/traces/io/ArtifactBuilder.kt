@@ -16,7 +16,7 @@
 
 package android.tools.device.traces.io
 
-import android.tools.common.CrossPlatform
+import android.tools.common.Logger
 import android.tools.common.Scenario
 import android.tools.common.io.BUFFER_SIZE
 import android.tools.common.io.FLICKER_IO_TAG
@@ -54,11 +54,11 @@ class ArtifactBuilder {
     }
 
     fun build(): Artifact {
-        return CrossPlatform.log.withTracing("ArtifactBuilder#build") {
+        return Logger.withTracing("ArtifactBuilder#build") {
             val scenario = scenario ?: error("Missing scenario")
             require(!scenario.isEmpty) { "Scenario shouldn't be empty" }
             val artifactFile = createArtifactFile()
-            CrossPlatform.log.d(FLICKER_IO_TAG, "Creating artifact archive at $artifactFile")
+            Logger.d(FLICKER_IO_TAG, "Creating artifact archive at $artifactFile")
 
             writeToZip(artifactFile, files)
 
@@ -106,7 +106,7 @@ class ArtifactBuilder {
     }
 
     private fun addFile(zipOutputStream: ZipOutputStream, artifact: File, nameInArchive: String) {
-        CrossPlatform.log.v(FLICKER_IO_TAG, "Adding $artifact with name $nameInArchive to zip")
+        Logger.v(FLICKER_IO_TAG, "Adding $artifact with name $nameInArchive to zip")
         val fi = FileInputStream(artifact)
         val inputStream = BufferedInputStream(fi, BUFFER_SIZE)
         inputStream.use {

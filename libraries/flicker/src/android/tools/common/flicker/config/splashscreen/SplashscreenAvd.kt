@@ -32,10 +32,11 @@ class SplashscreenAvd : ScenarioConfig {
     override val assertionTemplates =
         AssertionTemplates.COMMON_ASSERTIONS // TODO: Add specific assertions
 
-    override val extractor =
+    override val extractor by lazy {
         TaggedScenarioExtractorBuilder()
             .setConfig(FlickerServiceConfig.getScenarioConfigFor(type))
             .setTargetTag(CujType.CUJ_SPLASHSCREEN_AVD)
             .setTransitionMatcher(TaggedCujTransitionMatcher(associatedTransitionRequired = false))
             .build()
+    }
 }

@@ -16,22 +16,14 @@
 
 package android.tools.device.flicker.legacy
 
-import android.tools.common.CrossPlatform
 import android.tools.common.Scenario
 import android.tools.common.ScenarioBuilder
 import android.tools.common.ScenarioImpl
 import android.tools.common.flicker.assertions.AssertionData
-import android.tools.common.flicker.assertions.AssertionFactory
+import android.tools.common.flicker.assertions.AssertionRunner
+import android.tools.common.flicker.assertions.BaseFlickerTest
 import android.tools.common.flicker.assertions.SubjectsParser
-import android.tools.common.flicker.subject.events.EventLogSubject
-import android.tools.common.flicker.subject.layers.LayerTraceEntrySubject
-import android.tools.common.flicker.subject.layers.LayersTraceSubject
-import android.tools.common.flicker.subject.region.RegionTraceSubject
-import android.tools.common.flicker.subject.wm.WindowManagerStateSubject
-import android.tools.common.flicker.subject.wm.WindowManagerTraceSubject
 import android.tools.common.io.Reader
-import android.tools.common.traces.component.IComponentMatcher
-import android.tools.device.flicker.assertions.BaseAssertionRunner
 import android.tools.device.flicker.datastore.CachedAssertionRunner
 import android.tools.device.flicker.datastore.CachedResultReader
 import android.tools.device.traces.TRACE_CONFIG_REQUIRE_CHANGES
@@ -43,13 +35,11 @@ data class LegacyFlickerTest(
         CachedResultReader(it, TRACE_CONFIG_REQUIRE_CHANGES)
     },
     private val subjectsParserProvider: (Reader) -> SubjectsParser = { SubjectsParser(it) },
-    private val runnerProvider: (Scenario) -> BaseAssertionRunner = {
+    private val runnerProvider: (Scenario) -> AssertionRunner = {
         val reader = resultReaderProvider(it)
         CachedAssertionRunner(it, reader)
     }
-) : FlickerTest {
-    private val assertionFactory = AssertionFactory()
-
+) : BaseFlickerTest(defaultAssertionName = "") {
     var scenario: ScenarioImpl = ScenarioBuilder().createEmptyScenario() as ScenarioImpl
         private set
 
@@ -64,133 +54,7 @@ data class LegacyFlickerTest(
     val reader: Reader
         get() = resultReaderProvider(scenario)
 
-    /**
-     * Execute [assertion] on the initial state of a WM trace (before transition)
-     *
-     * @param assertion Assertion predicate
-     */
-    override fun assertWmStart(assertion: WindowManagerStateSubject.() -> Unit) {
-        CrossPlatform.log.withTracing("assertWmStart") {
-            val assertionData = assertionFactory.createWmStartAssertion(assertion)
-            doRunAssertion(assertionData)
-        }
-    }
-
-    /**
-     * Execute [assertion] on the final state of a WM trace (after transition)
-     *
-     * @param assertion Assertion predicate
-     */
-    override fun assertWmEnd(assertion: WindowManagerStateSubject.() -> Unit) {
-        CrossPlatform.log.withTracing("assertWmEnd") {
-            val assertionData = assertionFactory.createWmEndAssertion(assertion)
-            doRunAssertion(assertionData)
-        }
-    }
-
-    /**
-     * Execute [assertion] on a WM trace
-     *
-     * @param assertion Assertion predicate
-     */
-    override fun assertWm(assertion: WindowManagerTraceSubject.() -> Unit) {
-        CrossPlatform.log.withTracing("assertWm") {
-            val assertionData = assertionFactory.createWmAssertion(assertion)
-            doRunAssertion(assertionData)
-        }
-    }
-
-    /**
-     * Execute [assertion] on a user defined moment ([tag]) of a WM trace
-     *
-     * @param assertion Assertion predicate
-     */
-    override fun assertWmTag(tag: String, assertion: WindowManagerStateSubject.() -> Unit) {
-        CrossPlatform.log.withTracing("assertWmTag") {
-            val assertionData = assertionFactory.createWmTagAssertion(tag, assertion)
-            doRunAssertion(assertionData)
-        }
-    }
-
-    /**
-     * Execute [assertion] on the visible region of WM state matching [componentMatcher]
-     *
-     * @param componentMatcher Components to search
-     * @param assertion Assertion predicate
-     */
-    override fun assertWmVisibleRegion(
-        componentMatcher: IComponentMatcher,
-        assertion: RegionTraceSubject.() -> Unit
-    ) {
-        CrossPlatform.log.withTracing("assertWmVisibleRegion") {
-            val assertionData =
-                assertionFactory.createWmVisibleRegionAssertion(componentMatcher, assertion)
-            doRunAssertion(assertionData)
-        }
-    }
-
-    /**
-     * Execute [assertion] on the initial state of a SF trace (before transition)
-     *
-     * @param assertion Assertion predicate
-     */
-    override fun assertLayersStart(assertion: LayerTraceEntrySubject.() -> Unit) {
-        CrossPlatform.log.withTracing("assertLayersStart") {
-            val assertionData = assertionFactory.createLayersStartAssertion(assertion)
-            doRunAssertion(assertionData)
-        }
-    }
-
-    /**
-     * Execute [assertion] on the final state of a SF trace (after transition)
-     *
-     * @param assertion Assertion predicate
-     */
-    override fun assertLayersEnd(assertion: LayerTraceEntrySubject.() -> Unit) {
-        CrossPlatform.log.withTracing("assertLayersEnd") {
-            val assertionData = assertionFactory.createLayersEndAssertion(assertion)
-            doRunAssertion(assertionData)
-        }
-    }
-
-    override fun assertLayers(assertion: LayersTraceSubject.() -> Unit) {
-        CrossPlatform.log.withTracing("assertLayers") {
-            val assertionData = assertionFactory.createLayersAssertion(assertion)
-            doRunAssertion(assertionData)
-        }
-    }
-
-    override fun assertLayersTag(tag: String, assertion: LayerTraceEntrySubject.() -> Unit) {
-        CrossPlatform.log.withTracing("assertLayersTag") {
-            val assertionData = assertionFactory.createLayersTagAssertion(tag, assertion)
-            doRunAssertion(assertionData)
-        }
-    }
-
-    override fun assertLayersVisibleRegion(
-        componentMatcher: IComponentMatcher,
-        useCompositionEngineRegionOnly: Boolean,
-        assertion: RegionTraceSubject.() -> Unit
-    ) {
-        CrossPlatform.log.withTracing("assertLayersVisibleRegion") {
-            val assertionData =
-                assertionFactory.createLayersVisibleRegionAssertion(
-                    componentMatcher,
-                    useCompositionEngineRegionOnly,
-                    assertion
-                )
-            doRunAssertion(assertionData)
-        }
-    }
-
-    override fun assertEventLog(assertion: EventLogSubject.() -> Unit) {
-        CrossPlatform.log.withTracing("assertEventLog") {
-            val assertionData = assertionFactory.createEventLogAssertion(assertion)
-            doRunAssertion(assertionData)
-        }
-    }
-
-    private fun doRunAssertion(assertion: AssertionData) {
+    override fun doProcess(assertion: AssertionData) {
         require(!scenario.isEmpty) { "Scenario shouldn't be empty" }
         runnerProvider.invoke(scenario).runAssertion(assertion)?.let { throw it }
     }

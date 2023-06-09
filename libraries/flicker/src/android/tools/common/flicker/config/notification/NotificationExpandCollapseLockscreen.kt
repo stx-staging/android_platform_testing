@@ -32,10 +32,11 @@ class NotificationExpandCollapseLockscreen : ScenarioConfig {
     override val assertionTemplates =
         AssertionTemplates.COMMON_ASSERTIONS // TODO: Add specific assertions
 
-    override val extractor =
+    override val extractor by lazy {
         TaggedScenarioExtractorBuilder()
             .setConfig(FlickerServiceConfig.getScenarioConfigFor(type))
             .setTargetTag(CujType.CUJ_NOTIFICATION_SHADE_EXPAND_COLLAPSE_LOCK)
             .setTransitionMatcher(TaggedCujTransitionMatcher(associatedTransitionRequired = false))
             .build()
+    }
 }

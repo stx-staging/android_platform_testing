@@ -16,14 +16,17 @@
 
 package android.tools.common.flicker
 
+import android.tools.common.Logger
 import android.tools.common.Rotation
 import android.tools.common.Timestamp
+import android.tools.common.flicker.assertions.ScenarioAssertion
+import android.tools.common.flicker.assertions.ScenarioAssertionImpl
 import android.tools.common.flicker.config.ScenarioConfig
 import android.tools.common.io.Reader
 import android.tools.common.traces.events.CujType
 import android.tools.common.traces.wm.Transition
 
-data class ScenarioInstanceImpl(
+internal data class ScenarioInstanceImpl(
     override val config: ScenarioConfig,
     override val startRotation: Rotation,
     override val endRotation: Rotation,
@@ -44,6 +47,15 @@ data class ScenarioInstanceImpl(
     override val isEmpty = false
 
     override fun <T> getConfigValue(key: String): T? = null
+
+    override fun generateAssertions(): Collection<ScenarioAssertion> =
+        Logger.withTracing("generateAssertions") {
+            config.assertionTemplates.flatMap { template ->
+                template.createAssertions(this).map { assertion ->
+                    ScenarioAssertionImpl(reader, assertion, template.stabilityGroup)
+                }
+            }
+        }
 
     override fun toString() = key
 }

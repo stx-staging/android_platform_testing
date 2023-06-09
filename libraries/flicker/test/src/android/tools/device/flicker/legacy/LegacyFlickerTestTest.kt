@@ -21,6 +21,8 @@ import android.tools.TEST_SCENARIO
 import android.tools.TestTraces
 import android.tools.assertExceptionMessage
 import android.tools.assertThrows
+import android.tools.common.ScenarioBuilder
+import android.tools.common.flicker.assertions.FlickerTest
 import android.tools.common.io.TraceType
 import android.tools.device.flicker.datastore.CachedResultReader
 import android.tools.device.flicker.datastore.DataStore
@@ -30,13 +32,14 @@ import android.tools.newTestCachedResultWriter
 import android.tools.rules.CleanFlickerEnvironmentRule
 import com.google.common.truth.Truth
 import java.io.File
+import kotlin.io.path.name
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
 /** Tests for [FlickerTest] */
 @SuppressLint("VisibleForTests")
-class FlickerTestTest {
+class LegacyFlickerTestTest {
     private var executionCount = 0
     @Rule @JvmField val envCleanup = CleanFlickerEnvironmentRule()
 
@@ -187,9 +190,11 @@ class FlickerTestTest {
     @Test
     fun doesNotExecuteEventLogWithoutEventLog() {
         val predicate: (FlickerTest) -> Unit = { it.assertEventLog { executionCount++ } }
-        newTestCachedResultWriter().write()
+        val scenarioName = kotlin.io.path.createTempFile().name
+        val scenario = ScenarioBuilder().forClass(scenarioName).build()
+        newTestCachedResultWriter(scenario).write()
         val flickerWrapper = LegacyFlickerTest()
-        flickerWrapper.initialize(TEST_SCENARIO.testClass)
+        flickerWrapper.initialize(scenarioName)
         // Each assertion is executed independently and not cached, only Flicker as a Service
         // assertions are cached
         predicate.invoke(flickerWrapper)

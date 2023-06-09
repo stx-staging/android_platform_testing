@@ -32,7 +32,7 @@ class NotificationAppLaunchFromMediaPlayer : ScenarioConfig {
 
     override val assertionTemplates = AssertionTemplates.APP_LAUNCH_ASSERTIONS
 
-    override val extractor =
+    override val extractor by lazy {
         TaggedScenarioExtractorBuilder()
             .setConfig(FlickerServiceConfig.getScenarioConfigFor(type))
             .setTargetTag(CujType.CUJ_SHADE_APP_LAUNCH_FROM_MEDIA_PLAYER)
@@ -40,4 +40,5 @@ class NotificationAppLaunchFromMediaPlayer : ScenarioConfig {
                 TaggedCujTransitionMatcher(TransitionFilters.OPEN_APP_TRANSITION_FILTER)
             )
             .build()
+    }
 }

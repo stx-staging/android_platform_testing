@@ -25,8 +25,9 @@ import android.tools.common.flicker.extractors.EntireTraceExtractor
 class OthersDefault : ScenarioConfig {
     override val assertionTemplates = AssertionTemplates.ENTIRE_TRACE_ASSERTIONS
 
-    override val extractor =
+    override val extractor by lazy {
         EntireTraceExtractor(FlickerServiceConfig.getScenarioConfigFor(FaasScenarioType.COMMON))
+    }
 
     override val enabled = true
 

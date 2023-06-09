@@ -35,7 +35,7 @@ class AppCloseToPip : ScenarioConfig {
 
     override val assertionTemplates = AssertionTemplates.APP_CLOSE_TO_PIP_ASSERTIONS
 
-    override val extractor =
+    override val extractor by lazy {
         TaggedScenarioExtractorBuilder()
             .setConfig(FlickerServiceConfig.getScenarioConfigFor(type))
             .setTargetTag(CujType.CUJ_LAUNCHER_APP_CLOSE_TO_PIP)
@@ -67,4 +67,5 @@ class AppCloseToPip : ScenarioConfig {
                 }
             )
             .build()
+    }
 }

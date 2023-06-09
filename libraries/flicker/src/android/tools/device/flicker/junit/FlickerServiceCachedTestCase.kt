@@ -21,7 +21,6 @@ import android.device.collectors.util.SendToInstrumentation
 import android.os.Bundle
 import android.tools.common.Cache
 import android.tools.common.flicker.AssertionInvocationGroup
-import android.tools.common.flicker.FlickerService
 import android.tools.common.flicker.assertions.ScenarioAssertion
 import android.tools.device.flicker.FlickerServiceResultsCollector.Companion.getKeyForAssertionResult
 import java.lang.reflect.Method
@@ -30,7 +29,6 @@ import org.junit.runner.Description
 
 class FlickerServiceCachedTestCase(
     private val assertion: ScenarioAssertion,
-    private val flickerService: FlickerService,
     method: Method,
     private val onlyBlocking: Boolean,
     private val isLast: Boolean,

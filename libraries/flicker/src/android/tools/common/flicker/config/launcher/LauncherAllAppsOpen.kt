@@ -32,10 +32,11 @@ class LauncherAllAppsOpen : ScenarioConfig {
     override val assertionTemplates =
         AssertionTemplates.COMMON_ASSERTIONS // TODO: Add specific assertions
 
-    override val extractor =
+    override val extractor by lazy {
         TaggedScenarioExtractorBuilder()
             .setConfig(FlickerServiceConfig.getScenarioConfigFor(type))
             .setTargetTag(CujType.CUJ_LAUNCHER_OPEN_ALL_APPS)
             .setTransitionMatcher(TaggedCujTransitionMatcher(associatedTransitionRequired = false))
             .build()
+    }
 }

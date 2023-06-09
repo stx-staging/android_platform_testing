@@ -32,7 +32,7 @@ class AppLaunchFromNotification : ScenarioConfig {
 
     override val assertionTemplates = AssertionTemplates.APP_LAUNCH_FROM_NOTIFICATION_ASSERTIONS
 
-    override val extractor =
+    override val extractor by lazy {
         TaggedScenarioExtractorBuilder()
             .setConfig(FlickerServiceConfig.getScenarioConfigFor(type))
             .setTargetTag(CujType.CUJ_NOTIFICATION_APP_START)
@@ -40,4 +40,5 @@ class AppLaunchFromNotification : ScenarioConfig {
                 TaggedCujTransitionMatcher(TransitionFilters.OPEN_APP_TRANSITION_FILTER)
             )
             .build()
+    }
 }

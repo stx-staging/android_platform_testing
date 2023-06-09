@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-package android.tools.common.flicker.assertors
+package android.tools.common.flicker
 
-import android.tools.common.flicker.AssertionInvocationGroup
-import android.tools.common.flicker.assertions.AssertionData
+import android.tools.common.flicker.extractors.ScenarioExtractor
+import kotlin.js.JsName
 
-/** Base class for a FaaS assertion */
-data class AssertionResultImpl(
-    override val assertion: AssertionData,
-    override val assertionError: Throwable?,
-    override val stabilityGroup: AssertionInvocationGroup
-) : AssertionResult {
-    override val passed = assertionError == null
-}
+@JsName("FlickerServiceFactory") fun FlickerService(): FlickerService = FlickerServiceImpl()
+
+@JsName("FlickerServiceFactoryWithScenario")
+fun FlickerService(scenarioExtractor: ScenarioExtractor): FlickerService =
+    FlickerServiceImpl(scenarioExtractor)

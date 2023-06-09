@@ -32,7 +32,7 @@
 
 package android.tools.device.traces.io
 
-import android.tools.common.CrossPlatform
+import android.tools.common.Logger
 import android.tools.common.Scenario
 import android.tools.common.io.Artifact
 import android.tools.common.io.BUFFER_SIZE
@@ -120,7 +120,7 @@ internal constructor(private val scenario: Scenario, artifactFile: File, private
 
     @Throws(IOException::class)
     override fun readBytes(descriptor: ResultArtifactDescriptor): ByteArray? {
-        CrossPlatform.log.d(FLICKER_IO_TAG, "Reading descriptor=$descriptor from $this")
+        Logger.d(FLICKER_IO_TAG, "Reading descriptor=$descriptor from $this")
 
         var foundFile = false
         val outByteArray = ByteArrayOutputStream()

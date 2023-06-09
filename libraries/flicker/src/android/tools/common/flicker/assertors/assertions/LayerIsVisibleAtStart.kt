@@ -17,14 +17,14 @@
 package android.tools.common.flicker.assertors.assertions
 
 import android.tools.common.flicker.ScenarioInstance
+import android.tools.common.flicker.assertions.FlickerTest
 import android.tools.common.flicker.assertors.ComponentTemplate
-import android.tools.common.flicker.subject.layers.LayersTraceSubject
 
 /** Checks if the [component] layer is visible at the start of the transition */
 class LayerIsVisibleAtStart(private val component: ComponentTemplate) :
     AssertionTemplateWithComponent(component) {
     /** {@inheritDoc} */
-    override fun doEvaluate(scenarioInstance: ScenarioInstance, layerSubject: LayersTraceSubject) {
-        layerSubject.first().isVisible(component.build(scenarioInstance))
+    override fun doEvaluate(scenarioInstance: ScenarioInstance, flicker: FlickerTest) {
+        flicker.assertLayersStart { isVisible(component.build(scenarioInstance)) }
     }
 }

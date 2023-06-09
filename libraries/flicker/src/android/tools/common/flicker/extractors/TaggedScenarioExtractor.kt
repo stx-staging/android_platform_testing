@@ -16,8 +16,8 @@
 
 package android.tools.common.flicker.extractors
 
-import android.tools.common.CrossPlatform
 import android.tools.common.Timestamp
+import android.tools.common.Timestamps
 import android.tools.common.flicker.ScenarioInstance
 import android.tools.common.flicker.ScenarioInstanceImpl
 import android.tools.common.flicker.config.ScenarioConfig
@@ -92,7 +92,7 @@ class TaggedScenarioExtractor(
                 null
             }
 
-        return CrossPlatform.timestamp.from(
+        return Timestamps.from(
             elapsedNanos =
                 min(
                     cujEntry.startTimestamp.elapsedNanos,
@@ -124,7 +124,7 @@ class TaggedScenarioExtractor(
                 null
             }
 
-        return CrossPlatform.timestamp.from(
+        return Timestamps.from(
             elapsedNanos =
                 max(
                     cujEntry.endTimestamp.elapsedNanos,

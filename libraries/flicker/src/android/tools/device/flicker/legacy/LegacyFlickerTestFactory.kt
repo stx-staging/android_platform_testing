@@ -19,13 +19,14 @@ package android.tools.device.flicker.legacy
 import android.tools.common.NavBar
 import android.tools.common.Rotation
 import android.tools.common.ScenarioBuilder
+import android.tools.common.flicker.assertions.FlickerTest
 
 /**
  * Factory for creating JUnit4 compatible tests based on the flicker DSL
  *
  * This class recreates behavior from JUnit5 TestFactory that is not available on JUnit4
  */
-object FlickerTestFactory {
+object LegacyFlickerTestFactory {
     /**
      * Gets a list of test configurations.
      *

@@ -32,7 +32,7 @@ class NotificationAppLaunchFromQsTile : ScenarioConfig {
 
     override val assertionTemplates = AssertionTemplates.APP_LAUNCH_ASSERTIONS
 
-    override val extractor =
+    override val extractor by lazy {
         TaggedScenarioExtractorBuilder()
             .setConfig(FlickerServiceConfig.getScenarioConfigFor(type))
             .setTargetTag(CujType.CUJ_SHADE_APP_LAUNCH_FROM_QS_TILE)
@@ -40,4 +40,5 @@ class NotificationAppLaunchFromQsTile : ScenarioConfig {
                 TaggedCujTransitionMatcher(TransitionFilters.OPEN_APP_TRANSITION_FILTER)
             )
             .build()
+    }
 }

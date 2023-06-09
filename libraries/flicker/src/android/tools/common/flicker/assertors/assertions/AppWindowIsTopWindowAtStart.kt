@@ -17,16 +17,13 @@
 package android.tools.common.flicker.assertors.assertions
 
 import android.tools.common.flicker.ScenarioInstance
+import android.tools.common.flicker.assertions.FlickerTest
 import android.tools.common.flicker.assertors.ComponentTemplate
-import android.tools.common.flicker.subject.wm.WindowManagerTraceSubject
 
 class AppWindowIsTopWindowAtStart(private val component: ComponentTemplate) :
     AssertionTemplateWithComponent(component) {
     /** {@inheritDoc} */
-    override fun doEvaluate(
-        scenarioInstance: ScenarioInstance,
-        wmSubject: WindowManagerTraceSubject
-    ) {
-        wmSubject.first().isAppWindowOnTop(component.build(scenarioInstance))
+    override fun doEvaluate(scenarioInstance: ScenarioInstance, flicker: FlickerTest) {
+        flicker.assertWmStart { isAppWindowOnTop(component.build(scenarioInstance)) }
     }
 }

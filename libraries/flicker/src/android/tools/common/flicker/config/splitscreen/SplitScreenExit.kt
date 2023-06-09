@@ -32,7 +32,7 @@ class SplitScreenExit : ScenarioConfig {
 
     override val assertionTemplates = AssertionTemplates.EXIT_SPLITSCREEN_ASSERTIONS
 
-    override val extractor =
+    override val extractor by lazy {
         TaggedScenarioExtractorBuilder()
             .setConfig(FlickerServiceConfig.getScenarioConfigFor(type))
             .setTargetTag(CujType.CUJ_SPLIT_SCREEN_EXIT)
@@ -40,4 +40,5 @@ class SplitScreenExit : ScenarioConfig {
                 TaggedCujTransitionMatcher(TransitionFilters.EXIT_SPLIT_SCREEN_FILTER)
             )
             .build()
+    }
 }

@@ -16,7 +16,7 @@
 
 package android.tools.common.flicker.extractor
 
-import android.tools.common.CrossPlatform
+import android.tools.common.Timestamps
 import android.tools.common.flicker.config.FaasScenarioType
 import android.tools.common.flicker.config.FlickerServiceConfig
 import android.tools.common.flicker.extractors.ITransitionMatcher
@@ -88,7 +88,7 @@ class ShellTransitionScenarioExtractorTest {
         val layersTrace = scenarios.first().reader.readLayersTrace() ?: error("Missing layer trace")
         Truth.assertThat(layersTrace.entries.first().timestamp)
             .isEqualTo(
-                CrossPlatform.timestamp.from(
+                Timestamps.from(
                     unixNanos = 1682433275759078118,
                     systemUptimeNanos = 2766599071189,
                     elapsedNanos = 0
@@ -96,7 +96,7 @@ class ShellTransitionScenarioExtractorTest {
             )
         Truth.assertThat(layersTrace.entries.first().timestamp)
             .isEqualTo(
-                CrossPlatform.timestamp.from(
+                Timestamps.from(
                     unixNanos = 1682433275759078118,
                     systemUptimeNanos = 2766599071189,
                     elapsedNanos = 0

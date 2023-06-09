@@ -31,10 +31,11 @@ class LockscreenUnlockAnimation : ScenarioConfig {
 
     override val assertionTemplates = AssertionTemplates.LOCKSCREEN_UNLOCK_ANIMATION_ASSERTIONS
 
-    override val extractor =
+    override val extractor by lazy {
         TaggedScenarioExtractorBuilder()
             .setConfig(FlickerServiceConfig.getScenarioConfigFor(type))
             .setTargetTag(CujType.CUJ_LOCKSCREEN_UNLOCK_ANIMATION)
             .setTransitionMatcher(TaggedCujTransitionMatcher(associatedTransitionRequired = false))
             .build()
+    }
 }

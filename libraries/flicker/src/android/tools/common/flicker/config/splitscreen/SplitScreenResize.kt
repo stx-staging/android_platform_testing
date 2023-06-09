@@ -32,7 +32,7 @@ class SplitScreenResize : ScenarioConfig {
 
     override val assertionTemplates = AssertionTemplates.RESIZE_SPLITSCREEN_ASSERTIONS
 
-    override val extractor =
+    override val extractor by lazy {
         TaggedScenarioExtractorBuilder()
             .setConfig(FlickerServiceConfig.getScenarioConfigFor(type))
             .setTargetTag(CujType.CUJ_SPLIT_SCREEN_RESIZE)
@@ -40,4 +40,5 @@ class SplitScreenResize : ScenarioConfig {
                 TaggedCujTransitionMatcher(TransitionFilters.RESIZE_SPLIT_SCREEN_FILTER)
             )
             .build()
+    }
 }

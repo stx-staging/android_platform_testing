@@ -18,10 +18,10 @@ package android.tools
 
 import android.app.Instrumentation
 import android.content.Context
-import android.tools.common.CrossPlatform
 import android.tools.common.Scenario
 import android.tools.common.ScenarioBuilder
 import android.tools.common.ScenarioImpl
+import android.tools.common.Timestamps
 import android.tools.common.io.Reader
 import android.tools.common.io.ResultArtifactDescriptor
 import android.tools.common.io.RunStatus
@@ -77,9 +77,9 @@ internal fun newTestResultWriter(
         .withOutputDir(createTempDirectory().toFile())
         .setRunComplete()
 
-internal fun newTestCachedResultWriter() =
+internal fun newTestCachedResultWriter(scenario: Scenario = TEST_SCENARIO) =
     CachedResultWriter()
-        .forScenario(TEST_SCENARIO)
+        .forScenario(scenario)
         .withOutputDir(createTempDirectory().toFile())
         .setRunComplete()
 
@@ -96,8 +96,8 @@ internal fun getWmTraceReaderFromAsset(
             WindowManagerTraceParser(legacyTrace)
                 .parse(
                     readAsset(relativePath),
-                    CrossPlatform.timestamp.from(elapsedNanos = from),
-                    CrossPlatform.timestamp.from(elapsedNanos = to),
+                    Timestamps.from(elapsedNanos = from),
+                    Timestamps.from(elapsedNanos = to),
                     addInitialEntry,
                     clearCache = false
                 )

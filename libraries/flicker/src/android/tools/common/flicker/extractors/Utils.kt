@@ -16,8 +16,8 @@
 
 package android.tools.common.flicker.extractors
 
-import android.tools.common.CrossPlatform
 import android.tools.common.Timestamp
+import android.tools.common.Timestamps
 import android.tools.common.io.Reader
 import android.tools.common.traces.surfaceflinger.Display
 import android.tools.common.traces.surfaceflinger.LayerTraceEntry
@@ -47,7 +47,7 @@ object Utils {
             startTransactionAppliedTimestamp?.systemUptimeNanos
                 ?: transition.createTime.systemUptimeNanos
 
-        return CrossPlatform.timestamp.from(elapsedNanos, systemUptimeNanos, unixNanos)
+        return Timestamps.from(elapsedNanos, systemUptimeNanos, unixNanos)
     }
 
     fun interpolateFinishTimestampFromTransition(
@@ -118,7 +118,7 @@ object Utils {
                 layersTrace.getEntryAt(finishTransactionAppliedTimestamp).timestamp.unixNanos
         }
 
-        return CrossPlatform.timestamp.from(elapsedNanos, systemUptimeNanos, unixNanos)
+        return Timestamps.from(elapsedNanos, systemUptimeNanos, unixNanos)
     }
 
     fun getOnDisplayFor(layerTraceEntry: LayerTraceEntry): Display {

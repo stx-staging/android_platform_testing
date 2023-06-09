@@ -16,21 +16,19 @@
 
 package android.tools.common.flicker.assertions
 
-import android.tools.common.CrossPlatform
 import android.tools.common.FLICKER_TAG
+import android.tools.common.Logger
 import android.tools.common.flicker.AssertionInvocationGroup
-import android.tools.common.flicker.assertors.AssertionResult
-import android.tools.common.flicker.assertors.AssertionResultImpl
 import android.tools.common.io.Reader
 
-class ScenarioAssertionImpl(
+internal data class ScenarioAssertionImpl(
     private val reader: Reader,
     private val assertionData: AssertionData,
     override val stabilityGroup: AssertionInvocationGroup,
     private val assertionRunner: AssertionRunner = ReaderAssertionRunner(reader)
 ) : ScenarioAssertion {
-    override fun execute(): AssertionResult =
-        CrossPlatform.log.withTracing("executeAssertion") {
+    override fun execute() =
+        Logger.withTracing("executeAssertion") {
             AssertionResultImpl(
                     assertionData,
                     assertionRunner.runAssertion(assertionData),
@@ -39,15 +37,17 @@ class ScenarioAssertionImpl(
                 .also { log(it) }
         }
 
+    override fun toString() = assertionData.name
+
     private fun log(result: AssertionResult) {
         if (result.failed) {
-            CrossPlatform.log.w(
+            Logger.w(
                 "$FLICKER_TAG-SERVICE",
                 "${result.assertion} FAILED :: " +
                     (result.assertionError?.message ?: "<NO ERROR MESSAGE>")
             )
         } else {
-            CrossPlatform.log.w("$FLICKER_TAG-SERVICE", "${result.assertion} PASSED")
+            Logger.w("$FLICKER_TAG-SERVICE", "${result.assertion} PASSED")
         }
     }
 }

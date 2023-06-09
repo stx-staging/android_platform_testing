@@ -32,7 +32,7 @@ class SwipeToRecents : ScenarioConfig {
 
     override val assertionTemplates = AssertionTemplates.APP_SWIPE_TO_RECENTS_ASSERTIONS
 
-    override val extractor =
+    override val extractor by lazy {
         TaggedScenarioExtractorBuilder()
             .setConfig(FlickerServiceConfig.getScenarioConfigFor(type))
             .setTargetTag(CujType.CUJ_LAUNCHER_APP_SWIPE_TO_RECENTS)
@@ -40,4 +40,5 @@ class SwipeToRecents : ScenarioConfig {
                 TaggedCujTransitionMatcher(TransitionFilters.CLOSE_APP_TO_LAUNCHER_FILTER)
             )
             .build()
+    }
 }

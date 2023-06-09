@@ -30,9 +30,10 @@ class SplitScreenEnter : ScenarioConfig {
 
     override val assertionTemplates = AssertionTemplates.ENTER_SPLITSCREEN_ASSERTIONS
 
-    override val extractor =
+    override val extractor by lazy {
         ShellTransitionScenarioExtractor(
             FlickerServiceConfig.getScenarioConfigFor(type),
             transitionMatcher = TransitionFilters.ENTER_SPLIT_SCREEN_MATCHER
         )
+    }
 }

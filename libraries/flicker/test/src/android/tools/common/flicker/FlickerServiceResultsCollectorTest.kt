@@ -19,9 +19,9 @@ package android.tools.common.flicker
 import android.annotation.SuppressLint
 import android.device.collectors.DataRecord
 import android.tools.common.flicker.assertions.AssertionData
+import android.tools.common.flicker.assertions.AssertionResult
+import android.tools.common.flicker.assertions.ScenarioAssertion
 import android.tools.common.flicker.assertions.SubjectsParser
-import android.tools.common.flicker.assertors.AssertionResult
-import android.tools.common.flicker.assertors.AssertionResultImpl
 import android.tools.common.io.Reader
 import android.tools.common.traces.wm.TransitionsTrace
 import android.tools.device.flicker.FlickerServiceResultsCollector
@@ -270,6 +270,20 @@ class FlickerServiceResultsCollectorTest {
                     mockFlickerService.detectScenarios(KotlinMockito.any(Reader::class.java))
                 )
                 .thenThrow(RuntimeException("Flicker Service Processing Error"))
+        } else {
+            val mockScenarioInstance = Mockito.mock(ScenarioInstance::class.java)
+            val mockedAssertions =
+                assertionResults.map { assertion ->
+                    val mockScenarioAssertion = Mockito.mock(ScenarioAssertion::class.java)
+                    Mockito.`when`(mockScenarioAssertion.execute()).thenReturn(assertion)
+                    mockScenarioAssertion
+                }
+            Mockito.`when`(mockScenarioInstance.generateAssertions()).thenReturn(mockedAssertions)
+
+            Mockito.`when`(
+                    mockFlickerService.detectScenarios(KotlinMockito.any(Reader::class.java))
+                )
+                .thenReturn(listOf(mockScenarioInstance))
         }
 
         return FlickerServiceResultsCollector(
@@ -282,28 +296,32 @@ class FlickerServiceResultsCollectorTest {
 
     companion object {
         val mockSuccessfulAssertionResult =
-            AssertionResultImpl(
-                object : AssertionData {
-                    override val name = "MockPassedAssertion"
-                    override fun checkAssertion(run: SubjectsParser) {
-                        error("Unimplemented - shouldn't be called")
+            object : AssertionResult {
+                override val assertion =
+                    object : AssertionData {
+                        override val name = "MockPassedAssertion"
+                        override fun checkAssertion(run: SubjectsParser) {
+                            error("Unimplemented - shouldn't be called")
+                        }
                     }
-                },
-                assertionError = null,
-                stabilityGroup = AssertionInvocationGroup.BLOCKING
-            )
+                override val assertionError = null
+                override val stabilityGroup = AssertionInvocationGroup.BLOCKING
+                override val passed = true
+            }
 
         val mockFailedAssertionResult =
-            AssertionResultImpl(
-                object : AssertionData {
-                    override val name = "MockFailedAssertion"
-                    override fun checkAssertion(run: SubjectsParser) {
-                        error("Unimplemented - shouldn't be called")
+            object : AssertionResult {
+                override val assertion =
+                    object : AssertionData {
+                        override val name = "MockFailedAssertion"
+                        override fun checkAssertion(run: SubjectsParser) {
+                            error("Unimplemented - shouldn't be called")
+                        }
                     }
-                },
-                assertionError = Throwable("Assertion failed"),
-                stabilityGroup = AssertionInvocationGroup.BLOCKING
-            )
+                override val assertionError = Throwable("Assertion failed")
+                override val stabilityGroup = AssertionInvocationGroup.BLOCKING
+                override val passed = false
+            }
 
         private class SpyDataRecord : DataRecord() {
             val stringMetrics = mutableMapOf<String, String>()

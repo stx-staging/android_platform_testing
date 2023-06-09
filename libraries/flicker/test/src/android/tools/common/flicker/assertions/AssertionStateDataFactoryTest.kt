@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-package android.tools.device.flicker.assertions
+package android.tools.common.flicker.assertions
 
 import android.tools.common.Tag
-import android.tools.common.flicker.assertions.AssertionDataImpl
-import android.tools.common.flicker.assertions.AssertionStateDataFactory
 import android.tools.common.flicker.subject.events.EventLogSubject
 import android.tools.common.flicker.subject.layers.LayerTraceEntrySubject
 import android.tools.common.flicker.subject.wm.WindowManagerStateSubject
@@ -40,17 +38,17 @@ open class AssertionStateDataFactoryTest {
     @Test
     open fun checkBuildsStartAssertion() {
         validate(
-            wmAssertionFactory.createStartStateAssertion {},
+            wmAssertionFactory.createStartStateAssertion(name = "") {},
             WindowManagerStateSubject::class,
             Tag.START
         )
         validate(
-            layersAssertionFactory.createStartStateAssertion {},
+            layersAssertionFactory.createStartStateAssertion(name = "") {},
             LayerTraceEntrySubject::class,
             Tag.START
         )
         validate(
-            eventLogAssertionFactory.createStartStateAssertion {},
+            eventLogAssertionFactory.createStartStateAssertion(name = "") {},
             EventLogSubject::class,
             Tag.START
         )
@@ -59,17 +57,17 @@ open class AssertionStateDataFactoryTest {
     @Test
     open fun checkBuildsEndAssertion() {
         validate(
-            wmAssertionFactory.createEndStateAssertion {},
+            wmAssertionFactory.createEndStateAssertion(name = "") {},
             WindowManagerStateSubject::class,
             Tag.END
         )
         validate(
-            layersAssertionFactory.createEndStateAssertion {},
+            layersAssertionFactory.createEndStateAssertion(name = "") {},
             LayerTraceEntrySubject::class,
             Tag.END
         )
         validate(
-            eventLogAssertionFactory.createEndStateAssertion {},
+            eventLogAssertionFactory.createEndStateAssertion(name = "") {},
             EventLogSubject::class,
             Tag.END
         )
@@ -78,16 +76,20 @@ open class AssertionStateDataFactoryTest {
     @Test
     open fun checkBuildsTagAssertion() {
         validate(
-            wmAssertionFactory.createTagAssertion(TAG) {},
+            wmAssertionFactory.createTagAssertion(name = "", TAG) {},
             WindowManagerStateSubject::class,
             TAG
         )
         validate(
-            layersAssertionFactory.createTagAssertion(TAG) {},
+            layersAssertionFactory.createTagAssertion(name = "", TAG) {},
             LayerTraceEntrySubject::class,
             TAG
         )
-        validate(eventLogAssertionFactory.createTagAssertion(TAG) {}, EventLogSubject::class, TAG)
+        validate(
+            eventLogAssertionFactory.createTagAssertion(name = "", TAG) {},
+            EventLogSubject::class,
+            TAG
+        )
     }
 
     protected fun validate(

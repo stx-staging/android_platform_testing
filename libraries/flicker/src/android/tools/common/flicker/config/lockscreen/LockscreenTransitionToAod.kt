@@ -31,10 +31,11 @@ class LockscreenTransitionToAod : ScenarioConfig {
 
     override val assertionTemplates = AssertionTemplates.LOCKSCREEN_TRANSITION_TO_AOD_ASSERTIONS
 
-    override val extractor =
+    override val extractor by lazy {
         TaggedScenarioExtractorBuilder()
             .setConfig(FlickerServiceConfig.getScenarioConfigFor(type))
             .setTargetTag(CujType.CUJ_LOCKSCREEN_TRANSITION_TO_AOD)
             .setTransitionMatcher(TaggedCujTransitionMatcher(associatedTransitionRequired = false))
             .build()
+    }
 }

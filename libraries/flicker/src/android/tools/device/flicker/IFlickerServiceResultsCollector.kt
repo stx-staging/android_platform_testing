@@ -16,7 +16,7 @@
 
 package android.tools.device.flicker
 
-import android.tools.common.flicker.assertors.AssertionResult
+import android.tools.common.flicker.assertions.AssertionResult
 import android.tools.common.flicker.config.FaasScenarioType
 import org.junit.runner.Description
 import org.junit.runner.notification.Failure

@@ -27,7 +27,6 @@ import android.tools.common.flicker.ScenarioInstance
 import android.tools.common.flicker.assertions.ScenarioAssertion
 import android.tools.common.flicker.config.FaasScenarioType
 import android.tools.common.io.Reader
-import android.tools.device.flicker.FlickerServiceImpl
 import android.tools.device.flicker.FlickerServiceResultsCollector.Companion.FLICKER_ASSERTIONS_COUNT_KEY
 import android.tools.device.flicker.Utils.captureTrace
 import android.tools.device.flicker.annotation.ExpectedScenarios
@@ -49,7 +48,7 @@ class FlickerServiceDecorator(
     val paramString: String?,
     inner: IFlickerJUnitDecorator
 ) : AbstractFlickerRunnerDecorator(testClass, inner) {
-    private val flickerService = FlickerServiceImpl()
+    private val flickerService = FlickerService()
 
     private val scenario =
         ScenarioBuilder().forClass("${testClass.name}${paramString ?: ""}").build()
@@ -62,15 +61,15 @@ class FlickerServiceDecorator(
         }
     }
 
-    private val flickerServiceMethodsFor = mutableMapOf<FrameworkMethod, Collection<InjectedTestCase>>()
+    private val flickerServiceMethodsFor =
+        mutableMapOf<FrameworkMethod, Collection<InjectedTestCase>>()
     private val innerMethodsResults = mutableMapOf<FrameworkMethod, Throwable?>()
 
     override fun getTestMethods(test: Any): List<FrameworkMethod> {
-        val testMethods = mutableListOf<FrameworkMethod>()
         val innerMethods =
             inner?.getTestMethods(test)
                 ?: error("FlickerServiceDecorator requires a non-null inner decorator")
-        testMethods.addAll(innerMethods)
+        val testMethods = innerMethods.toMutableList()
 
         if (shouldComputeTestMethods()) {
             for (method in innerMethods) {
@@ -219,9 +218,7 @@ class FlickerServiceDecorator(
         ): Map<ScenarioInstance, Collection<ScenarioAssertion>> {
             if (!DataStore.containsFlickerServiceResult(testScenario)) {
                 val detectedScenarios = flickerService.detectScenarios(reader)
-                val groupedAssertions =
-                    mutableMapOf<ScenarioInstance, Collection<ScenarioAssertion>>()
-                detectedScenarios.forEach { groupedAssertions[it] = it.generateAssertions() }
+                val groupedAssertions = detectedScenarios.associateWith { it.generateAssertions() }
                 DataStore.addFlickerServiceAssertions(testScenario, groupedAssertions)
             }
 
@@ -238,9 +235,7 @@ class FlickerServiceDecorator(
             caller: IFlickerJUnitDecorator,
         ): Collection<InjectedTestCase> {
             val groupedAssertions = getGroupedAssertions(testScenario, reader, flickerService)
-
-            val organizedScenarioInstances: Map<FaasScenarioType, List<ScenarioInstance>> =
-                groupedAssertions.keys.groupBy { it.type }
+            val organizedScenarioInstances = groupedAssertions.keys.groupBy { it.type }
 
             val faasTestCases = mutableListOf<FlickerServiceCachedTestCase>()
             organizedScenarioInstances.values.forEachIndexed {
@@ -254,7 +249,6 @@ class FlickerServiceDecorator(
                         faasTestCases.add(
                             FlickerServiceCachedTestCase(
                                 assertion = it,
-                                flickerService = flickerService,
                                 method = getCachedResultMethod(),
                                 onlyBlocking = false,
                                 isLast =

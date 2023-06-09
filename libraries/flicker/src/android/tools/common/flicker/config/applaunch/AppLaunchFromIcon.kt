@@ -32,7 +32,7 @@ class AppLaunchFromIcon : ScenarioConfig {
 
     override val assertionTemplates = AssertionTemplates.APP_LAUNCH_FROM_HOME_ASSERTIONS
 
-    override val extractor =
+    override val extractor by lazy {
         TaggedScenarioExtractorBuilder()
             .setConfig(FlickerServiceConfig.getScenarioConfigFor(type))
             .setTargetTag(CujType.CUJ_LAUNCHER_APP_LAUNCH_FROM_ICON)
@@ -40,4 +40,5 @@ class AppLaunchFromIcon : ScenarioConfig {
                 TaggedCujTransitionMatcher(TransitionFilters.OPEN_APP_TRANSITION_FILTER)
             )
             .build()
+    }
 }

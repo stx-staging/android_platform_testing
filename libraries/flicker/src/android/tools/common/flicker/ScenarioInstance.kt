@@ -16,10 +16,8 @@
 
 package android.tools.common.flicker
 
-import android.tools.common.CrossPlatform
 import android.tools.common.Scenario
 import android.tools.common.flicker.assertions.ScenarioAssertion
-import android.tools.common.flicker.assertions.ScenarioAssertionImpl
 import android.tools.common.flicker.config.FaasScenarioType
 import android.tools.common.flicker.config.ScenarioConfig
 import android.tools.common.io.Reader
@@ -35,14 +33,5 @@ interface ScenarioInstance : Scenario {
     val type: FaasScenarioType
         get() = config.type
 
-    fun generateAssertions(): Collection<ScenarioAssertion> =
-        CrossPlatform.log.withTracing("generateAssertions") {
-            config.assertionTemplates.map { template ->
-                ScenarioAssertionImpl(
-                    reader,
-                    template.createAssertion(this),
-                    template.stabilityGroup
-                )
-            }
-        }
+    fun generateAssertions(): Collection<ScenarioAssertion>
 }

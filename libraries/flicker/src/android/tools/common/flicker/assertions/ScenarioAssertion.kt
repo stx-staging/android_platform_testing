@@ -17,7 +17,6 @@
 package android.tools.common.flicker.assertions
 
 import android.tools.common.flicker.AssertionInvocationGroup
-import android.tools.common.flicker.assertors.AssertionResult
 
 interface ScenarioAssertion {
     val stabilityGroup: AssertionInvocationGroup

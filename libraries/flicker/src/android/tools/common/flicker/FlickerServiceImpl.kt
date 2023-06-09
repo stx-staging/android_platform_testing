@@ -14,36 +14,21 @@
  * limitations under the License.
  */
 
-package android.tools.device.flicker
+package android.tools.common.flicker
 
-import android.tools.common.CrossPlatform
-import android.tools.common.flicker.FlickerService
-import android.tools.common.flicker.ScenarioInstance
+import android.tools.common.Logger
 import android.tools.common.flicker.config.FlickerServiceConfig
 import android.tools.common.flicker.extractors.CombinedScenarioExtractor
 import android.tools.common.flicker.extractors.ScenarioExtractor
 import android.tools.common.io.Reader
 
 /** Contains the logic for Flicker as a Service. */
-class FlickerServiceImpl(
-    val scenarioExtractor: ScenarioExtractor =
+internal class FlickerServiceImpl(
+    private val scenarioExtractor: ScenarioExtractor =
         CombinedScenarioExtractor(FlickerServiceConfig.getExtractors())
 ) : FlickerService {
-    /*override fun process(reader: IReader): Collection<AssertionResult> {
-        return CrossPlatform.log.withTracing("FlickerService#process") {
-            try {
-                detectScenarios(reader)
-                    .flatMap { it.generateAssertions() }
-                    .map { it.execute() }
-            } catch (exception: Throwable) {
-                CrossPlatform.log.e("$FLICKER_TAG-ASSERT", "FAILED PROCESSING", exception)
-                throw exception
-            }
-        }
-    }*/
-
     override fun detectScenarios(reader: Reader): Collection<ScenarioInstance> {
-        return CrossPlatform.log.withTracing("FlickerService#detectScenarios") {
+        return Logger.withTracing("FlickerService#detectScenarios") {
             scenarioExtractor.extract(reader)
         }
     }
