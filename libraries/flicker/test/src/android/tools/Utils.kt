@@ -21,6 +21,7 @@ import android.content.Context
 import android.tools.common.CrossPlatform
 import android.tools.common.Scenario
 import android.tools.common.ScenarioBuilder
+import android.tools.common.ScenarioImpl
 import android.tools.common.io.IReader
 import android.tools.common.io.ResultArtifactDescriptor
 import android.tools.common.io.RunStatus
@@ -63,13 +64,13 @@ import kotlin.io.path.createTempFile
 import kotlin.io.path.name
 import org.mockito.Mockito
 
-internal val TEST_SCENARIO = ScenarioBuilder().forClass("test").build()
+internal val TEST_SCENARIO = ScenarioBuilder().forClass("test").build() as ScenarioImpl
 
 internal fun outputFileName(status: RunStatus) =
     File("/sdcard/flicker/${status.prefix}__test_ROTATION_0_GESTURAL_NAV.zip")
 
 internal fun newTestResultWriter(
-    scenario: IScenario = ScenarioBuilder().forClass(createTempFile().name).build()
+    scenario: Scenario = ScenarioBuilder().forClass(createTempFile().name).build()
 ) =
     ResultWriter()
         .forScenario(scenario)

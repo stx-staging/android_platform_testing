@@ -17,17 +17,8 @@
 package android.tools.device.flicker
 
 import android.tools.common.CrossPlatform
-import android.tools.common.FLICKER_TAG
 import android.tools.common.flicker.FlickerService
 import android.tools.common.flicker.ScenarioInstance
-import android.tools.common.flicker.assertors.IAssertionResult
-import android.tools.common.flicker.assertors.IFaasAssertion
-import android.tools.common.flicker.assertors.factories.AssertionFactory
-import android.tools.common.flicker.assertors.factories.CombinedAssertionFactory
-import android.tools.common.flicker.assertors.factories.GeneratedAssertionsFactory
-import android.tools.common.flicker.assertors.factories.IAssertionFactory
-import android.tools.common.flicker.assertors.runners.AssertionRunner
-import android.tools.common.flicker.assertors.runners.IAssertionRunner
 import android.tools.common.flicker.config.FlickerServiceConfig
 import android.tools.common.flicker.extractors.CombinedScenarioExtractor
 import android.tools.common.flicker.extractors.ScenarioExtractor
@@ -36,66 +27,24 @@ import android.tools.common.io.IReader
 /** Contains the logic for Flicker as a Service. */
 class FlickerServiceImpl(
     val scenarioExtractor: ScenarioExtractor =
-        CombinedScenarioExtractor(FlickerServiceConfig.getExtractors()),
-    val assertionFactory: IAssertionFactory =
-        CombinedAssertionFactory(listOf(AssertionFactory(), GeneratedAssertionsFactory())),
-    val assertionRunner: IAssertionRunner = AssertionRunner(),
+        CombinedScenarioExtractor(FlickerServiceConfig.getExtractors())
 ) : FlickerService {
-
-    /**
-     * The entry point for WM Flicker Service.
-     *
-     * @param reader A flicker trace reader
-     * @return A list of assertion results
-     */
-    override fun process(reader: IReader): Collection<IAssertionResult> {
+    /*override fun process(reader: IReader): Collection<AssertionResult> {
         return CrossPlatform.log.withTracing("FlickerService#process") {
             try {
-                val scenarioInstances = detectScenarios(reader)
-                val assertions = generateAssertions(scenarioInstances)
-                executeAssertions(assertions)
+                detectScenarios(reader)
+                    .flatMap { it.generateAssertions() }
+                    .map { it.execute() }
             } catch (exception: Throwable) {
                 CrossPlatform.log.e("$FLICKER_TAG-ASSERT", "FAILED PROCESSING", exception)
                 throw exception
             }
         }
-    }
+    }*/
 
     override fun detectScenarios(reader: IReader): Collection<ScenarioInstance> {
         return CrossPlatform.log.withTracing("FlickerService#detectScenarios") {
             scenarioExtractor.extract(reader)
-        }
-    }
-
-    override fun generateAssertions(
-        scenarioInstances: Collection<ScenarioInstance>
-    ): Collection<IFaasAssertion> {
-        return CrossPlatform.log.withTracing("FlickerService#generateAssertions") {
-            scenarioInstances.flatMap { assertionFactory.generateAssertionsFor(it) }
-        }
-    }
-
-    override fun executeAssertions(
-        assertions: Collection<IFaasAssertion>
-    ): Collection<IAssertionResult> {
-        return CrossPlatform.log.withTracing("FlickerService#executeAssertions") {
-            val results = assertionRunner.execute(assertions)
-            logResults(results)
-            results
-        }
-    }
-
-    private fun logResults(results: Collection<IAssertionResult>) {
-        results.forEach {
-            if (it.failed) {
-                CrossPlatform.log.w(
-                    "$FLICKER_TAG-SERVICE",
-                    "${it.assertion} FAILED :: " +
-                        (it.assertionError?.message ?: "<NO ERROR MESSAGE>")
-                )
-            } else {
-                CrossPlatform.log.w("$FLICKER_TAG-SERVICE", "${it.assertion} PASSED")
-            }
         }
     }
 }

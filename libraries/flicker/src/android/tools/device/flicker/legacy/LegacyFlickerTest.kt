@@ -19,6 +19,7 @@ package android.tools.device.flicker.legacy
 import android.tools.common.CrossPlatform
 import android.tools.common.Scenario
 import android.tools.common.ScenarioBuilder
+import android.tools.common.ScenarioImpl
 import android.tools.common.flicker.assertions.AssertionData
 import android.tools.common.flicker.assertions.AssertionFactory
 import android.tools.common.flicker.assertions.SubjectsParser
@@ -49,13 +50,13 @@ data class LegacyFlickerTest(
 ) : FlickerTest {
     private val assertionFactory = AssertionFactory()
 
-    var scenario: Scenario = ScenarioBuilder().createEmptyScenario()
+    var scenario: ScenarioImpl = ScenarioBuilder().createEmptyScenario() as ScenarioImpl
         private set
 
     override fun toString(): String = scenario.toString()
 
     fun initialize(testClass: String): Scenario {
-        scenario = scenarioBuilder.forClass(testClass).build()
+        scenario = scenarioBuilder.forClass(testClass).build() as ScenarioImpl
         return scenario
     }
 

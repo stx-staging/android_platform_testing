@@ -18,7 +18,7 @@ package android.tools.device.flicker.datastore
 
 import android.tools.common.Scenario
 import android.tools.common.flicker.ScenarioInstance
-import android.tools.common.flicker.assertors.IFaasAssertion
+import android.tools.common.flicker.assertions.ScenarioAssertion
 import android.tools.device.traces.io.IResultData
 import androidx.annotation.VisibleForTesting
 
@@ -26,12 +26,12 @@ import androidx.annotation.VisibleForTesting
 object DataStore {
     private var cachedResults = mutableMapOf<Scenario, IResultData>()
     private var cachedFlickerServiceAssertions =
-        mutableMapOf<Scenario, Map<ScenarioInstance, Collection<IFaasAssertion>>>()
+        mutableMapOf<Scenario, Map<ScenarioInstance, Collection<ScenarioAssertion>>>()
 
     data class Backup(
         val cachedResults: MutableMap<Scenario, IResultData>,
         val cachedFlickerServiceAssertions:
-            MutableMap<Scenario, Map<ScenarioInstance, Collection<IFaasAssertion>>>
+            MutableMap<Scenario, Map<ScenarioInstance, Collection<ScenarioAssertion>>>
     )
 
     @VisibleForTesting
@@ -87,7 +87,7 @@ object DataStore {
 
     fun addFlickerServiceAssertions(
         scenario: Scenario,
-        groupedAssertions: Map<ScenarioInstance, Collection<IFaasAssertion>>
+        groupedAssertions: Map<ScenarioInstance, Collection<ScenarioAssertion>>
     ) {
         if (containsFlickerServiceResult(scenario)) {
             error("Result for $scenario already in data store")
@@ -97,7 +97,7 @@ object DataStore {
 
     fun getFlickerServiceAssertions(
         scenario: Scenario
-    ): Map<ScenarioInstance, Collection<IFaasAssertion>> {
+    ): Map<ScenarioInstance, Collection<ScenarioAssertion>> {
         return cachedFlickerServiceAssertions[scenario]
             ?: error("No flicker service results for $scenario")
     }

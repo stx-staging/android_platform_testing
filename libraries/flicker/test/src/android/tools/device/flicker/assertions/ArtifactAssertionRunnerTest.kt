@@ -129,7 +129,7 @@ class ArtifactAssertionRunnerTest {
 
     companion object {
         private fun newAssertionData(assertion: (FlickerSubject) -> Unit) =
-            AssertionDataImpl(Tag.ALL, EventLogSubject::class, assertion)
+            AssertionDataImpl(name = "", Tag.ALL, EventLogSubject::class, assertion)
 
         private fun newResultReaderWithEmptySubject(): IResultData {
             val writer = newTestResultWriter()

@@ -28,6 +28,7 @@ interface Scenario {
     fun <T> getConfigValue(key: String): T?
 
     companion object {
+        internal const val IS_TABLET = "isTablet"
         const val FAAS_BLOCKING = "faas:blocking"
     }
 }

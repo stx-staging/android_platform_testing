@@ -14,11 +14,16 @@
  * limitations under the License.
  */
 
-package android.tools.common.flicker.assertors.runners
+package android.tools.common.flicker.assertors
 
-import android.tools.common.flicker.assertors.IAssertionResult
-import android.tools.common.flicker.assertors.IFaasAssertion
+import android.tools.common.flicker.AssertionInvocationGroup
+import android.tools.common.flicker.assertions.AssertionData
 
-interface IAssertionRunner {
-    fun execute(assertions: Collection<IFaasAssertion>): Collection<IAssertionResult>
+/** Base class for a FaaS assertion */
+data class AssertionResultImpl(
+    override val assertion: AssertionData,
+    override val assertionError: Throwable?,
+    override val stabilityGroup: AssertionInvocationGroup
+) : AssertionResult {
+    override val passed = assertionError == null
 }

@@ -24,7 +24,7 @@ import android.tools.common.Scenario
 import android.tools.common.ScenarioBuilder
 import android.tools.common.flicker.FlickerService
 import android.tools.common.flicker.ScenarioInstance
-import android.tools.common.flicker.assertors.IFaasAssertion
+import android.tools.common.flicker.assertions.ScenarioAssertion
 import android.tools.common.flicker.config.FaasScenarioType
 import android.tools.common.io.IReader
 import android.tools.device.flicker.FlickerServiceImpl
@@ -216,13 +216,12 @@ class FlickerServiceDecorator(
             testScenario: Scenario,
             reader: IReader,
             flickerService: FlickerService,
-        ): Map<ScenarioInstance, Collection<IFaasAssertion>> {
+        ): Map<ScenarioInstance, Collection<ScenarioAssertion>> {
             if (!DataStore.containsFlickerServiceResult(testScenario)) {
                 val detectedScenarios = flickerService.detectScenarios(reader)
-                val groupedAssertions = mutableMapOf<ScenarioInstance, Collection<IFaasAssertion>>()
-                detectedScenarios.forEach {
-                    groupedAssertions[it] = flickerService.generateAssertions(it)
-                }
+                val groupedAssertions =
+                    mutableMapOf<ScenarioInstance, Collection<ScenarioAssertion>>()
+                detectedScenarios.forEach { groupedAssertions[it] = it.generateAssertions() }
                 DataStore.addFlickerServiceAssertions(testScenario, groupedAssertions)
             }
 

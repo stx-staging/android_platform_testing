@@ -18,6 +18,7 @@ package android.tools.common.flicker.extractor
 
 import android.tools.common.CrossPlatform
 import android.tools.common.flicker.config.FaasScenarioType
+import android.tools.common.flicker.config.FlickerServiceConfig
 import android.tools.common.flicker.extractors.ITransitionMatcher
 import android.tools.common.flicker.extractors.ShellTransitionScenarioExtractor
 import android.tools.common.traces.wm.Transition
@@ -37,7 +38,7 @@ class ShellTransitionScenarioExtractorTest {
 
         val noFilterExtractor =
             ShellTransitionScenarioExtractor(
-                FaasScenarioType.LAUNCHER_APP_LAUNCH_FROM_ICON,
+                FlickerServiceConfig.getScenarioConfigFor(FaasScenarioType.LAUNCHER_APP_LAUNCH_FROM_ICON),
                 object : ITransitionMatcher {
                     override fun findAll(
                         transitions: Collection<Transition>
@@ -67,7 +68,9 @@ class ShellTransitionScenarioExtractorTest {
 
         val filterToFrontExtractor =
             ShellTransitionScenarioExtractor(
-                FaasScenarioType.LAUNCHER_APP_LAUNCH_FROM_ICON,
+                FlickerServiceConfig.getScenarioConfigFor(
+                    FaasScenarioType.LAUNCHER_APP_LAUNCH_FROM_ICON
+                ),
                 object : ITransitionMatcher {
                     override fun findAll(
                         transitions: Collection<Transition>
@@ -107,7 +110,9 @@ class ShellTransitionScenarioExtractorTest {
 
         val filterToBackExtractor =
             ShellTransitionScenarioExtractor(
-                FaasScenarioType.LAUNCHER_APP_LAUNCH_FROM_ICON,
+                FlickerServiceConfig.getScenarioConfigFor(
+                    FaasScenarioType.LAUNCHER_APP_LAUNCH_FROM_ICON
+                ),
                 object : ITransitionMatcher {
                     override fun findAll(
                         transitions: Collection<Transition>

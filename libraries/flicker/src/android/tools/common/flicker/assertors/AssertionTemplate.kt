@@ -16,9 +16,13 @@
 
 package android.tools.common.flicker.assertors
 
+import android.tools.common.Tag
 import android.tools.common.flicker.AssertionInvocationGroup
 import android.tools.common.flicker.AssertionInvocationGroup.NON_BLOCKING
 import android.tools.common.flicker.ScenarioInstance
+import android.tools.common.flicker.assertions.AssertionData
+import android.tools.common.flicker.assertions.AssertionDataImpl
+import android.tools.common.flicker.subject.FlickerSubject
 import android.tools.common.flicker.subject.events.EventLogSubject
 import android.tools.common.flicker.subject.layers.LayersTraceSubject
 import android.tools.common.flicker.subject.wm.WindowManagerTraceSubject
@@ -26,10 +30,17 @@ import android.tools.common.flicker.subject.wm.WindowManagerTraceSubject
 /** Base class for a FaaS assertion */
 abstract class AssertionTemplate {
     open val assertionName = "${this@AssertionTemplate::class.simpleName}"
-    private var stabilityGroup: AssertionInvocationGroup = NON_BLOCKING
+    var stabilityGroup: AssertionInvocationGroup = NON_BLOCKING
+        protected set
 
-    fun createAssertion(scenarioInstance: ScenarioInstance): IFaasAssertion {
-        return object : IFaasAssertion {
+    fun createAssertion(scenarioInstance: ScenarioInstance): AssertionData {
+        // TODO(Implement)
+        return AssertionDataImpl(
+            name = "${scenarioInstance.type}::${this@AssertionTemplate.assertionName}",
+            tag = Tag.ALL,
+            FlickerSubject::class,
+        ) {}
+        /*return object : IFaasAssertion {
             override val name = "${scenarioInstance.type}::${this@AssertionTemplate.assertionName}"
 
             override val stabilityGroup
@@ -69,7 +80,7 @@ abstract class AssertionTemplate {
 
                 return AssertionResult(this, assertionError)
             }
-        }
+        }*/
     }
 
     /**

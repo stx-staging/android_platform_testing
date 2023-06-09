@@ -18,6 +18,7 @@ package android.tools.device.flicker.assertions
 
 import android.tools.common.Tag
 import android.tools.common.flicker.assertions.AssertionDataFactory
+import android.tools.common.flicker.assertions.AssertionDataImpl
 import android.tools.common.flicker.assertions.AssertionStateDataFactory
 import android.tools.common.flicker.subject.layers.LayerTraceEntrySubject
 import android.tools.common.flicker.subject.layers.LayersTraceSubject
@@ -36,12 +37,14 @@ class AssertionDataFactoryTest : AssertionStateDataFactoryTest() {
     @Test
     fun checkBuildsTraceAssertion() {
         validate(
-            (wmAssertionFactory as AssertionDataFactory).createTraceAssertion {},
+            (wmAssertionFactory as AssertionDataFactory).createTraceAssertion {}
+                as AssertionDataImpl,
             WindowManagerTraceSubject::class,
             Tag.ALL
         )
         validate(
-            (layersAssertionFactory as AssertionDataFactory).createTraceAssertion {},
+            (layersAssertionFactory as AssertionDataFactory).createTraceAssertion {}
+                as AssertionDataImpl,
             LayersTraceSubject::class,
             Tag.ALL
         )

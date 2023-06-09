@@ -16,11 +16,14 @@
 
 package android.tools.common.flicker.assertors
 
-/** Base class for a FaaS assertion */
-data class AssertionResult(
-    override val assertion: IFaasAssertion,
-    override val assertionError: Throwable?,
-) : IAssertionResult {
-    override val failed = (assertionError !== null)
-    override val passed = !failed
+import android.tools.common.flicker.AssertionInvocationGroup
+import android.tools.common.flicker.assertions.AssertionData
+
+interface AssertionResult {
+    val assertion: AssertionData
+    val assertionError: Throwable?
+    val stabilityGroup: AssertionInvocationGroup
+    val passed: Boolean
+    val failed: Boolean
+        get() = !passed
 }

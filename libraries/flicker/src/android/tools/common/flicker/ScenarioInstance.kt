@@ -16,12 +16,13 @@
 
 package android.tools.common.flicker
 
+import android.tools.common.CrossPlatform
 import android.tools.common.Scenario
-import android.tools.common.Timestamp
+import android.tools.common.flicker.assertions.ScenarioAssertion
+import android.tools.common.flicker.assertions.ScenarioAssertionImpl
 import android.tools.common.flicker.config.FaasScenarioType
 import android.tools.common.flicker.config.ScenarioConfig
 import android.tools.common.io.IReader
-import android.tools.common.traces.events.CujType
 import android.tools.common.traces.wm.Transition
 
 interface ScenarioInstance : Scenario {
@@ -30,10 +31,18 @@ interface ScenarioInstance : Scenario {
     /** A reader to read the part of the trace associated with the scenario instance */
     val reader: IReader
     val associatedTransition: Transition?
-    val startTimestamp: Timestamp
-    val endTimestamp: Timestamp
-    val associatedCuj: CujType?
 
     val type: FaasScenarioType
         get() = config.type
+
+    fun generateAssertions(): Collection<ScenarioAssertion> =
+        CrossPlatform.log.withTracing("generateAssertions") {
+            config.assertionTemplates.map { template ->
+                ScenarioAssertionImpl(
+                    reader,
+                    template.createAssertion(this),
+                    template.stabilityGroup
+                )
+            }
+        }
 }

@@ -24,8 +24,8 @@ import android.tools.common.FLICKER_TAG
 import android.tools.common.ScenarioBuilder
 import android.tools.common.flicker.AssertionInvocationGroup
 import android.tools.common.flicker.FlickerService
-import android.tools.common.flicker.ITracesCollector
-import android.tools.common.flicker.assertors.IAssertionResult
+import android.tools.common.flicker.TracesCollector
+import android.tools.common.flicker.assertors.AssertionResult
 import android.tools.common.flicker.config.FaasScenarioType
 import android.tools.common.io.RunStatus
 import androidx.test.platform.app.InstrumentationRegistry
@@ -39,7 +39,7 @@ import org.junit.runner.notification.Failure
  * the CrystalBall database.
  */
 class FlickerServiceResultsCollector(
-    private val tracesCollector: ITracesCollector,
+    private val tracesCollector: TracesCollector,
     private val flickerService: FlickerService = FlickerServiceImpl(),
     instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation(),
     private val collectMetricsPerTest: Boolean = true,
@@ -52,9 +52,9 @@ class FlickerServiceResultsCollector(
     override val executionErrors
         get() = _executionErrors
 
-    @VisibleForTesting val assertionResults = mutableListOf<IAssertionResult>()
+    @VisibleForTesting val assertionResults = mutableListOf<AssertionResult>()
     @VisibleForTesting
-    val assertionResultsByTest = mutableMapOf<Description, Collection<IAssertionResult>>()
+    val assertionResultsByTest = mutableMapOf<Description, Collection<AssertionResult>>()
     @VisibleForTesting
     val detectedScenariosByTest = mutableMapOf<Description, Collection<FaasScenarioType>>()
 
@@ -156,8 +156,7 @@ class FlickerServiceResultsCollector(
             try {
                 CrossPlatform.log.i(LOG_TAG, "Processing traces")
                 val scenarios = flickerService.detectScenarios(reader)
-                val assertions = flickerService.generateAssertions(scenarios)
-                val results = flickerService.executeAssertions(assertions)
+                val results = scenarios.flatMap { it.generateAssertions() }.map { it.execute() }
                 reader.artifact.updateStatus(RunStatus.RUN_EXECUTED)
                 CrossPlatform.log.i(LOG_TAG, "Got ${results.size} results")
                 assertionResults.addAll(results)
@@ -196,7 +195,7 @@ class FlickerServiceResultsCollector(
     }
 
     private fun processFlickerResults(
-        results: Collection<IAssertionResult>
+        results: Collection<AssertionResult>
     ): Map<String, AggregatedFlickerResult> {
         val aggregatedResults = mutableMapOf<String, AggregatedFlickerResult>()
         for (result in results) {
@@ -234,7 +233,7 @@ class FlickerServiceResultsCollector(
         }
     }
 
-    override fun resultsForTest(description: Description): Collection<IAssertionResult> {
+    override fun resultsForTest(description: Description): Collection<AssertionResult> {
         val resultsForTest = assertionResultsByTest[description]
         requireNotNull(resultsForTest) { "No results set for test $description" }
         return resultsForTest
@@ -253,18 +252,18 @@ class FlickerServiceResultsCollector(
         const val WINSCOPE_FILE_PATH_KEY = "winscope_file_path"
         const val FLICKER_ASSERTIONS_COUNT_KEY = "flicker_assertions_count"
 
-        fun getKeyForAssertionResult(result: IAssertionResult): String {
+        fun getKeyForAssertionResult(result: AssertionResult): String {
             return "$FAAS_METRICS_PREFIX::${result.assertion.name}"
         }
 
         class AggregatedFlickerResult {
-            val results = mutableListOf<IAssertionResult>()
+            val results = mutableListOf<AssertionResult>()
             var failures = 0
             var passes = 0
             val errors = mutableListOf<String>()
             var invocationGroup: AssertionInvocationGroup? = null
 
-            fun addResult(result: IAssertionResult) {
+            fun addResult(result: AssertionResult) {
                 results.add(result)
 
                 if (result.failed) {
@@ -275,10 +274,10 @@ class FlickerServiceResultsCollector(
                 }
 
                 if (invocationGroup == null) {
-                    invocationGroup = result.assertion.stabilityGroup
+                    invocationGroup = result.stabilityGroup
                 }
 
-                if (invocationGroup != result.assertion.stabilityGroup) {
+                if (invocationGroup != result.stabilityGroup) {
                     error("Unexpected assertion group mismatch")
                 }
             }

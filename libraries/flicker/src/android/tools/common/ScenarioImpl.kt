@@ -23,7 +23,7 @@ package android.tools.common
  * @param startRotation Initial screen rotation
  * @param endRotation Final screen rotation
  * @param navBarMode Navigation mode, such as 3 button or gestural.
- * @param _extraConfig Additional configurations
+ * @param config Additional configurations
  *
  * Defaults to [startRotation]
  */
@@ -33,10 +33,10 @@ internal constructor(
     override val startRotation: Rotation,
     override val endRotation: Rotation,
     override val navBarMode: NavBar,
-    _extraConfig: Map<String, Any?>,
+    config: Map<String, Any?>,
     override val description: String
 ) : Scenario {
-    internal val extraConfig = _extraConfig.toMutableMap()
+    internal val extraConfig = config.toMutableMap()
 
     override val isEmpty = testClass.isEmpty()
 

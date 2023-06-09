@@ -19,7 +19,7 @@ package android.tools.device.flicker
 import android.tools.common.CrossPlatform
 import android.tools.common.FLICKER_TAG
 import android.tools.common.Scenario
-import android.tools.common.flicker.ITracesCollector
+import android.tools.common.flicker.TracesCollector
 import android.tools.common.io.IReader
 import android.tools.device.traces.SERVICE_TRACE_CONFIG
 import android.tools.device.traces.io.ResultReaderWithLru
@@ -35,7 +35,7 @@ import kotlin.io.path.createTempDirectory
 
 class FlickerServiceTracesCollector(
     private val outputDir: File = createTempDirectory().toFile(),
-) : ITracesCollector {
+) : TracesCollector {
     private var scenario: Scenario? = null
 
     private val traceMonitors =

@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-package android.tools.common.flicker.assertors.factories
+package android.tools.common.flicker.assertions
 
-import android.tools.common.flicker.ScenarioInstance
-import android.tools.common.flicker.assertors.IFaasAssertion
+import android.tools.common.flicker.AssertionInvocationGroup
+import android.tools.common.flicker.assertors.AssertionResult
 
-class GeneratedAssertionsFactory : IAssertionFactory {
-    override fun generateAssertionsFor(
-        scenarioInstance: ScenarioInstance
-    ): Collection<IFaasAssertion> {
-        // TODO: Implement
-        return emptyList()
-    }
+interface ScenarioAssertion {
+    val stabilityGroup: AssertionInvocationGroup
+
+    fun execute(): AssertionResult
 }

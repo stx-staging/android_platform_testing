@@ -46,6 +46,7 @@ class AssertionDataFactory(
             forAllEntries()
         }
         return AssertionDataImpl(
+            name = "",
             tag = Tag.ALL,
             expectedSubjectClass = traceSubject,
             assertion = closedAssertion as FlickerSubject.() -> Unit

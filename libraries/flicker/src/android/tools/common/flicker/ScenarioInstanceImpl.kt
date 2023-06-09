@@ -27,10 +27,10 @@ data class ScenarioInstanceImpl(
     override val config: ScenarioConfig,
     override val startRotation: Rotation,
     override val endRotation: Rotation,
-    override val startTimestamp: Timestamp,
-    override val endTimestamp: Timestamp,
+    val startTimestamp: Timestamp,
+    val endTimestamp: Timestamp,
     override val reader: IReader,
-    override val associatedCuj: CujType? = null,
+    val associatedCuj: CujType? = null,
     override val associatedTransition: Transition? = null,
 ) : ScenarioInstance {
     // b/227752705

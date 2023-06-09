@@ -17,7 +17,7 @@
 package android.tools.device.flicker.assertions
 
 import android.tools.common.Tag
-import android.tools.common.flicker.assertions.AssertionData
+import android.tools.common.flicker.assertions.AssertionDataImpl
 import android.tools.common.flicker.assertions.AssertionStateDataFactory
 import android.tools.common.flicker.subject.events.EventLogSubject
 import android.tools.common.flicker.subject.layers.LayerTraceEntrySubject
@@ -91,7 +91,7 @@ open class AssertionStateDataFactoryTest {
     }
 
     protected fun validate(
-        assertionData: AssertionData,
+        assertionData: AssertionDataImpl,
         expectedSubject: KClass<*>,
         expectedTag: String
     ) {

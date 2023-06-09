@@ -67,7 +67,7 @@ class ScenarioBuilder {
             startRotation = DEFAULT_ROTATION,
             endRotation = DEFAULT_ROTATION,
             navBarMode = DEFAULT_NAVBAR_MODE,
-            _extraConfig = emptyMap(),
+            config = emptyMap(),
             description =
                 defaultDescription(DEFAULT_ROTATION, DEFAULT_ROTATION, DEFAULT_NAVBAR_MODE)
         )

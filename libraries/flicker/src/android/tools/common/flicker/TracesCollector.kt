@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-package android.tools.common.flicker.assertors.runners
+package android.tools.common.flicker
 
-import android.tools.common.CrossPlatform
-import android.tools.common.flicker.assertors.IAssertionResult
-import android.tools.common.flicker.assertors.IFaasAssertion
+import android.tools.common.Scenario
+import android.tools.common.io.IReader
 
-class AssertionRunner : IAssertionRunner {
-    override fun execute(assertions: Collection<IFaasAssertion>): Collection<IAssertionResult> {
-        return CrossPlatform.log.withTracing("AssertionRunner#execute") {
-            assertions.map { it.evaluate() }
-        }
-    }
+interface TracesCollector {
+    fun start(scenario: Scenario)
+    fun stop(): IReader
+    fun cleanup()
 }
