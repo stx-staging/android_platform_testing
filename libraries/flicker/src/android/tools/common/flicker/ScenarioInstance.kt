@@ -34,5 +34,6 @@ interface ScenarioInstance : Scenario {
     val endTimestamp: Timestamp
     val associatedCuj: CujType?
 
-    val type: FaasScenarioType get() = config.type
+    val type: FaasScenarioType
+        get() = config.type
 }

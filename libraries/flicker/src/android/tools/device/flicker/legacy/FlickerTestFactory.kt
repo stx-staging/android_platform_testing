@@ -71,7 +71,7 @@ object FlickerTestFactory {
         endRotation: Rotation,
         extraArgs: Map<String, Any>
     ) =
-        FlickerTest(
+        LegacyFlickerTest(
             ScenarioBuilder()
                 .withStartRotation(startRotation)
                 .withEndRotation(endRotation)

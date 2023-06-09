@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-package android.tools.device.flicker.assertions
+package android.tools.common.flicker.assertions
 
 import android.tools.common.Tag
-import android.tools.common.flicker.assertions.AssertionData
-import android.tools.common.flicker.assertions.AssertionDataImpl
 import android.tools.common.flicker.subject.FlickerSubject
 import android.tools.common.flicker.subject.FlickerTraceSubject
 import kotlin.reflect.KClass

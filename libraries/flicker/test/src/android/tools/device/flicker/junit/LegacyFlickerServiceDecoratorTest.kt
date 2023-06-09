@@ -21,7 +21,7 @@ import android.tools.TEST_SCENARIO
 import android.tools.device.flicker.datastore.DataStore
 import android.tools.device.flicker.isShellTransitionsEnabled
 import android.tools.device.flicker.legacy.FlickerBuilder
-import android.tools.device.flicker.legacy.FlickerTest
+import android.tools.device.flicker.legacy.LegacyFlickerTest
 import android.tools.rules.CleanFlickerEnvironmentRule
 import com.google.common.truth.Truth
 import kotlin.reflect.KClass
@@ -81,7 +81,7 @@ class LegacyFlickerServiceDecoratorTest {
             )
         val methods =
             decorator.getTestMethods(
-                LegacyFlickerJUnit4ClassRunnerTest.SimpleFaasTest(FlickerTest())
+                LegacyFlickerJUnit4ClassRunnerTest.SimpleFaasTest(LegacyFlickerTest())
             )
         val duplicatedMethods = methods.groupBy { it.name }.filter { it.value.size > 1 }
 
@@ -182,7 +182,7 @@ class LegacyFlickerServiceDecoratorTest {
             .that(failure)
             .hasMessageThat()
             .contains(
-                "Constructor should have a parameter of type ${FlickerTest::class.simpleName}"
+                "Constructor should have a parameter of type ${LegacyFlickerTest::class.simpleName}"
             )
     }
 

@@ -26,6 +26,7 @@ import android.tools.device.flicker.isShellTransitionsEnabled
 import android.tools.device.flicker.legacy.FlickerBuilder
 import android.tools.device.flicker.legacy.FlickerTest
 import android.tools.device.flicker.legacy.FlickerTestFactory
+import android.tools.device.flicker.legacy.LegacyFlickerTest
 import android.tools.getScenarioTraces
 import android.tools.rules.CleanFlickerEnvironmentRule
 import androidx.test.platform.app.InstrumentationRegistry
@@ -304,7 +305,7 @@ class LegacyFlickerJUnit4ClassRunnerTest {
 
     companion object {
         const val TRANSITION_FAILURE_MESSAGE = "Transition execution failed"
-        private val NO_SCENARIO_MESSAGE = "Unable to extract ${FlickerTest::class.simpleName}"
+        private val NO_SCENARIO_MESSAGE = "Unable to extract ${LegacyFlickerTest::class.simpleName}"
 
         val FLAKY_TEST_FILTER =
             object : Filter() {

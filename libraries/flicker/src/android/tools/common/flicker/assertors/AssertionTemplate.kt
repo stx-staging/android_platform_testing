@@ -30,8 +30,7 @@ abstract class AssertionTemplate {
 
     fun createAssertion(scenarioInstance: ScenarioInstance): IFaasAssertion {
         return object : IFaasAssertion {
-            override val name =
-                "${scenarioInstance.type}::${this@AssertionTemplate.assertionName}"
+            override val name = "${scenarioInstance.type}::${this@AssertionTemplate.assertionName}"
 
             override val stabilityGroup
                 get() = this@AssertionTemplate.stabilityGroup

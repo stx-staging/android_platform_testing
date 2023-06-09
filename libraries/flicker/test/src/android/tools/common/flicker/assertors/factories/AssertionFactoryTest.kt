@@ -42,7 +42,7 @@ class AssertionFactoryTest {
 
         val scenarioInstance =
             ScenarioInstanceImpl(
-                type = type,
+                FlickerServiceConfig.getScenarioConfigFor(type),
                 startRotation = Rotation.ROTATION_0,
                 endRotation = Rotation.ROTATION_0,
                 startTimestamp = CrossPlatform.timestamp.min(),

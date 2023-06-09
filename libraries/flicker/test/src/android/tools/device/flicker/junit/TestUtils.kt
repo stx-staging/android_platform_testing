@@ -20,11 +20,12 @@ import android.app.Instrumentation
 import android.tools.common.ScenarioBuilder
 import android.tools.device.flicker.legacy.FlickerBuilder
 import android.tools.device.flicker.legacy.FlickerTest
+import android.tools.device.flicker.legacy.LegacyFlickerTest
 import androidx.test.platform.app.InstrumentationRegistry
 
 object TestUtils {
     private val instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation()
-    val VALID_ARGS_EMPTY = FlickerTest()
+    val VALID_ARGS_EMPTY = LegacyFlickerTest()
 
     var executionCount = 0
 

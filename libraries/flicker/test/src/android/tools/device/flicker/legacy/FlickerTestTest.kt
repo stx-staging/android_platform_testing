@@ -47,7 +47,7 @@ class FlickerTestTest {
 
     @Test
     fun failsWithoutScenario() {
-        val actual = FlickerTest()
+        val actual = LegacyFlickerTest()
         val failure =
             assertThrows<IllegalArgumentException> { actual.assertLayers { executionCount++ } }
         assertExceptionMessage(failure, "Scenario shouldn't be empty")
@@ -188,7 +188,7 @@ class FlickerTestTest {
     fun doesNotExecuteEventLogWithoutEventLog() {
         val predicate: (FlickerTest) -> Unit = { it.assertEventLog { executionCount++ } }
         newTestCachedResultWriter().write()
-        val flickerWrapper = FlickerTest()
+        val flickerWrapper = LegacyFlickerTest()
         flickerWrapper.initialize(TEST_SCENARIO.testClass)
         // Each assertion is executed independently and not cached, only Flicker as a Service
         // assertions are cached
@@ -221,7 +221,7 @@ class FlickerTestTest {
         }
         writer.write()
         val flickerWrapper =
-            FlickerTest(
+            LegacyFlickerTest(
                 resultReaderProvider = {
                     CachedResultReader(
                         it,

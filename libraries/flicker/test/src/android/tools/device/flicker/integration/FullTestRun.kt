@@ -33,6 +33,7 @@ import android.tools.device.flicker.junit.FlickerParametersRunnerFactory
 import android.tools.device.flicker.legacy.FlickerBuilder
 import android.tools.device.flicker.legacy.FlickerTest
 import android.tools.device.flicker.legacy.FlickerTestFactory
+import android.tools.device.flicker.legacy.LegacyFlickerTest
 import android.tools.device.traces.parsers.WindowManagerStateHelper
 import androidx.test.platform.app.InstrumentationRegistry
 import com.android.launcher3.tapl.LauncherInstrumentation
@@ -44,7 +45,7 @@ import org.junit.runners.Parameterized
 @FlickerServiceCompatible(expectedCujs = [FaasScenarioType.COMMON])
 @RunWith(Parameterized::class)
 @Parameterized.UseParametersRunnerFactory(FlickerParametersRunnerFactory::class)
-class FullTestRun(private val flicker: FlickerTest) {
+class FullTestRun(private val flicker: LegacyFlickerTest) {
     private val instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation()
     private val testApp = BrowserAppHelper(instrumentation)
     private val tapl: LauncherInstrumentation = LauncherInstrumentation()
