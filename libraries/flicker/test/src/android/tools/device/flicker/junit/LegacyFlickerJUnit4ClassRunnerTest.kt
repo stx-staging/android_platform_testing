@@ -206,7 +206,7 @@ class LegacyFlickerJUnit4ClassRunnerTest {
     private fun checkTestRunReportsExecutionErrors(klass: Class<*>) {
         val testClass = TestClass(klass)
         val parameters = FlickerTestFactory.nonRotationTests()
-        val flickerTest = parameters.first()
+        val flickerTest = parameters.first() as LegacyFlickerTest
         val test = TestWithParameters("[PARAMS]", testClass, listOf(flickerTest))
 
         val runner = createRunner(test)

@@ -44,8 +44,7 @@ data class LegacyFlickerTest(
     private val subjectsParserProvider: (IReader) -> SubjectsParser = { SubjectsParser(it) },
     private val runnerProvider: (Scenario) -> BaseAssertionRunner = {
         val reader = resultReaderProvider(it)
-        val subjectsParser = subjectsParserProvider(reader)
-        CachedAssertionRunner(it, reader, subjectsParser)
+        CachedAssertionRunner(it, reader)
     }
 ) : FlickerTest {
     private val assertionFactory = AssertionFactory()

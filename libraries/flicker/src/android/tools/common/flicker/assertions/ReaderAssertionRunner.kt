@@ -14,18 +14,23 @@
  * limitations under the License.
  */
 
-package android.tools.common.flicker.assertors.factories
+package android.tools.common.flicker.assertions
 
-import android.tools.common.CrossPlatform
-import android.tools.common.flicker.ScenarioInstance
-import android.tools.common.flicker.assertors.IFaasAssertion
+import android.tools.common.io.IReader
 
-class CombinedAssertionFactory(private val factories: List<IAssertionFactory>) : IAssertionFactory {
-    override fun generateAssertionsFor(
-        scenarioInstance: ScenarioInstance
-    ): Collection<IFaasAssertion> {
-        return CrossPlatform.log.withTracing("CombinedAssertionFactory#generateAssertionsFor") {
-            factories.flatMap { it.generateAssertionsFor(scenarioInstance) }
+class ReaderAssertionRunner(
+    private val resultReader: IReader,
+    private val subjectsParser: SubjectsParser = SubjectsParser(resultReader)
+) : AssertionRunner {
+    override fun runAssertion(assertion: AssertionData): Throwable? =
+        resultReader.executionError ?: doRunAssertion(assertion)
+
+    private fun doRunAssertion(assertion: AssertionData): Throwable? {
+        return try {
+            assertion.checkAssertion(subjectsParser)
+            null
+        } catch (error: Throwable) {
+            error
         }
     }
 }

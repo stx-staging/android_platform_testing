@@ -14,12 +14,8 @@
  * limitations under the License.
  */
 
-package android.tools.common.flicker.assertors
+package android.tools.common.flicker.assertions
 
-interface IAssertionResult {
-    val assertion: IFaasAssertion
-    val passed: Boolean
-    val failed: Boolean
-        get() = !passed
-    val assertionError: Throwable?
+interface AssertionRunner {
+    fun runAssertion(assertion: AssertionData): Throwable?
 }
