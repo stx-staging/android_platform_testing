@@ -343,6 +343,9 @@ public class AutomotiveConfigConstants {
     public static final String SETTINGS_SUB_SETTING_SCROLL_ELEMENT =
             "SETTINGS_SUB_SETTING_SCROLL_ELEMENT";
     public static final String SETTINGS_TITLE_TEXT = "SETTINGS_TITLE_TEXT";
+    public static final String LOCATION_SETTINGS_RECENTLY_ACCESSED_MAPS =
+            "LOCATION_SETTINGS_RECENTLY_ACCESSED_MAPS";
+    public static final String LOCATION_SETTINGS_VIEW_ALL = "LOCATION_SETTINGS_VIEW_ALL";
 
     // App Info Settings Constants
     public static final String APP_INFO_SETTINGS_APP_NAME_ELEMENT =
