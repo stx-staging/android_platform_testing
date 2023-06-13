@@ -312,6 +312,7 @@ public class AutomotiveConfigConstants {
     public static final String SEARCH_RESULTS = "SEARCH_RESULTS";
     public static final String PAGE_TITLE = "PAGE_TITLE";
     public static final String PERMISSIONS_PAGE_TITLE = "PERMISSIONS_PAGE_TITLE";
+    public static final String DIAL_CONTACT_WORKFLOW = "DIAL_CONTACT_WORKFLOW";
     public static final String SOUND_SETTINGS = "OPEN_SOUND_SETTINGS_WORKFLOW";
     public static final String NETWORK_AND_INTERNET_SETTINGS =
             "OPEN_NETWORK_AND_INTERNET_SETTINGS_WORKFLOW";

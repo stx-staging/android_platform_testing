@@ -1205,6 +1205,7 @@
     }
   },
   "WORKFLOWS": {
+    "DIAL_CONTACT_WORKFLOW": [],
     "DISMISS_APPS_INITIAL_DIALOGS": [
       {
         "NAME": "Allow Button",
