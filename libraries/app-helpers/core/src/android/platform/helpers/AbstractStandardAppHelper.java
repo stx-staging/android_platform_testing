@@ -36,6 +36,7 @@ import android.os.RemoteException;
 import android.os.SystemClock;
 import android.os.Trace;
 import android.os.UserHandle;
+import android.os.UserManager;
 import android.platform.helpers.exceptions.AccountException;
 import android.platform.helpers.exceptions.TestHelperException;
 import android.platform.helpers.exceptions.UnknownUiException;
@@ -73,6 +74,14 @@ public abstract class AbstractStandardAppHelper implements IAppHelper {
 
     private static final long EXIT_WAIT_TIMEOUT = TimeUnit.SECONDS.toMillis(5);
     private static final int WAIT_TIME_MS = 10000;
+
+    // Running on a user profile only works, if favor-shell-commands is set to true. Otherwise, apps
+    // will be selected using launcher automation, which cannot navigate profiles in Android SysUi.
+    private static final String RUN_ON_PROFILE_TYPE = "run_on_profile_type";
+    private static final String FOREGROUND_USER_TYPE = "foreground_user";
+
+    private static final String WORK_PROFILE_TYPE = "work_profile";
+    private static final String CLONE_PROFILE_TYPE = "clone_profile";
 
     private static File sScreenshotDirectory;
 
@@ -230,13 +239,18 @@ public abstract class AbstractStandardAppHelper implements IAppHelper {
         if (mFavorShellCommands) {
             Trace.beginSection("favor shell commands, launching");
             String output = null;
+            UserHandle runAsUser = getRunAsUser();
             try {
-                Log.i(LOG_TAG, String.format("Sending command to launch: %s", pkg));
+                Log.i(
+                        LOG_TAG,
+                        String.format(
+                                "Sending command to launch: %s as %d",
+                                pkg, runAsUser.getIdentifier()));
                 mInstrumentation
                         .getContext()
                         .startActivityAsUser(
-                                getOpenAppIntent().addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-                                UserHandle.CURRENT);
+                                getOpenAppIntent(runAsUser).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                                runAsUser);
             } catch (ActivityNotFoundException e) {
                 removeDialogWatchers();
                 throw new TestHelperException(String.format("Failed to find package: %s", pkg), e);
@@ -292,6 +306,32 @@ public abstract class AbstractStandardAppHelper implements IAppHelper {
         Intent intent =
                 mInstrumentation
                         .getContext()
+                        .getPackageManager()
+                        .getLaunchIntentForPackage(getPackage());
+        if (intent == null) {
+            throw new IllegalStateException(
+                    String.format("Failed to get intent of package: %s", getPackage()));
+        }
+        return intent;
+    }
+
+    /**
+     * Returns the {@code Intent} used by {@code open()} to launch an {@code Activity}. If the user
+     * passed is CURRENT, then {@link #getOpenAppIntent()} is defaulted to. Otherwise, the Intent
+     * for the Activity in provided user is fetched and returned.
+     *
+     * @param user the user space in which the Activity Intent would be searched.
+     */
+    public Intent getOpenAppIntent(UserHandle user) {
+        Log.v(LOG_TAG, String.format("Open App Intent as: %s", user));
+        if (user.equals(UserHandle.CURRENT)) {
+            return getOpenAppIntent();
+        }
+        Intent intent =
+                mInstrumentation
+                        .getContext()
+                        // Create user context without setting any context flags.
+                        .createContextAsUser(user, 0)
                         .getPackageManager()
                         .getLaunchIntentForPackage(getPackage());
         if (intent == null) {
@@ -631,5 +671,38 @@ public abstract class AbstractStandardAppHelper implements IAppHelper {
             }
             mAutomation.dropShellPermissionIdentity();
         }
+    }
+
+    private UserHandle getRunAsUser() {
+        String runOnProfileType =
+                InstrumentationRegistry.getArguments()
+                        .getString(RUN_ON_PROFILE_TYPE, FOREGROUND_USER_TYPE);
+        // return early in case we do not have a profile_type passed.
+        if (runOnProfileType.equals(FOREGROUND_USER_TYPE)) {
+            return UserHandle.CURRENT;
+        }
+        // Get a UserManager instance from current context to load available profiles on device.
+        UserManager userManager = mInstrumentation.getContext().getSystemService(UserManager.class);
+        for (UserHandle profile : userManager.getUserProfiles()) {
+            // For each profile construct a context derived from itself, so that its type can
+            // be determined.
+            UserManager contextUserManager =
+                    mInstrumentation
+                            .getContext()
+                            // Create user context without setting any context flags.
+                            .createContextAsUser(profile, 0)
+                            .getSystemService(UserManager.class);
+            if (runOnProfileType.equals(WORK_PROFILE_TYPE)
+                    && contextUserManager.isManagedProfile(profile.getIdentifier())) {
+                Log.d(LOG_TAG, String.format("ManagedProfile found: " + profile));
+                return profile;
+            } else if (runOnProfileType.equals(CLONE_PROFILE_TYPE)
+                    && contextUserManager.isCloneProfile()) {
+                Log.d(LOG_TAG, String.format("CloneProfile found: " + profile));
+                return profile;
+            }
+        }
+        // In case no matching profile is found on device, return the current foreground user.
+        return UserHandle.CURRENT;
     }
 }
