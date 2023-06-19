@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-package android.tools.common.flicker.annotation
+package android.tools.common.flicker.config
 
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.PROPERTY_GETTER,
-    AnnotationTarget.PROPERTY_SETTER
+// TODO: rename
+data class InitializedScenarioConfig(
+    val scenarioId: ScenarioId,
+    val assertions: Set<AssertionEntry>
 )
-@Retention(AnnotationRetention.RUNTIME)
-annotation class Registry

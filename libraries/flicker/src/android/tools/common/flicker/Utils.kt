@@ -14,17 +14,14 @@
  * limitations under the License.
  */
 
-package android.tools.common.flicker.extractors
+package android.tools.common.flicker
 
-import android.tools.common.Logger
-import android.tools.common.flicker.ScenarioInstance
-import android.tools.common.io.Reader
-
-class CombinedScenarioExtractor(private val extractors: List<ScenarioExtractor>) :
-    ScenarioExtractor {
-    override fun extract(reader: Reader): List<ScenarioInstance> {
-        return Logger.withTracing("CombinedScenarioExtractor#extract") {
-            extractors.flatMap { it.extract(reader) }
+fun String.camelToSnakeCase(): String {
+    return this.fold(StringBuilder()) { acc, c ->
+            acc.let {
+                val lowerC = c.lowercase()
+                acc.append(if (acc.isNotEmpty() && c.isUpperCase()) "_$lowerC" else lowerC)
+            }
         }
-    }
+        .toString()
 }

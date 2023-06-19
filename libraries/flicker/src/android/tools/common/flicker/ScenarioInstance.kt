@@ -18,8 +18,8 @@ package android.tools.common.flicker
 
 import android.tools.common.Scenario
 import android.tools.common.flicker.assertions.ScenarioAssertion
-import android.tools.common.flicker.config.FaasScenarioType
 import android.tools.common.flicker.config.ScenarioConfig
+import android.tools.common.flicker.config.ScenarioId
 import android.tools.common.io.Reader
 import android.tools.common.traces.wm.Transition
 
@@ -30,8 +30,8 @@ interface ScenarioInstance : Scenario {
     val reader: Reader
     val associatedTransition: Transition?
 
-    val type: FaasScenarioType
-        get() = config.type
+    val type: ScenarioId
+        get() = config.scenarioId
 
     fun generateAssertions(): Collection<ScenarioAssertion>
 }

@@ -14,13 +14,22 @@
  * limitations under the License.
  */
 
-package android.tools.common.flicker.extractors
+package android.tools.common.flicker.config
 
-import android.tools.common.flicker.ScenarioInstance
-import android.tools.common.flicker.config.ScenarioId
-import android.tools.common.io.Reader
+import android.tools.common.flicker.camelToSnakeCase
+import kotlin.reflect.KClass
 
-interface ScenarioExtractor {
-    val scenarioId: ScenarioId
-    fun extract(reader: Reader): List<ScenarioInstance>
+data class ScenarioId(val name: String) {
+    companion object {
+        fun fromClass(kClass: KClass<*>): ScenarioId {
+            return ScenarioId(
+                kClass.simpleName?.camelToSnakeCase()?.uppercase()
+                    ?: error("Class $kClass has no simple name")
+            )
+        }
+    }
+
+    override fun toString(): String {
+        return name
+    }
 }

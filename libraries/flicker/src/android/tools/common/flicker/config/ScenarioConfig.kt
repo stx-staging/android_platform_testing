@@ -16,12 +16,13 @@
 
 package android.tools.common.flicker.config
 
+import android.tools.common.flicker.AssertionInvocationGroup
 import android.tools.common.flicker.assertors.AssertionTemplate
 import android.tools.common.flicker.extractors.ScenarioExtractor
 
 interface ScenarioConfig {
     val extractor: ScenarioExtractor
-    val assertionTemplates: Collection<AssertionTemplate>
+    val assertions: Map<AssertionTemplate, AssertionInvocationGroup>
     val enabled: Boolean
-    val type: FaasScenarioType
+    val scenarioId: ScenarioId
 }

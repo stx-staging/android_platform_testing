@@ -26,7 +26,7 @@ import android.tools.common.flicker.FlickerService
 import android.tools.common.flicker.ScenarioInstance
 import android.tools.common.flicker.annotation.ExpectedScenarios
 import android.tools.common.flicker.assertions.ScenarioAssertion
-import android.tools.common.flicker.config.FaasScenarioType
+import android.tools.common.flicker.config.ScenarioId
 import android.tools.common.io.Reader
 import android.tools.device.flicker.FlickerServiceResultsCollector.Companion.FLICKER_ASSERTIONS_COUNT_KEY
 import android.tools.device.flicker.Utils.captureTrace
@@ -184,6 +184,7 @@ class FlickerServiceDecorator(
                     .firstOrNull()
                     ?.expectedScenarios
                     ?: emptyArray())
+                .map { ScenarioId(it) }
                 .toSet()
 
         return getFaasTestCases(
@@ -202,7 +203,7 @@ class FlickerServiceDecorator(
             testScenario: Scenario,
             reader: Reader,
             flickerService: FlickerService
-        ): Collection<FaasScenarioType> {
+        ): Collection<ScenarioId> {
             val groupedAssertions = getGroupedAssertions(testScenario, reader, flickerService)
             return groupedAssertions.keys.map { it.type }.distinct()
         }
@@ -227,7 +228,7 @@ class FlickerServiceDecorator(
 
         internal fun getFaasTestCases(
             testScenario: Scenario,
-            expectedScenarios: Set<String>,
+            expectedScenarios: Set<ScenarioId>,
             paramString: String,
             reader: Reader,
             flickerService: FlickerService,

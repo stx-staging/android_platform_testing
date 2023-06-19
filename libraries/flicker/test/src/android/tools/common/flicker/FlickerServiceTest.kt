@@ -16,6 +16,7 @@
 
 package android.tools.common.flicker
 
+import android.tools.common.flicker.config.FlickerConfig
 import android.tools.common.flicker.extractors.ScenarioExtractor
 import android.tools.common.io.Reader
 import android.tools.rules.CleanFlickerEnvironmentRule
@@ -32,17 +33,16 @@ class FlickerServiceTest {
     @Test
     fun generatesAssertionsFromExtractedScenarios() {
         val mockReader = Mockito.mock(Reader::class.java)
+        val mockFlickerConfig = Mockito.mock(FlickerConfig::class.java)
         val mockScenarioExtractor = Mockito.mock(ScenarioExtractor::class.java)
 
         val scenarioInstance = Mockito.mock(ScenarioInstance::class.java)
 
+        Mockito.`when`(mockFlickerConfig.getExtractors()).thenReturn(listOf(mockScenarioExtractor))
         Mockito.`when`(mockScenarioExtractor.extract(mockReader))
             .thenReturn(listOf(scenarioInstance))
 
-        val service =
-            FlickerService(
-                scenarioExtractor = mockScenarioExtractor,
-            )
+        val service = FlickerService(mockFlickerConfig)
         service.detectScenarios(mockReader)
 
         Mockito.verify(mockScenarioExtractor).extract(mockReader)
@@ -51,14 +51,16 @@ class FlickerServiceTest {
     @Test
     fun executesAssertionsReturnedByAssertionFactories() {
         val mockReader = Mockito.mock(Reader::class.java)
+        val mockFlickerConfig = Mockito.mock(FlickerConfig::class.java)
         val mockScenarioExtractor = Mockito.mock(ScenarioExtractor::class.java)
 
         val scenarioInstance = Mockito.mock(ScenarioInstance::class.java)
 
+        Mockito.`when`(mockFlickerConfig.getExtractors()).thenReturn(listOf(mockScenarioExtractor))
         Mockito.`when`(mockScenarioExtractor.extract(mockReader))
             .thenReturn(listOf(scenarioInstance))
 
-        val service = FlickerService(scenarioExtractor = mockScenarioExtractor)
+        val service = FlickerService(mockFlickerConfig)
         service.detectScenarios(mockReader)
 
         Mockito.verify(mockScenarioExtractor).extract(mockReader)

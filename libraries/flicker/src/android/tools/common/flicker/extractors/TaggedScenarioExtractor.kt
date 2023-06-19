@@ -21,6 +21,7 @@ import android.tools.common.Timestamps
 import android.tools.common.flicker.ScenarioInstance
 import android.tools.common.flicker.ScenarioInstanceImpl
 import android.tools.common.flicker.config.ScenarioConfig
+import android.tools.common.flicker.config.ScenarioId
 import android.tools.common.io.Reader
 import android.tools.common.traces.events.Cuj
 import android.tools.common.traces.events.CujType
@@ -34,6 +35,8 @@ class TaggedScenarioExtractor(
     private val transitionMatcher: TransitionMatcher,
     private val adjustCuj: CujAdjust
 ) : ScenarioExtractor {
+    override val scenarioId: ScenarioId = config.scenarioId
+
     override fun extract(reader: Reader): List<ScenarioInstance> {
         val layersTrace = reader.readLayersTrace() ?: error("Missing layers trace")
         val cujTrace = reader.readCujTrace() ?: error("Missing CUJ trace")

@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package android.tools.common.flicker.extractors
+package android.tools.common.flicker.config
 
-import android.tools.common.flicker.ScenarioInstance
-import android.tools.common.flicker.config.ScenarioId
-import android.tools.common.io.Reader
+import android.tools.common.flicker.AssertionInvocationGroup
+import android.tools.common.flicker.assertors.AssertionTemplate
 
-interface ScenarioExtractor {
-    val scenarioId: ScenarioId
-    fun extract(reader: Reader): List<ScenarioInstance>
-}
+data class AssertionEntry(
+    val template: AssertionTemplate,
+    var stabilityGroup: AssertionInvocationGroup
+)

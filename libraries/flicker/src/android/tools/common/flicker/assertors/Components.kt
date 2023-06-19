@@ -17,7 +17,7 @@
 package android.tools.common.flicker.assertors
 
 import android.tools.common.flicker.ScenarioInstance
-import android.tools.common.flicker.config.FaasScenarioType
+import android.tools.common.flicker.config.ScenarioId
 import android.tools.common.traces.component.ComponentNameMatcher
 import android.tools.common.traces.component.FullComponentIdMatcher
 import android.tools.common.traces.component.IComponentMatcher
@@ -25,6 +25,7 @@ import android.tools.common.traces.surfaceflinger.LayersTrace
 import android.tools.common.traces.wm.Transition
 import android.tools.common.traces.wm.TransitionType
 
+// TODO: Move this to their respective config packages?
 object Components {
     /** Common */
     val NAV_BAR = ComponentTemplate("Navbar") { ComponentNameMatcher.NAV_BAR }
@@ -54,7 +55,7 @@ object Components {
         ComponentTemplate("PipContentOverlay") { ComponentNameMatcher.PIP_CONTENT_OVERLAY }
     val PIP_APP =
         ComponentTemplate("PIP") { scenarioInstance: ScenarioInstance ->
-            if (scenarioInstance.type == FaasScenarioType.LAUNCHER_APP_CLOSE_TO_PIP) {
+            if (scenarioInstance.type == ScenarioId("LAUNCHER_APP_CLOSE_TO_PIP")) {
                 val associatedTransition =
                     scenarioInstance.associatedTransition ?: error("Missing associated transition")
                 val change =
@@ -84,16 +85,16 @@ object Components {
                 scenarioInstance.reader.readLayersTrace() ?: error("Missing layers trace")
 
             when (scenarioInstance.type) {
-                FaasScenarioType.SPLIT_SCREEN_ENTER -> {
+                ScenarioId("SPLIT_SCREEN_ENTER") -> {
                     getSplitscreenOpeningComponentMatchers(associatedTransition, layersTrace)[0]
                 }
-                FaasScenarioType.SPLIT_SCREEN_EXIT -> {
+                ScenarioId("SPLIT_SCREEN_EXIT") -> {
                     TODO(
                         "Not implemented :: ${scenarioInstance.type} :: " +
                             "${scenarioInstance.associatedTransition}"
                     )
                 }
-                FaasScenarioType.SPLIT_SCREEN_RESIZE -> {
+                ScenarioId("SPLIT_SCREEN_RESIZE") -> {
                     val change = associatedTransition.changes.first()
                     FullComponentIdMatcher(change.windowId, change.layerId)
                 }
@@ -111,16 +112,16 @@ object Components {
                 scenarioInstance.reader.readLayersTrace() ?: error("Missing layers trace")
 
             when (scenarioInstance.type) {
-                FaasScenarioType.SPLIT_SCREEN_ENTER -> {
+                ScenarioId("SPLIT_SCREEN_ENTER") -> {
                     getSplitscreenOpeningComponentMatchers(associatedTransition, layersTrace)[1]
                 }
-                FaasScenarioType.SPLIT_SCREEN_EXIT -> {
+                ScenarioId("SPLIT_SCREEN_EXIT") -> {
                     TODO(
                         "Not implemented :: ${scenarioInstance.type} :: " +
                             "${scenarioInstance.associatedTransition}"
                     )
                 }
-                FaasScenarioType.SPLIT_SCREEN_RESIZE -> {
+                ScenarioId("SPLIT_SCREEN_RESIZE") -> {
                     val change = associatedTransition.changes.last()
                     FullComponentIdMatcher(change.windowId, change.layerId)
                 }

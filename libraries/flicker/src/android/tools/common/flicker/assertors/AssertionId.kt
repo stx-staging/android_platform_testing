@@ -14,13 +14,8 @@
  * limitations under the License.
  */
 
-package android.tools.common.flicker.extractors
+package android.tools.common.flicker.assertors
 
-import android.tools.common.flicker.ScenarioInstance
-import android.tools.common.flicker.config.ScenarioId
-import android.tools.common.io.Reader
-
-interface ScenarioExtractor {
-    val scenarioId: ScenarioId
-    fun extract(reader: Reader): List<ScenarioInstance>
+data class AssertionId(val name: String) {
+    companion object
 }

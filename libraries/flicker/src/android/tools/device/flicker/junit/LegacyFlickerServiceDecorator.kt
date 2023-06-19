@@ -21,7 +21,10 @@ import android.tools.common.FLICKER_TAG
 import android.tools.common.Logger
 import android.tools.common.Scenario
 import android.tools.common.flicker.FlickerService
+import android.tools.common.flicker.ScenarioRegistry
 import android.tools.common.flicker.annotation.FlickerServiceCompatible
+import android.tools.common.flicker.config.FlickerServiceConfig
+import android.tools.common.flicker.config.ScenarioId
 import android.tools.device.flicker.FlickerServiceResultsCollector.Companion.FAAS_METRICS_PREFIX
 import android.tools.device.flicker.IS_FAAS_ENABLED
 import android.tools.device.flicker.datastore.CachedResultReader
@@ -41,7 +44,8 @@ class LegacyFlickerServiceDecorator(
     inner: IFlickerJUnitDecorator?
 ) : AbstractFlickerRunnerDecorator(testClass, inner) {
     private val arguments: Bundle = InstrumentationRegistry.getArguments()
-    private val flickerService = FlickerService()
+    private val flickerService =
+        FlickerService(ScenarioRegistry().use(FlickerServiceConfig.DEFAULT))
 
     private val onlyBlocking
         get() =
@@ -170,6 +174,7 @@ class LegacyFlickerServiceDecorator(
                 .filterIsInstance<FlickerServiceCompatible>()
                 .first()
                 .expectedCujs
+                .map { ScenarioId(it) }
                 .toSet()
 
         return FlickerServiceDecorator.getFaasTestCases(
