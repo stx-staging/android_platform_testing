@@ -19,9 +19,14 @@
  }
 
  java_library {
-     name: "flag-junit",
+     name: "flag-junit-base",
      srcs: ["src/**/*.java"],
+     exclude_srcs: [
+         "src/**/DeviceFlagsValueProvider.java",
+         "src/**/HostFlagsValueProvider.java",
+     ],
      static_libs: [
+         "guava",
          "jsr305",
          "junit",
          "platform-test-annotations",
@@ -29,3 +34,16 @@
      host_supported: true,
      sdk_version: "current",
  }
+
+  java_library {
+      name: "flag-junit",
+      srcs: ["src/**/*.java"],
+      exclude_srcs: [
+          "src/**/HostFlagsValueProvider.java",
+      ],
+      static_libs: [
+          "androidx.test.rules",
+          "flag-junit-base",
+      ],
+      sdk_version: "current",
+  }
