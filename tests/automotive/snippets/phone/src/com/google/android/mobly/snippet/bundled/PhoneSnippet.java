@@ -14,7 +14,7 @@
  * the License.
  */
 
-package android.platform.snippets;
+package com.google.android.mobly.snippet.bundled;
 
 import android.platform.helpers.HelperAccessor;
 import android.platform.helpers.IAutoDialContactDetailsHelper;
