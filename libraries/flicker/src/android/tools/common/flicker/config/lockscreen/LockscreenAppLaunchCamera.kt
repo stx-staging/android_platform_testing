@@ -17,9 +17,8 @@
 package android.tools.common.flicker.config.lockscreen
 
 import android.tools.common.flicker.config.AssertionTemplates
-import android.tools.common.flicker.config.FaasScenarioType
-import android.tools.common.flicker.config.FlickerServiceConfig
 import android.tools.common.flicker.config.ScenarioConfig
+import android.tools.common.flicker.config.ScenarioId
 import android.tools.common.flicker.config.TransitionFilters
 import android.tools.common.flicker.extractors.TaggedCujTransitionMatcher
 import android.tools.common.flicker.extractors.TaggedScenarioExtractorBuilder
@@ -28,13 +27,13 @@ import android.tools.common.traces.events.CujType
 class LockscreenAppLaunchCamera : ScenarioConfig {
     override val enabled = true
 
-    override val type = FaasScenarioType.LOCKSCREEN_LAUNCH_CAMERA
+    override val scenarioId = ScenarioId.fromClass(this::class)
 
-    override val assertionTemplates = AssertionTemplates.APP_LAUNCH_FROM_LOCK_ASSERTIONS
+    override val assertions = AssertionTemplates.APP_LAUNCH_FROM_LOCK_ASSERTIONS
 
     override val extractor by lazy {
         TaggedScenarioExtractorBuilder()
-            .setConfig(FlickerServiceConfig.getScenarioConfigFor(type))
+            .setConfig(this)
             .setTargetTag(CujType.CUJ_LOCKSCREEN_LAUNCH_CAMERA)
             .setTransitionMatcher(
                 TaggedCujTransitionMatcher(TransitionFilters.OPEN_APP_TRANSITION_FILTER)

@@ -17,9 +17,8 @@
 package android.tools.common.flicker.config.settings
 
 import android.tools.common.flicker.config.AssertionTemplates
-import android.tools.common.flicker.config.FaasScenarioType
-import android.tools.common.flicker.config.FlickerServiceConfig
 import android.tools.common.flicker.config.ScenarioConfig
+import android.tools.common.flicker.config.ScenarioId
 import android.tools.common.flicker.extractors.TaggedCujTransitionMatcher
 import android.tools.common.flicker.extractors.TaggedScenarioExtractorBuilder
 import android.tools.common.traces.events.CujType
@@ -27,14 +26,13 @@ import android.tools.common.traces.events.CujType
 class SettingsToggle : ScenarioConfig {
     override val enabled = false
 
-    override val type = FaasScenarioType.SETTINGS_TOGGLE
+    override val scenarioId = ScenarioId.fromClass(this::class)
 
-    override val assertionTemplates =
-        AssertionTemplates.COMMON_ASSERTIONS // TODO: Add specific assertions
+    override val assertions = AssertionTemplates.COMMON_ASSERTIONS // TODO: Add specific assertions
 
     override val extractor by lazy {
         TaggedScenarioExtractorBuilder()
-            .setConfig(FlickerServiceConfig.getScenarioConfigFor(type))
+            .setConfig(this)
             .setTargetTag(CujType.CUJ_SETTINGS_TOGGLE)
             .setTransitionMatcher(TaggedCujTransitionMatcher(associatedTransitionRequired = false))
             .build()

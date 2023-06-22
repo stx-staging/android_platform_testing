@@ -17,22 +17,21 @@
 package android.tools.common.flicker.config.splitscreen
 
 import android.tools.common.flicker.config.AssertionTemplates
-import android.tools.common.flicker.config.FaasScenarioType
-import android.tools.common.flicker.config.FlickerServiceConfig
 import android.tools.common.flicker.config.ScenarioConfig
+import android.tools.common.flicker.config.ScenarioId
 import android.tools.common.flicker.config.TransitionFilters
 import android.tools.common.flicker.extractors.ShellTransitionScenarioExtractor
 
 class SplitScreenEnter : ScenarioConfig {
     override val enabled = true
 
-    override val type = FaasScenarioType.SPLIT_SCREEN_ENTER
+    override val scenarioId = ScenarioId.fromClass(this::class)
 
-    override val assertionTemplates = AssertionTemplates.ENTER_SPLITSCREEN_ASSERTIONS
+    override val assertions = AssertionTemplates.ENTER_SPLITSCREEN_ASSERTIONS
 
     override val extractor by lazy {
         ShellTransitionScenarioExtractor(
-            FlickerServiceConfig.getScenarioConfigFor(type),
+            this,
             transitionMatcher = TransitionFilters.ENTER_SPLIT_SCREEN_MATCHER
         )
     }

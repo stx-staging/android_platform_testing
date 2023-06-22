@@ -20,7 +20,7 @@ internal object Others {
     val SCENARIOS =
         listOf(
             OthersBiometricPromptTransition(),
-            OthersDefault(),
+            EntireTrace(),
             OthersOneHandedEnterTransition(),
             OthersOneHandedExitTransition(),
             OthersScreenOff(),
