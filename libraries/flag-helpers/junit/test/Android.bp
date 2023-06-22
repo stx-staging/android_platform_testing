@@ -39,10 +39,11 @@
  java_test_host {
      name: "FlagJUnitHostTests",
      srcs: ["src/**/*.java"],
+     exclude_srcs: ["src/**/DeviceFlagsValueProviderTest.java"],
      plugins: ["auto_annotation_plugin"],
      static_libs: [
          "auto_value_annotations",
-         "flag-junit",
+         "flag-junit-base",
          "junit",
          "platform-test-annotations",
      ],
