@@ -23,8 +23,8 @@ import android.tools.common.FLICKER_TAG
 import android.tools.common.Logger
 import android.tools.common.ScenarioBuilder
 import android.tools.common.flicker.AssertionInvocationGroup
+import android.tools.common.flicker.FlickerConfig
 import android.tools.common.flicker.FlickerService
-import android.tools.common.flicker.ScenarioRegistry
 import android.tools.common.flicker.TracesCollector
 import android.tools.common.flicker.assertions.AssertionResult
 import android.tools.common.flicker.config.FlickerServiceConfig
@@ -43,7 +43,7 @@ import org.junit.runner.notification.Failure
 class FlickerServiceResultsCollector(
     private val tracesCollector: TracesCollector,
     private val flickerService: FlickerService =
-        FlickerService(ScenarioRegistry().use(FlickerServiceConfig.DEFAULT)),
+        FlickerService(FlickerConfig().use(FlickerServiceConfig.DEFAULT)),
     instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation(),
     private val collectMetricsPerTest: Boolean = true,
     private val reportOnlyForPassingTests: Boolean = true

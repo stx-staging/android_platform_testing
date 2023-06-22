@@ -26,6 +26,7 @@ import android.tools.common.flicker.FlickerService
 import android.tools.common.flicker.ScenarioInstance
 import android.tools.common.flicker.annotation.ExpectedScenarios
 import android.tools.common.flicker.assertions.ScenarioAssertion
+import android.tools.common.flicker.config.FlickerConfig
 import android.tools.common.flicker.config.ScenarioId
 import android.tools.common.io.Reader
 import android.tools.device.flicker.FlickerServiceResultsCollector.Companion.FLICKER_ASSERTIONS_COUNT_KEY
@@ -46,18 +47,18 @@ import org.junit.runners.model.TestClass
 class FlickerServiceDecorator(
     testClass: TestClass,
     val paramString: String?,
-    inner: IFlickerJUnitDecorator
+    inner: IFlickerJUnitDecorator?
 ) : AbstractFlickerRunnerDecorator(testClass, inner) {
-    private val flickerService = FlickerService()
+    private val flickerService by lazy { FlickerService(getFlickerConfig()) }
 
-    private val scenario =
+    private val testClassName =
         ScenarioBuilder().forClass("${testClass.name}${paramString ?: ""}").build()
 
-    override fun getChildDescription(method: FrameworkMethod?): Description? {
-        return if (method?.let { isMethodHandledByDecorator(it) } == true) {
+    override fun getChildDescription(method: FrameworkMethod): Description {
+        return if (isMethodHandledByDecorator(method)) {
             Description.createTestDescription(testClass.javaClass, method.name, *method.annotations)
         } else {
-            inner?.getChildDescription(method)
+            inner?.getChildDescription(method) ?: error("No child descriptor found")
         }
     }
 
@@ -78,7 +79,7 @@ class FlickerServiceDecorator(
                     var methodResult: Throwable? =
                         null // TODO: Maybe don't use null but wrap in another object
                     val reader =
-                        captureTrace(scenario, getDefaultFlickerOutputDir()) { writer ->
+                        captureTrace(testClassName, getDefaultFlickerOutputDir()) { writer ->
                             try {
                                 val befores = testClass.getAnnotatedMethods(Before::class.java)
                                 befores.forEach { it.invokeExplosively(test) }
@@ -97,7 +98,7 @@ class FlickerServiceDecorator(
                         }
                     if (methodResult == null) {
                         flickerServiceMethodsFor[method] =
-                            computeFlickerServiceTests(reader, scenario, method)
+                            computeFlickerServiceTests(reader, testClassName, method)
                     }
                 }
 
@@ -154,11 +155,85 @@ class FlickerServiceDecorator(
         val errors = super.doValidateInstanceMethods().toMutableList()
 
         val testMethods = testClass.getAnnotatedMethods(Test::class.java)
-        if (testMethods.size > 0) {
+        if (testMethods.size > 1) {
             errors.add(IllegalArgumentException("Only one @Test annotated method is supported"))
         }
 
+        // Validate Registry provider
+        val flickerConfigProviderFunctions =
+            testClass
+                .getAnnotatedMethods(
+                    android.tools.common.flicker.annotation.FlickerConfig::class.java
+                )
+                .filter { it.isStatic && it.isPublic }
+        if (flickerConfigProviderFunctions.isEmpty()) {
+            errors.add(
+                IllegalArgumentException(
+                    "A public static function returning a " +
+                        "${FlickerConfig::class.simpleName} annotated with " +
+                        "@${android.tools.common.flicker.annotation
+                                .FlickerConfig::class.simpleName} should be provided."
+                )
+            )
+        } else if (flickerConfigProviderFunctions.size > 1) {
+            errors.add(
+                IllegalArgumentException(
+                    "Only one @${android.tools.common.flicker.annotation
+                            .FlickerConfig::class.simpleName} " +
+                        "annotated method is supported."
+                )
+            )
+        } else if (
+            flickerConfigProviderFunctions[0].returnType.name != FlickerConfig::class.qualifiedName
+        ) {
+            errors.add(
+                IllegalArgumentException(
+                    "Expected method annotated with " +
+                        "@${FlickerConfig::class.simpleName} to return " +
+                        "${FlickerConfig::class.qualifiedName} but was " +
+                        "${flickerConfigProviderFunctions[0].returnType.name} instead."
+                )
+            )
+        } else {
+            // Validate @ExpectedScenarios annotation
+            val expectedScenarioAnnotations =
+                testClass.getAnnotatedMethods(ExpectedScenarios::class.java).map {
+                    it.getAnnotation(ExpectedScenarios::class.java)
+                }
+            val registeredScenarios = getFlickerConfig().getExtractors().map { it.scenarioId.name }
+            for (expectedScenarioAnnotation in expectedScenarioAnnotations) {
+                for (expectedScenario in expectedScenarioAnnotation.expectedScenarios) {
+                    val scenarioRegistered = registeredScenarios.contains(expectedScenario)
+                    if (!scenarioRegistered) {
+                        errors.add(
+                            IllegalArgumentException(
+                                "Provided scenarios that are not registered to " +
+                                    "@${ExpectedScenarios::class.simpleName} annotation. " +
+                                    "$expectedScenario is not registered in the " +
+                                    "${FlickerConfig::class.simpleName}. Available scenarios " +
+                                    "are [${registeredScenarios.joinToString()}]."
+                            )
+                        )
+                    }
+                }
+            }
+        }
+
         return errors
+    }
+
+    private fun getFlickerConfig(): FlickerConfig {
+        require(testClass.getAnnotatedMethods(ExpectedScenarios::class.java).size == 1) {
+            "getFlickerConfig() seems to have been called before validation."
+        }
+
+        val flickerConfigProviderFunction =
+            testClass
+                .getAnnotatedMethods(
+                    android.tools.common.flicker.annotation.FlickerConfig::class.java
+                )[0]
+        // TODO: Pass the correct target
+        return flickerConfigProviderFunction.invokeExplosively(testClass) as FlickerConfig
     }
 
     override fun shouldRunBeforeOn(method: FrameworkMethod): Boolean {
