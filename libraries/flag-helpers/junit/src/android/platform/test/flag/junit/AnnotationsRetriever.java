@@ -16,8 +16,8 @@
 
 package android.platform.test.flag.junit;
 
-import android.platform.test.annotations.RequiresFlagsOff;
-import android.platform.test.annotations.RequiresFlagsOn;
+import android.platform.test.annotations.RequiresFlagsDisabled;
+import android.platform.test.annotations.RequiresFlagsEnabled;
 
 import org.junit.runner.Description;
 
@@ -34,23 +34,25 @@ import javax.annotation.Nullable;
 public class AnnotationsRetriever {
     /** Contains all feature flag related annotations. */
     public static class FlagAnnotations {
-        /** Annotation for the flags that requires to be on. */
-        @Nullable public final RequiresFlagsOn mRequiresFlagsOn;
+        /** Annotation for the flags that requires to be enabled. */
+        @Nullable public final RequiresFlagsEnabled mRequiresFlagsEnabled;
 
-        /** Annotation for the flags that requires to be off. */
-        @Nullable public final RequiresFlagsOff mRequiresFlagsOff;
+        /** Annotation for the flags that requires to be disabled. */
+        @Nullable public final RequiresFlagsDisabled mRequiresFlagsDisabled;
 
-        FlagAnnotations(RequiresFlagsOn requiresFlagsOn, RequiresFlagsOff requiresFlagsOff) {
-            mRequiresFlagsOn = requiresFlagsOn;
-            mRequiresFlagsOff = requiresFlagsOff;
+        FlagAnnotations(
+                RequiresFlagsEnabled requiresFlagsEnabled,
+                RequiresFlagsDisabled requiresFlagsDisabled) {
+            mRequiresFlagsEnabled = requiresFlagsEnabled;
+            mRequiresFlagsDisabled = requiresFlagsDisabled;
         }
     }
 
     /** Gets all feature flag related annotations. */
     public static FlagAnnotations getFlagAnnotations(Description description) {
         return new FlagAnnotations(
-                getAnnotation(RequiresFlagsOn.class, description),
-                getAnnotation(RequiresFlagsOff.class, description));
+                getAnnotation(RequiresFlagsEnabled.class, description),
+                getAnnotation(RequiresFlagsDisabled.class, description));
     }
 
     @Nullable
