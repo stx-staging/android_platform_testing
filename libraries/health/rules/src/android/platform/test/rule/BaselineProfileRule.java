@@ -63,12 +63,16 @@ public class BaselineProfileRule extends TestWatcher {
                         new Statement() {
                             @Override
                             public void evaluate() throws Throwable {
-                                innerRule.collectBaselineProfile(
+                                // Consider using the BaselineProfileRule's stability enforcement
+                                // instead of relying on CrystalBall's fixed iteration count.
+                                innerRule.collect(
                                         mBaselineProfilePackage,
                                         1, // Iterations are supported by most Runners already.
+                                        1, // Iterations are supported by most Runners already.
                                         null, // No special prefixing necessary.
-                                        true, // Include startup profile.
-                                        null, // Don't apply any profile filters.
+                                        false, // Ignore, not using dex layout optimizations.
+                                        false, // Ignore stability enforcement for now.
+                                        (any) -> true, // Don't apply any profile filters.
                                         (scope) -> {
                                             // Evaluating the base Statement may throw a Throwable,
                                             // which is checked and not compatible with the lambda
