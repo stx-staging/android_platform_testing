@@ -31,9 +31,8 @@ class LockscreenAppLaunchCamera : ScenarioConfig {
 
     override val assertions = AssertionTemplates.APP_LAUNCH_FROM_LOCK_ASSERTIONS
 
-    override val extractor by lazy {
+    override val extractorProvider by lazy {
         TaggedScenarioExtractorBuilder()
-            .setConfig(this)
             .setTargetTag(CujType.CUJ_LOCKSCREEN_LAUNCH_CAMERA)
             .setTransitionMatcher(
                 TaggedCujTransitionMatcher(TransitionFilters.OPEN_APP_TRANSITION_FILTER)

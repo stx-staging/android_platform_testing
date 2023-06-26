@@ -21,13 +21,13 @@ import android.tools.common.Rotation
 import android.tools.common.Timestamp
 import android.tools.common.flicker.assertions.ScenarioAssertion
 import android.tools.common.flicker.assertions.ScenarioAssertionImpl
-import android.tools.common.flicker.config.ScenarioConfig
+import android.tools.common.flicker.config.InitializedScenarioConfig
 import android.tools.common.io.Reader
 import android.tools.common.traces.events.CujType
 import android.tools.common.traces.wm.Transition
 
 internal data class ScenarioInstanceImpl(
-    override val config: ScenarioConfig,
+    override val config: InitializedScenarioConfig,
     override val startRotation: Rotation,
     override val endRotation: Rotation,
     val startTimestamp: Timestamp,

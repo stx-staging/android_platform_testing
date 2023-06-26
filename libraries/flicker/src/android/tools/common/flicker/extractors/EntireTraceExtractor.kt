@@ -19,9 +19,10 @@ package android.tools.common.flicker.extractors
 import android.tools.common.Rotation
 import android.tools.common.flicker.ScenarioInstance
 import android.tools.common.flicker.ScenarioInstanceImpl
+import android.tools.common.flicker.config.InitializedScenarioConfig
 import android.tools.common.io.Reader
 
-class EntireTraceExtractor(val config: ScenarioConfig) : ScenarioExtractor {
+class EntireTraceExtractor(val config: InitializedScenarioConfig) : ScenarioExtractor {
     override val scenarioId = config.scenarioId
 
     override fun extract(reader: Reader): List<ScenarioInstance> {

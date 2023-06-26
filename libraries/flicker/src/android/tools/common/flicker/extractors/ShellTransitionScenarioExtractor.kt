@@ -18,12 +18,12 @@ package android.tools.common.flicker.extractors
 
 import android.tools.common.flicker.ScenarioInstance
 import android.tools.common.flicker.ScenarioInstanceImpl
-import android.tools.common.flicker.config.ScenarioConfig
+import android.tools.common.flicker.config.InitializedScenarioConfig
 import android.tools.common.flicker.config.ScenarioId
 import android.tools.common.io.Reader
 
 class ShellTransitionScenarioExtractor(
-    val config: ScenarioConfig,
+    val config: InitializedScenarioConfig,
     val transitionMatcher: ITransitionMatcher,
 ) : ScenarioExtractor {
     override val scenarioId: ScenarioId = config.scenarioId

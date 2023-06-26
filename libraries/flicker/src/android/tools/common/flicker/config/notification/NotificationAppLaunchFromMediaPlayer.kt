@@ -31,9 +31,8 @@ class NotificationAppLaunchFromMediaPlayer : ScenarioConfig {
 
     override val assertions = AssertionTemplates.APP_LAUNCH_ASSERTIONS
 
-    override val extractor by lazy {
+    override val extractorProvider by lazy {
         TaggedScenarioExtractorBuilder()
-            .setConfig(this)
             .setTargetTag(CujType.CUJ_SHADE_APP_LAUNCH_FROM_MEDIA_PLAYER)
             .setTransitionMatcher(
                 TaggedCujTransitionMatcher(TransitionFilters.OPEN_APP_TRANSITION_FILTER)

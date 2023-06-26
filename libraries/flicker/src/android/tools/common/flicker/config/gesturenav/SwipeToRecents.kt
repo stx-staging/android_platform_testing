@@ -31,13 +31,11 @@ class SwipeToRecents : ScenarioConfig {
 
     override val assertions = AssertionTemplates.COMMON_ASSERTIONS
 
-    override val extractor by lazy {
+    override val extractorProvider =
         TaggedScenarioExtractorBuilder()
-            .setConfig(this)
             .setTargetTag(CujType.CUJ_LAUNCHER_APP_SWIPE_TO_RECENTS)
             .setTransitionMatcher(
                 TaggedCujTransitionMatcher(TransitionFilters.CLOSE_APP_TO_LAUNCHER_FILTER)
             )
             .build()
-    }
 }

@@ -30,9 +30,8 @@ class OthersOneHandedExitTransition : ScenarioConfig {
 
     override val assertions = AssertionTemplates.COMMON_ASSERTIONS // TODO: Add specific assertions
 
-    override val extractor by lazy {
+    override val extractorProvider by lazy {
         TaggedScenarioExtractorBuilder()
-            .setConfig(this)
             .setTargetTag(CujType.CUJ_ONE_HANDED_EXIT_TRANSITION)
             .setTransitionMatcher(TaggedCujTransitionMatcher(associatedTransitionRequired = false))
             .build()

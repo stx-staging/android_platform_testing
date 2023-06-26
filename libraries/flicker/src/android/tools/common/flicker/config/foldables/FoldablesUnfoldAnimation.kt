@@ -30,13 +30,11 @@ class FoldablesUnfoldAnimation : ScenarioConfig {
 
     override val assertions = AssertionTemplates.COMMON_ASSERTIONS // TODO: Add specific assertions
 
-    override val extractor by lazy {
+    override val extractorProvider =
         TaggedScenarioExtractorBuilder()
-            .setConfig(this)
             .setTargetTag(CujType.CUJ_UNFOLD_ANIM)
             .setTransitionMatcher(
                 TaggedCujTransitionMatcher(associatedTransitionRequired = false),
             )
             .build()
-    }
 }

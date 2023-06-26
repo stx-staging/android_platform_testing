@@ -31,13 +31,11 @@ class AppLaunchFromNotification : ScenarioConfig {
 
     override val assertions = AssertionTemplates.APP_LAUNCH_FROM_NOTIFICATION_ASSERTIONS
 
-    override val extractor by lazy {
+    override val extractorProvider =
         TaggedScenarioExtractorBuilder()
-            .setConfig(this)
             .setTargetTag(CujType.CUJ_NOTIFICATION_APP_START)
             .setTransitionMatcher(
                 TaggedCujTransitionMatcher(TransitionFilters.OPEN_APP_TRANSITION_FILTER)
             )
             .build()
-    }
 }

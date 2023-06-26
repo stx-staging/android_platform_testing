@@ -17,6 +17,7 @@
 package android.tools.common.flicker.config.splitscreen
 
 import android.tools.common.flicker.config.AssertionTemplates
+import android.tools.common.flicker.config.InitializedScenarioConfig
 import android.tools.common.flicker.config.ScenarioConfig
 import android.tools.common.flicker.config.ScenarioId
 import android.tools.common.flicker.config.TransitionFilters
@@ -29,9 +30,9 @@ class SplitScreenEnter : ScenarioConfig {
 
     override val assertions = AssertionTemplates.ENTER_SPLITSCREEN_ASSERTIONS
 
-    override val extractor by lazy {
+    override val extractorProvider = { config: InitializedScenarioConfig ->
         ShellTransitionScenarioExtractor(
-            this,
+            config,
             transitionMatcher = TransitionFilters.ENTER_SPLIT_SCREEN_MATCHER
         )
     }

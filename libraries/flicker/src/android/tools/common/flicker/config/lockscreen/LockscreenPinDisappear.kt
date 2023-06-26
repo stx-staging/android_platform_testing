@@ -30,9 +30,8 @@ class LockscreenPinDisappear : ScenarioConfig {
 
     override val assertions = AssertionTemplates.COMMON_ASSERTIONS // TODO: Add specific assertions
 
-    override val extractor by lazy {
+    override val extractorProvider by lazy {
         TaggedScenarioExtractorBuilder()
-            .setConfig(this)
             .setTargetTag(CujType.CUJ_LOCKSCREEN_PIN_DISAPPEAR)
             .setTransitionMatcher(TaggedCujTransitionMatcher(associatedTransitionRequired = false))
             .build()

@@ -31,9 +31,8 @@ class SplitScreenResize : ScenarioConfig {
 
     override val assertions = AssertionTemplates.RESIZE_SPLITSCREEN_ASSERTIONS
 
-    override val extractor by lazy {
+    override val extractorProvider by lazy {
         TaggedScenarioExtractorBuilder()
-            .setConfig(this)
             .setTargetTag(CujType.CUJ_SPLIT_SCREEN_RESIZE)
             .setTransitionMatcher(
                 TaggedCujTransitionMatcher(TransitionFilters.RESIZE_SPLIT_SCREEN_FILTER)

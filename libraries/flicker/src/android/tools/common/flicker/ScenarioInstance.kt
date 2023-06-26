@@ -18,13 +18,13 @@ package android.tools.common.flicker
 
 import android.tools.common.Scenario
 import android.tools.common.flicker.assertions.ScenarioAssertion
-import android.tools.common.flicker.config.ScenarioConfig
+import android.tools.common.flicker.config.InitializedScenarioConfig
 import android.tools.common.flicker.config.ScenarioId
 import android.tools.common.io.Reader
 import android.tools.common.traces.wm.Transition
 
 interface ScenarioInstance : Scenario {
-    val config: ScenarioConfig
+    val config: InitializedScenarioConfig
 
     /** A reader to read the part of the trace associated with the scenario instance */
     val reader: Reader

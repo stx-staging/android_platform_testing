@@ -34,9 +34,8 @@ class AppCloseToPip : ScenarioConfig {
 
     override val assertions = AssertionTemplates.APP_CLOSE_TO_PIP_ASSERTIONS
 
-    override val extractor by lazy {
+    override val extractorProvider by lazy {
         TaggedScenarioExtractorBuilder()
-            .setConfig(this)
             .setTargetTag(CujType.CUJ_LAUNCHER_APP_CLOSE_TO_PIP)
             .setTransitionMatcher(
                 TaggedCujTransitionMatcher(TransitionFilters.APP_CLOSE_TO_PIP_TRANSITION_FILTER)

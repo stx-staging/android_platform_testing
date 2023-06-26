@@ -31,13 +31,11 @@ class AppCloseToHome : ScenarioConfig {
 
     override val assertions = AssertionTemplates.APP_CLOSE_TO_HOME_ASSERTIONS
 
-    override val extractor by lazy {
+    override val extractorProvider =
         TaggedScenarioExtractorBuilder()
-            .setConfig(this)
             .setTargetTag(CujType.CUJ_LAUNCHER_APP_CLOSE_TO_HOME)
             .setTransitionMatcher(
                 TaggedCujTransitionMatcher(TransitionFilters.CLOSE_APP_TO_LAUNCHER_FILTER)
             )
             .build()
-    }
 }

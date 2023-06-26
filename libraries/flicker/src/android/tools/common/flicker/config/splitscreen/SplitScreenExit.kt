@@ -31,9 +31,8 @@ class SplitScreenExit : ScenarioConfig {
 
     override val assertions = AssertionTemplates.EXIT_SPLITSCREEN_ASSERTIONS
 
-    override val extractor by lazy {
+    override val extractorProvider by lazy {
         TaggedScenarioExtractorBuilder()
-            .setConfig(this)
             .setTargetTag(CujType.CUJ_SPLIT_SCREEN_EXIT)
             .setTransitionMatcher(
                 TaggedCujTransitionMatcher(TransitionFilters.EXIT_SPLIT_SCREEN_FILTER)

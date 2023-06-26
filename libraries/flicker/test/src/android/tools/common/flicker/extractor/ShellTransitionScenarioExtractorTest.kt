@@ -17,8 +17,7 @@
 package android.tools.common.flicker.extractor
 
 import android.tools.common.Timestamps
-import android.tools.common.flicker.config.FaasScenarioType
-import android.tools.common.flicker.config.FlickerServiceConfig
+import android.tools.common.flicker.config.InitializedScenarioConfig
 import android.tools.common.flicker.extractors.ITransitionMatcher
 import android.tools.common.flicker.extractors.ShellTransitionScenarioExtractor
 import android.tools.common.traces.wm.Transition
@@ -26,6 +25,7 @@ import android.tools.common.traces.wm.TransitionType
 import android.tools.getTraceReaderFromScenario
 import com.google.common.truth.Truth
 import org.junit.Test
+import org.mockito.Mockito
 
 class ShellTransitionScenarioExtractorTest {
     @Test
@@ -38,9 +38,7 @@ class ShellTransitionScenarioExtractorTest {
 
         val noFilterExtractor =
             ShellTransitionScenarioExtractor(
-                FlickerServiceConfig.getScenarioConfigFor(
-                    FaasScenarioType.LAUNCHER_APP_LAUNCH_FROM_ICON
-                ),
+                mockConfig,
                 object : ITransitionMatcher {
                     override fun findAll(
                         transitions: Collection<Transition>
@@ -52,10 +50,7 @@ class ShellTransitionScenarioExtractorTest {
             )
         val scenarios = noFilterExtractor.extract(reader)
         Truth.assertThat(scenarios).hasSize(2)
-        Truth.assertThat(
-                scenarios.all { it.type == FaasScenarioType.LAUNCHER_APP_LAUNCH_FROM_ICON }
-            )
-            .isTrue()
+        Truth.assertThat(scenarios.all { it.type == mockConfig.scenarioId }).isTrue()
         Truth.assertThat(scenarios.all { it.associatedTransition != null }).isTrue()
         transitions.forEachIndexed { index, transition ->
             Truth.assertThat(scenarios[index].associatedTransition).isEqualTo(transition)
@@ -70,9 +65,7 @@ class ShellTransitionScenarioExtractorTest {
 
         val filterToFrontExtractor =
             ShellTransitionScenarioExtractor(
-                FlickerServiceConfig.getScenarioConfigFor(
-                    FaasScenarioType.LAUNCHER_APP_LAUNCH_FROM_ICON
-                ),
+                mockConfig,
                 object : ITransitionMatcher {
                     override fun findAll(
                         transitions: Collection<Transition>
@@ -83,8 +76,7 @@ class ShellTransitionScenarioExtractorTest {
             )
         val scenarios = filterToFrontExtractor.extract(reader)
         Truth.assertThat(scenarios).hasSize(1)
-        Truth.assertThat(scenarios.first().type)
-            .isEqualTo(FaasScenarioType.LAUNCHER_APP_LAUNCH_FROM_ICON)
+        Truth.assertThat(scenarios.first().type).isEqualTo(mockConfig.scenarioId)
         val layersTrace = scenarios.first().reader.readLayersTrace() ?: error("Missing layer trace")
         Truth.assertThat(layersTrace.entries.first().timestamp)
             .isEqualTo(
@@ -112,9 +104,7 @@ class ShellTransitionScenarioExtractorTest {
 
         val filterToBackExtractor =
             ShellTransitionScenarioExtractor(
-                FlickerServiceConfig.getScenarioConfigFor(
-                    FaasScenarioType.LAUNCHER_APP_LAUNCH_FROM_ICON
-                ),
+                mockConfig,
                 object : ITransitionMatcher {
                     override fun findAll(
                         transitions: Collection<Transition>
@@ -125,4 +115,6 @@ class ShellTransitionScenarioExtractorTest {
             )
         Truth.assertThat(filterToBackExtractor.extract(reader)).hasSize(0)
     }
+
+    private val mockConfig = Mockito.mock(InitializedScenarioConfig::class.java)
 }

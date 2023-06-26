@@ -31,13 +31,11 @@ class AppLaunchFromStatusBarCallChip : ScenarioConfig {
 
     override val assertions = AssertionTemplates.APP_LAUNCH_ASSERTIONS
 
-    override val extractor by lazy {
+    override val extractorProvider =
         TaggedScenarioExtractorBuilder()
-            .setConfig(this)
             .setTargetTag(CujType.CUJ_STATUS_BAR_APP_LAUNCH_FROM_CALL_CHIP)
             .setTransitionMatcher(
                 TaggedCujTransitionMatcher(TransitionFilters.OPEN_APP_TRANSITION_FILTER)
             )
             .build()
-    }
 }

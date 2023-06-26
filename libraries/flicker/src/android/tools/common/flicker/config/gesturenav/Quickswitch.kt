@@ -31,9 +31,8 @@ class Quickswitch : ScenarioConfig {
 
     override val assertions = AssertionTemplates.LAUNCHER_QUICK_SWITCH_ASSERTIONS
 
-    override val extractor by lazy {
+    override val extractorProvider =
         TaggedScenarioExtractorBuilder()
-            .setConfig(this)
             .setTargetTag(CujType.CUJ_LAUNCHER_QUICK_SWITCH)
             .setTransitionMatcher(
                 TaggedCujTransitionMatcher(
@@ -42,5 +41,4 @@ class Quickswitch : ScenarioConfig {
                 )
             )
             .build()
-    }
 }

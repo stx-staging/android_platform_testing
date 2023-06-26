@@ -30,9 +30,8 @@ class LockscreenUnlockAnimation : ScenarioConfig {
 
     override val assertions = AssertionTemplates.COMMON_ASSERTIONS
 
-    override val extractor by lazy {
+    override val extractorProvider by lazy {
         TaggedScenarioExtractorBuilder()
-            .setConfig(this)
             .setTargetTag(CujType.CUJ_LOCKSCREEN_UNLOCK_ANIMATION)
             .setTransitionMatcher(TaggedCujTransitionMatcher(associatedTransitionRequired = false))
             .build()

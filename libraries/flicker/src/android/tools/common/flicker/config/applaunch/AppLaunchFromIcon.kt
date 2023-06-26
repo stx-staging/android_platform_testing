@@ -31,13 +31,11 @@ class AppLaunchFromIcon : ScenarioConfig {
 
     override val assertions = AssertionTemplates.APP_LAUNCH_FROM_HOME_ASSERTIONS
 
-    override val extractor by lazy {
+    override val extractorProvider =
         TaggedScenarioExtractorBuilder()
-            .setConfig(this)
             .setTargetTag(CujType.CUJ_LAUNCHER_APP_LAUNCH_FROM_ICON)
             .setTransitionMatcher(
                 TaggedCujTransitionMatcher(TransitionFilters.OPEN_APP_TRANSITION_FILTER)
             )
             .build()
-    }
 }

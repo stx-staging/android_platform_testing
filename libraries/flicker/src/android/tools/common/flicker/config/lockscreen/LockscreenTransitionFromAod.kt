@@ -30,9 +30,8 @@ class LockscreenTransitionFromAod : ScenarioConfig {
 
     override val assertions = AssertionTemplates.COMMON_ASSERTIONS
 
-    override val extractor by lazy {
+    override val extractorProvider by lazy {
         TaggedScenarioExtractorBuilder()
-            .setConfig(this)
             .setTargetTag(CujType.CUJ_LOCKSCREEN_TRANSITION_FROM_AOD)
             .setTransitionMatcher(TaggedCujTransitionMatcher(associatedTransitionRequired = false))
             .build()

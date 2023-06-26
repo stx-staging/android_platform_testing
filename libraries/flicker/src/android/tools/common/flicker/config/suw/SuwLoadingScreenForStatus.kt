@@ -30,9 +30,8 @@ class SuwLoadingScreenForStatus : ScenarioConfig {
 
     override val assertions = AssertionTemplates.COMMON_ASSERTIONS // TODO: Add specific assertions
 
-    override val extractor by lazy {
+    override val extractorProvider by lazy {
         TaggedScenarioExtractorBuilder()
-            .setConfig(this)
             .setTargetTag(CujType.CUJ_SUW_LOADING_SCREEN_FOR_STATUS)
             .setTransitionMatcher(TaggedCujTransitionMatcher(associatedTransitionRequired = false))
             .build()
