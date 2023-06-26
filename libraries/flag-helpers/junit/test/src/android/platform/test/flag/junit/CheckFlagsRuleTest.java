@@ -19,8 +19,8 @@ package android.platform.test.flag.junit;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.fail;
 
-import android.platform.test.annotations.RequiresFlagsOff;
-import android.platform.test.annotations.RequiresFlagsOn;
+import android.platform.test.annotations.RequiresFlagsDisabled;
+import android.platform.test.annotations.RequiresFlagsEnabled;
 
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
  * skipped.
  */
 @RunWith(JUnit4.class)
-@RequiresFlagsOn("flag1")
+@RequiresFlagsEnabled("flag1")
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class CheckFlagsRuleTest {
     private static final List<String> EXPECTED_TESTS_EXECUTED =
@@ -81,29 +81,29 @@ public class CheckFlagsRuleTest {
     }
 
     @Test
-    @RequiresFlagsOn("flag2")
+    @RequiresFlagsEnabled("flag2")
     public void methodAnnotationOverrideClassAnnotation_skip() {
         // Should be skipped.
         fail();
     }
 
     @Test
-    @RequiresFlagsOn("flag1")
-    @RequiresFlagsOff("flag2")
-    public void requireBothOnAndOffFlags_execute() {
-        ACTUAL_TESTS_EXECUTED.add("requireBothOnAndOffFlags_execute");
+    @RequiresFlagsEnabled("flag1")
+    @RequiresFlagsDisabled("flag2")
+    public void requireBothEnabledAndDisabledFlags_execute() {
+        ACTUAL_TESTS_EXECUTED.add("requireBothEnabledAndDisabledFlags_execute");
     }
 
     @Test
-    @RequiresFlagsOff("flag1")
-    public void requiredOnFlagOff_skip() {
+    @RequiresFlagsDisabled("flag1")
+    public void requiredEnabledFlagDisabled_skip() {
         // Should be skipped.
         fail();
     }
 
     @Test
-    @RequiresFlagsOn({"flag1", "flag2"})
-    public void requiredOffFlagOn_skip() {
+    @RequiresFlagsEnabled({"flag1", "flag2"})
+    public void requiredDisabledFlagEnabled_skip() {
         // Should be skipped.
         fail();
     }
