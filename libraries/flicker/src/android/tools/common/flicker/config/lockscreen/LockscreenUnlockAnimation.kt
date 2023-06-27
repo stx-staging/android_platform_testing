@@ -17,14 +17,14 @@
 package android.tools.common.flicker.config.lockscreen
 
 import android.tools.common.flicker.config.AssertionTemplates
-import android.tools.common.flicker.config.ScenarioConfig
+import android.tools.common.flicker.config.FlickerConfigEntry
 import android.tools.common.flicker.config.ScenarioId
 import android.tools.common.flicker.extractors.TaggedCujTransitionMatcher
 import android.tools.common.flicker.extractors.TaggedScenarioExtractorBuilder
 import android.tools.common.traces.events.CujType
 
 val LockscreenUnlockAnimation =
-    ScenarioConfig(
+    FlickerConfigEntry(
         enabled = true,
         scenarioId = ScenarioId("LOCKSCNREEN_UNLOCK_ANIMATION"),
         assertions = AssertionTemplates.COMMON_ASSERTIONS,

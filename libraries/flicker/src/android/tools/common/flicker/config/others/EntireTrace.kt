@@ -17,12 +17,12 @@
 package android.tools.common.flicker.config.others
 
 import android.tools.common.flicker.config.AssertionTemplates
-import android.tools.common.flicker.config.ScenarioConfig
+import android.tools.common.flicker.config.FlickerConfigEntry
 import android.tools.common.flicker.config.ScenarioId
 import android.tools.common.flicker.extractors.EntireTraceExtractor
 
 val EntireTrace =
-    ScenarioConfig(
+    FlickerConfigEntry(
         assertions = AssertionTemplates.ENTIRE_TRACE_ASSERTIONS,
         extractor = EntireTraceExtractor(),
         enabled = true,

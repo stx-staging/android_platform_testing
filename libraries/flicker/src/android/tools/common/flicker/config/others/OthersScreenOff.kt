@@ -17,14 +17,14 @@
 package android.tools.common.flicker.config.others
 
 import android.tools.common.flicker.config.AssertionTemplates
-import android.tools.common.flicker.config.ScenarioConfig
+import android.tools.common.flicker.config.FlickerConfigEntry
 import android.tools.common.flicker.config.ScenarioId
 import android.tools.common.flicker.extractors.TaggedCujTransitionMatcher
 import android.tools.common.flicker.extractors.TaggedScenarioExtractorBuilder
 import android.tools.common.traces.events.CujType
 
 val OthersScreenOff =
-    ScenarioConfig(
+    FlickerConfigEntry(
         enabled = false,
         scenarioId = ScenarioId("SCREEN_OFF"),
         assertions = AssertionTemplates.COMMON_ASSERTIONS,

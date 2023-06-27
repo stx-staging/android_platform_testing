@@ -21,7 +21,7 @@ import android.tools.common.flicker.assertors.AssertionId
 import android.tools.common.flicker.assertors.AssertionTemplate
 import android.tools.common.flicker.extractors.ScenarioExtractor
 
-typealias ScenarioExtractorProvider = (InitializedScenarioConfig) -> ScenarioExtractor
+typealias ScenarioExtractorProvider = (ScenarioAssertionsConfig) -> ScenarioExtractor
 
 internal class FlickerConfigImpl : FlickerConfig {
     private val registry = mutableMapOf<ScenarioId, RegistryEntry>()
@@ -30,8 +30,8 @@ internal class FlickerConfigImpl : FlickerConfig {
         val assertions: MutableSet<AssertionEntry> = mutableSetOf()
     )
 
-    override fun use(scenarioConfigs: Collection<ScenarioConfig>): FlickerConfig = apply {
-        for (config in scenarioConfigs) {
+    override fun use(flickerConfigEntries: Collection<FlickerConfigEntry>): FlickerConfig = apply {
+        for (config in flickerConfigEntries) {
             if (!config.enabled) {
                 continue
             }
@@ -116,7 +116,7 @@ internal class FlickerConfigImpl : FlickerConfig {
     override fun getExtractors(): Collection<ScenarioExtractor> {
         return registry.entries.flatMap { entry ->
             entry.value.extractorProviders.map {
-                it(InitializedScenarioConfig(entry.key, entry.value.assertions))
+                it(ScenarioAssertionsConfig(entry.key, entry.value.assertions))
             }
         }
     }

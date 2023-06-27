@@ -17,14 +17,14 @@
 package android.tools.common.flicker.config.suw
 
 import android.tools.common.flicker.config.AssertionTemplates
-import android.tools.common.flicker.config.ScenarioConfig
+import android.tools.common.flicker.config.FlickerConfigEntry
 import android.tools.common.flicker.config.ScenarioId
 import android.tools.common.flicker.extractors.TaggedCujTransitionMatcher
 import android.tools.common.flicker.extractors.TaggedScenarioExtractorBuilder
 import android.tools.common.traces.events.CujType
 
 val SuwShowFunctionScreenWithActions =
-    ScenarioConfig(
+    FlickerConfigEntry(
         enabled = false,
         scenarioId = ScenarioId("SUW_SHOW_FUNCTION_SCREEN_WITH_ACTIONS"),
         assertions = AssertionTemplates.COMMON_ASSERTIONS,

@@ -16,8 +16,7 @@
 
 package android.tools.common.flicker.config
 
-// TODO: rename
-data class InitializedScenarioConfig(
+data class ScenarioAssertionsConfig(
     val scenarioId: ScenarioId,
     val assertions: Set<AssertionEntry>
 )

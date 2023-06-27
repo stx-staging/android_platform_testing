@@ -17,7 +17,7 @@
 package android.tools.common.flicker.extractor
 
 import android.tools.common.Timestamps
-import android.tools.common.flicker.config.InitializedScenarioConfig
+import android.tools.common.flicker.config.ScenarioAssertionsConfig
 import android.tools.common.flicker.extractors.ITransitionMatcher
 import android.tools.common.flicker.extractors.ShellTransitionScenarioExtractor
 import android.tools.common.traces.wm.Transition
@@ -116,5 +116,5 @@ class ShellTransitionScenarioExtractorTest {
         Truth.assertThat(filterToBackExtractor.extract(reader)).hasSize(0)
     }
 
-    private val mockConfig = Mockito.mock(InitializedScenarioConfig::class.java)
+    private val mockConfig = Mockito.mock(ScenarioAssertionsConfig::class.java)
 }

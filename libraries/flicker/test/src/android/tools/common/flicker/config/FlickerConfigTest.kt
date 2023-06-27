@@ -319,8 +319,8 @@ class FlickerConfigTest {
         )
     }
 
-    private fun createConfig(scenarioId: ScenarioId): ScenarioConfig {
-        val scenarioExtractorProvider = { config: InitializedScenarioConfig ->
+    private fun createConfig(scenarioId: ScenarioId): FlickerConfigEntry {
+        val scenarioExtractorProvider = { config: ScenarioAssertionsConfig ->
             object : ScenarioExtractor {
                 override val scenarioId = config.scenarioId
 
@@ -330,7 +330,7 @@ class FlickerConfigTest {
             }
         }
 
-        return object : ScenarioConfig {
+        return object : FlickerConfigEntry {
             override val extractorProvider = scenarioExtractorProvider
             override val assertions = mapOf<AssertionTemplate, AssertionInvocationGroup>()
             override val enabled = true
@@ -342,7 +342,7 @@ class FlickerConfigTest {
         private val SOME_SCENARIO = ScenarioId("SOME_SCENARIO")
         private val SOME_OTHER_SCENARIO = ScenarioId("SOME_OTHER_SCENARIO")
 
-        private val EXTRACTOR_FOR_SOME_SCENARIO = { config: InitializedScenarioConfig ->
+        private val EXTRACTOR_FOR_SOME_SCENARIO = { config: ScenarioAssertionsConfig ->
             object : ScenarioExtractor {
                 override val scenarioId: ScenarioId = SOME_SCENARIO
 
@@ -351,7 +351,7 @@ class FlickerConfigTest {
                 }
             }
         }
-        private val EXTRACTOR_FOR_SOME_OTHER_SCENARIO = { _: InitializedScenarioConfig ->
+        private val EXTRACTOR_FOR_SOME_OTHER_SCENARIO = { _: ScenarioAssertionsConfig ->
             object : ScenarioExtractor {
                 override val scenarioId: ScenarioId
                     get() = SOME_OTHER_SCENARIO

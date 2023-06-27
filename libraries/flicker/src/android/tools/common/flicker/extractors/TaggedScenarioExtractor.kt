@@ -20,7 +20,7 @@ import android.tools.common.Timestamp
 import android.tools.common.Timestamps
 import android.tools.common.flicker.ScenarioInstance
 import android.tools.common.flicker.ScenarioInstanceImpl
-import android.tools.common.flicker.config.InitializedScenarioConfig
+import android.tools.common.flicker.config.ScenarioAssertionsConfig
 import android.tools.common.flicker.config.ScenarioId
 import android.tools.common.io.Reader
 import android.tools.common.traces.events.Cuj
@@ -30,7 +30,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 class TaggedScenarioExtractor(
-    val config: InitializedScenarioConfig,
+    val config: ScenarioAssertionsConfig,
     private val targetTag: CujType,
     private val transitionMatcher: TransitionMatcher,
     private val adjustCuj: CujAdjust

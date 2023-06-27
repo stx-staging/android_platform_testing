@@ -17,7 +17,7 @@
 package android.tools.common.flicker.config.pip
 
 import android.tools.common.flicker.config.AssertionTemplates
-import android.tools.common.flicker.config.ScenarioConfig
+import android.tools.common.flicker.config.FlickerConfigEntry
 import android.tools.common.flicker.config.ScenarioId
 import android.tools.common.flicker.config.TransitionFilters
 import android.tools.common.flicker.extractors.CujAdjust
@@ -28,7 +28,7 @@ import android.tools.common.traces.events.Cuj
 import android.tools.common.traces.events.CujType
 
 val AppCloseToPip =
-    ScenarioConfig(
+    FlickerConfigEntry(
         enabled = false,
         scenarioId = ScenarioId("APP_CLOSE_TO_PIP"),
         assertions = AssertionTemplates.APP_CLOSE_TO_PIP_ASSERTIONS,

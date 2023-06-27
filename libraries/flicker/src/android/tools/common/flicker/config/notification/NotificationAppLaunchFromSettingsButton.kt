@@ -17,7 +17,7 @@
 package android.tools.common.flicker.config.notification
 
 import android.tools.common.flicker.config.AssertionTemplates
-import android.tools.common.flicker.config.ScenarioConfig
+import android.tools.common.flicker.config.FlickerConfigEntry
 import android.tools.common.flicker.config.ScenarioId
 import android.tools.common.flicker.config.TransitionFilters
 import android.tools.common.flicker.extractors.TaggedCujTransitionMatcher
@@ -25,7 +25,7 @@ import android.tools.common.flicker.extractors.TaggedScenarioExtractorBuilder
 import android.tools.common.traces.events.CujType
 
 val NotificationAppLaunchFromSettingsButton =
-    ScenarioConfig(
+    FlickerConfigEntry(
         enabled = true,
         scenarioId = ScenarioId("NOTIFICATION_APP_LAUNCH_FROM_SETTINGS_BUTTON"),
         assertions = AssertionTemplates.APP_LAUNCH_ASSERTIONS,

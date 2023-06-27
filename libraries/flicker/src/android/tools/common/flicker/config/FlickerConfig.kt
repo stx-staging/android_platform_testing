@@ -48,7 +48,8 @@ interface FlickerConfig {
 
     fun unregisterAssertion(scenario: ScenarioId, assertionId: AssertionId)
 
-    fun use(scenarioConfigs: Collection<ScenarioConfig>): FlickerConfig
+    fun use(flickerConfigEntries: Collection<FlickerConfigEntry>): FlickerConfig
 
-    fun use(vararg scenarioConfigs: ScenarioConfig): FlickerConfig = use(scenarioConfigs.asList())
+    fun use(vararg flickerConfigEntries: FlickerConfigEntry): FlickerConfig =
+        use(flickerConfigEntries.asList())
 }

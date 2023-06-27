@@ -17,7 +17,7 @@
 package android.tools.common.flicker.config.launcher
 
 import android.tools.common.flicker.config.AssertionTemplates
-import android.tools.common.flicker.config.ScenarioConfig
+import android.tools.common.flicker.config.FlickerConfigEntry
 import android.tools.common.flicker.config.ScenarioId
 import android.tools.common.flicker.config.TransitionFilters
 import android.tools.common.flicker.extractors.TaggedCujTransitionMatcher
@@ -25,7 +25,7 @@ import android.tools.common.flicker.extractors.TaggedScenarioExtractorBuilder
 import android.tools.common.traces.events.CujType
 
 val LauncherAllAppsCloseToHome =
-    ScenarioConfig(
+    FlickerConfigEntry(
         enabled = true,
         scenarioId = ScenarioId("LAUNCHER_ALL_APPS_CLOSE_TO_HOME"),
         assertions = AssertionTemplates.APP_CLOSE_TO_HOME_ASSERTIONS,
