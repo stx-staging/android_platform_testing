@@ -18,8 +18,8 @@ package android.platform.test.flag.junit;
 
 import static org.junit.Assume.assumeTrue;
 
-import android.platform.test.annotations.RequiresFlagsOff;
-import android.platform.test.annotations.RequiresFlagsOn;
+import android.platform.test.annotations.RequiresFlagsDisabled;
+import android.platform.test.annotations.RequiresFlagsEnabled;
 
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
@@ -43,21 +43,26 @@ public final class CheckFlagsRule implements TestRule {
             public void evaluate() throws Throwable {
                 AnnotationsRetriever.FlagAnnotations flagAnnotations =
                         AnnotationsRetriever.getFlagAnnotations(description);
-                RequiresFlagsOn requiresFlagsOn = flagAnnotations.mRequiresFlagsOn;
-                RequiresFlagsOff requiresFlagsOff = flagAnnotations.mRequiresFlagsOff;
+                RequiresFlagsEnabled requiresFlagsEnabled = flagAnnotations.mRequiresFlagsEnabled;
+                RequiresFlagsDisabled requiresFlagsDisabled =
+                        flagAnnotations.mRequiresFlagsDisabled;
                 mFlagsValueProvider.setUp();
                 try {
-                    if (requiresFlagsOn != null) {
-                        for (String flag : requiresFlagsOn.value()) {
+                    if (requiresFlagsEnabled != null) {
+                        for (String flag : requiresFlagsEnabled.value()) {
                             assumeTrue(
-                                    String.format("Flag %s requires to be on, but is off", flag),
+                                    String.format(
+                                            "Flag %s required to be enabled, but is disabled",
+                                            flag),
                                     mFlagsValueProvider.getBoolean(flag));
                         }
                     }
-                    if (requiresFlagsOff != null) {
-                        for (String flag : requiresFlagsOff.value()) {
+                    if (requiresFlagsDisabled != null) {
+                        for (String flag : requiresFlagsDisabled.value()) {
                             assumeTrue(
-                                    String.format("Flag %s requires to be off, but is on", flag),
+                                    String.format(
+                                            "Flag %s required to be disabled, but is enabled",
+                                            flag),
                                     !mFlagsValueProvider.getBoolean(flag));
                         }
                     }

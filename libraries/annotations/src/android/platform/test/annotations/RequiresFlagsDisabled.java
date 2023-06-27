@@ -22,20 +22,20 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Indicates that a specific test or class should be run on certain feature flag on.
+ * Indicates that a specific test or class should be run on certain feature flag disabled.
  *
- * <p>Test(s) will be skipped with 'assumption failed' when any of the required flag on the target
- * Android platform is off. TODO: add the related test rule that handles this annotation.
+ * <p>With {@code CheckFlagsRule}, test(s) will be skipped with 'assumption failed' when any of the
+ * required flag on the target Android platform is enabled.
  *
- * <p>If {@code RequiresFlagsOn} is applied at both the class and test method, the test method
- * annotation takes precedence, and the class level {@code RequiresFlagsOn} is ignored.
+ * <p>If {@code RequiresFlagsDisabled} is applied at both the class and test method, the test method
+ * annotation takes precedence, and the class level {@code RequiresFlagsDisabled} is ignored.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})
-public @interface RequiresFlagsOn {
+public @interface RequiresFlagsDisabled {
     /**
-     * The list of the feature flags that require to be on. Each item is the full flag name with the
-     * format {package_name}.{flag_name}.
+     * The list of the feature flags that require to be disabled. Each item is the full flag name
+     * with the format {package_name}.{flag_name}.
      */
     String[] value();
 }
