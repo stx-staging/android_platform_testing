@@ -27,43 +27,40 @@ import android.tools.common.io.Reader
 import android.tools.common.traces.events.Cuj
 import android.tools.common.traces.events.CujType
 
-class AppCloseToPip : ScenarioConfig {
-    override val enabled = false
+val AppCloseToPip =
+    ScenarioConfig(
+        enabled = false,
+        scenarioId = ScenarioId("APP_CLOSE_TO_PIP"),
+        assertions = AssertionTemplates.APP_CLOSE_TO_PIP_ASSERTIONS,
+        extractor =
+            TaggedScenarioExtractorBuilder()
+                .setTargetTag(CujType.CUJ_LAUNCHER_APP_CLOSE_TO_PIP)
+                .setTransitionMatcher(
+                    TaggedCujTransitionMatcher(TransitionFilters.APP_CLOSE_TO_PIP_TRANSITION_FILTER)
+                )
+                .setAdjustCuj(
+                    object : CujAdjust {
+                        override fun adjustCuj(cujEntry: Cuj, reader: Reader): Cuj {
+                            val cujTrace = reader.readCujTrace() ?: error("Missing CUJ trace")
+                            val closeToHomeCuj =
+                                cujTrace.entries.firstOrNull {
+                                    it.cuj == CujType.CUJ_LAUNCHER_APP_CLOSE_TO_HOME &&
+                                        it.startTimestamp <= cujEntry.startTimestamp &&
+                                        cujEntry.startTimestamp <= it.endTimestamp
+                                }
 
-    override val scenarioId = ScenarioId.fromClass(this::class)
-
-    override val assertions = AssertionTemplates.APP_CLOSE_TO_PIP_ASSERTIONS
-
-    override val extractorProvider by lazy {
-        TaggedScenarioExtractorBuilder()
-            .setTargetTag(CujType.CUJ_LAUNCHER_APP_CLOSE_TO_PIP)
-            .setTransitionMatcher(
-                TaggedCujTransitionMatcher(TransitionFilters.APP_CLOSE_TO_PIP_TRANSITION_FILTER)
-            )
-            .setAdjustCuj(
-                object : CujAdjust {
-                    override fun adjustCuj(cujEntry: Cuj, reader: Reader): Cuj {
-                        val cujTrace = reader.readCujTrace() ?: error("Missing CUJ trace")
-                        val closeToHomeCuj =
-                            cujTrace.entries.firstOrNull {
-                                it.cuj == CujType.CUJ_LAUNCHER_APP_CLOSE_TO_HOME &&
-                                    it.startTimestamp <= cujEntry.startTimestamp &&
-                                    cujEntry.startTimestamp <= it.endTimestamp
+                            return if (closeToHomeCuj == null) {
+                                cujEntry
+                            } else {
+                                Cuj(
+                                    cujEntry.cuj,
+                                    closeToHomeCuj.startTimestamp,
+                                    cujEntry.endTimestamp,
+                                    cujEntry.canceled
+                                )
                             }
-
-                        return if (closeToHomeCuj == null) {
-                            cujEntry
-                        } else {
-                            Cuj(
-                                cujEntry.cuj,
-                                closeToHomeCuj.startTimestamp,
-                                cujEntry.endTimestamp,
-                                cujEntry.canceled
-                            )
                         }
                     }
-                }
-            )
-            .build()
-    }
-}
+                )
+                .build()
+    )

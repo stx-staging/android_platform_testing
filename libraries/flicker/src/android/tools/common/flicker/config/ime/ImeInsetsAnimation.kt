@@ -23,16 +23,16 @@ import android.tools.common.flicker.extractors.TaggedCujTransitionMatcher
 import android.tools.common.flicker.extractors.TaggedScenarioExtractorBuilder
 import android.tools.common.traces.events.CujType
 
-class ImeInsetsAnimation : ScenarioConfig {
-    override val enabled = false
-
-    override val scenarioId = ScenarioId.fromClass(this::class)
-
-    override val assertions = AssertionTemplates.COMMON_ASSERTIONS // TODO: Add specific assertions
-
-    override val extractorProvider =
-        TaggedScenarioExtractorBuilder()
-            .setTargetTag(CujType.CUJ_IME_INSETS_ANIMATION)
-            .setTransitionMatcher(TaggedCujTransitionMatcher(associatedTransitionRequired = false))
-            .build()
-}
+val ImeInsetsAnimation =
+    ScenarioConfig(
+        enabled = false,
+        scenarioId = ScenarioId("IME_INSETS_ANIMATION"),
+        assertions = AssertionTemplates.COMMON_ASSERTIONS,
+        extractor =
+            TaggedScenarioExtractorBuilder()
+                .setTargetTag(CujType.CUJ_IME_INSETS_ANIMATION)
+                .setTransitionMatcher(
+                    TaggedCujTransitionMatcher(associatedTransitionRequired = false)
+                )
+                .build()
+    )

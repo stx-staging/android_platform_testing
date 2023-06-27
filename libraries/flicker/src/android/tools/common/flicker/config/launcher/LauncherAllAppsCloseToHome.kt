@@ -24,19 +24,16 @@ import android.tools.common.flicker.extractors.TaggedCujTransitionMatcher
 import android.tools.common.flicker.extractors.TaggedScenarioExtractorBuilder
 import android.tools.common.traces.events.CujType
 
-class LauncherAllAppsCloseToHome : ScenarioConfig {
-    override val enabled = true
-
-    override val scenarioId = ScenarioId.fromClass(this::class)
-
-    override val assertions = AssertionTemplates.APP_CLOSE_TO_HOME_ASSERTIONS
-
-    override val extractorProvider by lazy {
-        TaggedScenarioExtractorBuilder()
-            .setTargetTag(CujType.CUJ_LAUNCHER_CLOSE_ALL_APPS_TO_HOME)
-            .setTransitionMatcher(
-                TaggedCujTransitionMatcher(TransitionFilters.CLOSE_APP_TO_LAUNCHER_FILTER)
-            )
-            .build()
-    }
-}
+val LauncherAllAppsCloseToHome =
+    ScenarioConfig(
+        enabled = true,
+        scenarioId = ScenarioId("LAUNCHER_ALL_APPS_CLOSE_TO_HOME"),
+        assertions = AssertionTemplates.APP_CLOSE_TO_HOME_ASSERTIONS,
+        extractor =
+            TaggedScenarioExtractorBuilder()
+                .setTargetTag(CujType.CUJ_LAUNCHER_CLOSE_ALL_APPS_TO_HOME)
+                .setTransitionMatcher(
+                    TaggedCujTransitionMatcher(TransitionFilters.CLOSE_APP_TO_LAUNCHER_FILTER)
+                )
+                .build()
+    )

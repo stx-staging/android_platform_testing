@@ -24,18 +24,16 @@ import android.tools.common.flicker.extractors.TaggedCujTransitionMatcher
 import android.tools.common.flicker.extractors.TaggedScenarioExtractorBuilder
 import android.tools.common.traces.events.CujType
 
-class AppLaunchFromRecents : ScenarioConfig {
-    override val enabled = true
-
-    override val scenarioId = ScenarioId.fromClass(this::class)
-
-    override val assertions = AssertionTemplates.APP_LAUNCH_FROM_HOME_ASSERTIONS
-
-    override val extractorProvider =
-        TaggedScenarioExtractorBuilder()
-            .setTargetTag(CujType.CUJ_LAUNCHER_APP_LAUNCH_FROM_RECENTS)
-            .setTransitionMatcher(
-                TaggedCujTransitionMatcher(TransitionFilters.OPEN_APP_TRANSITION_FILTER)
-            )
-            .build()
-}
+val AppLaunchFromRecents =
+    ScenarioConfig(
+        enabled = true,
+        scenarioId = ScenarioId("APP_LAUNCH_FROM_RECENTS"),
+        assertions = AssertionTemplates.APP_LAUNCH_FROM_HOME_ASSERTIONS,
+        extractor =
+            TaggedScenarioExtractorBuilder()
+                .setTargetTag(CujType.CUJ_LAUNCHER_APP_LAUNCH_FROM_RECENTS)
+                .setTransitionMatcher(
+                    TaggedCujTransitionMatcher(TransitionFilters.OPEN_APP_TRANSITION_FILTER)
+                )
+                .build()
+    )

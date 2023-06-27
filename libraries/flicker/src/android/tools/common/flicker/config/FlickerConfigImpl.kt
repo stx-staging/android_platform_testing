@@ -78,7 +78,8 @@ internal class FlickerConfigImpl : FlickerConfig {
         require(entry != null) { "No scenario named '$scenario' registered." }
 
         require(entry.assertions.none { it.template.id == assertion.id }) {
-            "Assertion with id '${assertion.id.name}' already present."
+            "Assertion with id '${assertion.id.name}' already present for scenario " +
+                "'${scenario.name}'."
         }
 
         entry.assertions.add(AssertionEntry(assertion, stabilityGroup))

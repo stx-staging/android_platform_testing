@@ -23,17 +23,16 @@ import android.tools.common.flicker.extractors.TaggedCujTransitionMatcher
 import android.tools.common.flicker.extractors.TaggedScenarioExtractorBuilder
 import android.tools.common.traces.events.CujType
 
-class LockscreenTransitionFromAod : ScenarioConfig {
-    override val enabled = true
-
-    override val scenarioId = ScenarioId.fromClass(this::class)
-
-    override val assertions = AssertionTemplates.COMMON_ASSERTIONS
-
-    override val extractorProvider by lazy {
-        TaggedScenarioExtractorBuilder()
-            .setTargetTag(CujType.CUJ_LOCKSCREEN_TRANSITION_FROM_AOD)
-            .setTransitionMatcher(TaggedCujTransitionMatcher(associatedTransitionRequired = false))
-            .build()
-    }
-}
+val LockscreenTransitionFromAod =
+    ScenarioConfig(
+        enabled = true,
+        scenarioId = ScenarioId("LOCKSCREEN_TRANSITION_FROM_AOD"),
+        assertions = AssertionTemplates.COMMON_ASSERTIONS,
+        extractor =
+            TaggedScenarioExtractorBuilder()
+                .setTargetTag(CujType.CUJ_LOCKSCREEN_TRANSITION_FROM_AOD)
+                .setTransitionMatcher(
+                    TaggedCujTransitionMatcher(associatedTransitionRequired = false)
+                )
+                .build()
+    )

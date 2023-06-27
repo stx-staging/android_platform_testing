@@ -23,17 +23,16 @@ import android.tools.common.flicker.extractors.TaggedCujTransitionMatcher
 import android.tools.common.flicker.extractors.TaggedScenarioExtractorBuilder
 import android.tools.common.traces.events.CujType
 
-class NotificationQsScrollSwipe : ScenarioConfig {
-    override val enabled = false
-
-    override val scenarioId = ScenarioId.fromClass(this::class)
-
-    override val assertions = AssertionTemplates.COMMON_ASSERTIONS // TODO: Add specific assertions
-
-    override val extractorProvider by lazy {
-        TaggedScenarioExtractorBuilder()
-            .setTargetTag(CujType.CUJ_NOTIFICATION_SHADE_QS_SCROLL_SWIPE)
-            .setTransitionMatcher(TaggedCujTransitionMatcher(associatedTransitionRequired = false))
-            .build()
-    }
-}
+val NotificationQsScrollSwipe =
+    ScenarioConfig(
+        enabled = false,
+        scenarioId = ScenarioId("NOTIFICATION_QS_SCROLL_SWIPER"),
+        assertions = AssertionTemplates.COMMON_ASSERTIONS,
+        extractor =
+            TaggedScenarioExtractorBuilder()
+                .setTargetTag(CujType.CUJ_NOTIFICATION_SHADE_QS_SCROLL_SWIPE)
+                .setTransitionMatcher(
+                    TaggedCujTransitionMatcher(associatedTransitionRequired = false)
+                )
+                .build()
+    )

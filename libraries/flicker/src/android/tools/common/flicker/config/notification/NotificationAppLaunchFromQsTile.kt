@@ -24,19 +24,16 @@ import android.tools.common.flicker.extractors.TaggedCujTransitionMatcher
 import android.tools.common.flicker.extractors.TaggedScenarioExtractorBuilder
 import android.tools.common.traces.events.CujType
 
-class NotificationAppLaunchFromQsTile : ScenarioConfig {
-    override val enabled = true
-
-    override val scenarioId = ScenarioId.fromClass(this::class)
-
-    override val assertions = AssertionTemplates.APP_LAUNCH_ASSERTIONS
-
-    override val extractorProvider by lazy {
-        TaggedScenarioExtractorBuilder()
-            .setTargetTag(CujType.CUJ_SHADE_APP_LAUNCH_FROM_QS_TILE)
-            .setTransitionMatcher(
-                TaggedCujTransitionMatcher(TransitionFilters.OPEN_APP_TRANSITION_FILTER)
-            )
-            .build()
-    }
-}
+val NotificationAppLaunchFromQsTile =
+    ScenarioConfig(
+        enabled = true,
+        scenarioId = ScenarioId("NOTIFICATION_APP_LAUNCH_FROM_QS_TILE"),
+        assertions = AssertionTemplates.APP_LAUNCH_ASSERTIONS,
+        extractor =
+            TaggedScenarioExtractorBuilder()
+                .setTargetTag(CujType.CUJ_SHADE_APP_LAUNCH_FROM_QS_TILE)
+                .setTransitionMatcher(
+                    TaggedCujTransitionMatcher(TransitionFilters.OPEN_APP_TRANSITION_FILTER)
+                )
+                .build()
+    )

@@ -23,17 +23,16 @@ import android.tools.common.flicker.extractors.TaggedCujTransitionMatcher
 import android.tools.common.flicker.extractors.TaggedScenarioExtractorBuilder
 import android.tools.common.traces.events.CujType
 
-class WallpaperTransition : ScenarioConfig {
-    override val enabled = false
-
-    override val scenarioId = ScenarioId.fromClass(this::class)
-
-    override val assertions = AssertionTemplates.COMMON_ASSERTIONS // TODO: Add specific assertions
-
-    override val extractorProvider by lazy {
-        TaggedScenarioExtractorBuilder()
-            .setTargetTag(CujType.CUJ_WALLPAPER_TRANSITION)
-            .setTransitionMatcher(TaggedCujTransitionMatcher(associatedTransitionRequired = false))
-            .build()
-    }
-}
+val WallpaperTransition =
+    ScenarioConfig(
+        enabled = false,
+        scenarioId = ScenarioId("WALLPAPER_TRANSITION"),
+        assertions = AssertionTemplates.COMMON_ASSERTIONS,
+        extractor =
+            TaggedScenarioExtractorBuilder()
+                .setTargetTag(CujType.CUJ_WALLPAPER_TRANSITION)
+                .setTransitionMatcher(
+                    TaggedCujTransitionMatcher(associatedTransitionRequired = false)
+                )
+                .build()
+    )

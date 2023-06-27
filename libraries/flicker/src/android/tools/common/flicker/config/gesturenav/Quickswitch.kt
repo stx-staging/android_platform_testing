@@ -24,21 +24,19 @@ import android.tools.common.flicker.extractors.TaggedCujTransitionMatcher
 import android.tools.common.flicker.extractors.TaggedScenarioExtractorBuilder
 import android.tools.common.traces.events.CujType
 
-class Quickswitch : ScenarioConfig {
-    override val enabled = true
-
-    override val scenarioId = ScenarioId.fromClass(this::class)
-
-    override val assertions = AssertionTemplates.LAUNCHER_QUICK_SWITCH_ASSERTIONS
-
-    override val extractorProvider =
-        TaggedScenarioExtractorBuilder()
-            .setTargetTag(CujType.CUJ_LAUNCHER_QUICK_SWITCH)
-            .setTransitionMatcher(
-                TaggedCujTransitionMatcher(
-                    TransitionFilters.QUICK_SWITCH_TRANSITION_FILTER,
-                    finalTransform = TransitionFilters.QUICK_SWITCH_TRANSITION_POST_PROCESSING
+val Quickswitch =
+    ScenarioConfig(
+        enabled = true,
+        scenarioId = ScenarioId("QUICKSWITCH"),
+        assertions = AssertionTemplates.LAUNCHER_QUICK_SWITCH_ASSERTIONS,
+        extractor =
+            TaggedScenarioExtractorBuilder()
+                .setTargetTag(CujType.CUJ_LAUNCHER_QUICK_SWITCH)
+                .setTransitionMatcher(
+                    TaggedCujTransitionMatcher(
+                        TransitionFilters.QUICK_SWITCH_TRANSITION_FILTER,
+                        finalTransform = TransitionFilters.QUICK_SWITCH_TRANSITION_POST_PROCESSING
+                    )
                 )
-            )
-            .build()
-}
+                .build()
+    )

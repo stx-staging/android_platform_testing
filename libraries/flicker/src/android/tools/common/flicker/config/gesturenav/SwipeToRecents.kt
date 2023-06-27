@@ -24,18 +24,16 @@ import android.tools.common.flicker.extractors.TaggedCujTransitionMatcher
 import android.tools.common.flicker.extractors.TaggedScenarioExtractorBuilder
 import android.tools.common.traces.events.CujType
 
-class SwipeToRecents : ScenarioConfig {
-    override val enabled = true
-
-    override val scenarioId = ScenarioId.fromClass(this::class)
-
-    override val assertions = AssertionTemplates.COMMON_ASSERTIONS
-
-    override val extractorProvider =
-        TaggedScenarioExtractorBuilder()
-            .setTargetTag(CujType.CUJ_LAUNCHER_APP_SWIPE_TO_RECENTS)
-            .setTransitionMatcher(
-                TaggedCujTransitionMatcher(TransitionFilters.CLOSE_APP_TO_LAUNCHER_FILTER)
-            )
-            .build()
-}
+val SwipeToRecents =
+    ScenarioConfig(
+        enabled = true,
+        scenarioId = ScenarioId("SWIPE_TO_RECENTS"),
+        assertions = AssertionTemplates.COMMON_ASSERTIONS,
+        extractor =
+            TaggedScenarioExtractorBuilder()
+                .setTargetTag(CujType.CUJ_LAUNCHER_APP_SWIPE_TO_RECENTS)
+                .setTransitionMatcher(
+                    TaggedCujTransitionMatcher(TransitionFilters.CLOSE_APP_TO_LAUNCHER_FILTER)
+                )
+                .build()
+    )

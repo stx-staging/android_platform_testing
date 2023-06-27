@@ -24,19 +24,16 @@ import android.tools.common.flicker.extractors.TaggedCujTransitionMatcher
 import android.tools.common.flicker.extractors.TaggedScenarioExtractorBuilder
 import android.tools.common.traces.events.CujType
 
-class LockscreenAppLaunchCamera : ScenarioConfig {
-    override val enabled = true
-
-    override val scenarioId = ScenarioId.fromClass(this::class)
-
-    override val assertions = AssertionTemplates.APP_LAUNCH_FROM_LOCK_ASSERTIONS
-
-    override val extractorProvider by lazy {
-        TaggedScenarioExtractorBuilder()
-            .setTargetTag(CujType.CUJ_LOCKSCREEN_LAUNCH_CAMERA)
-            .setTransitionMatcher(
-                TaggedCujTransitionMatcher(TransitionFilters.OPEN_APP_TRANSITION_FILTER)
-            )
-            .build()
-    }
-}
+val LockscreenAppLaunchCamera =
+    ScenarioConfig(
+        enabled = true,
+        scenarioId = ScenarioId("LOCKSCREEN_APP_LAUNCH_CAMERA"),
+        assertions = AssertionTemplates.APP_LAUNCH_FROM_LOCK_ASSERTIONS,
+        extractor =
+            TaggedScenarioExtractorBuilder()
+                .setTargetTag(CujType.CUJ_LOCKSCREEN_LAUNCH_CAMERA)
+                .setTransitionMatcher(
+                    TaggedCujTransitionMatcher(TransitionFilters.OPEN_APP_TRANSITION_FILTER)
+                )
+                .build()
+    )

@@ -23,17 +23,16 @@ import android.tools.common.flicker.extractors.TaggedCujTransitionMatcher
 import android.tools.common.flicker.extractors.TaggedScenarioExtractorBuilder
 import android.tools.common.traces.events.CujType
 
-class OthersScreenOffShowAod : ScenarioConfig {
-    override val enabled = false
-
-    override val scenarioId = ScenarioId.fromClass(this::class)
-
-    override val assertions = AssertionTemplates.COMMON_ASSERTIONS // TODO: Add specific assertions
-
-    override val extractorProvider by lazy {
-        TaggedScenarioExtractorBuilder()
-            .setTargetTag(CujType.CUJ_SCREEN_OFF_SHOW_AOD)
-            .setTransitionMatcher(TaggedCujTransitionMatcher(associatedTransitionRequired = false))
-            .build()
-    }
-}
+val OthersScreenOffShowAod =
+    ScenarioConfig(
+        enabled = false,
+        scenarioId = ScenarioId("SCREEN_OFF_AOD"),
+        assertions = AssertionTemplates.COMMON_ASSERTIONS,
+        extractor =
+            TaggedScenarioExtractorBuilder()
+                .setTargetTag(CujType.CUJ_SCREEN_OFF_SHOW_AOD)
+                .setTransitionMatcher(
+                    TaggedCujTransitionMatcher(associatedTransitionRequired = false)
+                )
+                .build()
+    )

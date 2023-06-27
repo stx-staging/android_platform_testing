@@ -24,19 +24,16 @@ import android.tools.common.flicker.extractors.TaggedCujTransitionMatcher
 import android.tools.common.flicker.extractors.TaggedScenarioExtractorBuilder
 import android.tools.common.traces.events.CujType
 
-class SplitScreenExit : ScenarioConfig {
-    override val enabled = true
-
-    override val scenarioId = ScenarioId.fromClass(this::class)
-
-    override val assertions = AssertionTemplates.EXIT_SPLITSCREEN_ASSERTIONS
-
-    override val extractorProvider by lazy {
-        TaggedScenarioExtractorBuilder()
-            .setTargetTag(CujType.CUJ_SPLIT_SCREEN_EXIT)
-            .setTransitionMatcher(
-                TaggedCujTransitionMatcher(TransitionFilters.EXIT_SPLIT_SCREEN_FILTER)
-            )
-            .build()
-    }
-}
+val SplitScreenExit =
+    ScenarioConfig(
+        enabled = true,
+        scenarioId = ScenarioId("SPLIT_SCREEN_EXIT"),
+        assertions = AssertionTemplates.EXIT_SPLITSCREEN_ASSERTIONS,
+        extractor =
+            TaggedScenarioExtractorBuilder()
+                .setTargetTag(CujType.CUJ_SPLIT_SCREEN_EXIT)
+                .setTransitionMatcher(
+                    TaggedCujTransitionMatcher(TransitionFilters.EXIT_SPLIT_SCREEN_FILTER)
+                )
+                .build()
+    )

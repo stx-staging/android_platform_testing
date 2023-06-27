@@ -160,38 +160,39 @@ class FlickerServiceDecorator(
         }
 
         // Validate Registry provider
-        val flickerConfigProviderFunctions =
+        val flickerConfigProviderProviderFunctions =
             testClass
                 .getAnnotatedMethods(
-                    android.tools.common.flicker.annotation.FlickerConfig::class.java
+                    android.tools.common.flicker.annotation.FlickerConfigProvider::class.java
                 )
                 .filter { it.isStatic && it.isPublic }
-        if (flickerConfigProviderFunctions.isEmpty()) {
+        if (flickerConfigProviderProviderFunctions.isEmpty()) {
             errors.add(
                 IllegalArgumentException(
                     "A public static function returning a " +
                         "${FlickerConfig::class.simpleName} annotated with " +
                         "@${android.tools.common.flicker.annotation
-                                .FlickerConfig::class.simpleName} should be provided."
+                                .FlickerConfigProvider::class.simpleName} should be provided."
                 )
             )
-        } else if (flickerConfigProviderFunctions.size > 1) {
+        } else if (flickerConfigProviderProviderFunctions.size > 1) {
             errors.add(
                 IllegalArgumentException(
                     "Only one @${android.tools.common.flicker.annotation
-                            .FlickerConfig::class.simpleName} " +
+                            .FlickerConfigProvider::class.simpleName} " +
                         "annotated method is supported."
                 )
             )
         } else if (
-            flickerConfigProviderFunctions[0].returnType.name != FlickerConfig::class.qualifiedName
+            flickerConfigProviderProviderFunctions[0].returnType.name !=
+                FlickerConfig::class.qualifiedName
         ) {
             errors.add(
                 IllegalArgumentException(
                     "Expected method annotated with " +
                         "@${FlickerConfig::class.simpleName} to return " +
                         "${FlickerConfig::class.qualifiedName} but was " +
-                        "${flickerConfigProviderFunctions[0].returnType.name} instead."
+                        "${flickerConfigProviderProviderFunctions[0].returnType.name} instead."
                 )
             )
         } else {
@@ -227,13 +228,13 @@ class FlickerServiceDecorator(
             "getFlickerConfig() seems to have been called before validation."
         }
 
-        val flickerConfigProviderFunction =
+        val flickerConfigProviderProviderFunction =
             testClass
                 .getAnnotatedMethods(
-                    android.tools.common.flicker.annotation.FlickerConfig::class.java
+                    android.tools.common.flicker.annotation.FlickerConfigProvider::class.java
                 )[0]
         // TODO: Pass the correct target
-        return flickerConfigProviderFunction.invokeExplosively(testClass) as FlickerConfig
+        return flickerConfigProviderProviderFunction.invokeExplosively(testClass) as FlickerConfig
     }
 
     override fun shouldRunBeforeOn(method: FrameworkMethod): Boolean {

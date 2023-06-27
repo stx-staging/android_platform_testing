@@ -22,4 +22,4 @@ package android.tools.common.flicker.annotation
     AnnotationTarget.PROPERTY_SETTER
 )
 @Retention(AnnotationRetention.RUNTIME)
-annotation class FlickerConfig
+annotation class FlickerConfigProvider

@@ -24,18 +24,16 @@ import android.tools.common.flicker.extractors.TaggedCujTransitionMatcher
 import android.tools.common.flicker.extractors.TaggedScenarioExtractorBuilder
 import android.tools.common.traces.events.CujType
 
-class AppLaunchFromStatusBarCallChip : ScenarioConfig {
-    override val enabled = true
-
-    override val scenarioId = ScenarioId.fromClass(this::class)
-
-    override val assertions = AssertionTemplates.APP_LAUNCH_ASSERTIONS
-
-    override val extractorProvider =
-        TaggedScenarioExtractorBuilder()
-            .setTargetTag(CujType.CUJ_STATUS_BAR_APP_LAUNCH_FROM_CALL_CHIP)
-            .setTransitionMatcher(
-                TaggedCujTransitionMatcher(TransitionFilters.OPEN_APP_TRANSITION_FILTER)
-            )
-            .build()
-}
+val AppLaunchFromStatusBarCallChip =
+    ScenarioConfig(
+        enabled = true,
+        scenarioId = ScenarioId("APP_LAUNCH_FROM_STATUS_BAR_CALL_CHIP"),
+        assertions = AssertionTemplates.APP_LAUNCH_ASSERTIONS,
+        extractor =
+            TaggedScenarioExtractorBuilder()
+                .setTargetTag(CujType.CUJ_STATUS_BAR_APP_LAUNCH_FROM_CALL_CHIP)
+                .setTransitionMatcher(
+                    TaggedCujTransitionMatcher(TransitionFilters.OPEN_APP_TRANSITION_FILTER)
+                )
+                .build()
+    )

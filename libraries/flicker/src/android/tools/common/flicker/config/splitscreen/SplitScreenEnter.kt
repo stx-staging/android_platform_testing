@@ -17,23 +17,18 @@
 package android.tools.common.flicker.config.splitscreen
 
 import android.tools.common.flicker.config.AssertionTemplates
-import android.tools.common.flicker.config.InitializedScenarioConfig
 import android.tools.common.flicker.config.ScenarioConfig
 import android.tools.common.flicker.config.ScenarioId
 import android.tools.common.flicker.config.TransitionFilters
 import android.tools.common.flicker.extractors.ShellTransitionScenarioExtractor
 
-class SplitScreenEnter : ScenarioConfig {
-    override val enabled = true
-
-    override val scenarioId = ScenarioId.fromClass(this::class)
-
-    override val assertions = AssertionTemplates.ENTER_SPLITSCREEN_ASSERTIONS
-
-    override val extractorProvider = { config: InitializedScenarioConfig ->
-        ShellTransitionScenarioExtractor(
-            config,
-            transitionMatcher = TransitionFilters.ENTER_SPLIT_SCREEN_MATCHER
-        )
-    }
-}
+val SplitScreenEnter =
+    ScenarioConfig(
+        enabled = true,
+        scenarioId = ScenarioId("SPLIT_SCREEN_ENTER"),
+        assertions = AssertionTemplates.ENTER_SPLITSCREEN_ASSERTIONS,
+        extractor =
+            ShellTransitionScenarioExtractor(
+                transitionMatcher = TransitionFilters.ENTER_SPLIT_SCREEN_MATCHER
+            )
+    )
