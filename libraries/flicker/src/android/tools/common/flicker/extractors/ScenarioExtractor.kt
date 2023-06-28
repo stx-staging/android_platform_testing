@@ -16,11 +16,8 @@
 
 package android.tools.common.flicker.extractors
 
-import android.tools.common.flicker.ScenarioInstance
-import android.tools.common.flicker.config.ScenarioId
 import android.tools.common.io.Reader
 
 interface ScenarioExtractor {
-    val scenarioId: ScenarioId
-    fun extract(reader: Reader): List<ScenarioInstance>
+    fun extract(reader: Reader): List<TraceSlice>
 }

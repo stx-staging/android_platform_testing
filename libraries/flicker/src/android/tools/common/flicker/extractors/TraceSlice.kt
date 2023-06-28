@@ -14,9 +14,15 @@
  * limitations under the License.
  */
 
-package android.tools.common.flicker.config
+package android.tools.common.flicker.extractors
 
-data class ScenarioAssertionsConfig(
-    val scenarioId: ScenarioId,
-    val assertions: Set<AssertionEntry>
+import android.tools.common.Timestamp
+import android.tools.common.traces.events.CujType
+import android.tools.common.traces.wm.Transition
+
+data class TraceSlice(
+    val startTimestamp: Timestamp,
+    val endTimestamp: Timestamp,
+    val associatedTransition: Transition? = null,
+    val associatedCuj: CujType? = null
 )

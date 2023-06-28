@@ -16,7 +16,6 @@
 
 package android.tools.common.flicker.extractors
 
-import android.tools.common.flicker.config.ScenarioExtractorProvider
 import android.tools.common.io.Reader
 import android.tools.common.traces.events.Cuj
 import android.tools.common.traces.events.CujType
@@ -37,10 +36,8 @@ class TaggedScenarioExtractorBuilder {
 
     fun setAdjustCuj(value: CujAdjust): TaggedScenarioExtractorBuilder = apply { adjustCuj = value }
 
-    fun build(): ScenarioExtractorProvider {
+    fun build(): ScenarioExtractor {
         val targetTag = targetTag ?: error("Missing targetTag")
-        return { config ->
-            TaggedScenarioExtractor(config, targetTag, transitionMatcher, adjustCuj)
-        }
+        return TaggedScenarioExtractor(targetTag, transitionMatcher, adjustCuj)
     }
 }

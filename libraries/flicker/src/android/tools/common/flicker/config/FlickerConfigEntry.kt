@@ -18,10 +18,11 @@ package android.tools.common.flicker.config
 
 import android.tools.common.flicker.AssertionInvocationGroup
 import android.tools.common.flicker.assertors.AssertionTemplate
+import android.tools.common.flicker.extractors.ScenarioExtractor
 
 data class FlickerConfigEntry(
     val scenarioId: ScenarioId,
-    val extractorProvider: ScenarioExtractorProvider,
+    val extractor: ScenarioExtractor,
     val assertions: Map<AssertionTemplate, AssertionInvocationGroup>,
     val enabled: Boolean = true,
 )

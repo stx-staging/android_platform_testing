@@ -21,51 +21,32 @@ import android.tools.common.flicker.assertors.AssertionId
 import android.tools.common.flicker.assertors.AssertionTemplate
 import android.tools.common.flicker.extractors.ScenarioExtractor
 
-typealias ScenarioExtractorProvider = (ScenarioAssertionsConfig) -> ScenarioExtractor
-
 internal class FlickerConfigImpl : FlickerConfig {
-    private val registry = mutableMapOf<ScenarioId, RegistryEntry>()
-    private data class RegistryEntry(
-        val extractorProviders: MutableSet<ScenarioExtractorProvider> = mutableSetOf(),
-        val assertions: MutableSet<AssertionEntry> = mutableSetOf()
-    )
+    private val registry = mutableMapOf<ScenarioId, FlickerConfigEntry>()
 
     override fun use(flickerConfigEntries: Collection<FlickerConfigEntry>): FlickerConfig = apply {
         for (config in flickerConfigEntries) {
             if (!config.enabled) {
                 continue
             }
-            registerScenario(config.scenarioId, config.extractorProvider, config.assertions)
+            registerScenario(config.scenarioId, config.extractor, config.assertions)
         }
     }
 
     override fun registerScenario(
         scenario: ScenarioId,
-        extractorProvider: ScenarioExtractorProvider,
+        extractor: ScenarioExtractor,
         assertions: Map<AssertionTemplate, AssertionInvocationGroup>?
     ) {
         require(!registry.containsKey(scenario)) {
             "${this::class.simpleName} already has a registered scenario with name '$scenario'."
         }
 
-        registry.putIfAbsent(scenario, RegistryEntry())
-        registerExtractor(scenario, extractorProvider)
-        assertions?.forEach { registerAssertion(scenario, it.key, it.value) }
-    }
-
-    override fun registerExtractor(
-        scenario: ScenarioId,
-        extractorProvider: ScenarioExtractorProvider
-    ) {
-        val entry = registry[scenario]
-        require(entry != null) { "No scenario named '$scenario' registered." }
-
-        entry.extractorProviders.add(extractorProvider)
+        registry[scenario] = FlickerConfigEntry(scenario, extractor, assertions ?: emptyMap())
     }
 
     override fun unregisterScenario(scenario: ScenarioId) {
-        val entry = registry[scenario]
-        require(entry != null) { "No scenario named '$scenario' registered." }
+        val entry = registry[scenario] ?: error("No scenario named '$scenario' registered.")
         registry.remove(scenario)
     }
 
@@ -77,12 +58,22 @@ internal class FlickerConfigImpl : FlickerConfig {
         val entry = registry[scenario]
         require(entry != null) { "No scenario named '$scenario' registered." }
 
-        require(entry.assertions.none { it.template.id == assertion.id }) {
+        require(entry.assertions.keys.none { it.id == assertion.id }) {
             "Assertion with id '${assertion.id.name}' already present for scenario " +
                 "'${scenario.name}'."
         }
 
-        entry.assertions.add(AssertionEntry(assertion, stabilityGroup))
+        registry[scenario] =
+            FlickerConfigEntry(
+                entry.scenarioId,
+                entry.extractor,
+                entry.assertions.toMutableMap().apply { this[assertion] = stabilityGroup },
+                entry.enabled
+            )
+    }
+
+    override fun getEntries(): Collection<FlickerConfigEntry> {
+        return registry.values
     }
 
     override fun overrideAssertionStabilityGroup(
@@ -93,31 +84,37 @@ internal class FlickerConfigImpl : FlickerConfig {
         val entry = registry[scenario]
         require(entry != null) { "No scenario named '$scenario' registered." }
 
-        val targetAssertion = entry.assertions.firstOrNull { it.template.id == assertionId }
-        require(targetAssertion != null) {
-            "No assertion with id $assertionId present in registry for scenario $scenario."
-        }
+        val targetAssertion =
+            entry.assertions.keys.firstOrNull { it.id == assertionId }
+                ?: error(
+                    "No assertion with id $assertionId present in registry for scenario $scenario."
+                )
 
-        targetAssertion.stabilityGroup = stabilityGroup
+        registry[scenario] =
+            FlickerConfigEntry(
+                entry.scenarioId,
+                entry.extractor,
+                entry.assertions.toMutableMap().apply { this[targetAssertion] = stabilityGroup },
+                entry.enabled
+            )
     }
 
     override fun unregisterAssertion(scenario: ScenarioId, assertionId: AssertionId) {
         val entry = registry[scenario]
         require(entry != null) { "No scenario named '$scenario' registered." }
 
-        val targetAssertion = entry.assertions.firstOrNull { it.template.id == assertionId }
-        require(targetAssertion != null) {
-            "No assertion with id $assertionId present in registry for scenario $scenario."
-        }
+        val targetAssertion =
+            entry.assertions.keys.firstOrNull { it.id == assertionId }
+                ?: error(
+                    "No assertion with id $assertionId present in registry for scenario $scenario."
+                )
 
-        entry.assertions.remove(targetAssertion)
-    }
-
-    override fun getExtractors(): Collection<ScenarioExtractor> {
-        return registry.entries.flatMap { entry ->
-            entry.value.extractorProviders.map {
-                it(ScenarioAssertionsConfig(entry.key, entry.value.assertions))
-            }
-        }
+        registry[scenario] =
+            FlickerConfigEntry(
+                entry.scenarioId,
+                entry.extractor,
+                entry.assertions.toMutableMap().apply { this.remove(targetAssertion) },
+                entry.enabled
+            )
     }
 }

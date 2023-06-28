@@ -24,11 +24,9 @@ import android.tools.common.flicker.extractors.ScenarioExtractor
 interface FlickerConfig {
     fun registerScenario(
         scenario: ScenarioId,
-        extractorProvider: ScenarioExtractorProvider,
+        extractor: ScenarioExtractor,
         assertions: Map<AssertionTemplate, AssertionInvocationGroup>? = null
     )
-
-    fun registerExtractor(scenario: ScenarioId, extractorProvider: ScenarioExtractorProvider)
 
     fun registerAssertion(
         scenario: ScenarioId,
@@ -36,7 +34,7 @@ interface FlickerConfig {
         stabilityGroup: AssertionInvocationGroup = AssertionInvocationGroup.BLOCKING
     )
 
-    fun getExtractors(): Collection<ScenarioExtractor>
+    fun getEntries(): Collection<FlickerConfigEntry>
 
     fun unregisterScenario(scenario: ScenarioId)
 

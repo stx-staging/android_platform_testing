@@ -18,10 +18,6 @@ package android.tools.common.flicker.extractors
 
 import android.tools.common.Timestamp
 import android.tools.common.Timestamps
-import android.tools.common.flicker.ScenarioInstance
-import android.tools.common.flicker.ScenarioInstanceImpl
-import android.tools.common.flicker.config.ScenarioAssertionsConfig
-import android.tools.common.flicker.config.ScenarioId
 import android.tools.common.io.Reader
 import android.tools.common.traces.events.Cuj
 import android.tools.common.traces.events.CujType
@@ -30,15 +26,11 @@ import kotlin.math.max
 import kotlin.math.min
 
 class TaggedScenarioExtractor(
-    val config: ScenarioAssertionsConfig,
     private val targetTag: CujType,
     private val transitionMatcher: TransitionMatcher,
     private val adjustCuj: CujAdjust
 ) : ScenarioExtractor {
-    override val scenarioId: ScenarioId = config.scenarioId
-
-    override fun extract(reader: Reader): List<ScenarioInstance> {
-        val layersTrace = reader.readLayersTrace() ?: error("Missing layers trace")
+    override fun extract(reader: Reader): List<TraceSlice> {
         val cujTrace = reader.readCujTrace() ?: error("Missing CUJ trace")
 
         val targetCujEntries =
@@ -65,20 +57,11 @@ class TaggedScenarioExtractor(
                 estimateScenarioStartTimestamp(cujEntry, associatedTransition, reader)
             val endTimestamp = estimateScenarioEndTimestamp(cujEntry, associatedTransition, reader)
 
-            val displayAtStart =
-                Utils.getOnDisplayFor(layersTrace.getFirstEntryWithOnDisplayAfter(startTimestamp))
-            val displayAtEnd =
-                Utils.getOnDisplayFor(layersTrace.getLastEntryWithOnDisplayBefore(endTimestamp))
-
-            ScenarioInstanceImpl(
-                config,
-                startRotation = displayAtStart.transform.getRotation(),
-                endRotation = displayAtEnd.transform.getRotation(),
-                startTimestamp = startTimestamp,
-                endTimestamp = endTimestamp,
+            TraceSlice(
+                startTimestamp,
+                endTimestamp,
                 associatedCuj = cujEntry.cuj,
-                associatedTransition = associatedTransition,
-                reader = reader.slice(startTimestamp, endTimestamp)
+                associatedTransition = associatedTransition
             )
         }
     }

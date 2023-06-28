@@ -201,7 +201,7 @@ class FlickerServiceDecorator(
                 testClass.getAnnotatedMethods(ExpectedScenarios::class.java).map {
                     it.getAnnotation(ExpectedScenarios::class.java)
                 }
-            val registeredScenarios = getFlickerConfig().getExtractors().map { it.scenarioId.name }
+            val registeredScenarios = getFlickerConfig().getEntries().map { it.scenarioId.name }
             for (expectedScenarioAnnotation in expectedScenarioAnnotations) {
                 for (expectedScenario in expectedScenarioAnnotation.expectedScenarios) {
                     val scenarioRegistered = registeredScenarios.contains(expectedScenario)
