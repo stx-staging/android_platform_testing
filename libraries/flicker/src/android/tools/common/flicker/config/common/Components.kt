@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
-package android.tools.common.flicker.assertors.assertions
+package android.tools.common.flicker.config.common
 
-import android.tools.common.flicker.config.common.Components.LAUNCHER
+import android.tools.common.flicker.assertors.ComponentTemplate
+import android.tools.common.traces.component.ComponentNameMatcher
 
-/** Checks that [Components.LAUNCHER] starts on top and moves out of top during the transition */
-class LauncherWindowMovesOutOfTop : WindowMovesOutOfTop(LAUNCHER)
+object Components {
+    val NAV_BAR = ComponentTemplate("Navbar") { ComponentNameMatcher.NAV_BAR }
+    val STATUS_BAR = ComponentTemplate("StatusBar") { ComponentNameMatcher.STATUS_BAR }
+    val LAUNCHER = ComponentTemplate("Launcher") { ComponentNameMatcher.LAUNCHER }
+}
