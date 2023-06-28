@@ -275,6 +275,19 @@
       "VALUE": "contact_details_favorite_button",
       "PACKAGE": "com.android.car.dialer"
     },
+    "ADD_CONTACT_TO_FAVORITE_FROM_DIALOG_BOX": {
+      "TYPE": "RESOURCE_ID",
+      "VALUE": "car_ui_list_item_action_container",
+      "PACKAGE": "com.android.car.dialer"
+    },
+    "ADD_TO_FAVORITE_BUTTON": {
+      "TYPE": "TEXT",
+      "VALUE": "Add a favorite"
+    },
+    "ADD_TO_FAVORITE_DIALOG_OK": {
+      "TYPE": "TEXT",
+      "VALUE": "OK"
+    },
     "CONTACT_TYPE_HOME": {
       "TYPE": "TEXT",
       "VALUE": "Home"
@@ -544,8 +557,8 @@
           "TYPE": "HAS_DESCENDANT",
           "MAX_DEPTH": 2,
           "DESCENDANT": {
-          "TYPE": "CLASS",
-          "VALUE": "android.widget.FrameLayout"
+            "TYPE": "CLASS",
+            "VALUE": "android.widget.FrameLayout"
           }
         }
       ]
@@ -762,8 +775,8 @@
       "PACKAGE": "com.android.car.ui.sharedlibrary"
     },
     "DISPLAY_SETTINGS_ADAPTIVE_BRIGHTNESS_TOGGLE": {
-    "TYPE": "MULTIPLE",
-    "SPECIFIERS": [
+      "TYPE": "MULTIPLE",
+      "SPECIFIERS": [
         {
           "TYPE": "CLASS",
           "VALUE": "android.widget.Switch"
