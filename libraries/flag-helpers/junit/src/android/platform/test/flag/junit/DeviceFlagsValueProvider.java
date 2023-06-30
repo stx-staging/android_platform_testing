@@ -74,14 +74,16 @@ public class DeviceFlagsValueProvider implements IFlagsValueProvider {
                             "Can not load the Flags class %s to get its values. Please check the "
                                     + "flag name and ensure that the aconfig auto generated "
                                     + "library is in the dependency.",
-                            className));
+                            className),
+                    e);
         } catch (NoSuchMethodException e) {
             throw new FlagReadException(
                     flag,
                     String.format(
                             "No method %s in the Flags class to read the flag value. Please check"
                                     + " the flag name.",
-                            methodName));
+                            methodName),
+                    e);
         } catch (InvocationTargetException | IllegalAccessException e) {
             throw new FlagReadException(flag, e);
         }
