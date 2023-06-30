@@ -20,10 +20,12 @@ import android.tools.assertThrows
 import android.tools.common.flicker.AssertionInvocationGroup
 import android.tools.common.flicker.FlickerConfig
 import android.tools.common.flicker.ScenarioInstance
+import android.tools.common.flicker.ScenarioInstanceImpl
 import android.tools.common.flicker.assertions.FlickerTest
 import android.tools.common.flicker.assertors.AssertionTemplate
 import android.tools.common.flicker.extractors.EntireTraceExtractor
 import android.tools.common.flicker.extractors.ScenarioExtractor
+import android.tools.common.flicker.extractors.TraceSlice
 import android.tools.common.io.Reader
 import android.tools.getTraceReaderFromScenario
 import com.google.common.truth.Truth
@@ -36,9 +38,9 @@ class FlickerConfigTest {
 
         registry.registerScenario(SOME_SCENARIO, EXTRACTOR_FOR_SOME_SCENARIO)
 
-        val extractors = registry.getExtractors()
-        Truth.assertThat(extractors).hasSize(1)
-        Truth.assertThat(extractors.first().scenarioId).isEqualTo(SOME_SCENARIO)
+        val entries = registry.getEntries()
+        Truth.assertThat(entries).hasSize(1)
+        Truth.assertThat(entries.first().scenarioId).isEqualTo(SOME_SCENARIO)
     }
 
     @Test
@@ -59,14 +61,16 @@ class FlickerConfigTest {
             mapOf(assertion to AssertionInvocationGroup.BLOCKING)
         )
 
-        val extractors = registry.getExtractors()
-        Truth.assertThat(extractors).hasSize(1)
-        Truth.assertThat(extractors.first().scenarioId).isEqualTo(SOME_SCENARIO)
+        val entries = registry.getEntries()
+        Truth.assertThat(entries).hasSize(1)
+        Truth.assertThat(entries.first().scenarioId).isEqualTo(SOME_SCENARIO)
 
         val reader = getTraceReaderFromScenario("AppLaunch")
-        val extractedScenarioInstance = extractors.first().extract(reader)
-        Truth.assertThat(extractedScenarioInstance).hasSize(1)
-        val assertions = extractedScenarioInstance.first().generateAssertions()
+        val scenarioSlices = entries.first().extractor.extract(reader)
+        Truth.assertThat(scenarioSlices).hasSize(1)
+        val scenarioInstance =
+            ScenarioInstanceImpl.fromSlice(scenarioSlices.first(), reader, entries.first())
+        val assertions = scenarioInstance.generateAssertions()
 
         Truth.assertThat(assertions).hasSize(1)
         assertions.first().execute()
@@ -81,12 +85,12 @@ class FlickerConfigTest {
 
         registry.registerScenario(SOME_SCENARIO, EXTRACTOR_FOR_SOME_SCENARIO)
 
-        var extractors = registry.getExtractors()
-        Truth.assertThat(extractors).hasSize(1)
+        var entries = registry.getEntries()
+        Truth.assertThat(entries).hasSize(1)
 
         registry.unregisterScenario(SOME_SCENARIO)
-        extractors = registry.getExtractors()
-        Truth.assertThat(extractors).hasSize(0)
+        entries = registry.getEntries()
+        Truth.assertThat(entries).hasSize(0)
     }
 
     // TODO: Require anonymous assertions to have a proper name
@@ -109,14 +113,16 @@ class FlickerConfigTest {
         )
         registry.unregisterAssertion(SOME_SCENARIO, assertion.id)
 
-        val extractors = registry.getExtractors()
-        Truth.assertThat(extractors).hasSize(1)
-        Truth.assertThat(extractors.first().scenarioId).isEqualTo(SOME_SCENARIO)
+        val entries = registry.getEntries()
+        Truth.assertThat(entries).hasSize(1)
+        Truth.assertThat(entries.first().scenarioId).isEqualTo(SOME_SCENARIO)
 
         val reader = getTraceReaderFromScenario("AppLaunch")
-        val extractedScenarioInstance = extractors.first().extract(reader)
-        Truth.assertThat(extractedScenarioInstance).hasSize(1)
-        val assertions = extractedScenarioInstance.first().generateAssertions()
+        val scenarioSlices = entries.first().extractor.extract(reader)
+        Truth.assertThat(scenarioSlices).hasSize(1)
+        val scenarioInstance =
+            ScenarioInstanceImpl.fromSlice(scenarioSlices.first(), reader, entries.first())
+        val assertions = scenarioInstance.generateAssertions()
 
         Truth.assertThat(assertions).hasSize(0)
     }
@@ -143,14 +149,16 @@ class FlickerConfigTest {
             AssertionInvocationGroup.NON_BLOCKING
         )
 
-        val extractors = registry.getExtractors()
-        Truth.assertThat(extractors).hasSize(1)
-        Truth.assertThat(extractors.first().scenarioId).isEqualTo(SOME_SCENARIO)
+        val entries = registry.getEntries()
+        Truth.assertThat(entries).hasSize(1)
+        Truth.assertThat(entries.first().scenarioId).isEqualTo(SOME_SCENARIO)
 
         val reader = getTraceReaderFromScenario("AppLaunch")
-        val extractedScenarioInstance = extractors.first().extract(reader)
-        Truth.assertThat(extractedScenarioInstance).hasSize(1)
-        val assertions = extractedScenarioInstance.first().generateAssertions()
+        val scenarioSlices = entries.first().extractor.extract(reader)
+        Truth.assertThat(scenarioSlices).hasSize(1)
+        val scenarioInstance =
+            ScenarioInstanceImpl.fromSlice(scenarioSlices.first(), reader, entries.first())
+        val assertions = scenarioInstance.generateAssertions()
 
         Truth.assertThat(assertions).hasSize(1)
         Truth.assertThat(assertions.first().stabilityGroup)
@@ -184,14 +192,16 @@ class FlickerConfigTest {
         )
         registry.registerAssertion(SOME_SCENARIO, assertion2, AssertionInvocationGroup.NON_BLOCKING)
 
-        val extractors = registry.getExtractors()
-        Truth.assertThat(extractors).hasSize(1)
-        Truth.assertThat(extractors.first().scenarioId).isEqualTo(SOME_SCENARIO)
+        val entries = registry.getEntries()
+        Truth.assertThat(entries).hasSize(1)
+        Truth.assertThat(entries.first().scenarioId).isEqualTo(SOME_SCENARIO)
 
         val reader = getTraceReaderFromScenario("AppLaunch")
-        val extractedScenarioInstance = extractors.first().extract(reader)
-        Truth.assertThat(extractedScenarioInstance).hasSize(1)
-        val assertions = extractedScenarioInstance.first().generateAssertions()
+        val scenarioSlices = entries.first().extractor.extract(reader)
+        Truth.assertThat(scenarioSlices).hasSize(1)
+        val scenarioInstance =
+            ScenarioInstanceImpl.fromSlice(scenarioSlices.first(), reader, entries.first())
+        val assertions = scenarioInstance.generateAssertions()
 
         Truth.assertThat(assertions).hasSize(2)
         Truth.assertThat(assertions.first().stabilityGroup)
@@ -271,7 +281,9 @@ class FlickerConfigTest {
         val error = assertThrows<Throwable> { registry.registerAssertion(SOME_SCENARIO, assertion) }
         Truth.assertThat(error)
             .hasMessageThat()
-            .contains("Assertion with id 'Mock Assertion' already present.")
+            .contains(
+                "Assertion with id 'Mock Assertion' already present for scenario 'SOME_SCENARIO'"
+            )
     }
 
     @Test
@@ -320,46 +332,34 @@ class FlickerConfigTest {
     }
 
     private fun createConfig(scenarioId: ScenarioId): FlickerConfigEntry {
-        val scenarioExtractorProvider = { config: ScenarioAssertionsConfig ->
-            object : ScenarioExtractor {
-                override val scenarioId = config.scenarioId
-
-                override fun extract(reader: Reader): List<ScenarioInstance> {
-                    return EntireTraceExtractor(config).extract(reader)
-                }
-            }
-        }
-
-        return object : FlickerConfigEntry {
-            override val extractorProvider = scenarioExtractorProvider
-            override val assertions = mapOf<AssertionTemplate, AssertionInvocationGroup>()
-            override val enabled = true
-            override val scenarioId = scenarioId
-        }
+        return FlickerConfigEntry(
+            scenarioId = scenarioId,
+            extractor =
+                object : ScenarioExtractor {
+                    override fun extract(reader: Reader): List<TraceSlice> {
+                        return EntireTraceExtractor().extract(reader)
+                    }
+                },
+            assertions = mapOf(),
+            enabled = true
+        )
     }
 
     companion object {
         private val SOME_SCENARIO = ScenarioId("SOME_SCENARIO")
         private val SOME_OTHER_SCENARIO = ScenarioId("SOME_OTHER_SCENARIO")
 
-        private val EXTRACTOR_FOR_SOME_SCENARIO = { config: ScenarioAssertionsConfig ->
+        private val EXTRACTOR_FOR_SOME_SCENARIO =
             object : ScenarioExtractor {
-                override val scenarioId: ScenarioId = SOME_SCENARIO
-
-                override fun extract(reader: Reader): List<ScenarioInstance> {
-                    return EntireTraceExtractor(config).extract(reader)
+                override fun extract(reader: Reader): List<TraceSlice> {
+                    return EntireTraceExtractor().extract(reader)
                 }
             }
-        }
-        private val EXTRACTOR_FOR_SOME_OTHER_SCENARIO = { _: ScenarioAssertionsConfig ->
+        private val EXTRACTOR_FOR_SOME_OTHER_SCENARIO =
             object : ScenarioExtractor {
-                override val scenarioId: ScenarioId
-                    get() = SOME_OTHER_SCENARIO
-
-                override fun extract(reader: Reader): List<ScenarioInstance> {
+                override fun extract(reader: Reader): List<TraceSlice> {
                     error("Should never be called...")
                 }
             }
-        }
     }
 }

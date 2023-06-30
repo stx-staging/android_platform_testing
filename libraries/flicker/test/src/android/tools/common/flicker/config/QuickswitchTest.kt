@@ -20,7 +20,6 @@ import android.app.Instrumentation
 import android.platform.test.rule.NavigationModeRule
 import android.tools.common.NavBar
 import android.tools.common.ScenarioBuilder
-import android.tools.common.flicker.FlickerConfig
 import android.tools.common.flicker.config.gesturenav.Quickswitch
 import android.tools.device.apphelpers.BrowserAppHelper
 import android.tools.device.apphelpers.CameraAppHelper
@@ -70,13 +69,10 @@ class QuickswitchTest {
         browser.exit()
         camera.exit()
 
-        val extractors = FlickerConfig().use(Quickswitch()).getExtractors()
-        Truth.assertThat(extractors).hasSize(1)
-        val quickSwitchExtractor = extractors.first()
-        Truth.assertThat(quickSwitchExtractor.scenarioId).isEqualTo(ScenarioId("QUICKSWITCH"))
-        val scenarioInstances = quickSwitchExtractor.extract(reader)
+        val quickSwitchExtractor = Quickswitch.extractor
+        val slices = quickSwitchExtractor.extract(reader)
 
-        Truth.assertThat(scenarioInstances).hasSize(1)
+        Truth.assertThat(slices).hasSize(1)
     }
 
     companion object {

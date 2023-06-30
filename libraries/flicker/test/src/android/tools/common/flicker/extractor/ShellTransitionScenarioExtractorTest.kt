@@ -17,7 +17,6 @@
 package android.tools.common.flicker.extractor
 
 import android.tools.common.Timestamps
-import android.tools.common.flicker.config.ScenarioAssertionsConfig
 import android.tools.common.flicker.extractors.ITransitionMatcher
 import android.tools.common.flicker.extractors.ShellTransitionScenarioExtractor
 import android.tools.common.traces.wm.Transition
@@ -25,7 +24,6 @@ import android.tools.common.traces.wm.TransitionType
 import android.tools.getTraceReaderFromScenario
 import com.google.common.truth.Truth
 import org.junit.Test
-import org.mockito.Mockito
 
 class ShellTransitionScenarioExtractorTest {
     @Test
@@ -38,7 +36,6 @@ class ShellTransitionScenarioExtractorTest {
 
         val noFilterExtractor =
             ShellTransitionScenarioExtractor(
-                mockConfig,
                 object : ITransitionMatcher {
                     override fun findAll(
                         transitions: Collection<Transition>
@@ -48,12 +45,11 @@ class ShellTransitionScenarioExtractorTest {
                     }
                 }
             )
-        val scenarios = noFilterExtractor.extract(reader)
-        Truth.assertThat(scenarios).hasSize(2)
-        Truth.assertThat(scenarios.all { it.type == mockConfig.scenarioId }).isTrue()
-        Truth.assertThat(scenarios.all { it.associatedTransition != null }).isTrue()
+        val slices = noFilterExtractor.extract(reader)
+        Truth.assertThat(slices).hasSize(2)
+        Truth.assertThat(slices.all { it.associatedTransition != null }).isTrue()
         transitions.forEachIndexed { index, transition ->
-            Truth.assertThat(scenarios[index].associatedTransition).isEqualTo(transition)
+            Truth.assertThat(slices[index].associatedTransition).isEqualTo(transition)
         }
     }
 
@@ -65,7 +61,6 @@ class ShellTransitionScenarioExtractorTest {
 
         val filterToFrontExtractor =
             ShellTransitionScenarioExtractor(
-                mockConfig,
                 object : ITransitionMatcher {
                     override fun findAll(
                         transitions: Collection<Transition>
@@ -74,27 +69,25 @@ class ShellTransitionScenarioExtractorTest {
                     }
                 }
             )
-        val scenarios = filterToFrontExtractor.extract(reader)
-        Truth.assertThat(scenarios).hasSize(1)
-        Truth.assertThat(scenarios.first().type).isEqualTo(mockConfig.scenarioId)
-        val layersTrace = scenarios.first().reader.readLayersTrace() ?: error("Missing layer trace")
-        Truth.assertThat(layersTrace.entries.first().timestamp)
+        val slices = filterToFrontExtractor.extract(reader)
+        Truth.assertThat(slices).hasSize(1)
+        Truth.assertThat(slices.first().startTimestamp)
             .isEqualTo(
                 Timestamps.from(
-                    unixNanos = 1682433275759078118,
+                    unixNanos = 1682433264342452347,
                     systemUptimeNanos = 2766599071189,
-                    elapsedNanos = 0
+                    elapsedNanos = 2755182606546
                 )
             )
-        Truth.assertThat(layersTrace.entries.first().timestamp)
+        Truth.assertThat(slices.first().endTimestamp)
             .isEqualTo(
                 Timestamps.from(
-                    unixNanos = 1682433275759078118,
-                    systemUptimeNanos = 2766599071189,
-                    elapsedNanos = 0
+                    unixNanos = 1682433277025674723,
+                    systemUptimeNanos = 2767865667794,
+                    elapsedNanos = 2767949503328
                 )
             )
-        Truth.assertThat(scenarios.first().associatedTransition)
+        Truth.assertThat(slices.first().associatedTransition)
             .isEqualTo(transitions.first { it.type == TransitionType.OPEN })
     }
 
@@ -104,7 +97,6 @@ class ShellTransitionScenarioExtractorTest {
 
         val filterToBackExtractor =
             ShellTransitionScenarioExtractor(
-                mockConfig,
                 object : ITransitionMatcher {
                     override fun findAll(
                         transitions: Collection<Transition>
@@ -115,6 +107,4 @@ class ShellTransitionScenarioExtractorTest {
             )
         Truth.assertThat(filterToBackExtractor.extract(reader)).hasSize(0)
     }
-
-    private val mockConfig = Mockito.mock(ScenarioAssertionsConfig::class.java)
 }

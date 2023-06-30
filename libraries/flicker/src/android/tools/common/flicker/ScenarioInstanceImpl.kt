@@ -28,7 +28,7 @@ import android.tools.common.io.Reader
 import android.tools.common.traces.events.CujType
 import android.tools.common.traces.wm.Transition
 
-internal data class ScenarioInstanceImpl(
+data class ScenarioInstanceImpl(
     override val config: FlickerConfigEntry,
     override val startRotation: Rotation,
     override val endRotation: Rotation,
