@@ -52,10 +52,8 @@ data class ScenarioInstanceImpl(
 
     override fun generateAssertions(): Collection<ScenarioAssertion> =
         Logger.withTracing("generateAssertions") {
-            config.assertions.flatMap { (template, stabilityGroup) ->
-                template.createAssertions(this).map { assertion ->
-                    ScenarioAssertionImpl(reader, assertion, stabilityGroup)
-                }
+            config.assertions.map { (template, stabilityGroup) ->
+                ScenarioAssertionImpl(reader, template.createAssertions(this), stabilityGroup)
             }
         }
 
