@@ -16,7 +16,7 @@
 
 package android.tools.common.flicker.assertions
 
-class ServiceFlickerTest(defaultAssertionName: String) : BaseFlickerTest(defaultAssertionName) {
+class ServiceFlickerTest : BaseFlickerTest() {
     internal val assertions = mutableListOf<AssertionData>()
 
     override fun doProcess(assertion: AssertionData) {
