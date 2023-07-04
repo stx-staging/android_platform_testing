@@ -297,10 +297,10 @@ class FlickerServiceResultsCollectorTest {
     companion object {
         val mockSuccessfulAssertionResult =
             object : AssertionResult {
+                override val name: String = "MOCK_SCENARIO#mockSuccessfulAssertion"
                 override val assertionData =
                     listOf(
                         object : AssertionData {
-                            override val name = "MockPassedAssertion"
                             override fun checkAssertion(run: SubjectsParser) {
                                 error("Unimplemented - shouldn't be called")
                             }
@@ -313,10 +313,10 @@ class FlickerServiceResultsCollectorTest {
 
         val mockFailedAssertionResult =
             object : AssertionResult {
+                override val name: String = "MOCK_SCENARIO#mockFailedAssertion"
                 override val assertionData =
                     listOf(
                         object : AssertionData {
-                            override val name = "MockFailedAssertion"
                             override fun checkAssertion(run: SubjectsParser) {
                                 error("Unimplemented - shouldn't be called")
                             }
@@ -325,6 +325,7 @@ class FlickerServiceResultsCollectorTest {
                 override val assertionErrors = listOf(Throwable("Assertion failed"))
                 override val stabilityGroup = AssertionInvocationGroup.BLOCKING
                 override val passed = false
+                override val failed: Boolean = true
             }
 
         private class SpyDataRecord : DataRecord() {

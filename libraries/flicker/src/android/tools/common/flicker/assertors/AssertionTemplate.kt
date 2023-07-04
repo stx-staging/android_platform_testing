@@ -30,15 +30,14 @@ abstract class AssertionTemplate(name: String? = null) {
     val id
         get() = AssertionId(name)
 
-    private fun qualifiedAssertionName(scenarioInstance: ScenarioInstance): String =
+    fun qualifiedAssertionName(scenarioInstance: ScenarioInstance): String =
         "${scenarioInstance.type}::$name"
 
     /** Evaluates assertions */
     abstract fun doEvaluate(scenarioInstance: ScenarioInstance, flicker: FlickerTest)
 
     fun createAssertions(scenarioInstance: ScenarioInstance): Collection<AssertionData> {
-        val assertionName = qualifiedAssertionName(scenarioInstance)
-        val flicker = ServiceFlickerTest(assertionName)
+        val flicker = ServiceFlickerTest()
 
         val mainBlockAssertions = mutableListOf<AssertionData>()
         try {
@@ -47,8 +46,6 @@ abstract class AssertionTemplate(name: String? = null) {
             // Any failure that occurred outside of the Flicker assertion blocks
             mainBlockAssertions.add(
                 object : AssertionData {
-                    override val name: String = assertionName
-
                     override fun checkAssertion(run: SubjectsParser) {
                         throw e
                     }

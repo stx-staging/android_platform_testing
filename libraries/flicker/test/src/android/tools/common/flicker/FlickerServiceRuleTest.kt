@@ -198,10 +198,10 @@ class FlickerServiceRuleTest {
     companion object {
         fun mockFailureAssertionResult(error: Throwable) =
             object : AssertionResult {
+                override val name = "MOCK_SCENARIO#mockAssertion"
                 override val assertionData =
                     listOf(
                         object : AssertionData {
-                            override val name = "MockAssertion"
                             override fun checkAssertion(run: SubjectsParser) {
                                 error("Unimplemented - shouldn't be called")
                             }
