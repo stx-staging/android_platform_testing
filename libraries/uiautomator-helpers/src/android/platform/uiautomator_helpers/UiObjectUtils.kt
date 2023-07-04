@@ -53,19 +53,21 @@ private const val MAX_FIND_ELEMENT_ATTEMPT = 15
 /**
  * Scrolls [this] in [direction] ([Direction.DOWN] by default) until finding [selector]. It returns
  * the first object that matches [selector] or `null` if it's not found after
- * [MAX_FIND_ELEMENT_ATTEMPT] scrolls.
+ * [MAX_FIND_ELEMENT_ATTEMPT] scrolls. Caller can also provide additional [condition] to provide
+ * more complex checking on the found object.
  *
  * Uses [BetterSwipe] to perform the scroll.
  */
 @JvmOverloads
 fun UiObject2.scrollUntilFound(
     selector: BySelector,
-    direction: Direction = Direction.DOWN
+    direction: Direction = Direction.DOWN,
+    condition: (UiObject2) -> Boolean = { true }
 ): UiObject2? {
     val (from, to) = getPointsToScroll(direction)
     (0 until MAX_FIND_ELEMENT_ATTEMPT).forEach { _ ->
         val f = findObject(selector)
-        if (f != null) return f
+        if (f?.let { condition(it) } == true) return f
         BetterSwipe.from(from).to(to, interpolator = FLING_GESTURE_INTERPOLATOR).release()
     }
     return null
