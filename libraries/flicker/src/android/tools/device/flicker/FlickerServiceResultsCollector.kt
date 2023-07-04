@@ -238,7 +238,7 @@ class FlickerServiceResultsCollector(
         const val FLICKER_ASSERTIONS_COUNT_KEY = "flicker_assertions_count"
 
         fun getKeyForAssertionResult(result: AssertionResult): String {
-            return "$FAAS_METRICS_PREFIX::${result.assertionName}"
+            return "$FAAS_METRICS_PREFIX::${result.name}"
         }
 
         class AggregatedFlickerResult {

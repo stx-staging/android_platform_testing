@@ -44,10 +44,10 @@ class FlickerServiceCachedTestCaseTest {
         val mockScenarioAssertion = Mockito.mock(ScenarioAssertion::class.java)
         val assertionResult =
             object : AssertionResult {
+                override val name: String = "MOCK_SCENARIO#mockAssertion"
                 override val assertionData =
                     listOf(
                         object : AssertionData {
-                            override val name = "AssertionName"
                             override fun checkAssertion(run: SubjectsParser) {
                                 error("Unimplemented - shouldn't be called")
                             }
@@ -82,7 +82,7 @@ class FlickerServiceCachedTestCaseTest {
                 KotlinMockito.argThat {
                     this.getString(
                         "${FlickerServiceResultsCollector.FAAS_METRICS_PREFIX}::" +
-                            assertionResult.assertionName
+                            assertionResult.name
                     ) == "0"
                 }
             )
@@ -97,10 +97,10 @@ class FlickerServiceCachedTestCaseTest {
         val mockScenarioAssertion = Mockito.mock(ScenarioAssertion::class.java)
         val assertionResult =
             object : AssertionResult {
+                override val name: String = "MY_CUSTOM_SCENARIO#myAssertion"
                 override val assertionData =
                     listOf(
                         object : AssertionData {
-                            override val name = "AssertionName"
                             override fun checkAssertion(run: SubjectsParser) {
                                 error("Unimplemented - shouldn't be called")
                             }
@@ -137,7 +137,7 @@ class FlickerServiceCachedTestCaseTest {
                 KotlinMockito.argThat {
                     this.getString(
                         "${FlickerServiceResultsCollector.FAAS_METRICS_PREFIX}::" +
-                            assertionResult.assertionName
+                            assertionResult.name
                     ) == "1"
                 }
             )

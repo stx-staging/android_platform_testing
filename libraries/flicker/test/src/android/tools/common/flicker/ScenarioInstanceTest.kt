@@ -83,15 +83,14 @@ class ScenarioInstanceTest {
         Truth.assertThat(assertions).hasSize(2)
 
         val results = assertions.map { it.execute() }
-        Truth.assertThat(results.map { it.assertionName })
-            .contains("MY_CUSTOM_SCENARIO::myAssertionSingle")
-        Truth.assertThat(results.map { it.assertionName })
+        Truth.assertThat(results.map { it.name }).contains("MY_CUSTOM_SCENARIO::myAssertionSingle")
+        Truth.assertThat(results.map { it.name })
             .contains("MY_CUSTOM_SCENARIO::myAssertionMultiple")
 
         val singleAssertionResult =
-            results.first { it.assertionName == "MY_CUSTOM_SCENARIO::myAssertionSingle" }
+            results.first { it.name == "MY_CUSTOM_SCENARIO::myAssertionSingle" }
         val multipleAssertionResult =
-            results.first { it.assertionName == "MY_CUSTOM_SCENARIO::myAssertionMultiple" }
+            results.first { it.name == "MY_CUSTOM_SCENARIO::myAssertionMultiple" }
 
         Truth.assertThat(singleAssertionResult.failed).isTrue()
         Truth.assertThat(singleAssertionResult.assertionErrors).hasSize(1)
@@ -158,21 +157,17 @@ class ScenarioInstanceTest {
         Truth.assertThat(assertions).hasSize(2)
 
         val results = assertions.map { it.execute() }
-        Truth.assertThat(results.map { it.assertionName })
-            .contains("MY_CUSTOM_SCENARIO::myAssertion1")
-        Truth.assertThat(results.map { it.assertionName })
-            .contains("MY_CUSTOM_SCENARIO::myAssertion2")
+        Truth.assertThat(results.map { it.name }).contains("MY_CUSTOM_SCENARIO::myAssertion1")
+        Truth.assertThat(results.map { it.name }).contains("MY_CUSTOM_SCENARIO::myAssertion2")
 
-        val assertion1Result =
-            results.first { it.assertionName == "MY_CUSTOM_SCENARIO::myAssertion1" }
+        val assertion1Result = results.first { it.name == "MY_CUSTOM_SCENARIO::myAssertion1" }
         Truth.assertThat(assertion1Result.failed).isTrue()
         Truth.assertThat(assertion1Result.assertionErrors).hasSize(1)
         Truth.assertThat(assertion1Result.assertionErrors.first())
             .hasMessageThat()
             .isEqualTo(errorMessage)
 
-        val assertion2Result =
-            results.first { it.assertionName == "MY_CUSTOM_SCENARIO::myAssertion2" }
+        val assertion2Result = results.first { it.name == "MY_CUSTOM_SCENARIO::myAssertion2" }
         Truth.assertThat(assertion2Result.failed).isTrue()
         Truth.assertThat(assertion2Result.assertionErrors).hasSize(2)
         Truth.assertThat(assertion2Result.assertionErrors.map { it.message }).contains(errorMessage)
