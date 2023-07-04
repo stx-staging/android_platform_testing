@@ -22,6 +22,7 @@ import android.tools.common.FLICKER_TAG
 import android.tools.common.Logger
 import android.tools.common.TimestampFactory
 import android.tools.common.flicker.annotation.FlickerTest
+import android.tools.common.flicker.config.ScenarioId
 import android.tools.device.AndroidLogger
 import android.tools.device.flicker.FlickerServiceResultsCollector
 import android.tools.device.flicker.FlickerServiceTracesCollector
@@ -153,7 +154,7 @@ constructor(
         if (failTestOnFaasFailure && flickerTestAnnotation != null) {
             val detectedScenarios = metricsCollector.detectedScenariosForTest(description)
             Truth.assertThat(detectedScenarios)
-                .containsAtLeastElementsIn(flickerTestAnnotation.expected)
+                .containsAtLeastElementsIn(flickerTestAnnotation.expected.map { ScenarioId(it) })
         }
     }
 

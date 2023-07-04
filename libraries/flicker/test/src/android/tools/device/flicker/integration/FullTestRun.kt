@@ -40,7 +40,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@FlickerServiceCompatible
+@FlickerServiceCompatible(expectedCujs = ["ENTIRE_TRACE"])
 @RunWith(Parameterized::class)
 @Parameterized.UseParametersRunnerFactory(FlickerParametersRunnerFactory::class)
 class FullTestRun(private val flicker: LegacyFlickerTest) {
