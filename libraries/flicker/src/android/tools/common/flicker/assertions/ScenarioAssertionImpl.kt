@@ -23,31 +23,37 @@ import android.tools.common.io.Reader
 
 internal data class ScenarioAssertionImpl(
     private val reader: Reader,
-    private val assertionData: AssertionData,
+    private val assertionData: Collection<AssertionData>,
     override val stabilityGroup: AssertionInvocationGroup,
     private val assertionRunner: AssertionRunner = ReaderAssertionRunner(reader)
 ) : ScenarioAssertion {
+    init {
+        require(assertionData.isNotEmpty()) { "Expected at least one assertion data object." }
+        require(assertionData.all { it.name == assertionData.first().name }) {
+            "Expected all assertion data object to be for the same assertion so have the same name."
+        }
+    }
+
     override fun execute() =
         Logger.withTracing("executeAssertion") {
             AssertionResultImpl(
                     assertionData,
-                    assertionRunner.runAssertion(assertionData),
+                    assertionData.mapNotNull { assertionRunner.runAssertion(it) },
                     stabilityGroup
                 )
                 .also { log(it) }
         }
 
-    override fun toString() = assertionData.name
+    override fun toString() = assertionData.first().name
 
     private fun log(result: AssertionResult) {
         if (result.failed) {
             Logger.w(
                 "$FLICKER_TAG-SERVICE",
-                "${result.assertion} FAILED :: " +
-                    (result.assertionError?.message ?: "<NO ERROR MESSAGE>")
+                "${result.assertionName} FAILED :: " + result.assertionErrors.map { it.message }
             )
         } else {
-            Logger.w("$FLICKER_TAG-SERVICE", "${result.assertion} PASSED")
+            Logger.w("$FLICKER_TAG-SERVICE", "${result.assertionName} PASSED")
         }
     }
 }

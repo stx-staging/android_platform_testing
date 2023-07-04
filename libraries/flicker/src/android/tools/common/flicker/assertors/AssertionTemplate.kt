@@ -20,6 +20,7 @@ import android.tools.common.flicker.ScenarioInstance
 import android.tools.common.flicker.assertions.AssertionData
 import android.tools.common.flicker.assertions.FlickerTest
 import android.tools.common.flicker.assertions.ServiceFlickerTest
+import android.tools.common.flicker.assertions.SubjectsParser
 
 /** Base class for a FaaS assertion */
 abstract class AssertionTemplate(name: String? = null) {
@@ -36,10 +37,26 @@ abstract class AssertionTemplate(name: String? = null) {
     abstract fun doEvaluate(scenarioInstance: ScenarioInstance, flicker: FlickerTest)
 
     fun createAssertions(scenarioInstance: ScenarioInstance): Collection<AssertionData> {
-        val flicker = ServiceFlickerTest(qualifiedAssertionName(scenarioInstance))
-        doEvaluate(scenarioInstance, flicker)
+        val assertionName = qualifiedAssertionName(scenarioInstance)
+        val flicker = ServiceFlickerTest(assertionName)
 
-        return flicker.assertions
+        val mainBlockAssertions = mutableListOf<AssertionData>()
+        try {
+            doEvaluate(scenarioInstance, flicker)
+        } catch (e: Throwable) {
+            // Any failure that occurred outside of the Flicker assertion blocks
+            mainBlockAssertions.add(
+                object : AssertionData {
+                    override val name: String = assertionName
+
+                    override fun checkAssertion(run: SubjectsParser) {
+                        throw e
+                    }
+                }
+            )
+        }
+
+        return flicker.assertions + mainBlockAssertions
     }
 
     override fun equals(other: Any?): Boolean {
@@ -54,3 +71,8 @@ abstract class AssertionTemplate(name: String? = null) {
         return id.hashCode()
     }
 }
+
+data class Assertion(
+    val flickerAssertions: List<AssertionData>,
+    val genericAssertions: List<Throwable>
+)

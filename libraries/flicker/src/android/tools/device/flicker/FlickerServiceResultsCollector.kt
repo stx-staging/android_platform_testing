@@ -238,7 +238,7 @@ class FlickerServiceResultsCollector(
         const val FLICKER_ASSERTIONS_COUNT_KEY = "flicker_assertions_count"
 
         fun getKeyForAssertionResult(result: AssertionResult): String {
-            return "$FAAS_METRICS_PREFIX::${result.assertion.name}"
+            return "$FAAS_METRICS_PREFIX::${result.assertionName}"
         }
 
         class AggregatedFlickerResult {
@@ -253,7 +253,9 @@ class FlickerServiceResultsCollector(
 
                 if (result.failed) {
                     failures++
-                    errors.add(result.assertionError?.message ?: "FAILURE WITHOUT ERROR MESSAGE...")
+                    result.assertionErrors.forEach {
+                        errors.add(it.message ?: "FAILURE WITHOUT ERROR MESSAGE...")
+                    }
                 } else {
                     passes++
                 }
