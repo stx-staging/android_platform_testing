@@ -19,11 +19,19 @@ package android.tools.common.flicker.assertions
 import android.tools.common.flicker.AssertionInvocationGroup
 
 interface AssertionResult {
-    val assertion: AssertionData
-    val assertionError: Throwable?
+    val assertionData: Collection<AssertionData>
+    val assertionErrors: Collection<Throwable>
     val stabilityGroup: AssertionInvocationGroup
     val passed: Boolean
-        get() = assertionError == null
+        get() = assertionErrors.isEmpty()
     val failed: Boolean
         get() = !passed
+
+    val assertionName: String
+        get() {
+            require(assertionData.all { it.name == assertionData.first().name }) {
+                "Failed to get assertion name because not all assertion data had the same name."
+            }
+            return assertionData.first().name
+        }
 }

@@ -146,7 +146,11 @@ constructor(
             throw metricsCollector.executionErrors[0]
         }
         if (failTestOnFaasFailure && testContainsFlicker(description)) {
-            throw metricsCollector.resultsForTest(description).first { it.failed }.assertionError
+            throw metricsCollector
+                .resultsForTest(description)
+                .first { it.failed }
+                .assertionErrors
+                .firstOrNull()
                 ?: error("Unexpectedly missing assertion error")
         }
         val flickerTestAnnotation: FlickerTest? =
