@@ -330,7 +330,9 @@ constructor(
          */
         @JvmOverloads
         fun withImeGone(displayId: Int = Display.DEFAULT_DISPLAY) =
-            withAppTransitionIdle(displayId).add(ConditionsFactory.isLayerVisible(IME).negate())
+            withAppTransitionIdle(displayId)
+                .add(ConditionsFactory.isLayerVisible(IME).negate())
+                .add(ConditionsFactory.isImeShown(displayId).negate())
 
         /**
          * Waits until a window is in PIP mode. That is:
@@ -364,7 +366,7 @@ constructor(
 
         /** Waits until the [TRANSITION_SNAPSHOT] is gone */
         fun withTransitionSnapshotGone() =
-                add(ConditionsFactory.isLayerVisible(TRANSITION_SNAPSHOT).negate())
+            add(ConditionsFactory.isLayerVisible(TRANSITION_SNAPSHOT).negate())
 
         /** Waits until the is no top visible app window in the [WindowManagerState] */
         fun withoutTopVisibleAppWindows() =
