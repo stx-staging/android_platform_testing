@@ -178,10 +178,7 @@ public class QuickSettingsHelper {
      * @param tileName tile name that will been set to the first position.
      */
     public void setFirstQS(@NonNull String tileName) {
-        String previousQSTiles =
-                Settings.Secure.getString(
-                        mInstrumentation.getContext().getContentResolver(), SYSUI_QS_TILES_SETTING);
-        mPreviousQSTileList = Arrays.asList(previousQSTiles.split(","));
+        mPreviousQSTileList = getCurrentTilesList();
 
         ArrayList<String> list = new ArrayList<>(mPreviousQSTileList);
         for (int i = 0; i < list.size(); ++i) {
@@ -192,6 +189,13 @@ public class QuickSettingsHelper {
         }
         list.add(0, tileName);
         modifyQSTileList(list);
+    }
+
+    public List<String> getCurrentTilesList() {
+        String previousQSTiles =
+                Settings.Secure.getString(
+                        mInstrumentation.getContext().getContentResolver(), SYSUI_QS_TILES_SETTING);
+        return Arrays.asList(previousQSTiles.split(","));
     }
 
     /** Reset to previous QS tile list if exist */
