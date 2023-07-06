@@ -348,7 +348,9 @@ constructor(
          */
         @JvmOverloads
         fun withImeGone(displayId: Int = Display.DEFAULT_DISPLAY) =
-            withAppTransitionIdle(displayId).add(ConditionsFactory.isLayerVisible(IME).negate())
+            withAppTransitionIdle(displayId)
+                .add(ConditionsFactory.isLayerVisible(IME).negate())
+                .add(ConditionsFactory.isImeShown(displayId).negate())
 
         /**
          * Waits until a window is in PIP mode. That is:

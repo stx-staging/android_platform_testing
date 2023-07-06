@@ -322,7 +322,10 @@ object ConditionsFactory {
         }
 
     private fun isImeSurfaceShown(): Condition<DeviceStateDump> =
-        Condition("isImeSurfaceShown") { it.wmState.inputMethodWindowState?.isSurfaceShown == true }
+        Condition("isImeSurfaceShown") {
+            it.wmState.inputMethodWindowState?.isSurfaceShown == true &&
+                it.wmState.inputMethodWindowState?.isVisible == true
+        }
 
     fun isAppLaunchEnded(taskId: Int): Condition<DeviceStateDump> =
         Condition("containsVisibleAppLaunchWindow[taskId=$taskId]") { dump ->
