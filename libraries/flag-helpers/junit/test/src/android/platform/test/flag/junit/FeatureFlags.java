@@ -16,31 +16,12 @@
 
 package android.platform.test.flag.junit;
 
-/** A Fake Flags to test the {@code AconfigFlagsValueProvider}. */
-public class Flags {
-    /** Returns the flag value. */
-    public static boolean flagName1() {
-        return true;
-    }
-
-    /** Returns a non-boolean flag value. */
-    public static int flagName2() {
-        return 1;
-    }
+/** A Fake FeatureFlags to test the {@code MockFlagsRule}. */
+public interface FeatureFlags {
 
     /** Returns the flag value. */
-    public static boolean flagName3() {
-        return sFeatureFlags.flagName3();
-    }
+    boolean flagName3();
 
-    /** Another flag. */
-    public static boolean flagName4() {
-        return sFeatureFlags.flagName4();
-    }
-
-    public static void setFeatureFlagsImpl(FeatureFlags featureFlagsImpl) {
-        sFeatureFlags = featureFlagsImpl;
-    }
-
-    private static FeatureFlags sFeatureFlags;
+    /** another flag */
+    boolean flagName4();
 }
