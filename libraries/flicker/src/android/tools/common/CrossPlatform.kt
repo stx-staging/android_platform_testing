@@ -28,4 +28,6 @@ object CrossPlatform {
 
     @JsName("setTimestampFactory")
     fun setTimestampFactory(factory: TimestampFactory) = apply { Timestamps = factory }
+
+    @JsName("setCache") fun setCache(cache: ICache) = apply { Cache = cache }
 }

@@ -28,3 +28,6 @@ var Logger: ILogger = ConsoleLogger()
 
 var Timestamps: TimestampFactory = TimestampFactory()
     internal set
+
+var Cache: ICache = CacheImpl()
+    internal set
