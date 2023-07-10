@@ -71,6 +71,7 @@ object AssertionTemplates {
                         listOf(
                             ComponentNameMatcher.NOTIFICATION_SHADE,
                             ComponentNameMatcher.VOLUME_DIALOG,
+                            ComponentNameMatcher.NAV_BAR,
                         )
                 ),
             )
@@ -96,7 +97,9 @@ object AssertionTemplates {
                 .associateBy({ it }, { AssertionInvocationGroup.BLOCKING })
 
     val APP_CLOSE_ASSERTIONS =
-        COMMON_ASSERTIONS +
+        COMMON_ASSERTIONS.toMutableMap().also {
+            it.remove(VisibleLayersShownMoreThanOneConsecutiveEntry())
+        } +
             listOf(
                     AppLayerIsVisibleAtStart(CLOSING_APP),
                     AppLayerIsInvisibleAtEnd(CLOSING_APP),
@@ -105,6 +108,9 @@ object AssertionTemplates {
                     AppLayerBecomesInvisible(CLOSING_APP),
                     AppWindowBecomesInvisible(CLOSING_APP),
                     AppWindowIsTopWindowAtStart(CLOSING_APP),
+                    VisibleLayersShownMoreThanOneConsecutiveEntry(
+                        listOf(ComponentNameMatcher.NAV_BAR)
+                    )
                 )
                 .associateBy({ it }, { AssertionInvocationGroup.BLOCKING })
 
