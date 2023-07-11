@@ -28,7 +28,7 @@ import kotlin.js.JsExport
 @JsExport
 class Color private constructor(val r: Float, val g: Float, val b: Float, val a: Float) :
     DataType() {
-    override val isEmpty = a == 0f || r < 0 || g < 0 || b < 0
+    override val isEmpty = a == 0f || (a == 1f && (r < 0 || g < 0 || b < 0))
     val isOpaque: Boolean = a == 1.0f
 
     override fun doPrintValue() = buildString {
