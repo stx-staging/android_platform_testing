@@ -16,6 +16,8 @@
 
 package android.platform.helpers;
 
+import java.util.List;
+
 public interface IAutoHomeHelper extends IAppHelper {
 
     /**
@@ -72,4 +74,7 @@ public interface IAutoHomeHelper extends IAppHelper {
 
     /** Click on brightness button. */
     void openBrightnessPalette();
+
+    /** Get temperature from home screen */
+    List<String> getTemperature();
 }
