@@ -21,13 +21,6 @@ public interface IAutoHomeHelper extends IAppHelper {
     /**
      * Setup expectations: Should be on home screen.
      *
-     * <p>Checks if exists a map widget.
-     */
-    boolean hasMapWidget();
-
-    /**
-     * Setup expectations: Should be on home screen.
-     *
      * <p>Checks if exists a media widget.
      */
     boolean hasMediaWidget();
