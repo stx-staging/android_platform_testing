@@ -822,6 +822,28 @@
       "VALUE": "fragment_container",
       "PACKAGE": "com.android.car.settings"
     },
+    "RECENT_NOTIFICATIONS": {
+      "TYPE": "HAS_DESCENDANT",
+      "MAX_DEPTH": 1,
+      "DESCENDANT": {
+        "TYPE": "RESOURCE_ID",
+        "VALUE": "notification_recents",
+        "PACKAGE": "com.android.systemui"
+      }
+    },
+    "OLDER_NOTIFICATIONS": {
+      "TYPE": "HAS_DESCENDANT",
+      "MAX_DEPTH": 1,
+      "DESCENDANT": {
+        "TYPE": "RESOURCE_ID",
+        "VALUE": "notification_older",
+        "PACKAGE": "com.android.systemui"
+      }
+    },
+    "TEST_NOTIFICATION": {
+      "TYPE": "TEXT",
+      "VALUE": "AUTO TEST NOTIFICATION"
+    },
     "SYSTEM_SETTINGS_SCROLL_FORWARD_BUTTON": {
       "TYPE": "RESOURCE_ID",
       "VALUE": "car_ui_scrollbar_page_down",
