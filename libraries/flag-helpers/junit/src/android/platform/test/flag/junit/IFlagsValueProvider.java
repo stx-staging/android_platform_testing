@@ -16,6 +16,8 @@
 
 package android.platform.test.flag.junit;
 
+import android.platform.test.flag.util.FlagReadException;
+
 /** Common interface to get flag values. */
 public interface IFlagsValueProvider {
     /**
