@@ -16,6 +16,9 @@
 
 package android.platform.test.flag.junit;
 
+import android.platform.test.flag.util.Flag;
+import android.platform.test.flag.util.FlagSetException;
+
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
@@ -23,12 +26,10 @@ import org.junit.runners.model.Statement;
 import java.util.HashMap;
 import java.util.Map;
 
-/** Implementation of {@link TestRule}. This rule will help the user to Mock Flag values */
+/** A {@link TestRule} that helps to mock flag values in unit test. */
 public final class MockFlagsRule implements TestRule {
-
     private static final String FEATURE_FLAGS_INTERFACE_NAME = "FeatureFlags";
     private static final String FEATURE_FLAGS_IMPL_CLASS_NAME = "FeatureFlagsImpl";
-    private static final String FLAGS_CLASS_NAME = "Flags";
     private static final String SET_FEATURE_FLAGS_IMPL_METHOD_NAME = "setFeatureFlagsImpl";
     private static final String SET_FLAG_METHOD_NAME = "setFlag";
     private static final String RESET_ALL_METHOD_NAME = "resetAll";
@@ -89,9 +90,8 @@ public final class MockFlagsRule implements TestRule {
             throw new FlagSetException(
                     fullFlagName, "Flag name is not the expected format {packgeName}.{flagName}.");
         }
-        int index = fullFlagName.lastIndexOf(".");
-        String packageName = fullFlagName.substring(0, index);
-        String className = String.format("%s.%s", packageName, FLAGS_CLASS_NAME);
+        Flag flag = Flag.createFlag(fullFlagName);
+        String className = flag.flagsClassName();
         Object flagImplInstance = null;
         try {
             Class<?> flagsClass = Class.forName(className);
