@@ -69,12 +69,6 @@ public class HomeHelperImpl extends AbstractStandardAppHelper implements IAutoHo
         return getSpectatioUiUtil().hasUiElement(displayBrightnessWidgetSelector);
     }
 
-    public boolean hasMapWidget() {
-        BySelector mapWidgetSelector =
-                getUiElementFromConfig(AutomotiveConfigConstants.HOME_MAP_CARD);
-        return (getSpectatioUiUtil().hasUiElement(mapWidgetSelector));
-    }
-
     public boolean hasAssistantWidget() {
         BySelector assistantWidgetSelector =
                 getUiElementFromConfig(AutomotiveConfigConstants.HOME_TOP_CARD);
