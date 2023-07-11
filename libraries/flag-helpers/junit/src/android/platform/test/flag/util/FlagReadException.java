@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.platform.test.flag.junit;
+package android.platform.test.flag.util;
 
 /** Exception to read flag values. */
 public class FlagReadException extends Exception {
