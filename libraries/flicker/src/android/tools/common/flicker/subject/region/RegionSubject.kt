@@ -397,6 +397,24 @@ class RegionSubject(
         }
     }
 
+    /** {@inheritDoc} */
+    override fun hasSameBottomPosition(displayRect: Rect): RegionSubject = apply {
+        assertEquals("bottom", Region(arrayOf(displayRect))) { it.bottom }
+    }
+
+    /** {@inheritDoc} */
+    override fun hasSameTopPosition(displayRect: Rect): RegionSubject = apply {
+        assertEquals("top", Region(arrayOf(displayRect))) { it.top }
+    }
+
+    override fun hasSameLeftPosition(displayRect: Rect): RegionSubject = apply {
+        assertEquals("left", Region(arrayOf(displayRect))) { it.left }
+    }
+
+    override fun hasSameRightPosition(displayRect: Rect): RegionSubject = apply {
+        assertEquals("right", Region(arrayOf(displayRect))) { it.right }
+    }
+
     fun isSameAspectRatio(other: RegionSubject, threshold: Double = 0.1): IRegionSubject =
         isSameAspectRatio(other.region, threshold)
 
