@@ -16,6 +16,8 @@
 
 package android.tools.common.traces.surfaceflinger
 
+import android.tools.common.Position
+import android.tools.common.Rotation
 import android.tools.common.datatypes.Rect
 import android.tools.common.datatypes.Size
 import android.tools.common.withCache
@@ -39,6 +41,22 @@ private constructor(
 
     // Alias for layerStackSpace, since bounds is what is used for layers
     val bounds = layerStackSpace
+
+    fun navBarPosition(isGesturalNavigation: Boolean): Position {
+        val requestedRotation = transform.getRotation()
+
+        return when {
+            // display off
+            isOff -> Position.INVALID
+            // nav bar is at the bottom of the screen
+            !requestedRotation.isRotated() || isGesturalNavigation -> Position.BOTTOM
+            // nav bar is on the right side
+            requestedRotation == Rotation.ROTATION_90 -> Position.RIGHT
+            // nav bar is on the left side
+            requestedRotation == Rotation.ROTATION_270 -> Position.LEFT
+            else -> error("Unknown rotation $requestedRotation")
+        }
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

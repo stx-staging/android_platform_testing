@@ -142,4 +142,20 @@ class RegionTraceSubject(val trace: RegionTrace, override val reader: Reader? = 
             it.isSameAspectRatio(other, threshold)
         }
     }
+
+    override fun hasSameLeftPosition(displayRect: Rect): RegionTraceSubject = apply {
+        addAssertion("hasSameLeftPosition($displayRect") { it.hasSameLeftPosition(displayRect) }
+    }
+
+    override fun hasSameBottomPosition(displayRect: Rect): RegionTraceSubject = apply {
+        addAssertion("hasSameBottomPosition($displayRect") { it.hasSameBottomPosition(displayRect) }
+    }
+
+    override fun hasSameRightPosition(displayRect: Rect): RegionTraceSubject = apply {
+        addAssertion("hasSameRightPosition($displayRect") { it.hasSameRightPosition(displayRect) }
+    }
+
+    override fun hasSameTopPosition(displayRect: Rect): RegionTraceSubject = apply {
+        addAssertion("hasSameTopPosition($displayRect") { it.hasSameTopPosition(displayRect) }
+    }
 }
