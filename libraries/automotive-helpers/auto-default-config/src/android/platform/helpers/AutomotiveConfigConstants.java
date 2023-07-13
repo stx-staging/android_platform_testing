@@ -71,6 +71,11 @@ public class AutomotiveConfigConstants {
     public static final String DIGIT_EIGHT = "8";
     public static final String DIGIT_NINE = "9";
     public static final String ADD_CONTACT_TO_FAVORITE = "ADD_CONTACT_TO_FAVORITE";
+    public static final String ADD_CONTACT_TO_FAVORITE_FROM_DIALOG_BOX =
+            "ADD_CONTACT_TO_FAVORITE_FROM_DIALOG_BOX";
+    public static final String ADD_TO_FAVORITE_BUTTON = "ADD_TO_FAVORITE_BUTTON";
+    public static final String ADD_TO_FAVORITE_DIALOG_OK = "ADD_TO_FAVORITE_DIALOG_OK";
+
     public static final String CONTACT_TYPE_HOME = "CONTACT_TYPE_HOME";
     public static final String CONTACT_TYPE_WORK = "CONTACT_TYPE_WORK";
     public static final String CONTACT_TYPE_MOBILE = "CONTACT_TYPE_MOBILE";
