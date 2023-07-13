@@ -477,6 +477,7 @@ public class AutomotiveConfigConstants {
     public static final String HOME_BLUETOOTH_BUTTON = "HOME_BLUETOOTH_BUTTON";
     public static final String HOME_NETWORK_BUTTON = "HOME_NETWORK_BUTTON";
     public static final String HOME_DISPLAY_BRIGHTNESS_BUTTON = "HOME_DISPLAY_BRIGHTNESS_BUTTON";
+
     // status bar constants
     public static final String STATUS_BAR_BLUETOOTH_TOGGLE_ON = "STATUS_BAR_BLUETOOTH_TOGGLE_ON";
     public static final String STATUS_BAR_BLUETOOTH_TOGGLE_ON_MESSAGE =
@@ -487,4 +488,10 @@ public class AutomotiveConfigConstants {
     public static final String STATUS_BAR_BLUETOOTH_SETTINGS_PAGE_TITLE =
             "STATUS_BAR_BLUETOOTH_SETTINGS_PAGE_TITLE";
     public static final String STATUS_BAR_BLUETOOTH_BUTTON = "STATUS_BAR_BLUETOOTH_BUTTON";
+
+    public static final String TOGGLE_LOCATION = "TOGGLE_LOCATION";
+    public static final String LOCATION_ACCESS = "LOCATION_ACCESS";
+    public static final String LOCATION_SWITCH = "LOCATION_SWITCH";
+    public static final String LOCATION_WIDGET = "LOCATION_WIDGET";
+    public static final String RECENTLY_CLOSED_TEXT = "RECENTLY_CLOSED_TEXT";
 }
