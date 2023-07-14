@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-package android.tools.rules
+package android.tools.common
 
-import android.tools.common.Cache
-import android.tools.common.ICache
-import org.junit.rules.TestWatcher
-import org.junit.runner.Description
+internal class CacheImpl : ICache {
+    private var cache = mutableMapOf<Any, Any>()
 
-class CacheCleanupRule : TestWatcher() {
-    private var cacheBackup: ICache.Backup? = null
-    override fun starting(description: Description?) {
-        super.starting(description)
-        cacheBackup = Cache.backup()
-        Cache.clear()
+    override fun <T : Any> get(element: T): T {
+        return cache.getOrPut(element) { element } as T
     }
 
-    override fun finished(description: Description?) {
-        super.finished(description)
-        val cacheBackup = cacheBackup ?: return
-        Cache.restore(cacheBackup)
+    override fun clear() {
+        cache = mutableMapOf()
+    }
+
+    override fun backup(): ICache.Backup {
+        return ICache.Backup(cache.toMutableMap())
+    }
+
+    override fun restore(backup: ICache.Backup) {
+        cache = backup.cache
     }
 }

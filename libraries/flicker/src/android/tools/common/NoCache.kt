@@ -14,24 +14,23 @@
  * limitations under the License.
  */
 
-package android.tools.rules
+package android.tools.common
 
-import android.tools.common.Cache
-import android.tools.common.ICache
-import org.junit.rules.TestWatcher
-import org.junit.runner.Description
+import kotlin.js.JsExport
 
-class CacheCleanupRule : TestWatcher() {
-    private var cacheBackup: ICache.Backup? = null
-    override fun starting(description: Description?) {
-        super.starting(description)
-        cacheBackup = Cache.backup()
-        Cache.clear()
+@JsExport
+class NoCache : ICache {
+    override fun <T : Any> get(element: T): T {
+        return element
     }
 
-    override fun finished(description: Description?) {
-        super.finished(description)
-        val cacheBackup = cacheBackup ?: return
-        Cache.restore(cacheBackup)
+    override fun clear() {}
+
+    override fun backup(): ICache.Backup {
+        throw RuntimeException("Not supposed to be called (if used from JS)")
+    }
+
+    override fun restore(backup: ICache.Backup) {
+        throw RuntimeException("Not supposed to be called (if used from JS)")
     }
 }

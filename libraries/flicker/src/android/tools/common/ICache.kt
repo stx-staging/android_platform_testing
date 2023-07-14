@@ -16,24 +16,10 @@
 
 package android.tools.common
 
-object Cache {
-    private var cache = mutableMapOf<Any, Any>()
-
+interface ICache {
     data class Backup(val cache: MutableMap<Any, Any>)
-
-    fun <T : Any> get(element: T): T {
-        return cache.getOrPut(element) { element } as T
-    }
-
-    fun clear() {
-        cache = mutableMapOf()
-    }
-
-    fun backup(): Backup {
-        return Backup(cache.toMutableMap())
-    }
-
-    fun restore(backup: Backup) {
-        cache = backup.cache
-    }
+    fun <T : Any> get(element: T): T
+    fun clear()
+    fun backup(): Backup
+    fun restore(backup: Backup)
 }

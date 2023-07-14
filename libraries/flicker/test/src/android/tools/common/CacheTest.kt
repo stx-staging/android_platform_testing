@@ -33,15 +33,15 @@ class CacheTest {
         val element3 = Cache.get(Dummy(1))
         Assert.assertSame(element2, element1)
         Assert.assertNotEquals(element3, element1)
-        Assert.assertEquals(2, Cache.size)
+        Assert.assertEquals(2, cacheSize())
     }
 
     @Test
     fun testClear() {
         Cache.get(Dummy(0))
-        Assert.assertEquals(1, Cache.size)
+        Assert.assertEquals(1, cacheSize())
         Cache.clear()
-        Assert.assertEquals(0, Cache.size)
+        Assert.assertEquals(0, cacheSize())
     }
 
     @Test
@@ -61,7 +61,7 @@ class CacheTest {
         Cache.get(Dummy(1))
         val copy = Cache.backup()
         Cache.get(Dummy(2))
-        Assert.assertEquals(3, Cache.size)
+        Assert.assertEquals(3, cacheSize())
         Cache.restore(copy)
         Assert.assertTrue(copy.cache.containsKey(Dummy(0)))
         Assert.assertTrue(copy.cache.containsKey(Dummy(1)))
@@ -71,7 +71,6 @@ class CacheTest {
     data class Dummy(val value: Int)
 
     companion object {
-        private val Cache.size
-            get() = backup().cache.size
+        private fun cacheSize() = Cache.backup().cache.size
     }
 }
