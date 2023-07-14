@@ -43,7 +43,7 @@ private constructor(
     override val sourceBounds: RectF = RectF.EMPTY,
     override val effectiveScalingMode: Int = 0,
     override val bufferTransform: Transform = Transform.EMPTY,
-    override val hwcCompositionType: HwcCompositionType = HwcCompositionType.INVALID,
+    override val hwcCompositionType: HwcCompositionType = HwcCompositionType.HWC_TYPE_UNSPECIFIED,
     override val hwcCrop: RectF = RectF.EMPTY,
     override val hwcFrame: Rect = Rect.EMPTY,
     override val backgroundBlurRadius: Int = 0,

@@ -173,13 +173,13 @@ class LayersTraceParser(
 
         private fun toHwcCompositionType(value: Layers.HwcCompositionType): HwcCompositionType {
             return when (value) {
-                Layers.HwcCompositionType.INVALID -> HwcCompositionType.INVALID
-                Layers.HwcCompositionType.CLIENT -> HwcCompositionType.CLIENT
-                Layers.HwcCompositionType.DEVICE -> HwcCompositionType.DEVICE
-                Layers.HwcCompositionType.SOLID_COLOR -> HwcCompositionType.SOLID_COLOR
-                Layers.HwcCompositionType.CURSOR -> HwcCompositionType.CURSOR
-                Layers.HwcCompositionType.SIDEBAND -> HwcCompositionType.SIDEBAND
-                else -> HwcCompositionType.UNRECOGNIZED
+                Layers.HwcCompositionType.INVALID -> HwcCompositionType.HWC_TYPE_UNSPECIFIED
+                Layers.HwcCompositionType.CLIENT -> HwcCompositionType.HWC_TYPE_CLIENT
+                Layers.HwcCompositionType.DEVICE -> HwcCompositionType.HWC_TYPE_DEVICE
+                Layers.HwcCompositionType.SOLID_COLOR -> HwcCompositionType.HWC_TYPE_SOLID_COLOR
+                Layers.HwcCompositionType.CURSOR -> HwcCompositionType.HWC_TYPE_CURSOR
+                Layers.HwcCompositionType.SIDEBAND -> HwcCompositionType.HWC_TYPE_SIDEBAND
+                else -> HwcCompositionType.HWC_TYPE_UNRECOGNIZED
             }
         }
 

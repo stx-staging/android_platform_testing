@@ -99,7 +99,7 @@ class LayerTraceEntryBuilderTest {
                     currFrame = 0,
                     effectiveScalingMode = 0,
                     bufferTransform = Transform.EMPTY,
-                    hwcCompositionType = HwcCompositionType.INVALID,
+                    hwcCompositionType = HwcCompositionType.HWC_TYPE_UNSPECIFIED,
                     hwcCrop = RectF.EMPTY,
                     hwcFrame = Rect.EMPTY,
                     backgroundBlurRadius = 0,

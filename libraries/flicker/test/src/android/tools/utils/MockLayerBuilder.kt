@@ -86,7 +86,7 @@ class MockLayerBuilder(private val name: String) {
                 currFrame = 0,
                 effectiveScalingMode = 0,
                 bufferTransform = transform,
-                hwcCompositionType = HwcCompositionType.INVALID,
+                hwcCompositionType = HwcCompositionType.HWC_TYPE_UNSPECIFIED,
                 hwcCrop = RectF.EMPTY,
                 hwcFrame = Rect.EMPTY,
                 crop = absoluteBounds,

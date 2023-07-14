@@ -44,7 +44,7 @@ abstract class AbstractParser<InputTypeTrace, OutputTypeTrace> {
      * @param input Parsed proto data
      * @param clearCache If the caching used while parsing the object should be cleared
      */
-    open fun parse(input: InputTypeTrace, clearCache: Boolean): OutputTypeTrace {
+    open fun parse(input: InputTypeTrace, clearCache: Boolean = true): OutputTypeTrace {
         return try {
             doParse(input)
         } finally {

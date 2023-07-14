@@ -102,6 +102,7 @@ java_library {
     ],
     static_libs: [
         "flickerlib-common",
+        "androidx.benchmark_benchmark-macro",
         "androidx.test.uiautomator_uiautomator",
         "androidx.test.runner",
         "platformprotosnano",

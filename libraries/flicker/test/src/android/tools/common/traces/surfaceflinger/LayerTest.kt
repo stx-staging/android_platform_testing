@@ -142,7 +142,7 @@ class LayerTest {
             -1,
             -1,
             Transform.EMPTY,
-            HwcCompositionType.INVALID,
+            HwcCompositionType.HWC_TYPE_UNSPECIFIED,
             RectF.EMPTY,
             Rect.EMPTY,
             -1,
