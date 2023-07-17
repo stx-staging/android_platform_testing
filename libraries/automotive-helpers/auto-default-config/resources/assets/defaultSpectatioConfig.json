@@ -381,6 +381,11 @@
       "VALUE": "qc_signal_status_icon",
       "PACKAGE": "com.android.systemui"
     },
+    "HOME_PROFILE_GUEST_ICON": {
+      "TYPE": "RESOURCE_ID",
+      "VALUE": "user_name_text",
+      "PACKAGE": "com.android.systemui"
+    },
     "HOME_FACET_BUTTON": {
       "TYPE": "RESOURCE_ID",
       "VALUE": "home",
