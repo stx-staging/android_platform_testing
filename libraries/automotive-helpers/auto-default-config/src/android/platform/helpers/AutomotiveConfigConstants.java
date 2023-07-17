@@ -497,4 +497,7 @@ public class AutomotiveConfigConstants {
     public static final String LOCATION_SWITCH = "LOCATION_SWITCH";
     public static final String LOCATION_WIDGET = "LOCATION_WIDGET";
     public static final String RECENTLY_CLOSED_TEXT = "RECENTLY_CLOSED_TEXT";
+
+    // Guest Profile
+    public static final String HOME_PROFILE_GUEST_ICON = "HOME_PROFILE_GUEST_ICON";
 }
