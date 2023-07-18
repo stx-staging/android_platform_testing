@@ -89,9 +89,12 @@ constructor(
 
     private fun shouldRecordScreen(description: Description): Boolean {
         return if (description.isTest) {
-            description.getAnnotation(ScreenRecord::class.java) != null ||
-                description.testClass.hasAnnotation(ScreenRecord::class.java) ||
-                testLevelOverrideEnabled()
+            val screenRecordBinaryAvailable = File("/system/bin/screenrecord").exists()
+            log("screenRecordBinaryAvailable: $screenRecordBinaryAvailable")
+            screenRecordBinaryAvailable &&
+                (description.getAnnotation(ScreenRecord::class.java) != null ||
+                    description.testClass.hasAnnotation(ScreenRecord::class.java) ||
+                    testLevelOverrideEnabled())
         } else { // class level annotation is set
             description.testClass.hasAnnotation(ScreenRecord::class.java) ||
                 classLevelOverrideEnabled()
