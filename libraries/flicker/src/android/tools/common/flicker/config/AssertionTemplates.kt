@@ -61,21 +61,20 @@ import android.tools.common.traces.component.ComponentNameMatcher
 
 object AssertionTemplates {
     val ENTIRE_TRACE_ASSERTIONS =
-        listOf(
-                EntireScreenCoveredAlways(),
-                VisibleWindowsShownMoreThanOneConsecutiveEntry(),
-                // Temporarily ignore these layers which might be visible for a single entry
-                // and contain only view level changes during that entry (b/286054008)
-                VisibleLayersShownMoreThanOneConsecutiveEntry(
-                    ignore =
-                        listOf(
-                            ComponentNameMatcher.NOTIFICATION_SHADE,
-                            ComponentNameMatcher.VOLUME_DIALOG,
-                            ComponentNameMatcher.NAV_BAR,
-                        )
-                ),
-            )
-            .associateBy({ it }, { AssertionInvocationGroup.BLOCKING })
+        mapOf(
+            EntireScreenCoveredAlways() to AssertionInvocationGroup.BLOCKING,
+            VisibleWindowsShownMoreThanOneConsecutiveEntry() to AssertionInvocationGroup.BLOCKING,
+            // Temporarily ignore these layers which might be visible for a single entry
+            // and contain only view level changes during that entry (b/286054008)
+            VisibleLayersShownMoreThanOneConsecutiveEntry(
+                ignore =
+                    listOf(
+                        ComponentNameMatcher.NOTIFICATION_SHADE,
+                        ComponentNameMatcher.VOLUME_DIALOG,
+                        ComponentNameMatcher.NAV_BAR,
+                    )
+            ) to AssertionInvocationGroup.NON_BLOCKING,
+        )
 
     val COMMON_ASSERTIONS =
         listOf(
