@@ -20,11 +20,14 @@ import android.platform.test.flag.util.FlagReadException;
 
 /** Common interface to get flag values. */
 public interface IFlagsValueProvider {
+    static boolean isBooleanValue(String value) {
+        return "true".equals(value) || "false".equals(value);
+    }
     /**
      * Sets up this provider before providing the flag values. Such as acquiring some permissions on
      * the device.
      */
-    default void setUp() {}
+    default void setUp() throws FlagReadException {}
     ;
 
     /** Gets the boolean value of a flag. */
