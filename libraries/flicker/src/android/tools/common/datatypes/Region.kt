@@ -1077,23 +1077,15 @@ class Region(rects: Array<Rect> = arrayOf()) : DataType() {
 
     @JsName("coversAtMost")
     fun coversAtMost(testRegion: Region): Boolean {
-        return if (isEmpty) {
-            true
-        } else {
-            val testRect = testRegion.bounds
-            val intersection = from(this)
-            intersection.op(testRect, Op.INTERSECT) && !intersection.op(this, Op.XOR)
-        }
+        val testRect = testRegion.bounds
+        val intersection = from(this)
+        return intersection.op(testRect, Op.INTERSECT) && !intersection.op(this, Op.XOR)
     }
 
     @JsName("coversAtLeast")
     fun coversAtLeast(testRegion: Region): Boolean {
-        return if (testRegion.isEmpty) {
-            true
-        } else {
-            val intersection = from(this)
-            intersection.op(testRegion, Op.INTERSECT) && !intersection.op(testRegion, Op.XOR)
-        }
+        val intersection = from(this)
+        return intersection.op(testRegion, Op.INTERSECT) && !intersection.op(testRegion, Op.XOR)
     }
 
     @JsName("coversMoreThan")
