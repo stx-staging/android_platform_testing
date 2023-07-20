@@ -538,4 +538,11 @@ public class AutomotiveConfigConstants {
     public static final String BLUETOOTH_BUTTON = "BLUETOOTH_BUTTON";
     public static final String BLUETOOTH_CONNECTED_DISCONNECTED_TEXT =
             "BLUETOOTH_CONNECTED_DISCONNECTED_TEXT";
+
+    // BT
+    public static final String PHONE_BUTTON = "PHONE_BUTTON";
+    public static final String MEDIA_BUTTON = "MEDIA_BUTTON";
+    public static final String DEVICE_NAME = "DEVICE_NAME";
+    public static final String DISABLED_PHONE_PROFILE = "DISABLED_PHONE_PROFILE";
+    public static final String DISABLED_MEDIA_PROFILE = "DISABLED_MEDIA_PROFILE";
 }
