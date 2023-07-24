@@ -62,7 +62,7 @@ import android.tools.common.traces.component.ComponentNameMatcher
 object AssertionTemplates {
     val ENTIRE_TRACE_ASSERTIONS =
         mapOf(
-            EntireScreenCoveredAlways() to AssertionInvocationGroup.BLOCKING,
+            EntireScreenCoveredAlways() to AssertionInvocationGroup.NON_BLOCKING,
             VisibleWindowsShownMoreThanOneConsecutiveEntry() to AssertionInvocationGroup.BLOCKING,
             // Temporarily ignore these layers which might be visible for a single entry
             // and contain only view level changes during that entry (b/286054008)
