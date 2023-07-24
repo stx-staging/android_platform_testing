@@ -84,7 +84,8 @@ instrumentation_tests := \
     WMShellFlickerTestsOther \
     WMShellFlickerTestsBubbles \
     WMShellFlickerTestsPip \
-    WMShellFlickerTestsSplitScreen \
+    WMShellFlickerTestsSplitScreenEnter \
+    WMShellFlickerTestsSplitScreenOther \
     WMShellUnitTests \
     trace_config_detailed.textproto \
     perfetto_trace_processor_shell \
