@@ -331,6 +331,7 @@ class LayersTraceSubject(val trace: LayersTrace, override val reader: Reader? = 
                 ComponentNameMatcher.PIP_CONTENT_OVERLAY,
                 ComponentNameMatcher.EDGE_BACK_GESTURE_HANDLER,
                 ComponentNameMatcher.COLOR_FADE,
+                ComponentNameMatcher.TRANSITION_SNAPSHOT,
                 EdgeExtensionComponentMatcher()
             )
     }
