@@ -22,11 +22,9 @@ import android.platform.test.rule.PressHomeRule
 import android.platform.test.rule.UnlockScreenRule
 import android.tools.common.Logger
 import android.tools.common.Scenario
-import android.tools.device.apphelpers.MessagingAppHelper
 import android.tools.device.flicker.datastore.CachedResultWriter
 import android.tools.device.flicker.legacy.FlickerTestData
 import android.tools.device.flicker.rules.ChangeDisplayOrientationRule
-import android.tools.device.flicker.rules.LaunchAppRule
 import android.tools.device.flicker.rules.RemoveAllTasksButHomeRule
 import android.tools.device.traces.io.IResultData
 import android.tools.device.traces.io.ResultWriter
@@ -63,13 +61,8 @@ class TransitionRunner(
      * - unlock device
      * - change orientation
      * - change navigation mode
-     * - launch an app
      * - remove all apps
      * - go home
-     *
-     * (b/186740751) An app should be launched because, after changing the navigation mode, the
-     * first app launch is handled as a screen size change (similar to a rotation), this causes
-     * different problems during testing (e.g. IME now shown on app launch)
      */
     private fun buildTestRuleChain(flicker: FlickerTestData): RuleChain {
         return RuleChain.outerRule(UnlockScreenRule())
@@ -78,9 +71,6 @@ class TransitionRunner(
                     scenario.navBarMode.value,
                     /* changeNavigationModeAfterTest */ false
                 )
-            )
-            .around(
-                LaunchAppRule(MessagingAppHelper(instrumentation), clearCacheAfterParsing = false)
             )
             .around(RemoveAllTasksButHomeRule())
             .around(
