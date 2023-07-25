@@ -229,14 +229,17 @@ constructor(
          * Waits until a [WindowState] matching [componentMatcher] has a state of [activityState]
          *
          * @param componentMatcher Components to search
-         * @param activityState expected activity state
+         * @param activityStates expected activity states
          */
-        fun withActivityState(componentMatcher: IComponentMatcher, activityState: String) =
+        fun withActivityState(componentMatcher: IComponentMatcher, vararg activityStates: String) =
             add(
                 Condition(
-                    "state of ${componentMatcher.toActivityIdentifier()} to be $activityState"
+                    "state of ${componentMatcher.toActivityIdentifier()} to be any of " +
+                        activityStates.joinToString()
                 ) {
-                    it.wmState.hasActivityState(componentMatcher, activityState)
+                    activityStates.any { state ->
+                        it.wmState.hasActivityState(componentMatcher, state)
+                    }
                 }
             )
 
