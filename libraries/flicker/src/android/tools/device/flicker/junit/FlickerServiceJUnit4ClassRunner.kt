@@ -55,7 +55,7 @@ constructor(
 ) : BlockJUnit4ClassRunner(testClass), IFlickerJUnitDecorator {
 
     private val onlyBlocking: Boolean
-        get() = arguments.getString(Scenario.FAAS_BLOCKING).toBoolean()
+        get() = arguments.getString(Scenario.FAAS_BLOCKING)?.toBoolean() ?: true
 
     private val flickerDecorator: FlickerServiceDecorator =
         FlickerServiceDecorator(

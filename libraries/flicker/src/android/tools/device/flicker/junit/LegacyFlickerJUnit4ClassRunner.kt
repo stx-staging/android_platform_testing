@@ -78,7 +78,7 @@ class LegacyFlickerJUnit4ClassRunner(
     private val onlyBlocking
         get() =
             scenario?.getConfigValue<Boolean>(Scenario.FAAS_BLOCKING)
-                ?: arguments.getString(Scenario.FAAS_BLOCKING).toBoolean()
+                ?: arguments.getString(Scenario.FAAS_BLOCKING)?.toBoolean() ?: true
 
     @VisibleForTesting
     val transitionRunner =
