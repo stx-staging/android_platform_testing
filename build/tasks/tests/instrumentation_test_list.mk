@@ -71,7 +71,8 @@ instrumentation_tests := \
     FrameworksPrivacyLibraryTests \
     SettingsUITests \
     SettingsPerfTests \
-    ExtServicesUnitTests \
+    ExtServicesUnitTests-tplus \
+    ExtServicesUnitTests-sminus \
     FrameworksNetSmokeTests \
     FlickerLibTest \
     FlickerTestsOther \
