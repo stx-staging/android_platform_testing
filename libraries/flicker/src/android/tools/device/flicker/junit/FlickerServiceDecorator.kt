@@ -47,6 +47,7 @@ import org.junit.runners.model.TestClass
 class FlickerServiceDecorator(
     testClass: TestClass,
     val paramString: String?,
+    private val skipNonBlocking: Boolean,
     inner: IFlickerJUnitDecorator?
 ) : AbstractFlickerRunnerDecorator(testClass, inner) {
     private val flickerService by lazy { FlickerService(getFlickerConfig()) }
@@ -271,7 +272,8 @@ class FlickerServiceDecorator(
             reader,
             flickerService,
             instrumentation,
-            this
+            this,
+            skipNonBlocking
         )
     }
 
@@ -311,6 +313,7 @@ class FlickerServiceDecorator(
             flickerService: FlickerService,
             instrumentation: Instrumentation,
             caller: IFlickerJUnitDecorator,
+            skipNonBlocking: Boolean,
         ): Collection<InjectedTestCase> {
             val groupedAssertions = getGroupedAssertions(testScenario, reader, flickerService)
             val organizedScenarioInstances = groupedAssertions.keys.groupBy { it.type }
@@ -328,7 +331,7 @@ class FlickerServiceDecorator(
                             FlickerServiceCachedTestCase(
                                 assertion = it,
                                 method = getCachedResultMethod(),
-                                onlyBlocking = false,
+                                skipNonBlocking = skipNonBlocking,
                                 isLast =
                                     organizedScenarioInstances.values.size == scenarioTypesIndex &&
                                         scenarioInstancesOfSameType.size == scenarioInstanceIndex,

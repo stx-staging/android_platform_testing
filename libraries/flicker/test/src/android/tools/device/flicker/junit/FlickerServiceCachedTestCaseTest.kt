@@ -30,6 +30,7 @@ import android.tools.common.io.Reader
 import android.tools.device.flicker.FlickerServiceResultsCollector
 import android.tools.utils.KotlinMockito
 import com.google.common.truth.Truth
+import org.junit.AssumptionViolatedException
 import org.junit.Test
 import org.junit.runner.Description
 import org.mockito.Mockito
@@ -68,7 +69,7 @@ class FlickerServiceCachedTestCaseTest {
             FlickerServiceCachedTestCase(
                 assertion = mockScenarioAssertion,
                 method = InjectedTestCase::class.java.getMethod("execute", Description::class.java),
-                onlyBlocking = false,
+                skipNonBlocking = false,
                 isLast = false,
                 injectedBy = decorator,
                 instrumentation = mockInstrumentation,
@@ -121,7 +122,7 @@ class FlickerServiceCachedTestCaseTest {
             FlickerServiceCachedTestCase(
                 assertion = mockScenarioAssertion,
                 method = InjectedTestCase::class.java.getMethod("execute", Description::class.java),
-                onlyBlocking = false,
+                skipNonBlocking = false,
                 isLast = false,
                 injectedBy = decorator,
                 instrumentation = mockInstrumentation,
@@ -141,5 +142,50 @@ class FlickerServiceCachedTestCaseTest {
                     ) == "1"
                 }
             )
+    }
+
+    @Test
+    fun skippedIfNonBlocking() {
+        val mockScenarioAssertion = Mockito.mock(ScenarioAssertion::class.java)
+        val decorator = Mockito.mock(IFlickerJUnitDecorator::class.java)
+        val mockInstrumentation = Mockito.mock(Instrumentation::class.java)
+        val mockFlickerService = Mockito.mock(FlickerService::class.java)
+        val mockScenarioInstance = Mockito.mock(ScenarioInstance::class.java)
+        val assertionResult =
+            object : AssertionResult {
+                override val name: String = "MY_CUSTOM_SCENARIO#myAssertion"
+                override val assertionData =
+                    arrayOf<AssertionData>(
+                        object : AssertionData {
+                            override fun checkAssertion(run: SubjectsParser) {
+                                error("Unimplemented - shouldn't be called")
+                            }
+                        }
+                    )
+                override val assertionErrors = arrayOf<Throwable>(Exception("EXPECTED"))
+                override val stabilityGroup = AssertionInvocationGroup.NON_BLOCKING
+                override val passed = false
+            }
+        Mockito.`when`(mockScenarioAssertion.execute()).thenReturn(assertionResult)
+        Mockito.`when`(mockScenarioInstance.generateAssertions())
+            .thenReturn(listOf(mockScenarioAssertion))
+        Mockito.`when`(mockFlickerService.detectScenarios(KotlinMockito.any(Reader::class.java)))
+            .thenReturn(listOf(mockScenarioInstance))
+
+        val testCase =
+            FlickerServiceCachedTestCase(
+                assertion = mockScenarioAssertion,
+                method = InjectedTestCase::class.java.getMethod("execute", Description::class.java),
+                skipNonBlocking = true,
+                isLast = false,
+                injectedBy = decorator,
+                instrumentation = mockInstrumentation,
+                paramString = "",
+            )
+
+        val mockDescription = Mockito.mock(Description::class.java)
+        val failure =
+            assertThrows<AssumptionViolatedException> { testCase.execute(mockDescription) }
+        Truth.assertThat(failure).hasMessageThat().isEqualTo("FaaS Test was non blocking - skipped")
     }
 }
