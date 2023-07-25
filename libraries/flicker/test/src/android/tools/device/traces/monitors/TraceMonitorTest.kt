@@ -17,7 +17,6 @@
 package android.tools.device.traces.monitors
 
 import android.app.Instrumentation
-import android.support.test.uiautomator.UiDevice
 import android.tools.common.io.RunStatus
 import android.tools.common.io.TraceType
 import android.tools.common.traces.DeviceTraceDump
@@ -29,6 +28,7 @@ import android.tools.newTestResultWriter
 import android.tools.outputFileName
 import android.tools.rules.CleanFlickerEnvironmentRule
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.UiDevice
 import com.google.common.truth.Truth
 import org.junit.After
 import org.junit.Before
