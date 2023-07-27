@@ -18,13 +18,16 @@ package android.tools.device.apphelpers
 
 import android.app.Instrumentation
 import android.tools.common.traces.component.ComponentNameMatcher
+import androidx.test.platform.app.InstrumentationRegistry
 
 /**
  * Helper to launch the calculator app (not compatible with AOSP)
  *
  * This helper has no other functionality but the app launch.
  */
-class CalculatorAppHelper(instrumentation: Instrumentation) :
+class CalculatorAppHelper
+@JvmOverloads
+constructor(instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation()) :
     StandardAppHelper(
         instrumentation,
         "Calculator",

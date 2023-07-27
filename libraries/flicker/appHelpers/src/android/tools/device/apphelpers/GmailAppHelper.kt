@@ -18,9 +18,12 @@ package android.tools.device.apphelpers
 
 import android.app.Instrumentation
 import android.tools.common.traces.component.ComponentNameMatcher
+import androidx.test.platform.app.InstrumentationRegistry
 
 /** Helper to launch the Gmail app (not compatible with AOSP) */
-class GmailAppHelper(instrumentation: Instrumentation) :
+class GmailAppHelper
+@JvmOverloads
+constructor(instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation()) :
     StandardAppHelper(
         instrumentation,
         "Gmail",

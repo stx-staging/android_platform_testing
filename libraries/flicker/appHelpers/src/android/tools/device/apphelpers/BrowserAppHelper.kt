@@ -21,34 +21,49 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.tools.common.traces.component.ComponentNameMatcher
+import androidx.test.platform.app.InstrumentationRegistry
 
 /**
- * Helper to launch the default messaging app (compatible with AOSP)
+ * Helper to launch the default browser app (compatible with AOSP)
  *
  * This helper has no other functionality but the app launch.
+ *
+ * This helper is used to launch an app after some operations (e.g., navigation mode change), so
+ * that the device is stable before executing flicker tests
  */
-class MessagingAppHelper(
-    instrumentation: Instrumentation,
+class BrowserAppHelper
+@JvmOverloads
+constructor(
+    instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation(),
     pkgManager: PackageManager = instrumentation.context.packageManager
 ) :
     StandardAppHelper(
         instrumentation,
-        "SampleApp",
-        MessagingAppHelper.Companion.getMessagesComponent(pkgManager)
+        getBrowserName(pkgManager),
+        getBrowserComponent(pkgManager)
     ) {
-    override fun getOpenAppIntent(): Intent =
+    override val openAppIntent =
         pkgManager.getLaunchIntentForPackage(packageName)
             ?: error("Unable to find intent for browser")
 
     companion object {
-        private fun getMessagesIntent(): Intent {
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("sms:"))
+        private fun getBrowserIntent(): Intent {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("http://"))
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             return intent
         }
 
-        private fun getMessagesComponent(pkgManager: PackageManager): ComponentNameMatcher {
-            val intent = MessagingAppHelper.Companion.getMessagesIntent()
+        private fun getBrowserName(pkgManager: PackageManager): String {
+            val intent = getBrowserIntent()
+            val resolveInfo =
+                pkgManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY)
+                    ?: error("Unable to resolve browser activity")
+
+            return resolveInfo.loadLabel(pkgManager).toString()
+        }
+
+        private fun getBrowserComponent(pkgManager: PackageManager): ComponentNameMatcher {
+            val intent = getBrowserIntent()
             val resolveInfo =
                 pkgManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY)
                     ?: error("Unable to resolve browser activity")

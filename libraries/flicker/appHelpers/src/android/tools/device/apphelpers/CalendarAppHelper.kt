@@ -20,35 +20,40 @@ import android.app.Instrumentation
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
+import android.net.Uri
 import android.tools.common.traces.component.ComponentNameMatcher
+import androidx.test.platform.app.InstrumentationRegistry
 
-/**
- * Helper to launch Youtube (not compatible with AOSP)
- *
- * This helper has no other functionality but the app launch.
- */
-class YouTubeAppHelper(
-    instrumentation: Instrumentation,
+/** Helper to launch the Calendar app. */
+class CalendarAppHelper
+@JvmOverloads
+constructor(
+    instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation(),
     pkgManager: PackageManager = instrumentation.context.packageManager
 ) :
     StandardAppHelper(
         instrumentation,
-        getYoutubeLauncherName(pkgManager),
-        getYoutubeComponent(pkgManager)
+        getCalendarLauncherName(pkgManager),
+        getCalendarComponent(pkgManager)
     ) {
     companion object {
-        private fun getYoutubeIntent(pkgManager: PackageManager): Intent {
-            return pkgManager.getLaunchIntentForPackage("com.google.android.youtube")
-                ?: error("Youtube launch intent not found")
+        private fun getCalendarIntent(): Intent {
+            val epochEventStartTime = 0
+            val uri = Uri.parse("content://com.android.calendar/time/$epochEventStartTime")
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.data = uri
+            intent.putExtra("VIEW", "DAY")
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET
+            return intent
         }
 
         private fun getResolveInfo(pkgManager: PackageManager): ResolveInfo {
-            val intent = getYoutubeIntent(pkgManager)
+            val intent = getCalendarIntent()
             return pkgManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY)
                 ?: error("unable to resolve calendar activity")
         }
 
-        private fun getYoutubeComponent(pkgManager: PackageManager): ComponentNameMatcher {
+        private fun getCalendarComponent(pkgManager: PackageManager): ComponentNameMatcher {
             val resolveInfo = getResolveInfo(pkgManager)
             return ComponentNameMatcher(
                 resolveInfo.activityInfo.packageName,
@@ -56,7 +61,7 @@ class YouTubeAppHelper(
             )
         }
 
-        private fun getYoutubeLauncherName(pkgManager: PackageManager): String {
+        private fun getCalendarLauncherName(pkgManager: PackageManager): String {
             val resolveInfo = getResolveInfo(pkgManager)
             return resolveInfo.loadLabel(pkgManager).toString()
         }

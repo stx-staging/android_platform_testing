@@ -22,12 +22,13 @@ import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.provider.AlarmClock
 import android.tools.common.traces.component.ComponentNameMatcher
+import androidx.test.platform.app.InstrumentationRegistry
 
 /** Helper to launch the Camera app. */
 class ClockAppHelper
 @JvmOverloads
 constructor(
-    instrumentation: Instrumentation,
+    instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation(),
     pkgManager: PackageManager = instrumentation.context.packageManager
 ) :
     StandardAppHelper(
@@ -36,7 +37,7 @@ constructor(
         getClockComponent(pkgManager)
     ) {
 
-    override fun getOpenAppIntent(): Intent =
+    override val openAppIntent =
         pkgManager.getLaunchIntentForPackage(packageName)
             ?: error("Unable to find intent for camera")
 

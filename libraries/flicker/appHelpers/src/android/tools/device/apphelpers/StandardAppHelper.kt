@@ -22,7 +22,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.platform.helpers.AbstractStandardAppHelper
 import android.tools.common.Logger
 import android.tools.common.PlatformConsts
 import android.tools.common.traces.Condition
@@ -43,71 +42,59 @@ import com.android.launcher3.tapl.LauncherInstrumentation
  * party and third party apps.
  */
 open class StandardAppHelper(
-    instr: Instrumentation,
+    val instrumentation: Instrumentation,
     val appName: String,
-    val componentMatcher: ComponentNameMatcher
-) : AbstractStandardAppHelper(instr), IComponentNameMatcher by componentMatcher {
+    val componentMatcher: ComponentNameMatcher,
+) : IComponentNameMatcher by componentMatcher {
     constructor(
         instr: Instrumentation,
         appName: String,
         packageName: String,
-        activity: String
+        activity: String,
     ) : this(instr, appName, ComponentNameMatcher(packageName, ".$activity"))
 
-    protected val pkgManager: PackageManager = instr.context.packageManager
+    protected val pkgManager: PackageManager = instrumentation.context.packageManager
 
     protected val tapl: LauncherInstrumentation = LauncherInstrumentation()
 
     private val activityManager: ActivityManager?
-        get() = mInstrumentation.context.getSystemService(ActivityManager::class.java)
+        get() = instrumentation.context.getSystemService(ActivityManager::class.java)
 
     protected val context: Context
-        get() = mInstrumentation.context
+        get() = instrumentation.context
 
     override val packageName = componentMatcher.packageName
 
     override val className = componentMatcher.className
 
-    protected val uiDevice: UiDevice = UiDevice.getInstance(mInstrumentation)
+    protected val uiDevice: UiDevice = UiDevice.getInstance(instrumentation)
 
     private fun getAppSelector(expectedPackageName: String): BySelector {
         val expected = expectedPackageName.ifEmpty { packageName }
         return By.pkg(expected).depth(0)
     }
 
-    override fun open() {
-        open(`package`)
+    open fun open() {
+        open(packageName)
     }
 
     protected fun open(expectedPackageName: String) {
-        tapl.goHome().switchToAllApps().getAppIcon(launcherName).launch(expectedPackageName)
+        tapl.goHome().switchToAllApps().getAppIcon(appName).launch(expectedPackageName)
     }
 
     /** {@inheritDoc} */
-    override fun getPackage(): String {
-        return packageName
-    }
+    open val openAppIntent: Intent
+        get() {
+            val intent = Intent()
+            intent.addCategory(Intent.CATEGORY_LAUNCHER)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            intent.component = ComponentName(packageName, className)
+            return intent
+        }
 
     /** {@inheritDoc} */
-    override fun getOpenAppIntent(): Intent {
-        val intent = Intent()
-        intent.addCategory(Intent.CATEGORY_LAUNCHER)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        intent.component = ComponentName(packageName, className)
-        return intent
-    }
-
-    /** {@inheritDoc} */
-    override fun getLauncherName(): String {
-        return appName
-    }
-
-    /** {@inheritDoc} */
-    override fun dismissInitialDialogs() {}
-
-    /** {@inheritDoc} */
-    override fun exit() {
-        Logger.withTracing("exit") {
+    open fun exit() {
+        Logger.withTracing("${this::class.simpleName}#exit") {
             // Ensure all testing components end up being closed.
             activityManager?.forceStopPackage(packageName)
         }

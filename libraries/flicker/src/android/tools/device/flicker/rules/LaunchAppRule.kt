@@ -42,7 +42,7 @@ class LaunchAppRule
 @JvmOverloads
 constructor(
     private val appHelper: StandardAppHelper,
-    private val instrumentation: Instrumentation = appHelper.mInstrumentation,
+    private val instrumentation: Instrumentation = appHelper.instrumentation,
     private val clearCacheAfterParsing: Boolean = true,
     private val wmHelper: WindowManagerStateHelper =
         WindowManagerStateHelper(clearCacheAfterParsing = clearCacheAfterParsing)

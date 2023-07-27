@@ -22,18 +22,19 @@ import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.net.Uri
 import android.tools.common.traces.component.ComponentNameMatcher
+import androidx.test.platform.app.InstrumentationRegistry
 
 /** Helper to launch the Maps app (not compatible with AOSP) */
 class MapsAppHelper
 @JvmOverloads
 constructor(
-    instrumentation: Instrumentation,
+    instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation(),
     pkgManager: PackageManager = instrumentation.context.packageManager
 ) :
     StandardAppHelper(
         instrumentation,
-        MapsAppHelper.Companion.getMapLauncherName(pkgManager),
-        MapsAppHelper.Companion.getMapComponent(pkgManager)
+        getMapLauncherName(pkgManager),
+        getMapComponent(pkgManager)
     ) {
     companion object {
         private fun getMapIntent(): Intent {
@@ -42,13 +43,13 @@ constructor(
         }
 
         private fun getResolveInfo(pkgManager: PackageManager): ResolveInfo {
-            val intent = MapsAppHelper.Companion.getMapIntent()
+            val intent = getMapIntent()
             return pkgManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY)
                 ?: error("unable to resolve camera activity")
         }
 
         private fun getMapComponent(pkgManager: PackageManager): ComponentNameMatcher {
-            val resolveInfo = MapsAppHelper.Companion.getResolveInfo(pkgManager)
+            val resolveInfo = getResolveInfo(pkgManager)
             return ComponentNameMatcher(
                 resolveInfo.activityInfo.packageName,
                 className = resolveInfo.activityInfo.name
@@ -56,7 +57,7 @@ constructor(
         }
 
         private fun getMapLauncherName(pkgManager: PackageManager): String {
-            val resolveInfo = MapsAppHelper.Companion.getResolveInfo(pkgManager)
+            val resolveInfo = getResolveInfo(pkgManager)
             return resolveInfo.loadLabel(pkgManager).toString()
         }
     }
