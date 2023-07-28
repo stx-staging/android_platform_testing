@@ -22,15 +22,13 @@ import android.tools.common.flicker.assertions.AssertionData
 import android.tools.common.flicker.assertions.AssertionResult
 import android.tools.common.flicker.assertions.ScenarioAssertion
 import android.tools.common.flicker.assertions.SubjectsParser
-import android.tools.common.io.InMemoryArtifact
-import android.tools.common.io.ParsedTracesReader
 import android.tools.common.io.Reader
 import android.tools.common.traces.wm.TransitionsTrace
 import android.tools.device.flicker.FlickerServiceResultsCollector
 import android.tools.device.flicker.FlickerServiceResultsCollector.Companion.FLICKER_ASSERTIONS_COUNT_KEY
 import android.tools.device.flicker.FlickerServiceResultsCollector.Companion.WINSCOPE_FILE_PATH_KEY
 import android.tools.device.flicker.FlickerServiceResultsCollector.Companion.getKeyForAssertionResult
-import android.tools.rules.CleanFlickerEnvironmentRule
+import android.tools.utils.CleanFlickerEnvironmentRule
 import android.tools.utils.InMemoryArtifact
 import android.tools.utils.KotlinMockito
 import android.tools.utils.MockLayersTraceBuilder

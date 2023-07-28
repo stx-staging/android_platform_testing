@@ -21,7 +21,7 @@ import android.tools.common.Timestamp
 import android.tools.common.flicker.subject.FlickerSubject
 import android.tools.common.flicker.subject.FlickerTraceSubject
 import android.tools.common.io.TraceType
-import android.tools.device.TestTraces
+import android.tools.utils.TestTraces
 
 @SuppressLint("VisibleForTests")
 class SubjectsParserTestParseWM : BaseSubjectsParserTestParse() {

@@ -24,7 +24,7 @@ import android.os.SystemClock
 import android.tools.common.io.TraceType
 import android.tools.device.traces.TRACE_CONFIG_REQUIRE_CHANGES
 import android.tools.device.traces.io.ResultReader
-import android.tools.rules.CleanFlickerEnvironmentRule
+import android.tools.utils.CleanFlickerEnvironmentRule
 import android.tools.utils.newTestResultWriter
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice

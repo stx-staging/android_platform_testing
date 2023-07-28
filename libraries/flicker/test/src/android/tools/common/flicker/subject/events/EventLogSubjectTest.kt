@@ -18,11 +18,9 @@ package android.tools.common.flicker.subject.events
 
 import android.tools.common.Timestamps
 import android.tools.common.flicker.assertions.SubjectsParser
-import android.tools.common.io.InMemoryArtifact
-import android.tools.common.io.ParsedTracesReader
 import android.tools.common.traces.events.EventLog
 import android.tools.common.traces.events.FocusEvent
-import android.tools.rules.CleanFlickerEnvironmentRule
+import android.tools.utils.CleanFlickerEnvironmentRule
 import android.tools.utils.InMemoryArtifact
 import android.tools.utils.ParsedTracesReader
 import org.junit.ClassRule

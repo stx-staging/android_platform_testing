@@ -23,7 +23,7 @@ import android.tools.common.io.RunStatus
 import android.tools.device.traces.deleteIfExists
 import android.tools.device.traces.io.IResultData
 import android.tools.device.traces.monitors.events.EventLogMonitor
-import android.tools.rules.CleanFlickerEnvironmentRule
+import android.tools.utils.CleanFlickerEnvironmentRule
 import android.tools.utils.assertExceptionMessage
 import android.tools.utils.newTestResultWriter
 import android.tools.utils.outputFileName

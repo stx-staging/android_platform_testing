@@ -18,7 +18,7 @@ package android.tools.device.traces.parsers.wm
 
 import android.tools.common.Cache
 import android.tools.device.traces.monitors.wm.WindowManagerTraceMonitor
-import android.tools.rules.CleanFlickerEnvironmentRule
+import android.tools.utils.CleanFlickerEnvironmentRule
 import android.tools.utils.readAsset
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice

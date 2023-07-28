@@ -55,6 +55,6 @@ class InMemoryArtifact(artifactIdentifier: String) : Artifact {
     }
 
     companion object {
-        internal val EMPTY = InMemoryArtifact("Empty")
+        val EMPTY = InMemoryArtifact("Empty")
     }
 }

@@ -16,21 +16,21 @@
 
 package android.tools.common.flicker.subject.surfaceflinger
 
-import android.tools.assertFail
-import android.tools.assertThatErrorContainsDebugInfo
-import android.tools.assertThrows
 import android.tools.common.Cache
-import android.tools.common.TestComponents
 import android.tools.common.datatypes.Rect
 import android.tools.common.datatypes.Region
 import android.tools.common.flicker.subject.layers.LayerTraceEntrySubject
 import android.tools.common.flicker.subject.layers.LayersTraceSubject
 import android.tools.common.traces.component.ComponentNameMatcher
 import android.tools.common.traces.component.OrComponentMatcher
-import android.tools.getLayerTraceReaderFromAsset
-import android.tools.rules.CleanFlickerEnvironmentRule
+import android.tools.utils.CleanFlickerEnvironmentRule
 import android.tools.utils.MockLayerBuilder
 import android.tools.utils.MockLayerTraceEntryBuilder
+import android.tools.utils.TestComponents
+import android.tools.utils.assertFail
+import android.tools.utils.assertThatErrorContainsDebugInfo
+import android.tools.utils.assertThrows
+import android.tools.utils.getLayerTraceReaderFromAsset
 import com.google.common.truth.Truth
 import org.junit.Before
 import org.junit.ClassRule

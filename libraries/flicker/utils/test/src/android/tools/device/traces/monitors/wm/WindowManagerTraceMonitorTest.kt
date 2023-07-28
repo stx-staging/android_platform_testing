@@ -19,7 +19,7 @@ package android.tools.device.traces.monitors.wm
 import android.tools.common.io.TraceType
 import android.tools.device.traces.monitors.TraceMonitorTest
 import android.tools.device.traces.monitors.withWMTracing
-import android.tools.rules.CleanFlickerEnvironmentRule
+import android.tools.utils.CleanFlickerEnvironmentRule
 import com.android.server.wm.nano.WindowManagerTraceFileProto
 import com.google.common.truth.Truth
 import org.junit.ClassRule

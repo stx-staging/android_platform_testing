@@ -20,7 +20,7 @@ import android.app.Instrumentation
 import android.tools.common.Cache
 import android.tools.device.apphelpers.BrowserAppHelper
 import android.tools.device.traces.monitors.wm.WmTransitionTraceMonitor
-import android.tools.rules.CleanFlickerEnvironmentRule
+import android.tools.utils.CleanFlickerEnvironmentRule
 import android.tools.utils.readAsset
 import androidx.test.platform.app.InstrumentationRegistry
 import com.android.launcher3.tapl.LauncherInstrumentation

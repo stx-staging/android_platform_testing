@@ -21,11 +21,11 @@ import android.tools.common.ScenarioBuilder
 import android.tools.common.Timestamps
 import android.tools.common.io.RunStatus
 import android.tools.common.io.TraceType
-import android.tools.device.TestTraces
 import android.tools.device.traces.TRACE_CONFIG_REQUIRE_CHANGES
 import android.tools.device.traces.deleteIfExists
-import android.tools.rules.CleanFlickerEnvironmentRule
+import android.tools.utils.CleanFlickerEnvironmentRule
 import android.tools.utils.TEST_SCENARIO
+import android.tools.utils.TestTraces
 import android.tools.utils.assertExceptionMessage
 import android.tools.utils.assertThrows
 import android.tools.utils.newTestResultWriter

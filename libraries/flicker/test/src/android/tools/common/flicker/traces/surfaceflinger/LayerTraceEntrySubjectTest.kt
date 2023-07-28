@@ -16,9 +16,9 @@
 
 package android.tools.common.flicker.traces.surfaceflinger
 
-import android.tools.common.TestComponents
 import android.tools.common.flicker.subject.layers.LayersTraceSubject
 import android.tools.common.traces.component.ComponentNameMatcher
+import android.tools.utils.TestComponents
 import android.tools.utils.assertThatErrorContainsDebugInfo
 import android.tools.utils.assertThrows
 import android.tools.utils.getLayerTraceReaderFromAsset

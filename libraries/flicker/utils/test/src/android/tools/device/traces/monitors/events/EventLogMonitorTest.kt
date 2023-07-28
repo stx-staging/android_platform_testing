@@ -25,7 +25,7 @@ import android.tools.device.traces.TRACE_CONFIG_REQUIRE_CHANGES
 import android.tools.device.traces.io.ResultReader
 import android.tools.device.traces.monitors.TraceMonitorTest
 import android.tools.device.traces.now
-import android.tools.rules.CleanFlickerEnvironmentRule
+import android.tools.utils.CleanFlickerEnvironmentRule
 import android.tools.utils.newTestResultWriter
 import android.util.EventLog
 import com.android.internal.jank.EventLogTags

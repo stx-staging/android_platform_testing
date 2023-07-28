@@ -19,7 +19,7 @@ package android.tools.device.traces.parsers.wm
 import android.tools.common.Cache
 import android.tools.common.io.TraceType
 import android.tools.device.traces.getCurrentState
-import android.tools.rules.CleanFlickerEnvironmentRule
+import android.tools.utils.CleanFlickerEnvironmentRule
 import android.tools.utils.readAsset
 import com.google.common.truth.Truth
 import org.junit.Before

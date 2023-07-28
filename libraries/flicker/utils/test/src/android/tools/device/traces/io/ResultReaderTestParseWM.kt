@@ -18,7 +18,7 @@ package android.tools.device.traces.io
 
 import android.tools.common.Timestamp
 import android.tools.common.io.TraceType
-import android.tools.device.TestTraces
+import android.tools.utils.TestTraces
 
 /** Tests for [ResultReader] parsing [TraceType.WM] */
 class ResultReaderTestParseWM : BaseResultReaderTestParseTrace() {

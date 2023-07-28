@@ -42,14 +42,21 @@ import android.tools.device.traces.parsers.surfaceflinger.LayersTraceParser
 import android.tools.device.traces.parsers.surfaceflinger.TransactionsTraceParser
 import android.tools.device.traces.parsers.wm.TransitionTraceParser
 import android.tools.device.traces.parsers.wm.WindowManagerTraceParser
+import android.tools.rules.DataStoreCleanupRule
+import android.tools.utils.CleanFlickerEnvironmentRule
 import android.tools.utils.InMemoryArtifact
 import android.tools.utils.ParsedTracesReader
 import android.tools.utils.TEST_SCENARIO
+import android.tools.utils.readAsset
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import java.io.File
 import kotlin.io.path.createTempDirectory
+import org.junit.rules.RuleChain
 import org.mockito.Mockito
+
+fun CleanFlickerEnvironmentRuleWithDataStore(): RuleChain =
+    CleanFlickerEnvironmentRule().around(DataStoreCleanupRule())
 
 internal fun getTraceReaderFromScenario(scenario: String): Reader {
     val scenarioTraces = getScenarioTraces("AppLaunch")

@@ -51,6 +51,7 @@ android_test {
     exclude_srcs: [":FlickerLibTest-Utils-src"],
     manifest: "AndroidManifest.xml",
     test_config: "AndroidTest.xml",
+    test_suites: ["device-tests"],
     certificate: "platform",
     platform_apis: true,
     optimize: {

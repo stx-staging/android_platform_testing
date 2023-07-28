@@ -21,7 +21,7 @@ import android.tools.device.apphelpers.BrowserAppHelper
 import android.tools.device.flicker.FlickerServiceTracesCollector
 import android.tools.device.flicker.isShellTransitionsEnabled
 import android.tools.device.traces.parsers.WindowManagerStateHelper
-import android.tools.rules.CleanFlickerEnvironmentRule
+import android.tools.utils.CleanFlickerEnvironmentRule
 import android.tools.utils.TEST_SCENARIO
 import android.tools.utils.assertArchiveContainsFiles
 import androidx.test.platform.app.InstrumentationRegistry

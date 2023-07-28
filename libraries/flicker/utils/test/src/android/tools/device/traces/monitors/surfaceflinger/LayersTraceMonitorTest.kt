@@ -20,7 +20,7 @@ import android.surfaceflinger.Layerstrace
 import android.tools.common.io.TraceType
 import android.tools.device.traces.monitors.TraceMonitorTest
 import android.tools.device.traces.monitors.withSFTracing
-import android.tools.rules.CleanFlickerEnvironmentRule
+import android.tools.utils.CleanFlickerEnvironmentRule
 import com.google.common.truth.Truth
 import org.junit.ClassRule
 import org.junit.FixMethodOrder

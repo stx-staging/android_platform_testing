@@ -24,7 +24,7 @@ import android.tools.common.datatypes.RectF
 import android.tools.common.datatypes.Region
 import android.tools.common.datatypes.Size
 import android.tools.common.traces.surfaceflinger.Display.Companion.BLANK_LAYER_STACK
-import android.tools.rules.CleanFlickerEnvironmentRule
+import android.tools.utils.CleanFlickerEnvironmentRule
 import com.google.common.truth.Truth
 import org.junit.ClassRule
 import org.junit.FixMethodOrder

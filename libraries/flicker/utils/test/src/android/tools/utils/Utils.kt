@@ -30,6 +30,9 @@ import android.tools.device.traces.io.ResultWriter
 import android.tools.device.traces.parsers.surfaceflinger.LayersTraceParser
 import android.tools.device.traces.parsers.wm.WindowManagerDumpParser
 import android.tools.device.traces.parsers.wm.WindowManagerTraceParser
+import android.tools.rules.CacheCleanupRule
+import android.tools.rules.InitializeCrossPlatformRule
+import android.tools.rules.StopAllTracesRule
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.io.ByteStreams
 import com.google.common.truth.Truth
@@ -39,6 +42,13 @@ import java.io.IOException
 import java.util.zip.ZipInputStream
 import kotlin.io.path.createTempDirectory
 import kotlin.io.path.name
+import org.junit.rules.RuleChain
+
+/** Factory function to create cleanup test rule */
+fun CleanFlickerEnvironmentRule(): RuleChain =
+    RuleChain.outerRule(InitializeCrossPlatformRule())
+        .around(StopAllTracesRule())
+        .around(CacheCleanupRule())
 
 val TEST_SCENARIO = ScenarioBuilder().forClass("test").build() as ScenarioImpl
 

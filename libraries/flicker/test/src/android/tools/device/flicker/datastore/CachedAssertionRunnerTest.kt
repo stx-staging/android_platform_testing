@@ -23,7 +23,7 @@ import android.tools.common.flicker.subject.FlickerSubject
 import android.tools.common.flicker.subject.events.EventLogSubject
 import android.tools.common.io.RunStatus
 import android.tools.device.traces.monitors.events.EventLogMonitor
-import android.tools.rules.CleanFlickerEnvironmentRule
+import android.tools.utils.CleanFlickerEnvironmentRule
 import android.tools.utils.TEST_SCENARIO
 import android.tools.utils.assertExceptionMessage
 import android.tools.utils.newTestResultWriter

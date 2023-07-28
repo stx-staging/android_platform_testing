@@ -17,17 +17,17 @@
 package android.tools.device.flicker.legacy
 
 import android.annotation.SuppressLint
-import android.tools.TEST_SCENARIO
+import android.tools.CleanFlickerEnvironmentRuleWithDataStore
 import android.tools.common.ScenarioBuilder
 import android.tools.common.flicker.assertions.FlickerTest
 import android.tools.common.io.TraceType
-import android.tools.device.TestTraces
 import android.tools.device.flicker.datastore.CachedResultReader
 import android.tools.device.flicker.datastore.DataStore
 import android.tools.device.traces.TRACE_CONFIG_REQUIRE_CHANGES
 import android.tools.device.traces.io.ResultReader
 import android.tools.newTestCachedResultWriter
-import android.tools.rules.CleanFlickerEnvironmentRule
+import android.tools.utils.TEST_SCENARIO
+import android.tools.utils.TestTraces
 import android.tools.utils.assertExceptionMessage
 import android.tools.utils.assertThrows
 import com.google.common.truth.Truth
@@ -41,7 +41,7 @@ import org.junit.Test
 @SuppressLint("VisibleForTests")
 class LegacyFlickerTestTest {
     private var executionCount = 0
-    @Rule @JvmField val envCleanup = CleanFlickerEnvironmentRule()
+    @Rule @JvmField val envCleanup = CleanFlickerEnvironmentRuleWithDataStore()
 
     @Before
     fun setup() {

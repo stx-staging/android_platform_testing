@@ -35,7 +35,7 @@ import android.tools.common.traces.surfaceflinger.LayerTraceEntryBuilder
 import android.tools.common.traces.surfaceflinger.Transform
 import android.tools.common.traces.wm.WindowManagerState
 import android.tools.common.traces.wm.WindowManagerTrace
-import android.tools.rules.CleanFlickerEnvironmentRule
+import android.tools.utils.CleanFlickerEnvironmentRule
 import android.tools.utils.getWmDumpReaderFromAsset
 import android.tools.utils.getWmTraceReaderFromAsset
 import androidx.test.filters.FlakyTest

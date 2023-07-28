@@ -17,7 +17,7 @@
 package android.tools.common.io
 
 import android.tools.device.traces.io.ArtifactBuilder
-import android.tools.rules.CleanFlickerEnvironmentRule
+import android.tools.utils.CleanFlickerEnvironmentRule
 import android.tools.utils.TEST_SCENARIO
 import com.google.common.truth.Truth
 import kotlin.io.path.createTempDirectory

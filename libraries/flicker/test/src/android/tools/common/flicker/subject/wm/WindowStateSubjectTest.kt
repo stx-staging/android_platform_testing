@@ -17,8 +17,8 @@
 package android.tools.common.flicker.subject.wm
 
 import android.tools.common.Cache
-import android.tools.common.TestComponents
-import android.tools.rules.CleanFlickerEnvironmentRule
+import android.tools.utils.CleanFlickerEnvironmentRule
+import android.tools.utils.TestComponents
 import android.tools.utils.getWmTraceReaderFromAsset
 import com.google.common.truth.Truth
 import org.junit.Before

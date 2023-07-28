@@ -67,7 +67,7 @@ private constructor(
     }
 
     private fun doWaitFor(): Boolean {
-        onLog?.invoke("***Waiting for $condition", false /* isError */)
+        onLog?.invoke("***Waiting for $condition", false)
         var currState: T? = null
         var success = false
         for (i in 0..retryLimit) {
@@ -94,15 +94,12 @@ private constructor(
         try {
             val currState = supplier.invoke()
             return if (condition.isSatisfied(currState)) {
-                onLog?.invoke("***Waiting for $condition ... Success!", false /* isError */)
+                onLog?.invoke("***Waiting for $condition ... Success!", false)
                 onSuccess?.invoke(currState)
                 Pair(true, currState)
             } else {
                 val detailedMessage = condition.getMessage(currState)
-                onLog?.invoke(
-                    "***Waiting for $detailedMessage... retry=${retryNr + 1}",
-                    true /* isError */
-                )
+                onLog?.invoke("***Waiting for $detailedMessage... retry=${retryNr + 1}", true)
                 Pair(false, currState)
             }
         } finally {

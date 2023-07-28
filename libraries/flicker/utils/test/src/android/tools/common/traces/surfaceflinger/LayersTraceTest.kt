@@ -19,7 +19,7 @@ package android.tools.common.traces.surfaceflinger
 import android.tools.common.Cache
 import android.tools.common.Timestamps
 import android.tools.common.traces.component.ComponentNameMatcher
-import android.tools.rules.CleanFlickerEnvironmentRule
+import android.tools.utils.CleanFlickerEnvironmentRule
 import android.tools.utils.getLayerTraceReaderFromAsset
 import com.google.common.truth.Truth
 import org.junit.Before

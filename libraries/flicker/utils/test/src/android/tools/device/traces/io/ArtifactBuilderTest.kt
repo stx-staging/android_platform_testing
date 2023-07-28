@@ -19,7 +19,7 @@ package android.tools.device.traces.io
 import android.tools.common.io.ResultArtifactDescriptor
 import android.tools.common.io.RunStatus
 import android.tools.common.io.TraceType
-import android.tools.rules.CleanFlickerEnvironmentRule
+import android.tools.utils.CleanFlickerEnvironmentRule
 import android.tools.utils.TEST_SCENARIO
 import android.tools.utils.createDefaultArtifactBuilder
 import com.google.common.truth.Truth

@@ -19,7 +19,7 @@ package android.tools.device.traces.parsers
 import android.tools.common.Timestamp
 import android.tools.common.Timestamps
 import android.tools.common.parsers.AbstractTraceParser
-import android.tools.rules.CleanFlickerEnvironmentRule
+import android.tools.utils.CleanFlickerEnvironmentRule
 import android.tools.utils.MockWindowManagerTraceBuilder
 import android.tools.utils.MockWindowStateBuilder
 import com.google.common.truth.Truth

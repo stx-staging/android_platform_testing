@@ -17,7 +17,6 @@
 package android.tools.utils
 
 import android.tools.common.datatypes.Rect
-import android.tools.rules.CleanFlickerEnvironmentRule
 import com.google.common.truth.Truth
 import org.junit.ClassRule
 import org.junit.Test

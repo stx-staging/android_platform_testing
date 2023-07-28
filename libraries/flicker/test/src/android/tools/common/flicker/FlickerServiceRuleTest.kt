@@ -23,7 +23,7 @@ import android.tools.device.flicker.IFlickerServiceResultsCollector
 import android.tools.device.flicker.isShellTransitionsEnabled
 import android.tools.device.flicker.legacy.runner.Consts
 import android.tools.device.flicker.rules.FlickerServiceRule
-import android.tools.rules.CleanFlickerEnvironmentRule
+import android.tools.utils.CleanFlickerEnvironmentRule
 import android.tools.utils.KotlinMockito
 import com.google.common.truth.Truth
 import org.junit.Assume
