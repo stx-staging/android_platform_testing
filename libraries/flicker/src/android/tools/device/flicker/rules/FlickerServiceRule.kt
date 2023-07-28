@@ -139,7 +139,7 @@ constructor(
     private fun handleFinished(description: Description) {
         Logger.i(LOG_TAG, "Test finished $description")
         metricsCollector.testFinished(description)
-        if (metricsCollector.executionErrors.isNotEmpty()) {
+        if (failTestOnFaasFailure && metricsCollector.executionErrors.isNotEmpty()) {
             for (executionError in metricsCollector.executionErrors) {
                 Logger.e(LOG_TAG, "FaaS reported execution errors", executionError)
             }
