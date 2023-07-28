@@ -16,11 +16,11 @@
 
 package android.tools.common.flicker.subject.wm
 
-import android.tools.TestComponents
 import android.tools.assertFail
 import android.tools.assertThatErrorContainsDebugInfo
 import android.tools.assertThrows
 import android.tools.common.Cache
+import android.tools.common.TestComponents
 import android.tools.common.datatypes.Region
 import android.tools.common.traces.component.ComponentNameMatcher
 import android.tools.common.traces.wm.ConfigurationContainer

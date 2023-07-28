@@ -17,11 +17,11 @@
 package android.tools.device.flicker.datastore
 
 import android.annotation.SuppressLint
-import android.tools.TEST_SCENARIO
-import android.tools.assertExceptionMessage
-import android.tools.assertThrows
 import android.tools.newTestCachedResultWriter
 import android.tools.rules.CleanFlickerEnvironmentRule
+import android.tools.utils.TEST_SCENARIO
+import android.tools.utils.assertExceptionMessage
+import android.tools.utils.assertThrows
 import com.google.common.truth.Truth
 import org.junit.Rule
 import org.junit.Test

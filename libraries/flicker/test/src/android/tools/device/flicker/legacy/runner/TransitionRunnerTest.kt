@@ -19,8 +19,6 @@ package android.tools.device.flicker.legacy.runner
 import android.annotation.SuppressLint
 import android.app.Instrumentation
 import android.os.SystemClock
-import android.tools.TEST_SCENARIO
-import android.tools.assertExceptionMessage
 import android.tools.common.io.RunStatus
 import android.tools.createMockedFlicker
 import android.tools.device.flicker.legacy.FlickerTestData
@@ -29,6 +27,8 @@ import android.tools.device.traces.io.ResultReader
 import android.tools.device.traces.io.ResultWriter
 import android.tools.device.traces.monitors.ITransitionMonitor
 import android.tools.rules.CleanFlickerEnvironmentRule
+import android.tools.utils.TEST_SCENARIO
+import android.tools.utils.assertExceptionMessage
 import android.view.WindowManagerGlobal
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth

@@ -20,8 +20,6 @@ import android.annotation.SuppressLint
 import android.app.Instrumentation
 import android.os.SystemClock
 import android.tools.TEST_SCENARIO
-import android.tools.assertExceptionMessage
-import android.tools.assertThrows
 import android.tools.device.flicker.legacy.AbstractFlickerTestData
 import android.tools.device.flicker.legacy.FlickerTestData
 import android.tools.device.traces.TRACE_CONFIG_REQUIRE_CHANGES
@@ -31,6 +29,8 @@ import android.tools.device.traces.monitors.TraceMonitor
 import android.tools.device.traces.parsers.WindowManagerStateHelper
 import android.tools.newTestResultWriter
 import android.tools.rules.CleanFlickerEnvironmentRule
+import android.tools.utils.assertExceptionMessage
+import android.tools.utils.assertThrows
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth
 import org.junit.Before
