@@ -1077,6 +1077,9 @@ class Region(rects: Array<Rect> = arrayOf()) : DataType() {
 
     @JsName("coversAtMost")
     fun coversAtMost(testRegion: Region): Boolean {
+        if (this.isEmpty) {
+            return true
+        }
         val testRect = testRegion.bounds
         val intersection = from(this)
         return intersection.op(testRect, Op.INTERSECT) && !intersection.op(this, Op.XOR)
