@@ -26,10 +26,10 @@ import org.junit.runners.model.Statement;
 import java.util.HashMap;
 import java.util.Map;
 
-/** A {@link TestRule} that helps to mock flag values in unit test. */
-public final class MockFlagsRule implements TestRule {
-    private static final String FEATURE_FLAGS_INTERFACE_NAME = "FeatureFlags";
+/** A {@link TestRule} that helps to set flag values in unit test. */
+public final class SetFlagsRule implements TestRule {
     private static final String FAKE_FEATURE_FLAGS_IMPL_CLASS_NAME = "FakeFeatureFlagsImpl";
+    private static final String FEATURE_FLAGS_INTERFACE_NAME = "FeatureFlags";
     private static final String SET_FEATURE_FLAGS_METHOD_NAME = "setFeatureFlags";
     private static final String SET_FLAG_METHOD_NAME = "setFlag";
     private static final String RESET_ALL_METHOD_NAME = "resetAll";
