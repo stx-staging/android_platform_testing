@@ -123,6 +123,7 @@ class DeviceEmulationRule(private val spec: DeviceEmulationSpec) : TestRule {
         }
 
         val wm = WindowManagerGlobal.getWindowManagerService()
+            ?: error("Unable to acquire WindowManager")
         wm.clearForcedDisplayDensityForUser(Display.DEFAULT_DISPLAY, UserHandle.myUserId())
         wm.clearForcedDisplaySize(Display.DEFAULT_DISPLAY)
 
