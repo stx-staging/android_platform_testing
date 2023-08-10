@@ -78,4 +78,53 @@ public interface IAutoStatusBarHelper extends IAppHelper {
      * <p>This method checks bluetooth connected text</>
      */
     boolean isBluetoothConnected();
+
+    /**
+     * Setup expectations: Verify Bluetooth Button
+     *
+     * <p>This method verifies bluetooth button from bluetooth palette</>
+     */
+    boolean verifyBluetooth();
+
+    /**
+     * Setup expectations: Verify Phone Button
+     *
+     * <p>This method verifies phone button from bluetooth palette</>
+     */
+    boolean verifyPhone();
+
+    /**
+     * Setup expectations: Verify Media Button
+     *
+     * <p>This method verifies media button from bluetooth palette</>
+     */
+    boolean verifyMedia();
+
+    /**
+     * Setup expectations: Verify the Device name
+     *
+     * <p>This method verifies the connected device name</>
+     */
+    boolean verifyDeviceName();
+
+    /**
+     * Setup expectations: Verify the Disabled Bluetooth profile
+     *
+     * <p>This method verifies the disabled bluetooth profile</>
+     */
+    boolean verifyDisabledBluetoothProfile();
+
+    /**
+     * Setup expectations: Verify the Disabled Phone profile
+     *
+     * <p>This method verifies the disabled phone profile</>
+     */
+    boolean verifyDisabledPhoneProfile();
+
+    /**
+     * Setup expectations: Verify the Disabled Media profile
+     *
+     * <p>This method verifies the disabled Media profile</>
+     */
+    boolean verifyDisabledMediaProfile();
 }

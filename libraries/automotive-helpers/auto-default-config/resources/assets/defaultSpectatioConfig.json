@@ -1501,10 +1501,23 @@
           "PACKAGE": "com.android.systemui"
         },
         {
-          "TYPE": "CLASS",
-          "VALUE": "android.widget.ToggleButton"
+          "TYPE": "DESCRIPTION",
+          "VALUE": "Bluetooth"
         }
       ]
+    },
+    "PHONE_BUTTON": {
+      "TYPE": "DESCRIPTION",
+      "VALUE": "Phone"
+    },
+    "MEDIA_BUTTON": {
+      "TYPE": "DESCRIPTION",
+      "VALUE": "Media"
+    },
+    "DEVICE_NAME": {
+      "TYPE": "RESOURCE_ID",
+      "VALUE": "qc_title",
+      "PACKAGE": "com.android.systemui"
     },
     "BLUETOOTH_CONNECTED_DISCONNECTED_TEXT": {
       "TYPE": "MULTIPLE",
@@ -1517,6 +1530,32 @@
         {
           "TYPE": "CLASS",
           "VALUE": "android.widget.TextView"
+        }
+      ]
+    },
+    "DISABLED_PHONE_PROFILE": {
+      "TYPE": "MULTIPLE",
+      "SPECIFIERS": [
+        {
+          "TYPE": "DESCRIPTION",
+          "VALUE": "Phone"
+        },
+        {
+          "TYPE": "CLASS",
+          "VALUE": "android.widget.ToggleButton"
+        }
+      ]
+    },
+    "DISABLED_MEDIA_PROFILE": {
+      "TYPE": "MULTIPLE",
+      "SPECIFIERS": [
+        {
+          "TYPE": "DESCRIPTION",
+          "VALUE": "Media"
+        },
+        {
+          "TYPE": "CLASS",
+          "VALUE": "android.widget.ToggleButton"
         }
       ]
     }
