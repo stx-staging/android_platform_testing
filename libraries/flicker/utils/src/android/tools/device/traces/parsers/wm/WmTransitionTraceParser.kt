@@ -90,8 +90,9 @@ class WmTransitionTraceParser :
         requireValidTimestamp(entry)
 
         val changes =
-            if (entry.targets.isEmpty()) null
-            else
+            if (entry.targets.isEmpty()) {
+                null
+            } else {
                 entry.targets
                     .map {
                         TransitionChange(
@@ -101,37 +102,44 @@ class WmTransitionTraceParser :
                         )
                     }
                     .toTypedArray()
+            }
 
         return Transition(
             entry.id,
             wmData =
                 WmTransitionData(
-                    createTime =
-                        if (entry.createTimeNs == 0L) null
-                        else Timestamps.from(elapsedNanos = entry.createTimeNs),
-                    sendTime =
-                        if (entry.sendTimeNs == 0L) null
-                        else Timestamps.from(elapsedNanos = entry.sendTimeNs),
-                    abortTime =
-                        if (entry.abortTimeNs == 0L) null
-                        else Timestamps.from(elapsedNanos = entry.abortTimeNs),
-                    finishTime =
-                        if (entry.finishTimeNs == 0L) null
-                        else Timestamps.from(elapsedNanos = entry.finishTimeNs),
-                    startingWindowRemoveTime =
-                        if (entry.startingWindowRemoveTimeNs == 0L) null
-                        else Timestamps.from(elapsedNanos = entry.startingWindowRemoveTimeNs),
-                    startTransactionId =
-                        if (entry.startTransactionId == 0L) null
-                        else entry.startTransactionId.toString(),
-                    finishTransactionId =
-                        if (entry.finishTransactionId == 0L) null
-                        else entry.finishTransactionId.toString(),
-                    type = if (entry.type == 0) null else TransitionType.fromInt(entry.type),
+                    createTime = entry.createTimeNs.toTimestamp(),
+                    sendTime = entry.sendTimeNs.toTimestamp(),
+                    abortTime = entry.abortTimeNs.toTimestamp(),
+                    finishTime = entry.finishTimeNs.toTimestamp(),
+                    startingWindowRemoveTime = entry.startingWindowRemoveTimeNs.toTimestamp(),
+                    startTransactionId = entry.startTransactionId.toTransactionId(),
+                    finishTransactionId = entry.finishTransactionId.toTransactionId(),
+                    type =
+                        if (entry.type == 0) {
+                            null
+                        } else {
+                            TransitionType.fromInt(entry.type)
+                        },
                     changes = changes,
                 ),
         )
     }
+
+    private fun Long.toTimestamp() =
+        if (this == 0L) {
+            null
+        } else {
+            Timestamps.from(elapsedNanos = this)
+        }
+
+    private fun Long.toTransactionId() =
+        if (this == 0L) {
+            null
+        } else {
+            this.toString()
+        }
+
     companion object {
         private fun requireValidTimestamp(entry: com.android.server.wm.shell.nano.Transition) {
             require(
