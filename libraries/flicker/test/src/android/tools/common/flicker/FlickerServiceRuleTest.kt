@@ -145,7 +145,7 @@ class FlickerServiceRuleTest {
     }
 
     @Test
-    fun alwaysThrowsExceptionForExecutionErrors() {
+    fun neverThrowsExceptionForExecutionErrors() {
         val mockFlickerServiceResultsCollector =
             Mockito.mock(IFlickerServiceResultsCollector::class.java)
         val testRule =
@@ -161,12 +161,7 @@ class FlickerServiceRuleTest {
 
         testRule.starting(mockDescription)
         testRule.succeeded(mockDescription)
-        try {
-            testRule.finished(mockDescription)
-            error("Exception was not thrown")
-        } catch (e: Throwable) {
-            Truth.assertThat(e).isEqualTo(executionError)
-        }
+        testRule.finished(mockDescription)
     }
 
     @Test
@@ -212,6 +207,8 @@ class FlickerServiceRuleTest {
                 override val passed = false
             }
 
-        @ClassRule @JvmField val ENV_CLEANUP = CleanFlickerEnvironmentRule()
+        @ClassRule
+        @JvmField
+        val ENV_CLEANUP = CleanFlickerEnvironmentRule()
     }
 }
