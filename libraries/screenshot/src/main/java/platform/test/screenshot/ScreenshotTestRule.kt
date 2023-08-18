@@ -297,7 +297,9 @@ open class ScreenshotTestRule(
     }
 
     internal fun getPathOnDeviceFor(fileType: OutputFileType, goldenIdentifier: String): File {
-        val imageSuffix = "${goldenImagePathManager}_$goldenIdentifier$imageExtension"
+        val resolvedGoldenIdentifier =
+            goldenImagePathManager.goldenIdentifierResolver(goldenIdentifier).replace('/', '_')
+        val imageSuffix = "${goldenImagePathManager}_$resolvedGoldenIdentifier$imageExtension"
         val fileName = when (fileType) {
             OutputFileType.IMAGE_ACTUAL ->
                 "${testIdentifier}_actual_$imageSuffix"
