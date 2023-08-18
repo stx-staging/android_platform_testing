@@ -28,12 +28,12 @@ import android.tools.device.flicker.FlickerServiceResultsCollector
 import android.tools.device.flicker.FlickerServiceResultsCollector.Companion.FLICKER_ASSERTIONS_COUNT_KEY
 import android.tools.device.flicker.FlickerServiceResultsCollector.Companion.WINSCOPE_FILE_PATH_KEY
 import android.tools.device.flicker.FlickerServiceResultsCollector.Companion.getKeyForAssertionResult
-import android.tools.device.traces.io.InMemoryArtifact
-import android.tools.device.traces.io.ParsedTracesReader
-import android.tools.rules.CleanFlickerEnvironmentRule
+import android.tools.utils.CleanFlickerEnvironmentRule
+import android.tools.utils.InMemoryArtifact
 import android.tools.utils.KotlinMockito
 import android.tools.utils.MockLayersTraceBuilder
 import android.tools.utils.MockWindowManagerTraceBuilder
+import android.tools.utils.ParsedTracesReader
 import com.google.common.truth.Truth
 import org.junit.ClassRule
 import org.junit.FixMethodOrder
