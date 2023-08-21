@@ -45,16 +45,12 @@ import platform.test.screenshot.proto.ScreenshotResultProto
  * comparison against the given golden. All the results (including result proto file) are stored
  * into the device to be retrieved later.
  *
- * @param config To configure where this rule should look for goldens.
- * @param outputRootDir The root directory for output files.
- *
  * @see Bitmap.assertAgainstGolden
  */
 @SuppressLint("SyntheticAccessor")
 open class ScreenshotTestRule(
     val goldenImagePathManager: GoldenImagePathManager
 ) : TestRule {
-
     private val imageExtension = ".png"
     private val resultBinaryProtoFileSuffix = "goldResult.pb"
     // This is used in CI to identify the files.
@@ -65,22 +61,11 @@ open class ScreenshotTestRule(
     private val bundleKeyPrefix = "platform_screenshots_"
 
     private lateinit var testIdentifier: String
-    private lateinit var deviceId: String
 
-    private val testWatcher = object : TestWatcher() {
-        override fun starting(description: Description?) {
-            testIdentifier = "${description!!.className}_${description.methodName}"
-        }
-    }
-
-    override fun apply(base: Statement, description: Description?): Statement {
-        return ScreenshotTestStatement(base)
-            .run { testWatcher.apply(this, description) }
-    }
-
-    class ScreenshotTestStatement(private val base: Statement) : Statement() {
+    override fun apply(base: Statement, description: Description): Statement = object: Statement() {
         override fun evaluate() {
             try {
+                testIdentifier = "${description.className}_${description.methodName}"
                 SimpleIconFactory.setPoolEnabled(false)
                 base.evaluate()
             } finally {
@@ -94,9 +79,9 @@ open class ScreenshotTestRule(
         return listOf(
             instrument.targetContext.applicationContext,
             instrument.context
-        ).map {
+        ).map { context ->
             try {
-                it.assets.open(
+                context.assets.open(
                     goldenImagePathManager.goldenIdentifierResolver(goldenIdentifier)
                 ).use {
                     return@use BitmapFactory.decodeStream(it)
@@ -126,7 +111,7 @@ open class ScreenshotTestRule(
      * is empty.
      */
     @Deprecated("use the ScreenshotTestRuleAsserter")
-    public fun assertBitmapAgainstGolden(
+    fun assertBitmapAgainstGolden(
         actual: Bitmap,
         goldenIdentifier: String,
         matcher: BitmapMatcher
@@ -159,7 +144,7 @@ open class ScreenshotTestRule(
      * is empty.
      */
     @Deprecated("use the ScreenshotTestRuleAsserter")
-    public fun assertBitmapAgainstGolden(
+    fun assertBitmapAgainstGolden(
         actual: Bitmap,
         goldenIdentifier: String,
         matcher: BitmapMatcher,
@@ -331,20 +316,20 @@ open class ScreenshotTestRule(
             throw IOException("Could not create folder $fileGolden.")
         }
 
-        var file = getPathOnDeviceFor(fileType, goldenIdentifier)
-        if (file.exists()) {
-            // This typically happens when in one test, the same golden image was repeatedly
+        val file = getPathOnDeviceFor(fileType, goldenIdentifier)
+        if (!file.exists()) {
+            // file typically exists when in one test, the same golden image was repeatedly
             // compared with. In this scenario, multiple actual/expected/diff images with same
             // names will be attempted to write to the device.
-            return file
-        }
-        try {
-            FileOutputStream(file).use {
-                writeAction(it)
+            try {
+                FileOutputStream(file).use {
+                    writeAction(it)
+                }
+            } catch (e: Exception) {
+                throw IOException("Could not write file to storage (path: ${file.absolutePath}). ", e)
             }
-        } catch (e: Exception) {
-            throw IOException("Could not write file to storage (path: ${file.absolutePath}). ", e)
         }
+
         return file
     }
 
@@ -456,31 +441,16 @@ class ScreenshotRuleAsserter private constructor(
 
     class Builder(private val rule: ScreenshotTestRule) {
         private var asserter = ScreenshotRuleAsserter(rule)
-        fun withMatcher(matcher: BitmapMatcher): Builder {
-            asserter.matcher = matcher
-            return this
-        }
+        fun withMatcher(matcher: BitmapMatcher): Builder = apply { asserter.matcher = matcher }
 
-        fun setScreenshotProvider(screenshotProvider: BitmapSupplier): Builder {
-            asserter.screenShotter = screenshotProvider
-            return this
-        }
+        fun setScreenshotProvider(screenshotProvider: BitmapSupplier): Builder =
+                apply { asserter.screenShotter = screenshotProvider }
 
-        fun setOnBeforeScreenshot(run: Runnable): Builder {
-            asserter.beforeScreenshot = run
-            return this
-        }
+        fun setOnBeforeScreenshot(run: Runnable): Builder = apply { asserter.beforeScreenshot = run }
 
-        fun setOnAfterScreenshot(run: Runnable): Builder {
-            asserter.afterScreenshot = run
-            return this
-        }
+        fun setOnAfterScreenshot(run: Runnable): Builder = apply { asserter.afterScreenshot = run }
 
-        fun build(): ScreenshotAsserter {
-            val built = asserter
-            asserter = ScreenshotRuleAsserter(rule)
-            return built
-        }
+        fun build(): ScreenshotAsserter = asserter.also { asserter = ScreenshotRuleAsserter(rule) }
     }
 }
 
@@ -509,7 +479,7 @@ fun Bitmap.assertAgainstGolden(
     rule: ScreenshotTestRule,
     goldenIdentifier: String,
     matcher: BitmapMatcher = MSSIMMatcher(),
-    regions: List<Rect> = emptyList<Rect>()
+    regions: List<Rect> = emptyList()
 ) {
     rule.assertBitmapAgainstGolden(this, goldenIdentifier, matcher = matcher, regions = regions)
 }
