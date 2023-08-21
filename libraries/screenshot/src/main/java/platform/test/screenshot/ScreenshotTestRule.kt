@@ -65,7 +65,7 @@ open class ScreenshotTestRule(
     override fun apply(base: Statement, description: Description): Statement = object: Statement() {
         override fun evaluate() {
             try {
-                testIdentifier = "${description.className}_${description.methodName}"
+                testIdentifier = getTestIdentifier(description)
                 SimpleIconFactory.setPoolEnabled(false)
                 base.evaluate()
             } finally {
@@ -73,6 +73,9 @@ open class ScreenshotTestRule(
             }
         }
     }
+
+    open fun getTestIdentifier(description: Description): String =
+            "${description.className}_${description.methodName}"
 
     private fun fetchExpectedImage(goldenIdentifier: String): Bitmap? {
         val instrument = InstrumentationRegistry.getInstrumentation()
@@ -282,9 +285,9 @@ open class ScreenshotTestRule(
     }
 
     internal fun getPathOnDeviceFor(fileType: OutputFileType, goldenIdentifier: String): File {
+        val imageSuffix = getOnDeviceImageSuffix(goldenIdentifier)
         val resolvedGoldenIdentifier =
             goldenImagePathManager.goldenIdentifierResolver(goldenIdentifier).replace('/', '_')
-        val imageSuffix = "${goldenImagePathManager}_$resolvedGoldenIdentifier$imageExtension"
         val fileName = when (fileType) {
             OutputFileType.IMAGE_ACTUAL ->
                 "${testIdentifier}_actual_$imageSuffix"
@@ -298,6 +301,12 @@ open class ScreenshotTestRule(
                 "${testIdentifier}_${resolvedGoldenIdentifier}_$resultBinaryProtoFileSuffix"
         }
         return File(goldenImagePathManager.deviceLocalPath, fileName)
+    }
+
+    open fun getOnDeviceImageSuffix(goldenIdentifier: String): String {
+        val resolvedGoldenIdentifier =
+                goldenImagePathManager.goldenIdentifierResolver(goldenIdentifier).replace('/', '_')
+        return "${goldenImagePathManager}_$resolvedGoldenIdentifier$imageExtension"
     }
 
     private fun Bitmap.writeToDevice(fileType: OutputFileType, goldenIdentifier: String): File {
