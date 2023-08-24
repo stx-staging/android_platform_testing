@@ -446,7 +446,6 @@ public final class ProcessUtil {
                     return Optional.of(device.getFileEntry(f.trim()));
                 }
             }
-            throw new IllegalStateException(java.util.Arrays.toString(openFiles));
         }
         return Optional.empty();
     }
