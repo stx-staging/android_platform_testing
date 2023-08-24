@@ -1,10 +1,20 @@
 {
   "presubmit": [
     {
-      "name": "FlickerLibTest"
+      "name": "FlickerLibTest",
+      "options": [
+        {
+          "test-timeout": "300000"
+        }
+      ]
     },
     {
-      "name": "FlickerLibUtilsTest"
+      "name": "FlickerLibUtilsTest",
+      "options": [
+        {
+          "test-timeout": "300000"
+        }
+      ]
     }
   ]
 }
