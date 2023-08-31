@@ -22,3 +22,7 @@ TEST(HelloWorldTest, PrintHelloWorld) {
     printf("Hello, World!");
 }
 
+TEST(HelloWorldTest, SayHelloWorld) {
+    printf("Hello, World!");
+}
+
