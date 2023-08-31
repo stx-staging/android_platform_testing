@@ -69,3 +69,10 @@ java_library {
         "src/android/platform/test/rule/flicker/**/*.java",
     ],
 }
+
+filegroup {
+    name: "platform-test-screenshot-rules",
+    srcs: [
+        "src/android/platform/test/rule/DisableAnimationsRule.kt",
+    ],
+}
