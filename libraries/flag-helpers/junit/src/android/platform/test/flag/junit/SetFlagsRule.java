@@ -42,7 +42,7 @@ public final class SetFlagsRule implements TestRule {
      * @param fullFlagNames The name of the flags in the flag class with the format
      *     {packageName}.{flagName}
      */
-    public void enableFlags(String... fullFlagNames) throws FlagSetException {
+    public void enableFlags(String... fullFlagNames) {
         for (String fullFlagName : fullFlagNames) {
             setFlagValue(fullFlagName, true);
         }
@@ -54,7 +54,7 @@ public final class SetFlagsRule implements TestRule {
      * @param fullFlagNames The name of the flags in the flag class with the format
      *     {packageName}.{flagName}
      */
-    public void disableFlags(String... fullFlagNames) throws FlagSetException {
+    public void disableFlags(String... fullFlagNames) {
         for (String fullFlagName : fullFlagNames) {
             setFlagValue(fullFlagName, false);
         }
@@ -85,7 +85,7 @@ public final class SetFlagsRule implements TestRule {
         };
     }
 
-    private void setFlagValue(String fullFlagName, boolean value) throws FlagSetException {
+    private void setFlagValue(String fullFlagName, boolean value) {
         if (!fullFlagName.contains(".")) {
             throw new FlagSetException(
                     fullFlagName, "Flag name is not the expected format {packgeName}.{flagName}.");
@@ -130,8 +130,7 @@ public final class SetFlagsRule implements TestRule {
         }
     }
 
-    private Object createFlagImplInstance(Class<?> flagsClass, String fullFlagName)
-            throws FlagSetException {
+    private Object createFlagImplInstance(Class<?> flagsClass, String fullFlagName) {
         String packageName = flagsClass.getPackageName();
         String className = String.format("%s.%s", packageName, FAKE_FEATURE_FLAGS_IMPL_CLASS_NAME);
         Object flagImplInstance = null;
@@ -156,7 +155,7 @@ public final class SetFlagsRule implements TestRule {
         return flagImplInstance;
     }
 
-    private void resetFlags() throws FlagSetException {
+    private void resetFlags() {
         Object flagImplInstance = null;
         try {
             for (Object value : mFlagsToFlagsImpl.values()) {
