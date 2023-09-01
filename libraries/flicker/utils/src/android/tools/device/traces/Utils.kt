@@ -28,7 +28,6 @@ import android.tools.common.traces.DeviceStateDump
 import android.tools.common.traces.NullableDeviceStateDump
 import android.tools.common.traces.surfaceflinger.LayerTraceEntry
 import android.tools.common.traces.wm.WindowManagerState
-import android.tools.device.traces.monitors.PerfettoTraceMonitor
 import android.tools.device.traces.parsers.DeviceDumpParser
 import androidx.test.platform.app.InstrumentationRegistry
 import java.text.SimpleDateFormat
@@ -81,6 +80,8 @@ private fun doBinderDump(name: String): ByteArray {
 
 private fun getCurrentWindowManagerState() = doBinderDump("window")
 
+private fun getCurrentLayersState() = doBinderDump("SurfaceFlinger")
+
 /**
  * Gets the current device state dump containing the [WindowManagerState] (optional) and the
  * [LayerTraceEntry] (optional) in raw (byte) data.
@@ -108,7 +109,7 @@ fun getCurrentState(
         }
     val layersTraceData =
         if (dumpTypes.contains(TraceType.SF_DUMP)) {
-            PerfettoTraceMonitor().enableLayersDump().withTracing {}
+            getCurrentLayersState()
         } else {
             ByteArray(0)
         }

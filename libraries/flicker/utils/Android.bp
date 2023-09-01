@@ -39,7 +39,6 @@ java_library {
     ],
     static_libs: [
         "flickerlib-parsers",
-        "flickerlib-trace_processor_shell",
         "androidx.test.uiautomator_uiautomator",
     ],
 }
@@ -66,8 +65,8 @@ java_library {
     static_libs: [
         "flickerlib-common",
         "androidx.benchmark_benchmark-macro",
-        "perfetto_config-lite",
         "platformprotosnano",
+        "layersprotoslite",
         "view_capture_proto",
         "WindowManager-Shell-proto",
     ],

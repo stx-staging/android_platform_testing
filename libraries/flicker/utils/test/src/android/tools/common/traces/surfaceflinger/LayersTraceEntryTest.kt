@@ -37,7 +37,7 @@ class LayersTraceEntryTest {
 
     @Test
     fun canParseAllLayers() {
-        val reader = getLayerTraceReaderFromAsset("layers_trace_emptyregion.perfetto-trace")
+        val reader = getLayerTraceReaderFromAsset("layers_trace_emptyregion.pb", legacyTrace = true)
         val trace = reader.readLayersTrace() ?: error("Unable to read layers trace")
         Truth.assertThat(trace.entries).isNotEmpty()
         Truth.assertThat(trace.entries.first().timestamp.systemUptimeNanos).isEqualTo(922839428857)
@@ -47,7 +47,8 @@ class LayersTraceEntryTest {
 
     @Test
     fun canParseVisibleLayersLauncher() {
-        val reader = getLayerTraceReaderFromAsset("layers_trace_launch_split_screen.perfetto-trace")
+        val reader =
+            getLayerTraceReaderFromAsset("layers_trace_launch_split_screen.pb", legacyTrace = true)
         val trace = reader.readLayersTrace() ?: error("Unable to read layers trace")
         val visibleLayers =
             trace
@@ -65,7 +66,8 @@ class LayersTraceEntryTest {
 
     @Test
     fun canParseVisibleLayersSplitScreen() {
-        val reader = getLayerTraceReaderFromAsset("layers_trace_launch_split_screen.perfetto-trace")
+        val reader =
+            getLayerTraceReaderFromAsset("layers_trace_launch_split_screen.pb", legacyTrace = true)
         val trace = reader.readLayersTrace() ?: error("Unable to read layers trace")
         val visibleLayers =
             trace
@@ -84,7 +86,8 @@ class LayersTraceEntryTest {
 
     @Test
     fun canParseVisibleLayersInTransition() {
-        val reader = getLayerTraceReaderFromAsset("layers_trace_launch_split_screen.perfetto-trace")
+        val reader =
+            getLayerTraceReaderFromAsset("layers_trace_launch_split_screen.pb", legacyTrace = true)
         val trace = reader.readLayersTrace() ?: error("Unable to read layers trace")
         val visibleLayers =
             trace
@@ -107,7 +110,7 @@ class LayersTraceEntryTest {
 
     @Test
     fun canParseLayerHierarchy() {
-        val reader = getLayerTraceReaderFromAsset("layers_trace_emptyregion.perfetto-trace")
+        val reader = getLayerTraceReaderFromAsset("layers_trace_emptyregion.pb", legacyTrace = true)
         val trace = reader.readLayersTrace() ?: error("Unable to read layers trace")
         Truth.assertThat(trace.entries).isNotEmpty()
         Truth.assertThat(trace.entries.first().timestamp.systemUptimeNanos).isEqualTo(922839428857)
@@ -124,8 +127,9 @@ class LayersTraceEntryTest {
         try {
             val reader =
                 getLayerTraceReaderFromAsset(
-                    "layers_trace_orphanlayers.perfetto-trace",
-                    ignoreOrphanLayers = false
+                    "layers_trace_orphanlayers.pb",
+                    ignoreOrphanLayers = false,
+                    legacyTrace = true
                 )
             reader.readLayersTrace()?.entries?.first()?.flattenedLayers
             error("Failed to detect orphaned layers.")
@@ -141,7 +145,8 @@ class LayersTraceEntryTest {
     @Test
     fun testCanParseNonCroppedLayerWithHWC() {
         val layerName = "BackColorSurface#0"
-        val reader = getLayerTraceReaderFromAsset("layers_trace_backcolorsurface.perfetto-trace")
+        val reader =
+            getLayerTraceReaderFromAsset("layers_trace_backcolorsurface.pb", legacyTrace = true)
         val trace = reader.readLayersTrace() ?: error("Unable to read layers trace")
         val entry = trace.getEntryExactlyAt(Timestamps.from(systemUptimeNanos = 131954021476))
         Truth.assertWithMessage("$layerName should not be visible")
@@ -156,7 +161,8 @@ class LayersTraceEntryTest {
 
     @Test
     fun canParseTraceEmptyState() {
-        val reader = getLayerTraceReaderFromAsset("layers_trace_empty_state.perfetto-trace")
+        val reader =
+            getLayerTraceReaderFromAsset("layers_trace_empty_state.winscope", legacyTrace = true)
         val trace = reader.readLayersTrace() ?: error("Unable to read layers trace")
         val emptyStates = trace.entries.filter { it.flattenedLayers.isEmpty() }
 

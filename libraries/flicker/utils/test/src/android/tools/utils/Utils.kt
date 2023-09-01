@@ -27,8 +27,7 @@ import android.tools.common.io.ResultArtifactDescriptor
 import android.tools.common.io.RunStatus
 import android.tools.device.traces.io.ArtifactBuilder
 import android.tools.device.traces.io.ResultWriter
-import android.tools.device.traces.parsers.perfetto.LayersTraceParser
-import android.tools.device.traces.parsers.perfetto.TraceProcessorSession
+import android.tools.device.traces.parsers.surfaceflinger.LayersTraceParser
 import android.tools.device.traces.parsers.wm.WindowManagerDumpParser
 import android.tools.device.traces.parsers.wm.WindowManagerTraceParser
 import android.tools.rules.CacheCleanupRule
@@ -133,20 +132,22 @@ fun getWmDumpReaderFromAsset(relativePath: String): Reader {
 fun getLayerTraceReaderFromAsset(
     relativePath: String,
     ignoreOrphanLayers: Boolean = true,
+    legacyTrace: Boolean = false,
     from: Timestamp = Timestamps.min(),
     to: Timestamp = Timestamps.max()
 ): Reader {
-    val layersTrace =
-        TraceProcessorSession.loadPerfettoTrace(readAsset(relativePath)) { session ->
+    return ParsedTracesReader(
+        artifact = InMemoryArtifact(relativePath),
+        layersTrace =
             LayersTraceParser(
                     ignoreLayersStackMatchNoDisplay = false,
                     ignoreLayersInVirtualDisplay = false,
+                    legacyTrace = legacyTrace,
                 ) {
                     ignoreOrphanLayers
                 }
-                .parse(session, from, to)
-        }
-    return ParsedTracesReader(artifact = InMemoryArtifact(relativePath), layersTrace = layersTrace)
+                .parse(readAsset(relativePath), from, to)
+    )
 }
 
 @Throws(Exception::class)
