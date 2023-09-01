@@ -146,7 +146,7 @@ class Args {
                 val key = it.get("key")
                 val value = it.get("value")
                 val valueType = it.get("value_type")
-                if (valueType != "null" && value != null) {
+                if (valueType != "null") {
                     args.add(key as String, value as String, valueType as String)
                 }
             }

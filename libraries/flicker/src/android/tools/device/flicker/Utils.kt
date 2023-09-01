@@ -21,10 +21,11 @@ import android.tools.common.traces.component.ComponentNameMatcher
 import android.tools.device.traces.TRACE_CONFIG_REQUIRE_CHANGES
 import android.tools.device.traces.io.ResultReader
 import android.tools.device.traces.io.ResultWriter
-import android.tools.device.traces.monitors.PerfettoTraceMonitor
 import android.tools.device.traces.monitors.ScreenRecorder
 import android.tools.device.traces.monitors.TraceMonitor
 import android.tools.device.traces.monitors.events.EventLogMonitor
+import android.tools.device.traces.monitors.surfaceflinger.LayersTraceMonitor
+import android.tools.device.traces.monitors.surfaceflinger.TransactionsTraceMonitor
 import android.tools.device.traces.monitors.wm.ShellTransitionTraceMonitor
 import android.tools.device.traces.monitors.wm.WindowManagerTraceMonitor
 import android.tools.device.traces.monitors.wm.WmTransitionTraceMonitor
@@ -96,8 +97,9 @@ object Utils {
             listOf(
                 WmTransitionTraceMonitor(),
                 ShellTransitionTraceMonitor(),
+                TransactionsTraceMonitor(),
                 WindowManagerTraceMonitor(),
-                PerfettoTraceMonitor().enableLayersTrace().enableTransactionsTrace(),
+                LayersTraceMonitor(),
                 EventLogMonitor(),
                 ScreenRecorder(InstrumentationRegistry.getInstrumentation().targetContext)
             ),

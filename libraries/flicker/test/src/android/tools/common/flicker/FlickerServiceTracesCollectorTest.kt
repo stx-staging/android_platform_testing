@@ -17,7 +17,6 @@
 package android.tools.common.flicker
 
 import android.app.Instrumentation
-import android.tools.common.io.TraceType
 import android.tools.device.apphelpers.BrowserAppHelper
 import android.tools.device.flicker.FlickerServiceTracesCollector
 import android.tools.device.flicker.isShellTransitionsEnabled
@@ -106,10 +105,11 @@ class FlickerServiceTracesCollectorTest {
         val expectedTraces =
             listOf(
                 "wm_trace.winscope",
+                "layers_trace.winscope",
+                "transactions_trace.winscope",
                 "wm_transition_trace.winscope",
                 "shell_transition_trace.winscope",
-                "eventlog.winscope",
-                TraceType.SF.fileName
+                "eventlog.winscope"
             )
 
         @ClassRule

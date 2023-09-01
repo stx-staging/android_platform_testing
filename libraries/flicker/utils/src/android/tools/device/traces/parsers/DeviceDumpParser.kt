@@ -24,8 +24,7 @@ import android.tools.common.traces.surfaceflinger.LayerTraceEntry
 import android.tools.common.traces.surfaceflinger.LayersTrace
 import android.tools.common.traces.wm.WindowManagerState
 import android.tools.common.traces.wm.WindowManagerTrace
-import android.tools.device.traces.parsers.perfetto.LayersTraceParser
-import android.tools.device.traces.parsers.perfetto.TraceProcessorSession
+import android.tools.device.traces.parsers.surfaceflinger.LayersTraceParser
 import android.tools.device.traces.parsers.wm.WindowManagerDumpParser
 import android.tools.device.traces.parsers.wm.WindowManagerTraceParser
 
@@ -67,12 +66,10 @@ class DeviceDumpParser {
                         },
                     layerState =
                         if (layersTraceData.isNotEmpty()) {
-                            TraceProcessorSession.loadPerfettoTrace(layersTraceData) { session ->
-                                LayersTraceParser()
-                                    .parse(session, clearCache = clearCacheAfterParsing)
-                                    .entries
-                                    .getOrNull(0)
-                            }
+                            LayersTraceParser()
+                                .parse(layersTraceData, clearCache = clearCacheAfterParsing)
+                                .entries
+                                .first()
                         } else {
                             null
                         }
@@ -126,9 +123,7 @@ class DeviceDumpParser {
                         },
                     layersTrace =
                         if (layersTraceData.isNotEmpty()) {
-                            TraceProcessorSession.loadPerfettoTrace(layersTraceData) { session ->
-                                LayersTraceParser().parse(session, clearCache = clearCache)
-                            }
+                            LayersTraceParser().parse(layersTraceData, clearCache = clearCache)
                         } else {
                             null
                         }

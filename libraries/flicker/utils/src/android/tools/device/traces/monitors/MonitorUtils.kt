@@ -15,24 +15,17 @@
  */
 
 @file:JvmName("MonitorUtils")
-@file:OptIn(
-    androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi::class,
-    androidx.benchmark.perfetto.ExperimentalPerfettoTraceProcessorApi::class
-)
 
 package android.tools.device.traces.monitors
 
 import android.tools.common.traces.DeviceTraceDump
 import android.tools.common.traces.surfaceflinger.LayersTrace
-import android.tools.common.traces.surfaceflinger.TransactionsTrace
 import android.tools.common.traces.wm.WindowManagerTrace
+import android.tools.device.traces.monitors.surfaceflinger.LayersTraceMonitor
 import android.tools.device.traces.monitors.wm.WindowManagerTraceMonitor
 import android.tools.device.traces.parsers.DeviceDumpParser
-import android.tools.device.traces.parsers.perfetto.LayersTraceParser
-import android.tools.device.traces.parsers.perfetto.TraceProcessorSession
-import android.tools.device.traces.parsers.perfetto.TransactionsTraceParser
+import android.tools.device.traces.parsers.surfaceflinger.LayersTraceParser
 import android.tools.device.traces.parsers.wm.WindowManagerTraceParser
-import perfetto.protos.PerfettoConfig.SurfaceFlingerLayersConfig
 
 /**
  * Acquire the [WindowManagerTrace] with the device state changes that happen when executing the
@@ -49,34 +42,16 @@ fun withWMTracing(predicate: () -> Unit): WindowManagerTrace {
  * Acquire the [LayersTrace] with the device state changes that happen when executing the commands
  * defined in the [predicate].
  *
- * @param flags Flags to indicate tracing level
+ * @param traceFlags Flags to indicate tracing level
  * @param predicate Commands to execute
  * @throws UnsupportedOperationException If tracing is already activated
  */
 @JvmOverloads
 fun withSFTracing(
-    flags: List<SurfaceFlingerLayersConfig.TraceFlag>? = null,
+    traceFlags: Int = LayersTraceMonitor.TRACE_FLAGS,
     predicate: () -> Unit
 ): LayersTrace {
-    val trace = PerfettoTraceMonitor().enableLayersTrace(flags).withTracing(predicate)
-    return TraceProcessorSession.loadPerfettoTrace(trace) { session ->
-        LayersTraceParser().parse(session)
-    }
-}
-
-/**
- * Acquire the [TransactionsTrace] with the device state changes that happen when executing the
- * commands defined in the [predicate].
- *
- * @param predicate Commands to execute
- * @throws UnsupportedOperationException If tracing is already activated
- */
-@JvmOverloads
-fun withTransactionsTracing(predicate: () -> Unit): TransactionsTrace {
-    val trace = PerfettoTraceMonitor().enableTransactionsTrace().withTracing(predicate)
-    return TraceProcessorSession.loadPerfettoTrace(trace) { session ->
-        TransactionsTraceParser().parse(session)
-    }
+    return LayersTraceParser().parse(LayersTraceMonitor(traceFlags).withTracing(predicate))
 }
 
 /**
@@ -104,7 +79,7 @@ fun withTracing(predicate: () -> Unit): DeviceTraceDump {
 fun recordTraces(predicate: () -> Unit): Pair<ByteArray, ByteArray> {
     var wmTraceData = ByteArray(0)
     val layersTraceData =
-        PerfettoTraceMonitor().enableLayersTrace().withTracing {
+        LayersTraceMonitor().withTracing {
             wmTraceData = WindowManagerTraceMonitor().withTracing(predicate)
         }
 

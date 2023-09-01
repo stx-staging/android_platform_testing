@@ -16,8 +16,9 @@
 
 package android.tools.rules
 
-import android.tools.device.traces.monitors.PerfettoTraceMonitor
 import android.tools.device.traces.monitors.TraceMonitor
+import android.tools.device.traces.monitors.surfaceflinger.LayersTraceMonitor
+import android.tools.device.traces.monitors.surfaceflinger.TransactionsTraceMonitor
 import android.tools.device.traces.monitors.wm.ShellTransitionTraceMonitor
 import android.tools.device.traces.monitors.wm.WindowManagerTraceMonitor
 import android.tools.device.traces.monitors.wm.WmTransitionTraceMonitor
@@ -30,7 +31,8 @@ class StopAllTracesRule : TestRule {
     override fun apply(base: Statement?, description: Description?): Statement {
         return object : Statement() {
             override fun evaluate() {
-                PerfettoTraceMonitor.stopAllSessions()
+                LayersTraceMonitor().stopIfEnabled()
+                TransactionsTraceMonitor().stopIfEnabled()
                 ShellTransitionTraceMonitor().stopIfEnabled()
                 WindowManagerTraceMonitor().stopIfEnabled()
                 WmTransitionTraceMonitor().stopIfEnabled()
