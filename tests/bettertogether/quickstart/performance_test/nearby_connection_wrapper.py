@@ -153,7 +153,7 @@ class NearbyConnectionWrapper:
     asserts.assert_false(
         d_connection_info['isIncomingConnection'],
         f'Received an incoming connection: {d_connection_init_event}'
-        'but expecte an outgoing connection')
+        'but expected an outgoing connection')
 
     asserts.assert_equal(
         d_connection_info['endpointName'],
@@ -161,6 +161,23 @@ class NearbyConnectionWrapper:
         f'Received an unexpected endpoint: {d_connection_init_event}')
 
     self._discoverer_endpoint_id = self.discoverer_nearby.getLocalEndpointId()
+
+    # wait for the advertiser connection initialized.
+    a_connection_init_event = (
+        self._advertiser_connection_lifecycle_callback.waitAndGet(
+            'onConnectionInitiated', timeout=timeout.total_seconds()
+        )
+    )
+    a_connection_info = a_connection_init_event.data['connectionInfo']
+    asserts.assert_true(
+        a_connection_info['isIncomingConnection'],
+        f'Received an outgoing connection: {d_connection_init_event}'
+        'but expected an incoming connection')
+
+    asserts.assert_equal(
+        a_connection_info['endpointName'],
+        self.discoverer.serial,
+        f'Received an unexpected endpoint: {a_connection_init_event}')
 
   def accept_connection(
       self, timeout: datetime.timedelta
