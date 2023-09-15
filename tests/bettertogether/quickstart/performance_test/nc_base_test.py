@@ -72,6 +72,7 @@ class NCBaseTestClass(base_test.BaseTestClass):
         'The test only can run on userdebug build.',
     )
 
+    ad.debug_tag = ad.serial + '(' + ad.adb.getprop('ro.product.model') + ')'
     ad.log.info('try to install nearby_snippet_apks')
     if self._nearby_snippet_apk_path:
       setup_utils.install_apk(ad, self._nearby_snippet_apk_path)
