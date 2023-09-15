@@ -109,7 +109,8 @@ class NCBaseTestClass(base_test.BaseTestClass):
 
   def _teardown_device(self, ad: android_device.AndroidDevice) -> None:
     ad.nearby.transferFilesCleanup()
-    self._disconnect_from_wifi(ad)
+    if self.test_parameters.disconnect_wifi_after_test:
+      self._disconnect_from_wifi(ad)
     ad.unload_snippet('nearby')
     ad.unload_snippet('nearby2')
 
