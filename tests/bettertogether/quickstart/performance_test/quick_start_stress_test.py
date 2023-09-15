@@ -162,7 +162,8 @@ class QuickStartStressTest(nc_base_test.NCBaseTestClass):
     file_1_mb = _TRANSFER_FILE_SIZE_1MB
     self._test_result.first_bt_transfer_throughput_kbs = (
         nearby_snippet_1.transfer_file(
-            file_1_mb, nc_constants.FILE_1M_PAYLOAD_TRANSFER_TIMEOUT))
+            file_1_mb, nc_constants.FILE_1M_PAYLOAD_TRANSFER_TIMEOUT,
+            nc_constants.PayloadType.FILE))
 
     # second Wifi connection and transfer
     # 4. advertiser connect to wifi wlan
@@ -205,7 +206,8 @@ class QuickStartStressTest(nc_base_test.NCBaseTestClass):
     file_1_gb = _TRANSFER_FILE_SIZE_1GB
     self._test_result.second_wifi_transfer_throughput_kbs = (
         nearby_snippet_2.transfer_file(
-            file_1_gb, nc_constants.FILE_1G_PAYLOAD_TRANSFER_TIMEOUT))
+            file_1_gb, nc_constants.FILE_1G_PAYLOAD_TRANSFER_TIMEOUT,
+            self.test_parameters.payload_type))
 
     # 7. disconnect 1st connection
     nearby_snippet_1.disconnect_endpoint()
