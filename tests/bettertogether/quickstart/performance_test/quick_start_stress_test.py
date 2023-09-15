@@ -20,6 +20,11 @@ import logging
 import sys
 import time
 
+# check the python version
+if sys.version_info < (3,10):
+  logging.error('The test only can run on python 3.10 and above')
+  exit()
+
 from mobly import asserts
 from mobly import base_test
 from mobly import test_runner
