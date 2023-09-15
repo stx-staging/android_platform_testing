@@ -418,6 +418,8 @@ class QuickStartStressTest(nc_base_test.NCBaseTestClass):
         'sponge_properties': {
             'test_report_alias_name': (
                 self.test_parameters.test_report_alias_name),
+            'source_device_serial': self.discoverer.serial,
+            'target_device_serial': self.advertiser.serial,
             'source_GMS_version': setup_utils.dump_gms_version(
                 self.discoverer),
             'target_GMS_version': setup_utils.dump_gms_version(
@@ -487,9 +489,9 @@ class QuickStartStressTest(nc_base_test.NCBaseTestClass):
             }
         })
     if not reach_target:
-      asserts.fail(self._generate_target_fail_messege(fail_targets))
+      asserts.fail(self._generate_target_fail_message(fail_targets))
 
-  def _generate_target_fail_messege(
+  def _generate_target_fail_message(
       self,
       fail_targets: list[nc_constants.FailTargetSummary]) -> str:
     error_msg = 'Failed due to:\n'
