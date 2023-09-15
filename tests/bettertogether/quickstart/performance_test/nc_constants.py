@@ -60,8 +60,6 @@ class TestParameters:
   """Test parameters to be customized for Nearby Connection."""
   test_report_alias_name: str = 'unspecified'
   fast_fail_on_any_error: bool = False
-  source_device_serial: str = ''
-  target_device_serial: str = ''
   wifi_country_code: str = ''
   wifi_ssid: str = ''
   wifi_password: str = ''
