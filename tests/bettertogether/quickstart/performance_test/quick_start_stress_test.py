@@ -75,8 +75,10 @@ class QuickStartStressTest(nc_base_test.NCBaseTestClass):
 
   def setup_test(self):
     super().setup_test()
-    self._reset_nearby_connections()
     self._reset_wifi_connection()
+    self._reset_nearby_connections()
+    if self.test_parameters.toggle_airplane_mode_target_side:
+      setup_utils.toggle_airplane_mode(self.advertiser)
 
   def setup_class(self):
     super().setup_class()
@@ -123,7 +125,8 @@ class QuickStartStressTest(nc_base_test.NCBaseTestClass):
               discoverer, wifi_ssid, wifi_password))
       discoverer.log.info(
           'connecting to wifi in '
-          f'{discoverer_wifi_latency.total_seconds()} s')
+          f'{round(discoverer_wifi_latency.total_seconds())} s')
+      self._test_result.discoverer_wifi_wlan_expected = True
       self._test_result.discoverer_wifi_wlan_latency = discoverer_wifi_latency
 
     # 2. set up 1st connection
@@ -162,7 +165,8 @@ class QuickStartStressTest(nc_base_test.NCBaseTestClass):
       advertiser_wlan_latency = setup_utils.connect_to_wifi_wlan_till_success(
           advertiser, wifi_ssid, wifi_password)
       advertiser.log.info('connecting to wifi in '
-                          f'{advertiser_wlan_latency.total_seconds()} s')
+                          f'{round(advertiser_wlan_latency.total_seconds())} s')
+      self._test_result.advertiser_wifi_wlan_expected = True
       self._test_result.advertiser_wifi_wlan_latency = advertiser_wlan_latency
 
     # 5. set up 2nd connection
@@ -182,10 +186,15 @@ class QuickStartStressTest(nc_base_test.NCBaseTestClass):
     try:
       nearby_snippet_2.start_nearby_connection(
           timeouts=second_connection_setup_timeouts,
-          medium_upgrade_type=nc_constants.MediumUpgradeType.DISRUPTIVE)
+          medium_upgrade_type=nc_constants.MediumUpgradeType.DISRUPTIVE,
+      )
     finally:
       self._test_result.second_connection_setup_quality_info = (
-          nearby_snippet_2.connection_quality_info)
+          nearby_snippet_2.connection_quality_info
+      )
+      self._test_result.second_connection_setup_quality_info.medium_upgrade_expected = (
+          True
+      )
 
     # 6. transfer file through wifi
     file_1_gb = _TRANSFER_FILE_SIZE_1GB
@@ -200,21 +209,28 @@ class QuickStartStressTest(nc_base_test.NCBaseTestClass):
 
   def _write_current_test_report(self) -> None:
     """Writes test report for each iteration."""
-    test_report = {}
-    test_report['quality_info'] = {
-        'first_connection_setup': str(
+
+    quality_info = {
+        '1st connection': str(
             self._test_result.first_connection_setup_quality_info),
-        'first_bt_transfer_throughput_kbs': str(
+        'bt_kBps': str(
             self._test_result.first_bt_transfer_throughput_kbs),
-        'second_connection_setup': str(
+        '2nd connection': str(
             self._test_result.second_connection_setup_quality_info),
-        'second_wifi_transfer_throughput_kbs': str(
+        'wifi_kBps': str(
             self._test_result.second_wifi_transfer_throughput_kbs),
-        'source_device_wifi_wlan_latency': str(
-            self._test_result.discoverer_wifi_wlan_latency.total_seconds()),
-        'target_device_wifi_wlan_latency': str(
-            self._test_result.advertiser_wifi_wlan_latency.total_seconds()),
     }
+
+    if self._test_result.discoverer_wifi_wlan_expected:
+      quality_info['src_wifi_connection'] = str(
+          round(self._test_result.discoverer_wifi_wlan_latency.total_seconds())
+      )
+    if self._test_result.advertiser_wifi_wlan_expected:
+      quality_info['tgt_wifi_connection'] = str(
+          round(self._test_result.advertiser_wifi_wlan_latency.total_seconds())
+      )
+    test_report = {'quality_info': str(quality_info)}
+
     self.discoverer.log.info(test_report)
     self.record_data({
         'Test Class': self.TAG,
