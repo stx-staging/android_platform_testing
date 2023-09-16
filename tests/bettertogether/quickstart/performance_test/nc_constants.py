@@ -43,6 +43,12 @@ UNSET_LATENCY = datetime.timedelta.max
 UNSET_THROUGHPUT_KBS = -1.0
 
 
+@enum.unique
+class PayloadType(enum.IntEnum):
+  FILE = 2
+  STREAM = 3
+
+
 @dataclasses.dataclass(frozen=False)
 class TestParameters:
   """Test parameters to be customized for Nearby Connection."""
@@ -65,6 +71,7 @@ class TestParameters:
   wifi_transfer_throughput_kbs_percentile: int = (
       WIFI_TRANSFER_THROUGHPUT_KBS_PERCENTILE
   )
+  payload_type: PayloadType = PayloadType.STREAM
 
 
 @enum.unique
