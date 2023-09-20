@@ -43,7 +43,7 @@ class PixelPerfectMatcher : BitmapMatcher() {
 
         val diffArray = IntArray(width * height) { index ->
             when {
-                filter[index] == 0 -> Color.TRANSPARENT.also { ignored++ }
+                !filter[index] -> Color.TRANSPARENT.also { ignored++ }
                 expected[index] == given[index] -> Color.TRANSPARENT.also { same++ }
                 else -> Color.MAGENTA.also { different++ }
             }
