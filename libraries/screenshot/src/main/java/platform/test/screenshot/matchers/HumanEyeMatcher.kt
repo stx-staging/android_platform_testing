@@ -70,8 +70,8 @@ class HumanEyeMatcher(
             )
         }
 
-        fun getEasiestThresholdFailed(index: Int): Double? {
-            val colorDiff = colorDiffArray[index]
+        fun getEasiestThresholdFailed(x: Int, y: Int): Double? {
+            val colorDiff = colorDiffArray[x + width * y]
             return when {
                 colorDiff == IGNORED_COLOR_DIFF -> null
                 colorDiff > THRESHOLD_ISOLATED_PIXEL -> THRESHOLD_ISOLATED_PIXEL
@@ -90,16 +90,14 @@ class HumanEyeMatcher(
                 val x = index % width
                 val y = index / width
 
-                val currThreshold = getEasiestThresholdFailed(index)!!
+                val currThreshold = getEasiestThresholdFailed(x, y)!!
                 // null = ignored or out of bounds of image
-                val upThreshold =
-                    if (y > 0) getEasiestThresholdFailed(x + width * (y - 1)) else null
+                val upThreshold = if (y > 0) getEasiestThresholdFailed(x, y - 1) else null
                 val downThreshold =
-                    if (y < height - 1) getEasiestThresholdFailed(x + width * (y + 1)) else null
-                val leftThreshold =
-                    if (x > 0) getEasiestThresholdFailed(x - 1 + width * y) else null
+                    if (y < height - 1) getEasiestThresholdFailed(x, y + 1) else null
+                val leftThreshold = if (x > 0) getEasiestThresholdFailed(x - 1, y) else null
                 val rightThreshold =
-                    if (x < width - 1) getEasiestThresholdFailed(x + 1 + width * y) else null
+                    if (x < width - 1) getEasiestThresholdFailed(x + 1, y) else null
 
                 // Pixels with lower diff thresholds are not counted as neighbouring diffs
                 var neighbouringDiffs = 4

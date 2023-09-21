@@ -32,14 +32,10 @@ private val DARK_COLOR_MAPPING =
  */
 fun bitmapWithMaterialYouColorsSimulation(originalBitmap: Bitmap, isDarkTheme: Boolean): Bitmap {
     val bitmapArray = originalBitmap.toIntArray()
-    val mappingToUse =
-        if (isDarkTheme) {
-            DARK_COLOR_MAPPING
-        } else {
-            LIGHT_COLOR_MAPPING
-        }
-    for (i in 0..originalBitmap.height - 1) {
-        for (j in 0..originalBitmap.width - 1) {
+    val mappingToUse = if (isDarkTheme) DARK_COLOR_MAPPING else LIGHT_COLOR_MAPPING
+
+    for (i in 0 until originalBitmap.height) {
+        for (j in 0 until originalBitmap.width) {
             val pixelValue = bitmapArray[j + i * originalBitmap.width]
             for (k in mappingToUse) {
                 if (pixelValue == k.first) {
