@@ -16,23 +16,33 @@
 
 package android.platform.tests;
 
+import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
 import android.platform.helpers.HelperAccessor;
 import android.platform.helpers.IAutoHomeHelper;
+import android.platform.helpers.IAutoStatusBarHelper;
+import android.platform.test.rules.ConditionalIgnore;
+import android.platform.test.rules.ConditionalIgnoreRule;
+import android.platform.test.rules.IgnoreOnPortrait;
 
 import androidx.test.runner.AndroidJUnit4;
 
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 public class StatusBarTest {
+    @Rule public ConditionalIgnoreRule rule = new ConditionalIgnoreRule();
 
+    private static final String TIME_ZONE = "GMT";
     private HelperAccessor<IAutoHomeHelper> mHomeHelper;
+    private HelperAccessor<IAutoStatusBarHelper> mStatusBarHelper;
 
     public StatusBarTest() {
         mHomeHelper = new HelperAccessor<>(IAutoHomeHelper.class);
+        mStatusBarHelper = new HelperAccessor<>(IAutoStatusBarHelper.class);
     }
 
     @Test
@@ -40,5 +50,28 @@ public class StatusBarTest {
         assertTrue("Bluetooth Button is not displayed", mHomeHelper.get().hasBluetoothButton());
         assertTrue("Network Button is not displayed", mHomeHelper.get().hasNetworkButton());
         assertTrue("Brightness Button is not displayed", mHomeHelper.get().hasDisplayBrightness());
+    }
+
+    @Test
+    public void testToVerifyChangeToDayMode() {
+        assertTrue("Unable to change to day mode", mStatusBarHelper.get().changeToDayMode());
+        // Constant value is 1 for Night mode no
+        assertEquals(1, mStatusBarHelper.get().getCurrentDisplayMode());
+    }
+
+    @Test
+    public void testToVerifyChangeToNightMode() {
+        assertTrue("Unable to change to night mode", mStatusBarHelper.get().changeToNightMode());
+        // Constant value is 2 for Night mode yes
+        assertEquals(2, mStatusBarHelper.get().getCurrentDisplayMode());
+    }
+
+    @Test
+    @ConditionalIgnore(condition = IgnoreOnPortrait.class)
+    public void testClockTime() {
+        assertEquals(
+                "Clock time in Status bar is not displayed",
+                mStatusBarHelper.get().getClockTime(),
+                mStatusBarHelper.get().getCurrentTimeWithTimeZone(TIME_ZONE));
     }
 }

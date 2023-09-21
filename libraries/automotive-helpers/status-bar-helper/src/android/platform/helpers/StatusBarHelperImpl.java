@@ -16,15 +16,26 @@
 package android.platform.helpers;
 
 import android.app.Instrumentation;
+import android.app.UiModeManager;
+import android.content.Context;
 
 import androidx.test.uiautomator.BySelector;
 import androidx.test.uiautomator.UiObject2;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+
 /** Helper file for status bar tests */
 public class StatusBarHelperImpl extends AbstractStandardAppHelper implements IAutoStatusBarHelper {
 
+    private final UiModeManager mUiModeManager;
+    private final Context mContext;
+
     public StatusBarHelperImpl(Instrumentation instr) {
         super(instr);
+        mContext = instr.getContext();
+        mUiModeManager = mContext.getSystemService(UiModeManager.class);
     }
 
     /** {@inheritDoc} */
@@ -339,5 +350,81 @@ public class StatusBarHelperImpl extends AbstractStandardAppHelper implements IA
         getSpectatioUiUtil().pressHome();
         getSpectatioUiUtil().waitForIdle();
     }
+    // BT related
+    /** {@inheritDoc} */
+    @Override
+    public boolean isBluetoothConnectedToMobile() {
+        BySelector bluetoothConnectedSelector =
+                getUiElementFromConfig(AutomotiveConfigConstants.BT_CONNECTED_STATUS);
+        UiObject2 bluetoothConnected =
+                getSpectatioUiUtil().findUiObject(bluetoothConnectedSelector);
+        getSpectatioUiUtil()
+                .validateUiObject(
+                        bluetoothConnected, AutomotiveConfigConstants.BT_CONNECTED_STATUS);
+        return bluetoothConnected.isEnabled();
+    }
 
+    /** {@inheritDoc} */
+    @Override
+    public String getClockTime() {
+        BySelector clockSelector = getUiElementFromConfig(AutomotiveConfigConstants.CLOCK_TIME);
+        UiObject2 clockObject = getSpectatioUiUtil().findUiObject(clockSelector);
+        getSpectatioUiUtil().validateUiObject(clockObject, AutomotiveConfigConstants.CLOCK_TIME);
+        String clockTime = getSpectatioUiUtil().getTextForUiElement(clockObject);
+        // To trim the space in the clock text
+        String timePattern = "[ \\x{202f}]";
+        clockTime = clockTime.replaceAll(timePattern, "");
+        return clockTime.trim();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public String getCurrentTimeWithTimeZone(String timezone) {
+        ZonedDateTime currentTimeInZone = ZonedDateTime.now(ZoneId.of(timezone));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm");
+        String time = currentTimeInZone.format(formatter);
+        // To trim the 0 prefixed to match the clock time in Status bar
+        String timePattern = "^0+(?!$)";
+        time = time.replaceAll(timePattern, "");
+        return time;
+    }
+
+    @Override
+    public boolean changeToDayMode() {
+        String dayModeResult =
+                getSpectatioUiUtil()
+                        .executeShellCommand(
+                                getCommandFromConfig(AutomotiveConfigConstants.DAY_MODE_COMMAND));
+        boolean result = dayModeResult.contains("changed to: day");
+        return result;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean changeToNightMode() {
+        String nightModeResult =
+                getSpectatioUiUtil()
+                        .executeShellCommand(
+                                getCommandFromConfig(AutomotiveConfigConstants.NIGHT_MODE_COMMAND));
+        boolean result = nightModeResult.contains("changed to: night");
+        return result;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public int getCurrentDisplayMode() {
+        return mUiModeManager.getNightMode();
+    }
+    /** {@inheritDoc} */
+    @Override
+    public boolean isBluetoothDisconnected() {
+        BySelector bluetoothDisconnectedSelector =
+                getUiElementFromConfig(AutomotiveConfigConstants.BT_DISCONNECTED_STATUS);
+        UiObject2 bluetoothDisconnected =
+                getSpectatioUiUtil().findUiObject(bluetoothDisconnectedSelector);
+        getSpectatioUiUtil()
+                .validateUiObject(
+                        bluetoothDisconnected, AutomotiveConfigConstants.BT_DISCONNECTED_STATUS);
+        return bluetoothDisconnected.isEnabled();
+    }
 }

@@ -173,4 +173,56 @@ public interface IAutoStatusBarHelper extends IAppHelper {
      * <p>click on forget button
      */
     void forgetWifi();
+
+    /**
+     * Setup expectations: None
+     *
+     * <p>This method changes the device mode to DAY Mode</>
+     */
+    boolean changeToDayMode();
+
+    /**
+     * Setup expectations: None
+     *
+     * <p>This method changes the device mode to NIGHT Mode</>
+     */
+    boolean changeToNightMode();
+
+    /**
+     * Setup expectations: None
+     *
+     * <p>This method gets the current night mode, for night mode no the value should be 1 for night
+     * mode yes the return value should be 2</>
+     */
+    int getCurrentDisplayMode();
+
+    /**
+     * Setup expectations: Open Bluetooth Palette
+     *
+     * <p>This method checks bluetooth connected text</>
+     *
+     * <p>This method checks if mobile is connected to bluetooth</>
+     */
+    boolean isBluetoothConnectedToMobile();
+
+    /**
+     * Setup expectations: Open Bluetooth Palette
+     *
+     * <p>This method checks if mobile is disconnected to bluetooth</>
+     */
+    boolean isBluetoothDisconnected();
+
+    /**
+     * Setup expectations: Home screen
+     *
+     * <p>Get time from the Status bar
+     */
+    String getClockTime();
+
+    /**
+     * Setup expectations: None
+     *
+     * <p>Get the current time for given time zone</>
+     */
+    String getCurrentTimeWithTimeZone(String timezone);
 }

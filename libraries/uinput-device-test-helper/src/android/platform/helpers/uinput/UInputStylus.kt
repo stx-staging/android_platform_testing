@@ -23,13 +23,13 @@ package android.platform.helpers.uinput
  *   https://cs.android.com/android/kernel/superproject/+/common-android-mainline:common/include/uapi/linux/input-event-codes.h
  */
 class UInputStylus(
-    val inputDeviceId: Int,
+    override val inputDeviceId: Int,
     val displayWidth: Int,
     val displayHeight: Int,
     override val vendorId: Int = VENDOR_ID,
     override val productId: Int = PRODUCT_ID,
     override val name: String = "Test capacitive stylus with buttons",
-    override val supportedKeys: Array<Int> = SUPPORTED_KEYBITS,
+    override val supportedKeys: List<Int> = SUPPORTED_KEYBITS,
 ) : UInputDevice() {
     override val bus = "bluetooth"
 
@@ -43,16 +43,16 @@ class UInputStylus(
       "pid": $productId,
       "bus": "$bus",
       "configuration": [
-        {"type": 100, "data": ${SUPPORTED_ENVBITS.contentToString()}},  // UI_SET_EVBIT
-        {"type": 101, "data": ${SUPPORTED_KEYBITS.contentToString()}},  // UI_SET_KEYBIT
-        {"type": 103, "data": ${SUPPORTED_ABSBITS.contentToString()}},  // UI_SET_ABSBIT
+        {"type": 100, "data": $SUPPORTED_ENVBITS },  // UI_SET_EVBIT
+        {"type": 101, "data": $SUPPORTED_KEYBITS },  // UI_SET_KEYBIT
+        {"type": 103, "data": $SUPPORTED_ABSBITS },  // UI_SET_ABSBIT
         {"type": 110, "data": [1]}  // UI_SET_PROPBIT : INPUT_PROP_DIRECT
       ],
       "abs_info": [
         {"code":0x00, "info": {       // ABS_X
           "value": 0,
           "minimum": 0,
-          "maximum": ${displayWidth - 1},
+          "maximum": 3199, // Display width * 2 - 1. Hardcoded with values from recording device.
           "fuzz": 0,
           "flat": 0,
           "resolution": 0
@@ -60,7 +60,7 @@ class UInputStylus(
         {"code":0x01, "info": {       // ABS_Y
           "value": 0,
           "minimum": 0,
-          "maximum": ${displayHeight - 1},
+          "maximum": 5119, // Display height * 2 - 1. Hardcoded with values from recording device.
           "fuzz": 0,
           "flat": 0,
           "resolution": 0
@@ -90,24 +90,47 @@ class UInputStylus(
           "resolution": 0
         }}
       ]
-    }"""
+    }
 
-    /** Sends the STYLUS_BUTTON_TAIL event.. */
+    {
+      "id": 1,
+      "command": "delay",
+      "duration": 3000
+    }
+
+    // Sends an event which tells the device that this is a stylus device not a finger.
+    {
+      "id": $inputDeviceId,
+      "command": "inject",
+      "events": [
+        1,    // EV_KEY
+        320,  // BTN_TOOL_PEN
+        1
+      ]
+    }
+    """
+
+    /** Sends the STYLUS_BUTTON_TAIL event. */
     fun sendTailButtonClickEvent(eventInjector: EventInjector) {
         // KEY_JOURNAL is remapped to STYLUS_BUTTON_TAIL.
         eventInjector.sendKeyEvent(inputDeviceId, KEY_JOURNAL)
     }
 
+    /** Sends the events contained within the specified file. */
+    fun sendEventsFromInputFile(eventInjector: EventInjector, assetsFilePath: String) {
+        eventInjector.sendEventsFromInputFile(inputDeviceId, assetsFilePath)
+    }
+
     private companion object {
         // EV_KEY
         val SUPPORTED_ENVBITS =
-            arrayOf(
+            listOf(
                 /* EV_KEY */ 1,
                 /* EV_ABS */ 3,
             )
         // UI_SET_ABSBIT
         val SUPPORTED_ABSBITS =
-            arrayOf(
+            listOf(
                 /* ABS_X */ 0,
                 /* ABS_Y */ 1,
                 /* ABS_PRESSURE */ 24,
@@ -117,7 +140,7 @@ class UInputStylus(
         const val KEY_JOURNAL = 578
         // UI_SET_KEYBIT
         val SUPPORTED_KEYBITS =
-            arrayOf(
+            listOf(
                 /* BTN_TOOL_PEN */ 320,
                 /* BTN_TOUCH */ 330,
                 /* BTN_STYLUS */ 331,

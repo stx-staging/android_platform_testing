@@ -37,21 +37,23 @@ import platform.test.screenshot.matchers.BitmapMatcher
 
 /** A rule for View screenshot diff unit tests. */
 open class ViewScreenshotTestRule(
-    emulationSpec: DeviceEmulationSpec,
+    private val emulationSpec: DeviceEmulationSpec,
     pathManager: GoldenImagePathManager,
     private val matcher: BitmapMatcher = UnitTestBitmapMatcher
 ) : TestRule {
     private val colorsRule = MaterialYouColorsRule()
+    private val timeZoneRule = TimeZoneRule()
     private val deviceEmulationRule = DeviceEmulationRule(emulationSpec)
     protected val screenshotRule = ScreenshotTestRule(pathManager)
     private val activityRule = ActivityScenarioRule(ScreenshotActivity::class.java)
-    private val roboRule =
+    private val commonRule =
         RuleChain.outerRule(deviceEmulationRule).around(screenshotRule).around(activityRule)
-    private val delegateRule = RuleChain.outerRule(colorsRule).around(roboRule)
+    private val deviceRule = RuleChain.outerRule(colorsRule).around(commonRule)
+    private val roboRule = RuleChain.outerRule(timeZoneRule).around(commonRule)
     private val isRobolectric = if (Build.FINGERPRINT.contains("robolectric")) true else false
 
     override fun apply(base: Statement, description: Description): Statement {
-        val ruleToApply = if (isRobolectric) roboRule else delegateRule
+        val ruleToApply = if (isRobolectric) roboRule else deviceRule
         return ruleToApply.apply(base, description)
     }
 
@@ -87,11 +89,14 @@ open class ViewScreenshotTestRule(
             beforeScreenshot(activity)
         }
 
-        return if (isRobolectric) {
-            contentView?.captureToBitmap()?.get(10, TimeUnit.SECONDS)
-                ?: error("timeout while trying to capture view to bitmap")
+        if (isRobolectric) {
+            val originalBitmap = contentView?.captureToBitmap()?.get(10, TimeUnit.SECONDS)
+            if (originalBitmap == null) {
+                error("timeout while trying to capture view to bitmap")
+            }
+            return bitmapWithMaterialYouColorsSimulation(originalBitmap, emulationSpec.isDarkTheme)
         } else {
-            contentView?.toBitmap() ?: error("contentView is null")
+            return contentView?.toBitmap() ?: error("contentView is null")
         }
     }
 
@@ -121,47 +126,13 @@ open class ViewScreenshotTestRule(
         goldenIdentifier: String,
         dialogProvider: (Activity) -> Dialog,
     ) {
-        var dialog: Dialog? = null
-        activityRule.scenario.onActivity { activity ->
-            dialog =
-                dialogProvider(activity).apply {
-                    // Make sure that the dialog draws full screen and fits the whole display
-                    // instead of the system bars.
-                    window.setDecorFitsSystemWindows(false)
-
-                    // Disable enter/exit animations.
-                    create()
-                    window.setWindowAnimations(0)
-
-                    // Elevation/shadows is not deterministic when doing hardware rendering, so we
-                    // disable it for any view in the hierarchy.
-                    window.decorView.removeElevationRecursively()
-
-                    // Show the dialog.
-                    show()
-                }
-        }
-
-        try {
-            val bitmap = dialog?.toBitmap() ?: error("dialog is null")
-            screenshotRule.assertBitmapAgainstGolden(
-                bitmap,
-                goldenIdentifier,
-                matcher,
-            )
-        } finally {
-            dialog?.dismiss()
-        }
-    }
-
-    private fun Dialog.toBitmap(): Bitmap {
-        val window = window
-        if (isRobolectric) {
-            return window.decorView.captureToBitmap(window).get(10, TimeUnit.SECONDS)
-                ?: error("timeout while trying to capture view to bitmap for window")
-        } else {
-            return window.decorView.toBitmap(window)
-        }
+        dialogScreenshotTest(
+            activityRule,
+            screenshotRule,
+            matcher,
+            goldenIdentifier,
+            dialogProvider = dialogProvider,
+        )
     }
 
     enum class Mode(val layoutParams: LayoutParams) {

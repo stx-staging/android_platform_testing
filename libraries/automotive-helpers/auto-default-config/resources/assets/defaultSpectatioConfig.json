@@ -67,7 +67,9 @@
     "OPEN_NOTIFICATIONS_COMMAND": "service call statusbar 1",
     "STOP_SETTING_APP_COMMAND": "am force-stop com.android.car.settings",
     "OPEN_SETTINGS_COMMAND": "am start -a android.settings.SETTINGS",
-    "MEDIA_LAUNCH_COMMAND": "am start -a android.car.intent.action.MEDIA_TEMPLATE -e android.car.intent.extra.MEDIA_COMPONENT com.android.bluetooth/com.android.bluetooth.avrcpcontroller.BluetoothMediaBrowserService"
+    "MEDIA_LAUNCH_COMMAND": "am start -a android.car.intent.action.MEDIA_TEMPLATE -e android.car.intent.extra.MEDIA_COMPONENT com.android.bluetooth/com.android.bluetooth.avrcpcontroller.BluetoothMediaBrowserService",
+    "NIGHT_MODE_COMMAND": "dumpsys activity service com.android.car/.CarService day-night-mode  night",
+    "DAY_MODE_COMMAND": "dumpsys activity service com.android.car/.CarService day-night-mode  day"
   },
   "UI_ELEMENTS": {
     "MAKE_CALL": {
@@ -116,12 +118,12 @@
     "CONTACT_LIST_SCROLL_FORWARD": {
       "TYPE": "RESOURCE_ID",
       "VALUE": "car_ui_scrollbar_page_down",
-      "PACKAGE": "com.android.car.ui.sharedlibrary"
+      "PACKAGE": "com.chassis.car.ui.plugin"
     },
     "CONTACT_LIST_SCROLL_BACKWARD": {
       "TYPE": "RESOURCE_ID",
       "VALUE": "car_ui_scrollbar_page_up",
-      "PACKAGE": "com.android.car.ui.sharedlibrary"
+      "PACKAGE": "com.chassis.car.ui.plugin"
     },
     "CONTACT_LIST_SCROLL_ELEMENT": {
       "TYPE": "RESOURCE_ID",
@@ -197,11 +199,43 @@
       "VALUE": "title",
       "PACKAGE": "com.android.car.dialer"
     },
+    "CONTACT_ADDRESS": {
+      "TYPE": "RESOURCE_ID",
+      "VALUE": "title",
+      "PACKAGE": "com.android.car.dialer"
+    },
+    "CONTACT_HOME_ADDRESS": {
+      "TYPE": "MULTIPLE",
+      "SPECIFIERS": [
+        {
+          "TYPE": "RESOURCE_ID",
+          "VALUE": "title"
+        },
+        {
+          "TYPE": "HAS_ANCESTOR",
+          "MAX_DEPTH": 1,
+          "ANCESTOR": {
+            "TYPE": "HAS_DESCENDANT",
+            "MAX_DEPTH": 1,
+            "DESCENDANT": {
+              "TYPE": "TEXT",
+              "VALUE": "Home"
+            }
+          }
+        }
+
+      ]
+    },
     "CONTACT_DETAIL": {
       "TYPE": "RESOURCE_ID",
       "VALUE": "show_contact_detail_id",
       "PACKAGE": "com.android.car.dialer"
     },
+    "CONTACT_DETAILS_PAGE": {
+      "TYPE": "DESCRIPTION",
+      "VALUE": "com.android.car.ui.utils.ROTARY_CONTAINER"
+    },
+
     "CALL_HISTORY_INFO": {
       "TYPE": "RESOURCE_ID",
       "VALUE": "call_action_id",
@@ -607,6 +641,7 @@
       "SPECIFIERS": [
         {
           "TYPE": "HAS_ANCESTOR",
+          "MAX_DEPTH": 2,
           "ANCESTOR": {
             "TYPE": "CLASS",
             "VALUE": "com.android.car.ui.FocusArea"
@@ -614,7 +649,7 @@
         },
         {
           "TYPE": "HAS_DESCENDANT",
-          "MAX_DEPTH": 2,
+          "MAX_DEPTH": 1,
           "DESCENDANT": {
             "TYPE": "CLASS",
             "VALUE": "android.widget.FrameLayout"
@@ -792,6 +827,14 @@
     "STATUS_BAR_BLUETOOTH_SETTINGS_PAGE_TITLE": {
       "TYPE": "TEXT",
       "VALUE": "Bluetooth"
+    },
+    "BT_CONNECTED_STATUS": {
+      "TYPE": "TEXT",
+      "VALUE": "Connected"
+    },
+    "BT_DISCONNECTED_STATUS": {
+      "TYPE": "TEXT",
+      "VALUE": "Disconnected"
     },
     "DEVICE_MODEL": {
       "TYPE": "TEXT",
@@ -1519,6 +1562,19 @@
       "VALUE": "qc_title",
       "PACKAGE": "com.android.systemui"
     },
+    "DEVICE_TITLE": {
+      "TYPE": "TEXT",
+      "VALUE": "Device"
+    },
+    "RADIO_BUTTON": {
+      "TYPE": "RESOURCE_ID",
+      "VALUE": "radio_button",
+      "PACKAGE": "com.android.permissioncontroller"
+    },
+    "PRIVACY_PERMISSION_MANAGER":{
+      "TYPE": "TEXT",
+      "VALUE": "Permission manager"
+    },
     "BLUETOOTH_CONNECTED_DISCONNECTED_TEXT": {
       "TYPE": "MULTIPLE",
       "SPECIFIERS": [
@@ -1625,6 +1681,44 @@
           }
         }
       ]
+    },
+    "PRIVACY_LOCATION": {
+      "TYPE": "TEXT",
+      "VALUE": "location"
+    },
+    "LAYOUT_SELECTOR": {
+      "TYPE": "CLASS",
+      "VALUE": "android.widget.RelativeLayout"
+    },
+    "PRIVACY_DASHBOARD": {
+      "TYPE": "TEXT",
+      "VALUE": "Privacy dashboard"
+    },
+    "PERMISSION_MESSAGE": {
+      "TYPE": "RESOURCE_ID",
+      "VALUE": "message",
+      "PACKAGE": "android"
+    },
+    "CANCEL": {
+      "TYPE": "TEXT",
+      "VALUE": "Cancel"
+    },
+    "PRIVACY_CALENDAR": {
+      "TYPE": "TEXT_CONTAINS",
+      "VALUE": "Calendar"
+    },
+    "RECENT_PERMISSION_DECISIONS": {
+      "TYPE": "TEXT",
+      "VALUE": "Recent permission decisions"
+    },
+    "MICROPHONE_PERMISSIONS_PAGE": {
+      "TYPE": "TEXT",
+      "VALUE": "Apps with this permission can record audio"
+    },
+    "CLOCK_TIME": {
+      "TYPE": "RESOURCE_ID",
+      "VALUE": "clock",
+      "PACKAGE": "com.android.systemui"
     }
   },
   "WORKFLOWS": {
@@ -2045,6 +2139,122 @@
             "TYPE": "RESOURCE_ID",
             "VALUE": "top_level_menu_container",
             "PACKAGE": "com.android.car.settings"
+          }
+        }
+      }
+    ],
+    "PERMISSION_DONT_ALLOW": [
+      {
+        "NAME": "Click on Don't allow",
+        "TYPE": "SCROLL_TO_FIND_AND_CLICK",
+        "CONFIG": {
+          "UI_ELEMENT": {
+            "TYPE": "TEXT",
+            "VALUE": "Don’t allow"
+          }
+        },
+        "SCROLL_CONFIG": {
+          "SCROLL_ACTION": "USE_GESTURE",
+          "SCROLL_DIRECTION": "VERTICAL",
+          "SCROLL_ELEMENT": {
+            "TYPE": "RESOURCE_ID",
+            "VALUE": "recycler_view",
+            "PACKAGE": "com.android.permissioncontroller"
+          }
+        }
+      },
+      {
+        "NAME": "Click on Don’t allow anyway",
+        "TYPE": "CLICK_IF_EXIST",
+        "CONFIG": {
+          "UI_ELEMENT": {
+            "TYPE": "TEXT",
+            "VALUE": "Don’t allow anyway"
+          }
+        }
+      }
+    ],
+    "PERMISSION_ALLOW": [
+      {
+        "NAME": "Click on allow",
+        "TYPE": "SCROLL_TO_FIND_AND_CLICK",
+        "CONFIG": {
+          "UI_ELEMENT": {
+            "TYPE": "TEXT",
+            "VALUE": "Allow"
+          }
+        },
+        "SCROLL_CONFIG": {
+          "SCROLL_ACTION": "USE_GESTURE",
+          "SCROLL_DIRECTION": "VERTICAL",
+          "SCROLL_ELEMENT": {
+            "TYPE": "RESOURCE_ID",
+            "VALUE": "recycler_view",
+            "PACKAGE": "com.android.permissioncontroller"
+          }
+        }
+      }
+    ],
+    "PERMISSION_ALLOW_ALL_TIME": [
+        {
+          "NAME": "Click on allow",
+          "TYPE": "SCROLL_TO_FIND_AND_CLICK",
+          "CONFIG": {
+            "UI_ELEMENT": {
+              "TYPE": "TEXT",
+              "VALUE": "Allow all the time"
+            }
+          },
+          "SCROLL_CONFIG": {
+            "SCROLL_ACTION": "USE_GESTURE",
+            "SCROLL_DIRECTION": "VERTICAL",
+            "SCROLL_ELEMENT": {
+              "TYPE": "RESOURCE_ID",
+              "VALUE": "recycler_view",
+              "PACKAGE": "com.android.permissioncontroller"
+            }
+          }
+        }
+      ],
+    "PERMISSION_ALLOW_WHILE_USING_APP": [
+      {
+        "NAME": "Click on allow",
+        "TYPE": "SCROLL_TO_FIND_AND_CLICK",
+        "CONFIG": {
+          "UI_ELEMENT": {
+            "TYPE": "TEXT",
+            "VALUE": "Allow only while using the app"
+          }
+        },
+        "SCROLL_CONFIG": {
+          "SCROLL_ACTION": "USE_GESTURE",
+          "SCROLL_DIRECTION": "VERTICAL",
+          "SCROLL_ELEMENT": {
+            "TYPE": "RESOURCE_ID",
+            "VALUE": "recycler_view",
+            "PACKAGE": "com.android.permissioncontroller"
+          }
+        }
+      }
+    ],
+    "OPEN_CALENDAR_PERMISSION_PAGE": [
+      {
+        "NAME": "Open Calendar",
+        "TYPE": "CLICK",
+        "CONFIG": {
+          "UI_ELEMENT": {
+            "TYPE": "TEXT",
+            "VALUE": "Calendar"
+          }
+        }
+      },
+      {
+        "NAME": "Open Calendar Permission",
+        "TYPE": "CLICK",
+        "CONFIG": {
+          "UI_ELEMENT": {
+            "TYPE": "DESCRIPTION",
+            "VALUE": "Calendar"
           }
         }
       }

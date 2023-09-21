@@ -17,13 +17,14 @@
 package android.tools.common.flicker
 
 import android.app.Instrumentation
-import android.tools.TEST_SCENARIO
-import android.tools.assertArchiveContainsFiles
+import android.tools.common.io.TraceType
 import android.tools.device.apphelpers.BrowserAppHelper
 import android.tools.device.flicker.FlickerServiceTracesCollector
 import android.tools.device.flicker.isShellTransitionsEnabled
 import android.tools.device.traces.parsers.WindowManagerStateHelper
-import android.tools.rules.CleanFlickerEnvironmentRule
+import android.tools.utils.CleanFlickerEnvironmentRule
+import android.tools.utils.TEST_SCENARIO
+import android.tools.utils.assertArchiveContainsFiles
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth
 import java.io.File
@@ -92,17 +93,27 @@ class FlickerServiceTracesCollectorTest {
         assertArchiveContainsFiles(traceFile, expectedTraces)
     }
 
+    @Test
+    fun supportHavingNoTransitions() {
+        val collector = FlickerServiceTracesCollector()
+        collector.start(TEST_SCENARIO)
+        val reader = collector.stop()
+        val transitionTrace = reader.readTransitionsTrace() ?: error("Expected a transition trace")
+        Truth.assertThat(transitionTrace.entries).isEmpty()
+    }
+
     companion object {
         val expectedTraces =
             listOf(
                 "wm_trace.winscope",
-                "layers_trace.winscope",
-                "transactions_trace.winscope",
                 "wm_transition_trace.winscope",
                 "shell_transition_trace.winscope",
-                "eventlog.winscope"
+                "eventlog.winscope",
+                TraceType.SF.fileName
             )
 
-        @ClassRule @JvmField val ENV_CLEANUP = CleanFlickerEnvironmentRule()
+        @ClassRule
+        @JvmField
+        val ENV_CLEANUP = CleanFlickerEnvironmentRule()
     }
 }

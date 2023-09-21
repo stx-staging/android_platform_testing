@@ -22,18 +22,20 @@ import android.tools.common.flicker.assertions.AssertionData
 import android.tools.common.flicker.assertions.AssertionResult
 import android.tools.common.flicker.assertions.ScenarioAssertion
 import android.tools.common.flicker.assertions.SubjectsParser
+import android.tools.common.flicker.subject.exceptions.FlickerAssertionError
+import android.tools.common.flicker.subject.exceptions.SimpleFlickerAssertionError
 import android.tools.common.io.Reader
 import android.tools.common.traces.wm.TransitionsTrace
 import android.tools.device.flicker.FlickerServiceResultsCollector
 import android.tools.device.flicker.FlickerServiceResultsCollector.Companion.FLICKER_ASSERTIONS_COUNT_KEY
 import android.tools.device.flicker.FlickerServiceResultsCollector.Companion.WINSCOPE_FILE_PATH_KEY
 import android.tools.device.flicker.FlickerServiceResultsCollector.Companion.getKeyForAssertionResult
-import android.tools.device.traces.io.InMemoryArtifact
-import android.tools.device.traces.io.ParsedTracesReader
-import android.tools.rules.CleanFlickerEnvironmentRule
+import android.tools.utils.CleanFlickerEnvironmentRule
+import android.tools.utils.InMemoryArtifact
 import android.tools.utils.KotlinMockito
 import android.tools.utils.MockLayersTraceBuilder
 import android.tools.utils.MockWindowManagerTraceBuilder
+import android.tools.utils.ParsedTracesReader
 import com.google.common.truth.Truth
 import org.junit.ClassRule
 import org.junit.FixMethodOrder
@@ -55,7 +57,7 @@ class FlickerServiceResultsCollectorTest {
         val collector = createCollector(reportOnlyForPassingTests = true)
         val runData = DataRecord()
         val runDescription = Description.createSuiteDescription("TestSuite")
-        val testData = DataRecord()
+        val testData = Mockito.mock(DataRecord::class.java)
         val testDescription = Description.createTestDescription(this::class.java, "TestName")
 
         collector.onTestRunStart(runData, runDescription)
@@ -67,7 +69,12 @@ class FlickerServiceResultsCollectorTest {
         Truth.assertThat(collector.executionErrors).isEmpty()
         Truth.assertThat(collector.assertionResultsByTest[testDescription]).isNull()
         Truth.assertThat(runData.hasMetrics()).isFalse()
-        Truth.assertThat(testData.hasMetrics()).isFalse()
+
+        // Reports only FaaS status
+        Mockito.verify(testData).addStringMetric("FAAS_STATUS", "OK")
+        // No other calls to addStringMetric
+        Mockito.verify(testData, Mockito.times(1))
+            .addStringMetric(Mockito.anyString(), Mockito.anyString())
     }
 
     @Test
@@ -247,6 +254,46 @@ class FlickerServiceResultsCollectorTest {
         Truth.assertThat(runData.hasMetrics()).isFalse()
     }
 
+    @Test
+    fun reportOkFlickerServiceStatus() {
+        val collector = createCollector()
+        val runData = DataRecord()
+        val runDescription = Description.createSuiteDescription("TestSuite")
+        val testData = Mockito.mock(DataRecord::class.java)
+        val testDescription = Description.createTestDescription(this::class.java, "TestName")
+
+        collector.onTestRunStart(runData, runDescription)
+        collector.onTestStart(testData, testDescription)
+        collector.onTestFail(testData, testDescription, Mockito.mock(Failure::class.java))
+        collector.onTestEnd(testData, testDescription)
+        collector.onTestRunEnd(runData, Mockito.mock(org.junit.runner.Result::class.java))
+
+        Truth.assertThat(collector.executionErrors).isEmpty()
+
+        // Reports only FaaS status
+        Mockito.verify(testData).addStringMetric("FAAS_STATUS", "OK")
+    }
+
+    @Test
+    fun reportExecutionErrorFlickerServiceStatus() {
+        val assertionResults = listOf(mockSuccessfulAssertionResult, mockFailedAssertionResult)
+        val collector =
+            createCollector(assertionResults = assertionResults, serviceProcessingError = true)
+        val runData = DataRecord()
+        val runDescription = Description.createSuiteDescription(this::class.java)
+        val testData = SpyDataRecord()
+        val testDescription = Description.createTestDescription(this::class.java, "TestName")
+
+        collector.onTestRunStart(runData, runDescription)
+        collector.onTestStart(testData, testDescription)
+        collector.onTestEnd(testData, testDescription)
+        collector.onTestRunEnd(runData, Mockito.mock(org.junit.runner.Result::class.java))
+
+        Truth.assertThat(collector.executionErrors).isNotEmpty()
+
+        Truth.assertThat(testData.stringMetrics["FAAS_STATUS"]).isEqualTo("EXECUTION_FAILED")
+    }
+
     private fun createCollector(
         assertionResults: Collection<AssertionResult> = listOf(mockSuccessfulAssertionResult),
         reportOnlyForPassingTests: Boolean = true,
@@ -306,7 +353,7 @@ class FlickerServiceResultsCollectorTest {
                             }
                         }
                     )
-                override val assertionErrors = emptyArray<Throwable>()
+                override val assertionErrors = emptyArray<FlickerAssertionError>()
                 override val stabilityGroup = AssertionInvocationGroup.BLOCKING
                 override val passed = true
             }
@@ -322,7 +369,8 @@ class FlickerServiceResultsCollectorTest {
                             }
                         }
                     )
-                override val assertionErrors = arrayOf(Throwable("Assertion failed"))
+                override val assertionErrors =
+                    arrayOf<FlickerAssertionError>(SimpleFlickerAssertionError("Assertion failed"))
                 override val stabilityGroup = AssertionInvocationGroup.BLOCKING
                 override val passed = false
                 override val failed: Boolean = true

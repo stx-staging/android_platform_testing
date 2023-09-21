@@ -55,6 +55,12 @@ public class AutomotiveConfigConstants {
     public static final String SORT_BY_LAST_NAME = "SORT_BY_LAST_NAME";
     public static final String CONTACTS_MENU = "CONTACTS_MENU";
     public static final String CONTACT_NAME = "CONTACT_NAME";
+
+    public static final String CONTACT_ADDRESS = "CONTACT_ADDRESS";
+
+    public static final String CONTACT_HOME_ADDRESS = "CONTACT_HOME_ADDRESS";
+
+    public static final String CONTACT_DETAILS_PAGE = "CONTACT_DETAILS_PAGE";
     public static final String CONTACT_DETAIL = "CONTACT_DETAIL";
     public static final String CALL_HISTORY_INFO = "CALL_HISTORY_INFO";
     public static final String SEARCH_CONTACT = "SEARCH_CONTACT";
@@ -89,6 +95,7 @@ public class AutomotiveConfigConstants {
     public static final String FAVORITES_MENU = "FAVORITES_MENU";
     public static final String DIALER_VIEW = "DIALER_VIEW";
     public static final String CONTACT_NAME_TITLE = "CONTACT_NAME_TITLE";
+
     // Home App Constants
     public static final String HOME_PACKAGE = "HOME_PACKAGE";
     public static final String HOME_BOTTOM_CARD = "HOME_BOTTOM_CARD";
@@ -472,6 +479,7 @@ public class AutomotiveConfigConstants {
     public static final String RECENT_APPS_TIMESTAMP_TEXT = "RECENT_APPS_TIMESTAMP_TEXT";
     public static final String RECENT_APPS_TIMESTAMP = "RECENT_APPS_TIMESTAMP";
 
+
     // Status Bar Constants
     public static final String STATUS_BAR_BRIGHTNESS_BUTTON = "STATUS_BAR_BRIGHTNESS_BUTTON";
     public static final String STATUS_BAR_DISPLAY_BRIGHTNESS_PALETTE =
@@ -483,6 +491,7 @@ public class AutomotiveConfigConstants {
     public static final String NETWORK_PALETTE_SUMMARY = "NETWORK_PALETTE_SUMMARY";
     public static final String NETWORK_PALETTE_SWITCH_WIDGET = "NETWORK_PALETTE_SWITCH_WIDGET";
     public static final String FORGET_WIFI = "FORGET_WIFI";
+    public static final String CLOCK_TIME = "CLOCK_TIME";
 
     // Quick Controls
     public static final String HOME_BLUETOOTH_BUTTON = "HOME_BLUETOOTH_BUTTON";
@@ -500,6 +509,8 @@ public class AutomotiveConfigConstants {
     public static final String STATUS_BAR_BLUETOOTH_SETTINGS_PAGE_TITLE =
             "STATUS_BAR_BLUETOOTH_SETTINGS_PAGE_TITLE";
     public static final String STATUS_BAR_BLUETOOTH_BUTTON = "STATUS_BAR_BLUETOOTH_BUTTON";
+    public static final String NIGHT_MODE_COMMAND = "NIGHT_MODE_COMMAND";
+    public static final String DAY_MODE_COMMAND = "DAY_MODE_COMMAND";
 
     public static final String TOGGLE_LOCATION = "TOGGLE_LOCATION";
     public static final String LOCATION_ACCESS = "LOCATION_ACCESS";
@@ -513,6 +524,7 @@ public class AutomotiveConfigConstants {
     public static final String HOME_GUEST_BUTTON = "HOME_GUEST_BUTTON";
     public static final String HOME_DRIVER_BUTTON = "HOME_DRIVER_BUTTON";
     public static final String HOME_SECONDARY_USER_BUTTON = "HOME_SECONDARY_USER_BUTTON";
+
 
     // Privacy UI Options
     public static final String MICROPHONE = "MICROPHONE";
@@ -548,6 +560,32 @@ public class AutomotiveConfigConstants {
     public static final String PHONE_BUTTON = "PHONE_BUTTON";
     public static final String MEDIA_BUTTON = "MEDIA_BUTTON";
     public static final String DEVICE_NAME = "DEVICE_NAME";
+
+    public static final String DEVICE_TITLE = "DEVICE_TITLE";
     public static final String DISABLED_PHONE_PROFILE = "DISABLED_PHONE_PROFILE";
     public static final String DISABLED_MEDIA_PROFILE = "DISABLED_MEDIA_PROFILE";
+    public static final String ASSISTANT_PERMISSION = "OPEN_GOOGLE_ASSISTANT_PERMISSION";
+    public static final String LAYOUT_SELECTOR = "LAYOUT_SELECTOR";
+
+    // App Permissions- Privacy Dashboard and Permission Manager
+
+    public static final String PERMISSION_DECISION = "PERMISSION_DECISION";
+    public static final String PRIVACY_DASHBOARD = "PRIVACY_DASHBOARD";
+    public static final String PRIVACY_LOCATION = "PRIVACY_LOCATION";
+    public static final String PERMISSION_DONT_ALLOW = "PERMISSION_DONT_ALLOW";
+    public static final String PERMISSION_ALLOW_ALL_TIME = "PERMISSION_ALLOW_ALL_TIME";
+    public static final String PERMISSION_ALLOW = "PERMISSION_ALLOW";
+    public static final String PERMISSION_MESSAGE = "PERMISSION_MESSAGE";
+    public static final String CANCEL = "CANCEL";
+    public static final String RADIO_BUTTON = "RADIO_BUTTON";
+    public static final String PRIVACY_PERMISSION_MANAGER = "PRIVACY_PERMISSION_MANAGER";
+    public static final String ALLOW_WHILE_USING_APP = "PERMISSION_ALLOW_WHILE_USING_APP";
+    public static final String CALENDAR_PERMISSION = "OPEN_CALENDAR_PERMISSION_PAGE";
+    public static final String PRIVACY_CALENDAR = "PRIVACY_CALENDAR";
+    public static final String RECENT_PERMISSION_DECISIONS = "RECENT_PERMISSION_DECISIONS";
+    public static final String MICROPHONE_PERMISSIONS_PAGE = "MICROPHONE_PERMISSIONS_PAGE";
+
+    // BT related
+    public static final String BT_CONNECTED_STATUS = "BT_CONNECTED_STATUS";
+    public static final String BT_DISCONNECTED_STATUS = "BT_DISCONNECTED_STATUS";
 }

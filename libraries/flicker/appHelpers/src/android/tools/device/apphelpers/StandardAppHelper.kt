@@ -24,9 +24,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.tools.common.Logger
 import android.tools.common.PlatformConsts
-import android.tools.common.traces.Condition
 import android.tools.common.traces.ConditionsFactory
-import android.tools.common.traces.DeviceStateDump
 import android.tools.common.traces.component.ComponentNameMatcher
 import android.tools.common.traces.component.IComponentMatcher
 import android.tools.common.traces.component.IComponentNameMatcher
@@ -55,7 +53,7 @@ open class StandardAppHelper(
 
     protected val pkgManager: PackageManager = instrumentation.context.packageManager
 
-    protected val tapl: LauncherInstrumentation = LauncherInstrumentation()
+    protected val tapl: LauncherInstrumentation by lazy { LauncherInstrumentation() }
 
     private val activityManager: ActivityManager?
         get() = instrumentation.context.getSystemService(ActivityManager::class.java)
@@ -64,6 +62,8 @@ open class StandardAppHelper(
         get() = instrumentation.context
 
     override val packageName = componentMatcher.packageName
+
+    val packageNameMatcher = ComponentNameMatcher(componentMatcher.packageName, "")
 
     override val className = componentMatcher.className
 
@@ -164,57 +164,43 @@ open class StandardAppHelper(
         launchedAppComponentMatcherOverride: IComponentMatcher? = null,
         action: String? = null,
         stringExtras: Map<String, String> = mapOf(),
-        waitConditions: Array<Condition<DeviceStateDump>> = emptyArray()
-    ) =
-        launchViaIntentAndWaitShown(
-            wmHelper,
-            launchedAppComponentMatcherOverride,
-            action,
-            stringExtras,
-            waitConditions
-        )
+        waitConditionsBuilder: WindowManagerStateHelper.StateSyncBuilder =
+            wmHelper
+                .StateSyncBuilder()
+                .add(ConditionsFactory.isWMStateComplete())
+                .withAppTransitionIdle()
+    ) {
+        launchAppViaIntent(action, stringExtras)
+        doWaitShown(launchedAppComponentMatcherOverride, waitConditionsBuilder)
+    }
 
     /**
      * Launches the app through an intent instead of interacting with the launcher and waits until
      * the app window is visible
      */
-    protected fun launchViaIntentAndWaitShown(
+    @JvmOverloads
+    open fun launchViaIntent(
         wmHelper: WindowManagerStateHelper,
+        intent: Intent,
         launchedAppComponentMatcherOverride: IComponentMatcher? = null,
-        action: String? = null,
-        stringExtras: Map<String, String> = mapOf(),
-        waitConditions: Array<Condition<DeviceStateDump>> = emptyArray()
+        waitConditionsBuilder: WindowManagerStateHelper.StateSyncBuilder =
+            wmHelper
+                .StateSyncBuilder()
+                .add(ConditionsFactory.isWMStateComplete())
+                .withAppTransitionIdle()
     ) {
-        launchAppViaIntent(action, stringExtras)
-        doWaitShown(wmHelper, launchedAppComponentMatcherOverride, waitConditions)
+        context.startActivity(intent)
+        doWaitShown(launchedAppComponentMatcherOverride, waitConditionsBuilder)
     }
 
     private fun doWaitShown(
-        wmHelper: WindowManagerStateHelper,
         launchedAppComponentMatcherOverride: IComponentMatcher? = null,
-        waitConditions: Array<Condition<DeviceStateDump>> = emptyArray()
+        waitConditionsBuilder: WindowManagerStateHelper.StateSyncBuilder
     ) {
         Logger.withTracing("${this::class.simpleName}#doWaitShown") {
             val expectedWindow = launchedAppComponentMatcherOverride ?: componentMatcher
-            val builder =
-                wmHelper
-                    .StateSyncBuilder()
-                    .add(ConditionsFactory.isWMStateComplete())
-                    .withAppTransitionIdle()
-                    .withWindowSurfaceAppeared(expectedWindow)
-
-            waitConditions.forEach { builder.add(it) }
+            val builder = waitConditionsBuilder.withWindowSurfaceAppeared(expectedWindow)
             builder.waitForAndVerify()
-
-            // During seamless rotation the app window is shown
-            val currWmState = wmHelper.currentState.wmState
-            if (currWmState.visibleWindows.none { it.isFullscreen }) {
-                wmHelper
-                    .StateSyncBuilder()
-                    .withNavOrTaskBarVisible()
-                    .withStatusBarVisible()
-                    .waitForAndVerify()
-            }
         }
     }
 

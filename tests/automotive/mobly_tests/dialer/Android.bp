@@ -22,6 +22,87 @@ python_test_host {
     srcs: ["bt_utility_test.py"],
     libs: [
         "mobly",
+        "mbs_utils",
+        "BluetoothTestLibrary"
+    ],
+    test_suites: [
+        "catbox",
+    ],
+    test_options: {
+        unit_test: false,
+    },
+    data: [
+        // Package the snippet with the mobly test
+        ":AutomotiveSnippet",
+        ":PhoneSnippet",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+}
+
+python_test_host {
+    name: "BTContactSortTest",
+    main: "dialer_test_sort_contacts_by_last_name.py",
+    srcs: ["dialer_test_sort_contacts_by_last_name.py"],
+    libs: [
+        "mobly",
+        "mbs_utils",
+        "BluetoothTestLibrary"
+    ],
+    test_suites: [
+        "catbox",
+    ],
+    test_options: {
+        unit_test: false,
+    },
+    data: [
+        // Package the snippet with the mobly test
+        ":AutomotiveSnippet",
+        ":PhoneSnippet",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+}
+
+python_test_host {
+    name: "BTContactTest",
+    main: "dialer_test_contact_test.py",
+    srcs: ["dialer_test_contact_test.py"],
+    libs: [
+        "mobly",
+        "mbs_utils",
+        "BluetoothTestLibrary"
+    ],
+    test_suites: [
+        "catbox",
+    ],
+    test_options: {
+        unit_test: false,
+    },
+    data: [
+        // Package the snippet with the mobly test
+        ":AutomotiveSnippet",
+        ":PhoneSnippet",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+}
+
+python_test_host {
+    name: "BTAddressTest",
+    main: "dialer_test_import_address_details.py",
+    srcs: ["dialer_test_import_address_details.py"],
+    libs: [
+        "mobly",
         "mbs_utils"
     ],
     test_suites: [
@@ -32,8 +113,8 @@ python_test_host {
     },
     data: [
         // Package the snippet with the mobly test
-        ":AutomotivePhoneSnippet",
-        ":mobly-bundled-snippets",
+        ":AutomotiveSnippet",
+        ":PhoneSnippet",
     ],
     version: {
         py3: {

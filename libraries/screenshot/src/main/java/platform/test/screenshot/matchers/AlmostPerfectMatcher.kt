@@ -18,14 +18,12 @@ package platform.test.screenshot.matchers
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Rect
-import kotlin.math.abs
 import kotlin.math.sqrt
 import platform.test.screenshot.proto.ScreenshotResultProto
 
 /**
  * Matcher for differences not detectable by human eye
  * The relaxed threshold allows for low quality png storage
- * TODO(b/238758872): replace after b/238758872 is closed
  */
 class AlmostPerfectMatcher(
     private val acceptableThreshold: Double = 0.0,
@@ -44,27 +42,11 @@ class AlmostPerfectMatcher(
         var same = 0
         var ignored = 0
 
-        val diffArray = IntArray(width * height)
-
-        for (x in 0 until width) {
-            for (y in 0 until height) {
-                val index = x + y * width
-                if (filter[index] == 0) {
-                    ignored++
-                    continue
-                }
-                val referenceColor = expected[index]
-                val testColor = given[index]
-                if (areSame(referenceColor, testColor)) {
-                    ++same
-                } else {
-                    ++different
-                }
-                diffArray[index] =
-                        diffColor(
-                                referenceColor,
-                                testColor
-                        )
+        val diffArray = IntArray(width * height) { index ->
+            when {
+                filter[index] == 0 -> Color.TRANSPARENT.also { ignored++ }
+                areSame(expected[index], given[index]) -> Color.TRANSPARENT.also { same++ }
+                else -> Color.MAGENTA.also { different++ }
             }
         }
 
@@ -83,14 +65,6 @@ class AlmostPerfectMatcher(
         return MatchResult(matches = true, diff = null, comparisonStatistics = stats)
     }
 
-    private fun diffColor(referenceColor: Int, testColor: Int): Int {
-        return if (areSame(referenceColor, testColor)) {
-            Color.TRANSPARENT
-        } else {
-            Color.MAGENTA
-        }
-    }
-
     // ref
     // R. F. Witzel, R. W. Burnham, and J. W. Onley. Threshold and suprathreshold perceptual color
     // differences. J. Optical Society of America, 63:615{625, 1973. 14
@@ -98,9 +72,9 @@ class AlmostPerfectMatcher(
         val green = Color.green(referenceColor) - Color.green(testColor)
         val blue = Color.blue(referenceColor) - Color.blue(testColor)
         val red = Color.red(referenceColor) - Color.red(testColor)
-        val redDelta = abs(red)
-        val redScalar = if (redDelta < 128) 2 else 3
-        val blueScalar = if (redDelta < 128) 3 else 2
+        val redMean = (Color.red(referenceColor) + Color.red(testColor)) / 2
+        val redScalar = if (redMean < 128) 2 else 3
+        val blueScalar = if (redMean < 128) 3 else 2
         val greenScalar = 4
         val correction = sqrt((
                 (redScalar * red * red) +

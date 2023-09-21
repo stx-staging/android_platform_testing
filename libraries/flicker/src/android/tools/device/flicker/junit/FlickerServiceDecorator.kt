@@ -19,7 +19,6 @@ package android.tools.device.flicker.junit
 import android.app.Instrumentation
 import android.device.collectors.util.SendToInstrumentation
 import android.os.Bundle
-import android.platform.test.rule.ArtifactSaver
 import android.tools.common.Scenario
 import android.tools.common.ScenarioBuilder
 import android.tools.common.flicker.FlickerService
@@ -34,6 +33,7 @@ import android.tools.device.flicker.Utils.captureTrace
 import android.tools.device.flicker.datastore.DataStore
 import android.tools.device.traces.getDefaultFlickerOutputDir
 import android.tools.device.traces.now
+import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth
 import java.lang.reflect.Method
 import org.junit.After
@@ -48,9 +48,11 @@ class FlickerServiceDecorator(
     testClass: TestClass,
     val paramString: String?,
     private val skipNonBlocking: Boolean,
-    inner: IFlickerJUnitDecorator?
-) : AbstractFlickerRunnerDecorator(testClass, inner) {
-    private val flickerService by lazy { FlickerService(getFlickerConfig()) }
+    inner: IFlickerJUnitDecorator?,
+    instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation(),
+    flickerService: FlickerService? = null
+) : AbstractFlickerRunnerDecorator(testClass, inner, instrumentation) {
+    private val flickerService by lazy { flickerService ?: FlickerService(getFlickerConfig()) }
 
     private val testClassName =
         ScenarioBuilder().forClass("${testClass.name}${paramString ?: ""}").build()
@@ -76,19 +78,33 @@ class FlickerServiceDecorator(
         if (shouldComputeTestMethods()) {
             for (method in innerMethods) {
                 if (!innerMethodsResults.containsKey(method)) {
-
                     var methodResult: Throwable? =
                         null // TODO: Maybe don't use null but wrap in another object
                     val reader =
                         captureTrace(testClassName, getDefaultFlickerOutputDir()) { writer ->
                             try {
+                                Utils.notifyRunnerProgress(
+                                    testClassName,
+                                    "Running setup",
+                                    instrumentation
+                                )
                                 val befores = testClass.getAnnotatedMethods(Before::class.java)
                                 befores.forEach { it.invokeExplosively(test) }
 
+                                Utils.notifyRunnerProgress(
+                                    testClassName,
+                                    "Running transition",
+                                    instrumentation
+                                )
                                 writer.setTransitionStartTime(now())
                                 method.invokeExplosively(test)
                                 writer.setTransitionEndTime(now())
 
+                                Utils.notifyRunnerProgress(
+                                    testClassName,
+                                    "Running teardown",
+                                    instrumentation
+                                )
                                 val afters = testClass.getAnnotatedMethods(After::class.java)
                                 afters.forEach { it.invokeExplosively(test) }
                             } catch (e: Throwable) {
@@ -98,6 +114,11 @@ class FlickerServiceDecorator(
                             }
                         }
                     if (methodResult == null) {
+                        Utils.notifyRunnerProgress(
+                            testClassName,
+                            "Computing Flicker service tests",
+                            instrumentation
+                        )
                         flickerServiceMethodsFor[method] =
                             computeFlickerServiceTests(reader, testClassName, method)
                     }
@@ -140,10 +161,7 @@ class FlickerServiceDecorator(
                     (method as InjectedTestCase).execute(description)
                 } else {
                     if (innerMethodsResults.containsKey(method)) {
-                        innerMethodsResults[method]?.let {
-                            ArtifactSaver.onError(description, it)
-                            throw it
-                        }
+                        innerMethodsResults[method]?.let { throw it }
                     } else {
                         inner?.getMethodInvoker(method, test)?.evaluate()
                     }
@@ -338,10 +356,11 @@ class FlickerServiceDecorator(
                                 injectedBy = caller,
                                 paramString =
                                     "${paramString}${
-                                    if (scenarioInstancesOfSameType.size > 1)
+                                    if (scenarioInstancesOfSameType.size > 1) {
                                         "_${scenarioInstanceIndex + 1}"
-                                    else
-                                        ""}",
+                                    } else {
+                                        ""
+                                    }}",
                                 instrumentation = instrumentation,
                             )
                         )
