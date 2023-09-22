@@ -171,8 +171,15 @@ class DisplayContent(
     }
 
     companion object {
-        private fun dpiFromPx(size: Float, densityDpi: Int): Float {
-            val densityRatio: Float = densityDpi.toFloat() / PlatformConsts.DENSITY_DEFAULT
+        /** From [android.util.DisplayMetrics] */
+        @JsName("DENSITY_DEFAULT") const val DENSITY_DEFAULT = 160f
+
+        /** From [com.android.systemui.shared.recents.utilities.Utilities] */
+        @JsName("TABLET_MIN_DPS") const val TABLET_MIN_DPS = 600f
+
+        @JsName("dpiFromPx")
+        fun dpiFromPx(size: Float, densityDpi: Int): Float {
+            val densityRatio: Float = densityDpi.toFloat() / DENSITY_DEFAULT
             return size / densityRatio
         }
     }
