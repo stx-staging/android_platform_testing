@@ -71,7 +71,7 @@ class TestParameters:
   wifi_transfer_throughput_kbs_percentile: int = (
       WIFI_TRANSFER_THROUGHPUT_KBS_PERCENTILE
   )
-  payload_type: PayloadType = PayloadType.STREAM
+  payload_type: PayloadType = PayloadType.FILE
 
 
 @enum.unique
