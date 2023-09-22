@@ -64,7 +64,7 @@ class TestParameters:
   wifi_transfer_throughput_median_benchmark_kbps: float = (
       WIFI_TRANSFER_THROUGHPUT_MEDIAN_BENCHMARK_KBPS
   )
-  payload_type: PayloadType = PayloadType.STREAM
+  payload_type: PayloadType = PayloadType.FILE
 
 
 @enum.unique
