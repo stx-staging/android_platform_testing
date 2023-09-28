@@ -46,9 +46,9 @@ class AlmostPerfectMatcher(
 
         expected.indices.forEach { index ->
             when {
-                !filter[index] -> Color.TRANSPARENT.also { ignored++ }
-                areSame(expected[index], given[index]) -> Color.TRANSPARENT.also { same++ }
-                else -> Color.MAGENTA.also { different++ }
+                !filter[index] -> ignored++
+                areSame(expected[index], given[index]) -> same++
+                else -> diffArray.value[index] = Color.MAGENTA.also { different++ }
             }
         }
 
