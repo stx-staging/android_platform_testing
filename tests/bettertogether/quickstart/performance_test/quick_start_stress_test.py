@@ -223,6 +223,8 @@ class QuickStartStressTest(nc_base_test.NCBaseTestClass):
       nearby_snippet_2.start_nearby_connection(
           timeouts=second_connection_setup_timeouts,
           medium_upgrade_type=nc_constants.MediumUpgradeType.DISRUPTIVE,
+          keep_alive_timeout_ms=self.test_parameters.keep_alive_timeout_ms,
+          keep_alive_interval_ms=self.test_parameters.keep_alive_interval_ms,
       )
     finally:
       self._test_result.second_connection_setup_quality_info = (
