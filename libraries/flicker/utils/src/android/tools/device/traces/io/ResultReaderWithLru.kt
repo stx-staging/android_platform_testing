@@ -49,11 +49,11 @@ open class ResultReaderWithLru(
         val trace =
             wmTraceCache[key]
                 ?: reader.readWmTrace().also {
-                    Logger.d(FLICKER_IO_TAG, "Cache miss $descriptor: readWmTraceTrace")
+                    Logger.d(FLICKER_IO_TAG, "Cache miss $descriptor, $reader readWmTraceTrace")
                 }
         return trace?.also {
             wmTraceCache.put(key, trace)
-            Logger.d(FLICKER_IO_TAG, "Add to cache $descriptor")
+            Logger.d(FLICKER_IO_TAG, "Add to cache $descriptor, $reader")
         }
     }
 
@@ -65,11 +65,11 @@ open class ResultReaderWithLru(
         val trace =
             layersTraceCache[key]
                 ?: reader.readLayersTrace().also {
-                    Logger.d(FLICKER_IO_TAG, "Cache miss $descriptor: readLayersTrace")
+                    Logger.d(FLICKER_IO_TAG, "Cache miss $descriptor, $reader readLayersTrace")
                 }
         return trace?.also {
             layersTraceCache.put(key, trace)
-            Logger.d(FLICKER_IO_TAG, "Add to cache $descriptor")
+            Logger.d(FLICKER_IO_TAG, "Add to cache $descriptor, $reader")
         }
     }
 
@@ -81,7 +81,7 @@ open class ResultReaderWithLru(
         val trace =
             eventLogCache[key]
                 ?: reader.readEventLogTrace().also {
-                    Logger.d(FLICKER_IO_TAG, "Cache miss $descriptor: readEventLogTrace")
+                    Logger.d(FLICKER_IO_TAG, "Cache miss $descriptor, $reader readEventLogTrace")
                 }
         return trace?.also {
             eventLogCache.put(key, trace)
