@@ -38,14 +38,20 @@ WIFI_TRANSFER_THROUGHPUT_MEDIAN_BENCHMARK_KBPS = 10240  # 10MBps
 BT_TRANSFER_SUCCESS_RATE_TARGET_PERCENTAGE = 95  # 95%
 WIFI_TRANSFER_SUCCESS_RATE_TARGET_PERCENTAGE = 95  # 95%
 
-UNSET_LATENCY = datetime.timedelta.max
-UNSET_THROUGHPUT_KBPS = -1.0
-
 KEEP_ALIVE_TIMEOUT_BT_MS = 30000
 KEEP_ALIVE_INTERVAL_BT_MS = 5000
 
 KEEP_ALIVE_TIMEOUT_WIFI_MS = 10000
 KEEP_ALIVE_INTERVAL_WIFI_MS = 3000
+
+PERCENTILE_50_FACTOR = 0.5
+PERCENTILE_95_FACTOR = 0.95
+LATENCY_PRECISION_DIGITS = 1
+SUCCESS_RATE_PRECISION_DIGITS = 1
+
+UNSET_LATENCY = datetime.timedelta.max
+UNSET_THROUGHPUT_KBPS = -1.0
+
 
 @enum.unique
 class PayloadType(enum.IntEnum):
@@ -181,7 +187,8 @@ class SingleTestResult:
 
 @dataclasses.dataclass(frozen=True)
 class LatencyResultStats:
-  average: float
+  average_latency: float
+  percentile_50: float
   percentile_95: float
   failure_count: int
 
