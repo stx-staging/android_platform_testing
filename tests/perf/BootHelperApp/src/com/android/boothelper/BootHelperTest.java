@@ -16,142 +16,28 @@
 
 package com.android.boothelper;
 
-import android.app.Activity;
-import android.app.Instrumentation;
-import android.app.admin.DevicePolicyManager;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.util.Log;
-import android.view.KeyEvent;
+import static android.platform.helpers.LockscreenUtils.LockscreenType.PIN;
+import static android.platform.helpers.LockscreenUtils.checkDeviceLock;
 
-import androidx.test.InstrumentationRegistry;
-import androidx.test.uiautomator.By;
-import androidx.test.uiautomator.UiDevice;
-import androidx.test.uiautomator.UiObject2;
-import androidx.test.uiautomator.Until;
+import android.platform.systemui_tapl.controller.LockscreenController;
+import android.platform.systemui_tapl.ui.Root;
 
-import org.junit.Before;
 import org.junit.Test;
-
-import java.util.concurrent.CountDownLatch;
 
 public class BootHelperTest {
 
-    private static final long TIMEOUT = 10000;
-    private static final String TAG = "BootHelperTest";
-    private static final String SETTINGS_PKG = "com.android.settings";
-    private static final String LOCK_PIN_ID = "lock_pin";
-    private static final String REQUIRE_PWD_ID = "encrypt_dont_require_password";
-    private static final String PWD_ENTRY = "password_entry";
-    private UiDevice mDevice;
-    private Context mProtectedContext;
-
-    @Before
-    public void setUp() throws Exception {
-        mDevice = UiDevice.getInstance(getInstrumentation());
-        mProtectedContext = getInstrumentation().getContext()
-                .createDeviceProtectedStorageContext();
-    }
+    private static final String VALID_PIN = "1234";
 
     @Test
     public void setupLockScreenPin() throws Exception {
-        Activity activity = launchActivity(getInstrumentation().getTargetContext()
-                .getPackageName(), AwareActivity.class, new Intent(Intent.ACTION_MAIN));
-        mDevice.waitForIdle();
-
-        // Set a PIN for this user
-        final Intent intent = new Intent(DevicePolicyManager.ACTION_SET_NEW_PASSWORD);
-        intent.addCategory(Intent.CATEGORY_DEFAULT);
-        activity.startActivity(intent);
-        mDevice.waitForIdle();
-
-        // Pick PIN from the option list
-        selectOption(LOCK_PIN_ID);
-
-        // Ignore any interstitial options
-        selectOption(REQUIRE_PWD_ID);
-
-        // Set our PIN
-        selectOption(PWD_ENTRY);
-
-        // Enter it twice to confirm
-        enterTestPin();
-        enterTestPin();
-        mDevice.pressBack();
-
+        LockscreenController.get().setLockscreenPin(VALID_PIN);
+        LockscreenController.get().lockScreen();
     }
 
     @Test
     public void unlockScreenWithPin() throws Exception {
-        final CountDownLatch latch = new CountDownLatch(1);
-        final BroadcastReceiver receiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                latch.countDown();
-            }
-        };
-        mProtectedContext.registerReceiver(receiver, new IntentFilter(
-                Intent.ACTION_USER_UNLOCKED));
-        dismissKeyguard();
+        checkDeviceLock(true);
+        Root.get().getLockScreen().swipeUpToBouncer().unlockViaCode(PIN, VALID_PIN);
+        Root.get().assertLauncherVisible();
     }
-
-    private void dismissKeyguard() throws Exception {
-        mDevice.wakeUp();
-        mDevice.waitForIdle();
-        mDevice.pressMenu();
-        mDevice.waitForIdle();
-        enterTestPin();
-    }
-
-    private void enterTestPin() throws Exception {
-        mDevice.waitForIdle();
-        mDevice.pressKeyCode(KeyEvent.KEYCODE_1);
-        mDevice.pressKeyCode(KeyEvent.KEYCODE_2);
-        mDevice.pressKeyCode(KeyEvent.KEYCODE_3);
-        mDevice.pressKeyCode(KeyEvent.KEYCODE_4);
-        mDevice.pressKeyCode(KeyEvent.KEYCODE_5);
-        mDevice.waitForIdle();
-        mDevice.pressEnter();
-        Log.i(TAG, "Screen Unlocked");
-        mDevice.waitForIdle();
-    }
-
-    /**
-     * Return the instrumentation from the registry.
-     *
-     * @return
-     */
-    private Instrumentation getInstrumentation() {
-        return InstrumentationRegistry.getInstrumentation();
-    }
-
-    /**
-     * Click on the option based on the resource id in the settings package.
-     *
-     * @param optionId
-     */
-    public void selectOption(String optionId) {
-        UiObject2 tos = mDevice.wait(Until.findObject(By.res(SETTINGS_PKG, optionId)),
-                TIMEOUT);
-        if (tos != null) {
-            tos.click();
-        }
-    }
-
-    /**
-     * To launch an activity
-     * @param pkg
-     * @param activityCls
-     * @param intent
-     * @return
-     */
-    public Activity launchActivity(String pkg, Class activityCls, Intent intent) {
-        intent.setClassName(pkg, activityCls.getName());
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        return getInstrumentation().startActivitySync(intent);
-    }
-
-
 }
