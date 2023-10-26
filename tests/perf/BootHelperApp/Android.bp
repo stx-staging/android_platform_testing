@@ -25,11 +25,8 @@ android_test {
     sdk_version: "current",
     libs: ["android.test.runner.stubs"],
     static_libs: [
-        "health-testing-utils",
-        "systemui-helper",
-        "systemui-tapl",
-        "ub-uiautomator",
-        "uiautomator-helpers",
+        "androidx.test.rules",
+        "androidx.test.uiautomator_uiautomator",
     ],
 
     test_suites: ["device-tests"],
