@@ -57,13 +57,47 @@ public final class SetFlagsRule implements TestRule {
      * value of current release configuration.
      *
      * <p>This methods should be called before calling enable/disableFlags
+     *
+     * @deprecated Prefer {@link #SetFlagsRule(SetFlagsRule.DefaultInitValueType.DEVICE_DEFAULT)}
      */
+    @Deprecated
     public void initAllFlagsToReleaseConfigDefault() {
         if (!mIsInitWithDefault) {
             mFlagsClassToRealFlagsImpl.clear();
             mFlagsClassToFakeFlagsImpl.clear();
         }
         mIsInitWithDefault = true;
+    }
+
+    public enum DefaultInitValueType {
+        /**
+         * Initialize flag value as null
+         *
+         * <p>Flag value need to be set before using
+         */
+        NULL_DEFAULT,
+
+        /**
+         * Initialize flag value with the default value from the device
+         *
+         * <p>If flag value is not overridden by adb, then the default value is from the release
+         * configuration when the test is built.
+         */
+        DEVICE_DEFAULT,
+    }
+
+    public SetFlagsRule() {
+        this(DefaultInitValueType.NULL_DEFAULT);
+    }
+
+    public SetFlagsRule(DefaultInitValueType defaultType) {
+        switch (defaultType) {
+            case DEVICE_DEFAULT:
+                mIsInitWithDefault = true;
+                break;
+            default:
+                break;
+        }
     }
 
     /**
