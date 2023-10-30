@@ -87,6 +87,8 @@ class Transition(
 
     @JsName("handler") val handler = shellData.handler
 
+    @JsName("merged") val merged: Boolean = shellData.mergeTime != null
+
     @JsName("played") val played: Boolean = wmData.finishTime != null
 
     @JsName("aborted")
