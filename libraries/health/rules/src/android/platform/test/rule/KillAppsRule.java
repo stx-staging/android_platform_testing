@@ -16,16 +16,14 @@
 package android.platform.test.rule;
 
 import androidx.annotation.VisibleForTesting;
-
 import org.junit.runner.Description;
 import org.junit.runners.model.InitializationError;
 
 /**
- * This rule will kill the provided apps before/after running each test method.
+ * This rule will kill the provided apps before running each test method.
  */
 public class KillAppsRule extends TestWatcher {
     private final String[] mApplications;
-    private boolean mKillAppsBeforeTest;
 
     @VisibleForTesting
     static final String KILL_APP = "kill-app";
@@ -35,30 +33,11 @@ public class KillAppsRule extends TestWatcher {
     }
 
     public KillAppsRule(String... applications) {
-        this(true, applications);
-    }
-
-    public KillAppsRule(boolean before, String... applications) {
         mApplications = applications;
-        mKillAppsBeforeTest = before;
     }
 
     @Override
     protected void starting(Description description) {
-        if (mKillAppsBeforeTest) {
-            killApp();
-        }
-
-    }
-
-    @Override
-    protected void finished(Description description) {
-        if (!mKillAppsBeforeTest) {
-            killApp();
-        }
-    }
-
-    private void killApp() {
         // Check if killing the app after launch is selected or not.
         boolean killApp = Boolean.parseBoolean(getArguments().getString(KILL_APP, "true"));
         if (!killApp) {
@@ -69,5 +48,6 @@ public class KillAppsRule extends TestWatcher {
         for (String app : mApplications) {
             executeShellCommand(String.format("am force-stop %s", app));
         }
+
     }
 }
