@@ -22,6 +22,7 @@ import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.ActivityManager;
+import android.app.HomeVisibilityListener;
 import android.app.Instrumentation;
 import android.app.UiAutomation;
 import android.content.ActivityNotFoundException;
@@ -57,9 +58,13 @@ import androidx.test.uiautomator.UiObject2;
 import androidx.test.uiautomator.UiWatcher;
 import androidx.test.uiautomator.Until;
 
+import com.android.compatibility.common.util.ShellIdentityUtils;
+import com.android.compatibility.common.util.TestUtils;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class AbstractStandardAppHelper2 implements IAppHelper {
     private static final String LOG_TAG = AbstractStandardAppHelper2.class.getSimpleName();
@@ -68,6 +73,7 @@ public abstract class AbstractStandardAppHelper2 implements IAppHelper {
     private static final String USE_HOME_CMD = "press-home-to-exit";
     private static final String APP_IDLE_OPTION = "app-idle_ms";
     private static final String LAUNCH_TIMEOUT_OPTION = "app-launch-timeout_ms";
+    private static final String UNROOT_NON_PIXEL = "unroot-non-pixel";
     private static final String ERROR_NOT_FOUND =
             "Element %s %s is not found in the application %s";
 
@@ -83,6 +89,7 @@ public abstract class AbstractStandardAppHelper2 implements IAppHelper {
             KeyCharacterMap.load(KeyCharacterMap.VIRTUAL_KEYBOARD);
     private final boolean mFavorShellCommands;
     private final boolean mPressHomeToExit;
+    private final boolean mUnrootNonPixel;
     private final long mAppIdle;
     private final long mLaunchTimeout;
 
@@ -104,6 +111,10 @@ public abstract class AbstractStandardAppHelper2 implements IAppHelper {
         mPressHomeToExit =
                 Boolean.valueOf(
                         InstrumentationRegistry.getArguments().getString(USE_HOME_CMD, "false"));
+        mUnrootNonPixel =
+                Boolean.valueOf(
+                        InstrumentationRegistry.getArguments()
+                                .getString(UNROOT_NON_PIXEL, "false"));
         mAppIdle =
                 Long.valueOf(
                         InstrumentationRegistry.getArguments()
@@ -231,12 +242,20 @@ public abstract class AbstractStandardAppHelper2 implements IAppHelper {
             Trace.beginSection("favor shell commands, launching");
             String output = null;
             try {
-                Log.i(LOG_TAG, String.format("Sending command to launch: %s", pkg));
-                mInstrumentation
-                        .getContext()
-                        .startActivityAsUser(
-                                getOpenAppIntent().addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-                                UserHandle.CURRENT);
+                if (mUnrootNonPixel) {
+                    Log.i(LOG_TAG, String.format("Sending command to launch: %s", pkg));
+                    mInstrumentation
+                            .getContext()
+                            .startActivity(
+                                    getOpenAppIntent().addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                } else {
+                    Log.i(LOG_TAG, String.format("Sending command to launch: %s", pkg));
+                    mInstrumentation
+                            .getContext()
+                            .startActivityAsUser(
+                                    getOpenAppIntent().addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                                    UserHandle.CURRENT);
+                }
             } catch (ActivityNotFoundException e) {
                 removeDialogWatchers();
                 throw new TestHelperException(String.format("Failed to find package: %s", pkg), e);
@@ -305,6 +324,13 @@ public abstract class AbstractStandardAppHelper2 implements IAppHelper {
     @Override
     public void exit() {
         Log.i(LOG_TAG, "Exiting the current application.");
+        ActivityManager activityManager = null;
+        final AtomicBoolean isHomeVisible = new AtomicBoolean();
+
+        if (mUnrootNonPixel) {
+            activityManager = mInstrumentation.getContext().getSystemService(ActivityManager.class);
+        }
+
         if (mPressHomeToExit) {
             mDevice.pressHome();
             mDevice.waitForIdle();
@@ -321,9 +347,40 @@ public abstract class AbstractStandardAppHelper2 implements IAppHelper {
                 mDevice.pressHome();
             }
         }
-        if (!mDevice.wait(
-                Until.hasObject(getLauncherStrategy().getWorkspaceSelector()), EXIT_WAIT_TIMEOUT)) {
-            throw new IllegalStateException("Failed to exit the app to launcher.");
+
+        // Check if home is visible for unroot non-pixel devices.
+        if (mUnrootNonPixel) {
+            final HomeVisibilityListener homeVisibilityListener =
+                    new HomeVisibilityListener() {
+                        @Override
+                        public void onHomeVisibilityChanged(boolean isHomeActivityVisible) {
+                            Log.i(LOG_TAG, "onHomeVisibilityChanged: " + isHomeActivityVisible);
+                            isHomeVisible.set(isHomeActivityVisible);
+                        }
+                    };
+
+            ShellIdentityUtils.invokeMethodWithShellPermissionsNoReturn(
+                    activityManager,
+                    (am) -> am.addHomeVisibilityListener(Runnable::run, homeVisibilityListener));
+
+            try {
+                TestUtils.waitUntil(
+                        "Failed to exit the app to launcher",
+                        WAIT_TIME_MS / 1000,
+                        isHomeVisible::get);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            } finally {
+                ShellIdentityUtils.invokeMethodWithShellPermissionsNoReturn(
+                        activityManager,
+                        (am) -> am.removeHomeVisibilityListener(homeVisibilityListener));
+            }
+        } else {
+            if (!mDevice.wait(
+                    Until.hasObject(getLauncherStrategy().getWorkspaceSelector()),
+                    EXIT_WAIT_TIMEOUT)) {
+                throw new IllegalStateException("Failed to exit the app to launcher.");
+            }
         }
         restoreNotificationPermissionState();
     }
