@@ -1966,7 +1966,7 @@
         "CONFIG": {
           "UI_ELEMENT": {
             "TYPE": "TEXT",
-            "VALUE": "Bluetooth"
+            "VALUE": "Connected devices"
           }
         },
         "SCROLL_CONFIG": {
