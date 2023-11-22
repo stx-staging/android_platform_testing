@@ -529,3 +529,9 @@ class CallUtils:
         logging.info('Is Bluetooth Palette Media Button Enabled')
         return self.device.mbs.isBluetoothMediaButtonEnabled()
 
+    def enable_driving_mode(self):
+        self.device.mbs.enableDrivingMode()
+
+    def disable_driving_mode(self):
+        self.device.mbs.disableDrivingMode()
+
