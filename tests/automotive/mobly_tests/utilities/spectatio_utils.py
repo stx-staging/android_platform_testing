@@ -614,3 +614,8 @@ class CallUtils:
         """Performs click operation on Bluetooth Palette media button"""
         self.device.mbs.clickOnBluetoothPaletteMediaButton()
         logging.info("Clicked on bluetooth palette media button")
+
+    def open_notification_on_phone(self, device_target):
+        """Open notifications on Phone"""
+        logging.debug('Open notifications on Phone')
+        self.execute_shell_on_device(device_target, constants.OPEN_NOTIFICATION)
