@@ -26,6 +26,7 @@ class IsSongPlayingTest(bluetooth_base_test.BluetoothBaseTest):
         self.media_utils = MediaUtils(self.target, self.discoverer)
 
     def setup_test(self):
+        self.media_utils.enable_wifi_on_phone_device()
         self.bt_utils.pair_primary_to_secondary()
 
     def test_media_is_song_playing(self):
@@ -49,6 +50,7 @@ class IsSongPlayingTest(bluetooth_base_test.BluetoothBaseTest):
     def teardown_test(self):
         # Close YouTube Music app
         self.media_utils.close_youtube_music_app()
+        super().teardown_test()
 
 
 if __name__ == '__main__':
