@@ -22,6 +22,7 @@
 
 package android.tools.device.traces.monitors
 
+import android.tools.common.Tag
 import android.tools.common.traces.DeviceTraceDump
 import android.tools.common.traces.surfaceflinger.LayersTrace
 import android.tools.common.traces.surfaceflinger.TransactionsTrace
@@ -42,7 +43,8 @@ import perfetto.protos.PerfettoConfig.SurfaceFlingerLayersConfig
  * @throws UnsupportedOperationException If tracing is already activated
  */
 fun withWMTracing(predicate: () -> Unit): WindowManagerTrace {
-    return WindowManagerTraceParser().parse(WindowManagerTraceMonitor().withTracing(predicate))
+    return WindowManagerTraceParser()
+        .parse(WindowManagerTraceMonitor().withTracing(Tag.ALL, predicate))
 }
 
 /**
@@ -58,7 +60,7 @@ fun withSFTracing(
     flags: List<SurfaceFlingerLayersConfig.TraceFlag>? = null,
     predicate: () -> Unit
 ): LayersTrace {
-    val trace = PerfettoTraceMonitor().enableLayersTrace(flags).withTracing(predicate)
+    val trace = PerfettoTraceMonitor().enableLayersTrace(flags).withTracing(Tag.ALL, predicate)
     return TraceProcessorSession.loadPerfettoTrace(trace) { session ->
         LayersTraceParser().parse(session)
     }
@@ -71,9 +73,8 @@ fun withSFTracing(
  * @param predicate Commands to execute
  * @throws UnsupportedOperationException If tracing is already activated
  */
-@JvmOverloads
 fun withTransactionsTracing(predicate: () -> Unit): TransactionsTrace {
-    val trace = PerfettoTraceMonitor().enableTransactionsTrace().withTracing(predicate)
+    val trace = PerfettoTraceMonitor().enableTransactionsTrace().withTracing(Tag.ALL, predicate)
     return TraceProcessorSession.loadPerfettoTrace(trace) { session ->
         TransactionsTraceParser().parse(session)
     }
@@ -105,7 +106,7 @@ fun recordTraces(predicate: () -> Unit): Pair<ByteArray, ByteArray> {
     var wmTraceData = ByteArray(0)
     val layersTraceData =
         PerfettoTraceMonitor().enableLayersTrace().withTracing {
-            wmTraceData = WindowManagerTraceMonitor().withTracing(predicate)
+            wmTraceData = WindowManagerTraceMonitor().withTracing(Tag.ALL, predicate)
         }
 
     return Pair(wmTraceData, layersTraceData)
