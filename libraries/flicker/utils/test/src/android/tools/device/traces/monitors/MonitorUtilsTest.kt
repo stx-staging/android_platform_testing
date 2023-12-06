@@ -45,7 +45,7 @@ class MonitorUtilsTest {
             device.pressRecentApps()
         }
 
-        val dump = DeviceDumpParser.fromTrace(trace.first, trace.second, clearCache = true)
+        val dump = DeviceDumpParser.fromTrace(trace)
         validateTrace(dump)
     }
 
