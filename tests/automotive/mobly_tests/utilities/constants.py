@@ -124,3 +124,4 @@ TIMEZONE_DICT = {
 }
 CLEAR_MESSAGING_APP = 'pm clear com.google.android.apps.messaging'
 DELETE_MESSAGING_DB = 'rm /data/data/com.android.providers.telephony/databases/mmssms.db'
+OPEN_NOTIFICATION = 'service call statusbar 1'
