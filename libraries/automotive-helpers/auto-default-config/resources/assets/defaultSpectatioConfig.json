@@ -384,6 +384,23 @@
       "TYPE": "TEXT",
       "VALUE": "Dial.?pad"
     },
+    "DIAL_PAD_BUTTON": {
+      "TYPE": "MULTIPLE",
+      "SPECIFIERS": [
+        {
+          "TYPE": "CLASS",
+          "VALUE": "android.widget.LinearLayout"
+        },
+        {
+          "TYPE": "HAS_DESCENDANT",
+          "MAX_DEPTH": 2,
+          "DESCENDANT": {
+            "TYPE": "TEXT",
+            "VALUE": "Dialpad"
+          }
+        }
+      ]
+    },
     "FAVORITES_MENU": {
       "TYPE": "TEXT",
       "VALUE": "Favo.?rite.?"
@@ -802,8 +819,7 @@
     },
     "NOTIFICATION_SETTINGS_LAYOUT": {
       "TYPE": "RESOURCE_ID",
-      "VALUE": "car_ui_base_layout_content_container",
-      "PACKAGE": "com.android.car.settings"
+      "VALUE": "car_ui_base_layout_content_container"
     },
     "NOTIFICATION_SETTINGS_TITLE": {
       "TYPE": "TEXT",
@@ -858,7 +874,7 @@
     },
     "STATUS_BAR_BLUETOOTH_SETTINGS_PAGE_TITLE": {
       "TYPE": "TEXT",
-      "VALUE": "Bluetooth"
+      "VALUE": "Connected devices"
     },
     "BT_CONNECTED_STATUS": {
       "TYPE": "TEXT",

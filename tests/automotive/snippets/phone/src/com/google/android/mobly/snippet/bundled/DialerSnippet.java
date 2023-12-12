@@ -40,6 +40,12 @@ public class DialerSnippet implements Snippet {
         mDialerHelper.get().open();
     }
 
+    /** Opens the dial pad from the dialer main screen. */
+    @Rpc(description = "Open Dial Pad.")
+    public void openDialPad() {
+        mDialerHelper.get().openDialPad();
+    }
+
     @Rpc(description = "Open Dial Pad and dial in a number using keypad.")
     public void dialANumber(String phoneNumber) {
         mDialerHelper.get().dialANumber(phoneNumber);
@@ -81,8 +87,8 @@ public class DialerSnippet implements Snippet {
     }
 
     @Rpc(description = "Get the entered on dial pad.")
-    public String getDialInNumber() {
-        return mDialerHelper.get().getDialInNumber();
+    public String getNumberInDialPad() {
+        return mDialerHelper.get().getNumberInDialPad();
     }
 
     @Rpc(description = "Get the home address from an open contacts page.")
@@ -98,6 +104,12 @@ public class DialerSnippet implements Snippet {
     @Rpc(description = "Get the recent entry from Call History.")
     public String getRecentCallHistory() {
         return mDialerHelper.get().getRecentCallHistory();
+    }
+
+    /** RPC to get the number of call history entries */
+    @Rpc(description = "Get the number of entries in the display call history.")
+    public int getNumCallHistoryEntries() {
+        return mDialerHelper.get().getNumberOfCallHistoryEntries();
     }
 
     @Rpc(

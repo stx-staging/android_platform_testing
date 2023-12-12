@@ -101,6 +101,11 @@ class CallUtils:
         logging.info("Opening contacts")
         self.device.mbs.openContacts()
 
+    def open_dialpad(self):
+        """Open the dial pad from the dialer main screen"""
+        logging.info("Opening the dialpad")
+        self.device.mbs.openDialPad()
+
     def open_phone_app(self):
         logging.info("Opening phone app")
         self.device.mbs.openPhoneApp()
@@ -411,6 +416,8 @@ class CallUtils:
         )
         return actual_recent_call_from_history
 
+
+
     def verify_last_dialed_number(self, expected_last_dialed_number):
         actual_last_dialed_number = self.get_recent_call_history()
         actual_last_dialed_number = ''.join(
@@ -549,7 +556,7 @@ class CallUtils:
         return self.device.mbs.isBluetoothMediaButtonEnabled()
 
     def get_dial_in_number(self):
-        return self.device.mbs.getDialInNumber()
+        return self.device.mbs.getNumberInDialPad()
 
     # Verify dialed number on Dial Pad the same as expected
     def verify_dialed_number_on_dial_pad(self, expected_dialed_number):
